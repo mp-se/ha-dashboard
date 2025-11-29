@@ -246,6 +246,7 @@
         'text-center',
         'py-3',
         'text-muted',
+        'mt-4',
         dark_mode ? 'bg-dark' : 'bg-light',
       ]"
     >
