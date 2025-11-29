@@ -1,5 +1,5 @@
 <template>
-  <div class="container overflow-hidden text-center">
+  <div class="container-fluid overflow-hidden text-center">
     <p>&nbsp;</p>
     <div class="row g-3">
       <component

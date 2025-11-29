@@ -241,7 +241,16 @@
     <!-- Dynamic View Rendering from Config -->
     <component :is="getViewComponent(currentView)" :key="currentView" :view-name="currentView" />
 
-    <footer class="text-center py-3 text-muted">(c) 2025 Magnus Persson</footer>
+    <footer
+      :class="[
+        'text-center',
+        'py-3',
+        'text-muted',
+        dark_mode ? 'bg-dark' : 'bg-light',
+      ]"
+    >
+      (c) 2025 Magnus Persson
+    </footer>
   </div>
 </template>
 
@@ -510,27 +519,15 @@ watch(
   }
 }
 
-/* Make cards stand out with light grey background */
+/* Cards use default Bootstrap styling */
 .card {
-  background-color: rgba(248, 249, 250, 0.8) !important;
+  background-color: transparent !important;
   border: 2px solid rgba(222, 226, 230, 0.6) !important;
-  color: #333 !important;
   transition: all 0.2s ease !important;
-}
-
-[data-bs-theme='dark'] .card {
-  background-color: rgba(52, 58, 64, 0.7) !important;
-  border-color: rgba(73, 80, 87, 0.5) !important;
-  color: #f8f9fa !important;
 }
 
 /* Control cards - more prominent, interactive */
 .card-control {
-  background: linear-gradient(
-    135deg,
-    rgba(248, 249, 250, 0.95) 0%,
-    rgba(248, 249, 250, 0.8) 100%
-  ) !important;
   border: 2px solid rgba(0, 123, 255, 0.3) !important;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.08),
@@ -559,7 +556,6 @@ watch(
 
 /* Display cards - subtle */
 .card-display {
-  background-color: rgba(248, 249, 250, 0.6) !important;
   border: 1px solid rgba(222, 226, 230, 0.4) !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
@@ -571,11 +567,6 @@ watch(
 
 /* Status cards - prominent alert styling */
 .card-status {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 193, 7, 0.15) 0%,
-    rgba(255, 193, 7, 0.05) 100%
-  ) !important;
   border: 2px solid rgba(255, 193, 7, 0.5) !important;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.08),
@@ -584,11 +575,6 @@ watch(
 
 .card-status.error {
   border-color: rgba(220, 53, 69, 0.5) !important;
-  background: linear-gradient(
-    135deg,
-    rgba(220, 53, 69, 0.15) 0%,
-    rgba(220, 53, 69, 0.05) 100%
-  ) !important;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.08),
     0 4px 12px rgba(220, 53, 69, 0.1) !important;
@@ -596,11 +582,6 @@ watch(
 
 /* Dark mode variants */
 [data-bs-theme='dark'] .card-control {
-  background: linear-gradient(
-    135deg,
-    rgba(52, 58, 64, 0.95) 0%,
-    rgba(52, 58, 64, 0.8) 100%
-  ) !important;
   border-color: rgba(0, 123, 255, 0.4) !important;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.3),
@@ -616,15 +597,12 @@ watch(
 
 [data-bs-theme='dark'] .card-control.card-active {
   border-color: #28a745 !important;
-  background: linear-gradient(
-    135deg,
-    rgba(40, 167, 69, 0.2) 0%,
-    rgba(40, 167, 69, 0.08) 100%
-  ) !important;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    0 4px 12px rgba(40, 167, 69, 0.15) !important;
 }
 
 [data-bs-theme='dark'] .card-display {
-  background-color: rgba(52, 58, 64, 0.5) !important;
   border-color: rgba(73, 80, 87, 0.3) !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
 }
@@ -655,7 +633,6 @@ watch(
 /* Unavailable cards - desaturated appearance */
 .card.border-warning {
   opacity: 0.7 !important;
-  background-color: rgba(248, 249, 250, 0.5) !important;
   border: 2px dashed rgba(255, 193, 7, 0.5) !important;
 }
 
@@ -675,7 +652,6 @@ watch(
 }
 
 [data-bs-theme='dark'] .card.border-warning {
-  background-color: rgba(52, 58, 64, 0.4) !important;
   border-color: rgba(255, 193, 7, 0.3) !important;
 }
 </style>

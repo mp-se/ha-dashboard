@@ -33,7 +33,7 @@ const entitiesList = computed(() => {
 </script>
 
 <template>
-  <div class="container overflow-hidden text-center">
+  <div class="container-fluid overflow-hidden text-center">
     <p>&nbsp;</p>
     <p class="h3">Component Development View</p>
     <div class="row g-3">

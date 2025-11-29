@@ -1,5 +1,5 @@
 <template>
-  <div class="container overflow-hidden text-center">
+  <div class="container-fluid overflow-hidden text-center">
     <p>&nbsp;</p>
     <p class="h3">Entity Dashboard</p>
 
@@ -49,10 +49,10 @@
           </div>
         </div>
       </div>
-      <div v-for="entity in filteredEntities" :key="entity.entity_id" class="col-md-4">
+      <div v-for="entity in filteredEntities" :key="entity.entity_id" class="col-lg-4 col-md-6">
         <div
           :class="[
-            'card h-100 rounded-4 shadow-lg',
+            'card h-100 rounded-4',
             ['unavailable', 'unknown'].includes(entity.state) ? 'border-warning' : 'border-info',
           ]"
         >

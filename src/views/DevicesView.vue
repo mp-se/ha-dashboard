@@ -1,5 +1,5 @@
 <template>
-  <div class="container overflow-hidden text-center">
+  <div class="container-fluid overflow-hidden text-center">
     <p>&nbsp;</p>
     <p class="h3">Devices</p>
 
@@ -27,8 +27,8 @@
     </div>
 
     <div class="row g-3">
-      <div v-for="device in devices" :key="device.id" class="col-md-4">
-        <div class="card h-100 rounded-4 shadow-lg">
+      <div v-for="device in devices" :key="device.id" class="col-lg-4 col-md-6">
+        <div class="card h-100 rounded-4">
           <div class="card-body text-start">
             <h6 class="card-title">{{ device.name || 'Unnamed Device' }}</h6>
             <small class="text-muted">ID: {{ device.id }}</small>
