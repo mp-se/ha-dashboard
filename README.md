@@ -2,6 +2,8 @@
 
 A Vue.js dashboard app built with Vite that displays real-time sensor data from your local Home Assistant instance. Configure everything via a simple JSON file with support for multiple entity specification methods, dynamic filtering, and flexible card components.
 
+![Dashboard](./dashboard.png)
+
 ## ✨ Features
 
 - **Real-time Updates**: WebSocket connection with automatic reconnection and exponential backoff
@@ -13,6 +15,16 @@ A Vue.js dashboard app built with Vite that displays real-time sensor data from 
 - **Security**: Self-signed SSL certificate support for local LAN deployment
 - **Extensible**: Component-based architecture for easy customization
 - **Error Resilience**: Network failures don't break the UI; connection status always visible
+
+## 🎨 Card Types
+
+The dashboard includes 26+ pre-built card components:
+
+**Entity Controls**: Lights, Switches, Buttons, Select, Media Player
+**Displays**: Sensors, Binary Sensors, Gauges, Chips, Text, Links, Images
+**Information**: Weather, Sun, Person, Energy, Alarms, Printers
+**Layout**: Spacers, Headers, Rows
+**Advanced**: Sensor graphs, Entity lists, Custom getters
 
 ## 🚀 Quick Start
 
