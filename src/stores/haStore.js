@@ -617,22 +617,31 @@ export const useHaStore = defineStore('haStore', () => {
 
   // Fetch numeric history points for a given entity and time range (hours)
   async function fetchHistory(entityId, hours = 24, maxPoints = 200) {
-    if (isLocalMode.value) return [];
-    if (!haUrl.value || !accessToken.value) return [];
+    if (isLocalMode.value) {
+      return [];
+    }
+    if (!haUrl.value || !accessToken.value) {
+      return [];
+    }
 
-    // Check if we have a pending request for this entity
-    const cached = historyRequestCache.get(entityId);
+    // Cache key should include hours to differentiate between different time ranges
+    const cacheKey = `${entityId}:${hours}`;
+    
+    // Check if we have a pending request for this entity with this time range
+    const cached = historyRequestCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < HISTORY_CACHE_TTL) {
-      console.log(`Reusing cached history request for ${entityId}`);
       return cached.promise;
     }
 
     // Create promise for this request
     const promise = (async () => {
       try {
-        const start = new Date(Date.now() - hours * 3600 * 1000).toISOString();
+        const now = Date.now();
+        const startTime = now - hours * 3600 * 1000;
+        const start = new Date(startTime).toISOString();
+        const end = new Date(now).toISOString();
         const base = haUrl.value ? haUrl.value.replace(/\/$/, '') : '';
-        const urlPath = `/api/history/period/${encodeURIComponent(start)}?filter_entity_id=${encodeURIComponent(entityId)}`;
+        const urlPath = `/api/history/period/${start}?end_time=${end}&filter_entity_id=${encodeURIComponent(entityId)}&minimal_response=true`;
         const url = base ? `${base}${urlPath}` : urlPath;
 
         const res = await fetchWithTimeout(
@@ -659,6 +668,7 @@ export const useHaStore = defineStore('haStore', () => {
             errorMessage =
               'History endpoint not found: Verify Home Assistant version supports this API.';
           }
+          console.error('History request error:', errorMessage);
           throw new Error(errorMessage);
         }
 
@@ -671,11 +681,20 @@ export const useHaStore = defineStore('haStore', () => {
         }
 
         const body = await res.json();
-        const arr = (body && body[0]) || [];
+        
+        if (!body || !Array.isArray(body)) {
+          console.warn('Response is not an array! Got type:', typeof body);
+          return [];
+        }
+        
+        const arr = body[0] || [];
         const extracted = arr
-          .map((s) => ({ t: new Date(s.last_changed).getTime(), v: Number(s.state) }))
+          .map((s) => {
+            const t = new Date(s.last_changed).getTime();
+            const v = Number(s.state);
+            return { t, v };
+          })
           .filter((p) => !Number.isNaN(p.v));
-
         if (extracted.length > maxPoints) {
           const step = extracted.length / maxPoints;
           const sampled = [];
@@ -697,11 +716,11 @@ export const useHaStore = defineStore('haStore', () => {
     })();
 
     // Cache the promise
-    historyRequestCache.set(entityId, { promise, timestamp: Date.now() });
+    historyRequestCache.set(cacheKey, { promise, timestamp: Date.now() });
 
     // Clear cache entry after TTL
     setTimeout(() => {
-      historyRequestCache.delete(entityId);
+      historyRequestCache.delete(cacheKey);
     }, HISTORY_CACHE_TTL);
 
     return promise;

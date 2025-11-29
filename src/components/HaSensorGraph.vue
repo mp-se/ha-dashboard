@@ -257,11 +257,13 @@ async function loadHistory() {
     if (!resolvedEntity.value || !resolvedEntity.value.entity_id) {
       throw new Error('No entity provided');
     }
+    console.log('Loading history for:', resolvedEntity.value.entity_id, 'hours:', hoursLocal.value);
     const result = await store.fetchHistory(
       resolvedEntity.value.entity_id,
       hoursLocal.value,
       props.maxPoints
     );
+    console.log('Received', result.length, 'points for', resolvedEntity.value.entity_id);
     points.value = result;
 
     if (resolvedSecondEntity.value && resolvedSecondEntity.value.entity_id) {
@@ -270,6 +272,7 @@ async function loadHistory() {
         hoursLocal.value,
         props.maxPoints
       );
+      console.log('Received', result2.length, 'points for', resolvedSecondEntity.value.entity_id);
       points2.value = result2;
     }
   } catch (e) {
@@ -290,6 +293,7 @@ function cycleHours() {
   } else {
     hoursLocal.value = 24;
   }
+  console.log('Cycling hours to:', hoursLocal.value);
   loadHistory();
 }
 
@@ -314,6 +318,14 @@ onUnmounted(() => {
 watch(
   () => props.entity,
   () => loadHistory()
+);
+
+watch(
+  () => hoursLocal.value,
+  () => {
+    console.log('Hours changed to:', hoursLocal.value, 'loading history');
+    loadHistory();
+  }
 );
 
 // expose some internals if needed
