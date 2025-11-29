@@ -508,4 +508,3 @@ After successful deployment:
 4. **Install the PWA** on your devices for native app experience
 
 For detailed configuration options and card types, see [Configuration Guide](./CONFIGURATION.md).
-
