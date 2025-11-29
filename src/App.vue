@@ -277,15 +277,28 @@ const configErrorBannerTimeout = ref(null);
 // Computed menu items from dashboard config
 const menuItems = computed(() => {
   if (!store.dashboardConfig?.views) {
+    console.log('No views found in dashboardConfig');
     return [];
   }
-  return store.dashboardConfig.views
+  const filtered = store.dashboardConfig.views
     .filter((view) => view.enabled !== false)
     .map((view) => ({
       name: view.name,
       label: view.label,
       icon: view.icon,
     }));
+  
+  // Add dev views if developer mode is enabled
+  if (store.developerMode) {
+    filtered.push(
+      { name: 'dev', label: 'Dev', icon: 'mdi mdi-tools' },
+      { name: 'device', label: 'Devices', icon: 'mdi mdi-devices' },
+      { name: 'raw', label: 'Raw', icon: 'mdi mdi-code-json' }
+    );
+  }
+  
+  console.log('Menu items computed. Total views:', store.dashboardConfig.views.length, 'Filtered:', filtered.length, 'Developer mode:', store.developerMode, 'Items:', filtered);
+  return filtered;
 });
 
 /**

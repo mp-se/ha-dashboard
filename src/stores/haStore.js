@@ -393,10 +393,13 @@ export const useHaStore = defineStore('haStore', () => {
       // Extract configuration values if present
       if (config.app?.developerMode !== undefined) {
         developerMode.value = config.app.developerMode;
+        console.log('Developer mode set to:', developerMode.value);
       }
       if (config.app?.localMode !== undefined) {
         isLocalMode.value = config.app.localMode;
+        console.log('Local mode set to:', isLocalMode.value);
       }
+      console.log('Config loaded successfully. Views:', config.views?.length || 0);
 
       return validationResult;
     } catch (error) {
@@ -501,6 +504,8 @@ export const useHaStore = defineStore('haStore', () => {
 
   const init = async () => {
     console.log('=== Starting initialization ===');
+    console.log('Initial developerMode:', developerMode.value);
+    console.log('Initial localMode:', isLocalMode.value);
     isLoading.value = true;
     needsCredentials.value = false;
     
