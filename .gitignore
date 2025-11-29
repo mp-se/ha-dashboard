@@ -1,0 +1,12 @@
+node_modules
+docker/ssl/*.crt
+docker/ssl/*.key
+public/data/dashboard-config.json
+public/data/local-data.json
+deploy.sh
+copy*.sh
+public/data/local-data.json
+public/data/dashboard-config.json
+dist/data/local-data.json
+dist/data/dashboard-config.json
+.DS_Store

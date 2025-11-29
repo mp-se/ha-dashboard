@@ -1,0 +1,12 @@
+services:
+  ha-dashboard:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - '8080:80'
+      - '8443:443'
+    volumes:
+      - ./public/data:/usr/share/nginx/html/data:ro
+      - ./docker/ssl:/etc/nginx/ssl:ro
+    restart: unless-stopped
