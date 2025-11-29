@@ -1,5 +1,5 @@
 <template>
-  <div class="col-md-4">
+  <div class="col-lg-4 col-md-6">
     <div v-if="!resolvedEntity" class="card card-display h-100 rounded-4 shadow-lg border-warning">
       <div class="card-body text-center text-warning">
         <i class="mdi mdi-alert-circle mdi-24px mb-2"></i>

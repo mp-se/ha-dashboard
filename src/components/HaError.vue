@@ -1,5 +1,5 @@
 <template>
-  <div v-if="shouldShowError" class="col-md-4">
+  <div v-if="shouldShowError" class="col-lg-4 col-md-6">
     <div
       :class="[
         'h-100',

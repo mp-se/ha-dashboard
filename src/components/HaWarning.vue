@@ -1,5 +1,5 @@
 <template>
-  <div v-if="shouldShowWarning" class="col-md-4">
+  <div v-if="shouldShowWarning" class="col-lg-4 col-md-6">
     <div
       :class="[
         'h-100',

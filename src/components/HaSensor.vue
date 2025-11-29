@@ -1,5 +1,5 @@
 <template>
-  <div v-if="entityList.length === 1 && !resolvedEntity" class="col-md-4">
+  <div v-if="entityList.length === 1 && !resolvedEntity" class="col-lg-4 col-md-6">
     <div class="card card-display h-100 rounded-4 shadow-lg border-warning">
       <div class="card-body text-center text-warning">
         <i class="mdi mdi-alert-circle mdi-24px mb-2"></i>
@@ -8,7 +8,7 @@
     </div>
   </div>
 
-  <div v-else-if="entityList.length === 1" class="col-md-4">
+  <div v-else-if="entityList.length === 1" class="col-lg-4 col-md-6">
     <div :class="['card', 'card-display', cardBorderClass, 'h-100', 'rounded-4', 'shadow-lg']">
       <div class="card-body d-flex align-items-center">
         <div class="text-start flex-grow-1">
@@ -35,7 +35,7 @@
     </div>
   </div>
 
-  <div v-else class="col-md-4">
+  <div v-else class="col-lg-4 col-md-6">
     <div :class="['card', 'card-display', 'h-100', 'rounded-4', 'shadow-lg', 'border-info']">
       <div class="card-body">
         <div v-for="ent in entityList" :key="ent" class="mb-3">

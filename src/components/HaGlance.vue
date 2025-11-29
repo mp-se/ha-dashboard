@@ -1,5 +1,5 @@
 <template>
-  <div class="col-md-4">
+  <div class="col-lg-4 col-md-6">
     <div :class="['card', 'card-display', 'h-100', 'rounded-4', 'shadow-lg', 'border-info']">
       <div class="card-body">
         <!-- Entities Grid -->

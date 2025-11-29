@@ -1,5 +1,5 @@
 <template>
-  <div class="col-md-4">
+  <div class="col-lg-4 col-md-6">
     <div :class="['card', 'card-display', cardBorderClass, 'h-75', 'rounded-4', 'shadow-lg']">
       <div class="card-body p-0 d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center p-2">
