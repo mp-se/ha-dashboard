@@ -78,7 +78,10 @@
                   :key="preset.name"
                   type="button"
                   class="color-preset-btn-icon"
-                  :class="{ 'active-color': activeColorPreset?.name === preset.name }"
+                  :class="{ 
+                    'active-color': activeColorPreset?.name === preset.name,
+                    'white-preset': preset.name === 'White'
+                  }"
                   :style="{
                     backgroundColor: preset.color,
                   }"
@@ -407,6 +410,7 @@ const name = computed(
 .preset-btn-icon.active-preset {
   border-color: #007bff;
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+  color: #333;
 }
 .preset-btn-icon:disabled {
   opacity: 0.5;
@@ -425,6 +429,10 @@ const name = computed(
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.color-preset-btn-icon.white-preset {
+  color: #333;
+  background-color: #FFFFFF !important;
 }
 .color-preset-btn-icon:hover:not(:disabled) {
   transform: translateY(-2px);
