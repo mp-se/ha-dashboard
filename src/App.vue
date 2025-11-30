@@ -262,8 +262,8 @@ import PwaInstallModal from './components/PwaInstallModal.vue';
 import CredentialDialog from './components/CredentialDialog.vue';
 
 // Static imports for development views
-import ComponentDevelopmentView from './views/ComponentDevelopmentView.vue';
-import EntityDashboardView from './views/EntityDashboardView.vue';
+import DevelopmentView from './views/DevelopmentView.vue';
+import RawEntityView from './views/RawEntityView.vue';
 import DevicesView from './views/DevicesView.vue';
 
 // Generic config-driven view component
@@ -272,8 +272,8 @@ import JsonConfigView from './views/JsonConfigView.vue';
 // Static development view components
 const devViewComponents = {
   device: DevicesView,
-  dev: ComponentDevelopmentView,
-  raw: EntityDashboardView,
+  dev: DevelopmentView,
+  raw: RawEntityView,
 };
 
 const store = useHaStore();
