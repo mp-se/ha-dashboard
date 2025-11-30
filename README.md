@@ -15,6 +15,8 @@ A Vue.js dashboard app built with Vite that displays real-time sensor data from 
 
 This whole project has been an experiment to see what i could create using Github Copilot and let that do most of the coding and documenation.
 
+Demo is available here: https://mp-se.github.io/ha-dashboard/
+
 
 ## ✨ Features
 
