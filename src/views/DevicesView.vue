@@ -5,29 +5,46 @@
 
     <div class="row mb-3">
       <div class="col-md-6 offset-md-3">
-        <div class="input-group">
-          <input
-            v-model="searchText"
-            class="form-control"
-            type="text"
-            placeholder="Filter devices by name"
-            aria-label="Filter devices by name"
-          />
-          <button
-            v-if="searchText"
-            class="btn btn-outline-secondary"
-            type="button"
-            aria-label="Clear device search"
-            @click="searchText = ''"
-          >
-            ✕
-          </button>
+        <div class="row g-2">
+          <div class="col-md-6">
+            <select
+              v-model="selectedArea"
+              class="form-select"
+              aria-label="Filter devices by area"
+            >
+              <option value="">All Areas</option>
+              <option v-for="area in areas" :key="area.area_id" :value="area.area_id">
+                {{ area.name }}
+              </option>
+              <option value="unassigned">Unassigned</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <div class="input-group">
+              <input
+                v-model="searchText"
+                class="form-control"
+                type="text"
+                placeholder="Filter devices by name"
+                aria-label="Filter devices by name"
+              />
+              <button
+                v-if="searchText"
+                class="btn btn-outline-secondary"
+                type="button"
+                aria-label="Clear device search"
+                @click="searchText = ''"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="row g-3">
-      <div v-for="device in devices" :key="device.id" class="col-lg-4 col-md-6">
+      <div v-for="device in filteredDevices" :key="device.id" class="col-lg-4 col-md-6">
         <div class="card h-100 rounded-4">
           <div class="card-body text-start position-relative">
             <button
@@ -40,7 +57,13 @@
             </button>
             <h6 class="card-title">{{ device.name || 'Unnamed Device' }}</h6>
             <small class="text-muted">ID: {{ device.id }}</small>
-            <p class="mt-2 mb-1">Entities: {{ device.entities?.length || 0 }}</p>
+            <p v-if="getAreaName(device.area_id)" class="mt-2 mb-1">
+              <strong>Area:</strong> {{ getAreaName(device.area_id) }}
+            </p>
+            <p v-else class="mt-2 mb-1">
+              <strong>Area:</strong> <span class="text-muted">Unassigned</span>
+            </p>
+            <p class="mb-1">Entities: {{ device.entities?.length || 0 }}</p>
             <div v-if="device.entities?.length" class="mb-2">
               <small class="text-muted">Entity IDs:</small>
               <ul class="list-unstyled small">
@@ -61,22 +84,50 @@
         </div>
       </div>
     </div>
+
+    <div v-if="filteredDevices.length === 0" class="text-center mt-5">
+      <p class="text-muted">No devices found matching your filters</p>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useHaStore } from '@/stores/haStore';
 import useDebouncedRef from '@/composables/useDebouncedRef';
 
 const store = useHaStore();
 
+const selectedArea = ref('');
 const { input: searchText, debounced: debouncedSearch } = useDebouncedRef('', 300);
 
-const devices = computed(() => {
+const areas = computed(() => {
+  return store.areas || [];
+});
+
+const getAreaName = (areaId) => {
+  if (!areaId) return null;
+  const area = areas.value.find((a) => a.area_id === areaId);
+  return area?.name || null;
+};
+
+const filteredDevices = computed(() => {
+  let filtered = store.devices || [];
+
+  // Filter by area
+  if (selectedArea.value === 'unassigned') {
+    filtered = filtered.filter((d) => !d.area_id);
+  } else if (selectedArea.value) {
+    filtered = filtered.filter((d) => d.area_id === selectedArea.value);
+  }
+
+  // Filter by search text
   const q = (debouncedSearch.value || '').trim().toLowerCase();
-  if (!q) return store.devices;
-  return store.devices.filter((d) => (d.name || '').toLowerCase().includes(q));
+  if (q) {
+    filtered = filtered.filter((d) => (d.name || '').toLowerCase().includes(q));
+  }
+
+  return filtered;
 });
 
 const copyDeviceToClipboard = async (device) => {
@@ -84,6 +135,7 @@ const copyDeviceToClipboard = async (device) => {
     // Create enriched device data with full entity information
     const enrichedDevice = {
       ...device,
+      areaName: getAreaName(device.area_id) || 'Unassigned',
       entities: device.entities?.map(entityId => {
         // Find the full entity data from the store
         return store.sensors.find(sensor => sensor.entity_id === entityId);
@@ -101,6 +153,7 @@ const copyDeviceToClipboard = async (device) => {
       // Create enriched device data with full entity information
       const enrichedDevice = {
         ...device,
+        areaName: getAreaName(device.area_id) || 'Unassigned',
         entities: device.entities?.map(entityId => {
           // Find the full entity data from the store
           return store.sensors.find(sensor => sensor.entity_id === entityId);
