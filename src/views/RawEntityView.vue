@@ -56,7 +56,15 @@
             ['unavailable', 'unknown'].includes(entity.state) ? 'border-warning' : 'border-info',
           ]"
         >
-          <div class="card-body text-start">
+          <div class="card-body text-start position-relative">
+            <button
+              class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-2"
+              type="button"
+              title="Copy entity JSON to clipboard"
+              @click="copyEntityToClipboard(entity)"
+            >
+              <i class="mdi mdi-content-copy"></i>
+            </button>
             <h6 class="card-title">{{ entity.attributes?.friendly_name || entity.entity_id }}</h6>
             <small class="text-muted">{{ entity.entity_id }}</small>
             <p class="mt-2 mb-1"><strong>State:</strong> {{ entity.state }}</p>
@@ -148,5 +156,28 @@ const formatAttributeValue = (v) => {
     }
   }
   return String(v);
+};
+
+const copyEntityToClipboard = async (entity) => {
+  try {
+    const jsonString = JSON.stringify(entity, null, 2);
+    await navigator.clipboard.writeText(jsonString);
+    // Could add a toast notification here if desired
+    console.log('Entity JSON copied to clipboard:', entity.entity_id);
+  } catch (error) {
+    console.error('Failed to copy entity to clipboard:', error);
+    // Fallback for older browsers
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = JSON.stringify(entity, null, 2);
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      console.log('Entity JSON copied to clipboard (fallback):', entity.entity_id);
+    } catch (fallbackError) {
+      console.error('Fallback copy also failed:', fallbackError);
+    }
+  }
 };
 </script>
