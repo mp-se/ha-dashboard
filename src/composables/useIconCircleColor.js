@@ -18,8 +18,56 @@ export const useIconCircleColor = (entity, entityId) => {
   // Get domain and device class
   const domain = entityId ? (typeof entityId === 'string' ? entityId.split('.')[0] : entityId.split('.')[0]) : '';
 
+  // Voltage sensors - handle AC outlets (220V/110V) and DC batteries (12V/24V)
+  // Check voltage BEFORE battery because sensors like 'battery_voltage' could match both
+  if (deviceClass === 'voltage' || /V$|volt/i.test(unit)) {
+    const value = Number(state);
+    if (!Number.isNaN(value)) {
+      // Detect voltage type based on value range
+      // AC voltage ranges: 75-280V covers both 110V (90-130) and 220V (180-250)
+      // DC voltage ranges: 10-16V (12V) or 20-32V (24V)
+      
+      if (value >= 180) {
+        // 220V/240V AC nominal range (and over-voltage)
+        if (value >= 210 && value <= 250) return '#28a745'; // Green - Normal
+        if (value >= 180 && value < 210) return '#fd7e14'; // Orange - Low
+        return '#dc3545'; // Red - Out of range
+      } else if (value >= 90 && value <= 130) {
+        // 110V/120V AC nominal range
+        if (value >= 105 && value <= 130) return '#28a745'; // Green - Normal
+        if (value >= 90 && value < 105) return '#fd7e14'; // Orange - Low
+        return '#dc3545'; // Red - Out of range
+      } else if (value >= 75 && value < 90) {
+        // Below 90V but in AC voltage zone - treat as critical low 110V
+        return '#dc3545'; // Red - Critical low
+      } else if (value >= 130 && value < 180) {
+        // Between AC ranges - treat as AC voltage out of range
+        return '#dc3545'; // Red - Out of range
+      } else if (value >= 10 && value <= 16) {
+        // 12V DC battery range
+        if (value >= 12 && value <= 14.5) return '#28a745'; // Green - Normal
+        if ((value >= 10.5 && value < 12) || (value > 14.5 && value <= 15.2)) return '#fd7e14'; // Orange - Caution
+        return '#dc3545'; // Red - Critical
+      } else if (value >= 5 && value < 10) {
+        // Below 12V battery range but in reasonable DC zone - treat as critical low 12V
+        return '#dc3545'; // Red - Critical low
+      } else if (value >= 20 && value <= 32) {
+        // 24V DC battery range
+        if (value >= 24 && value <= 29) return '#28a745'; // Green - Normal
+        if ((value >= 20 && value < 24) || (value > 29 && value <= 30.4)) return '#fd7e14'; // Orange - Caution
+        return '#dc3545'; // Red - Critical
+      } else if (value >= 16 && value < 20) {
+        // Between 12V and 24V ranges - could be 12V over-charge or 24V under-voltage
+        return '#dc3545'; // Red - Out of range
+      } else {
+        // Other voltage ranges (very low, very high, or unknown)
+        return '#6c757d'; // Grey - Unknown range
+      }
+    }
+  }
+
   // Battery sensors
-  if (deviceClass === 'battery' || (domain === 'sensor' && entityId.includes('battery'))) {
+  if ((deviceClass === 'battery' || (domain === 'sensor' && entityId.includes('battery'))) && deviceClass !== 'voltage') {
     const value = Number(state);
     if (!Number.isNaN(value)) {
       if (value <= 20) return '#dc3545'; // Red - Critical

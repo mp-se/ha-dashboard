@@ -373,6 +373,196 @@ describe('useIconCircleColor', () => {
     });
   });
 
+  describe('Voltage sensors - 220V/240V outlets', () => {
+    it('should return green for normal 220V (210-250V)', () => {
+      const entity = { state: '231', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.voltage_phase1')).toBe('#28a745');
+    });
+
+    it('should return green for lower normal 220V (210V)', () => {
+      const entity = { state: '210', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.voltage_phase1')).toBe('#28a745');
+    });
+
+    it('should return green for upper normal 220V (250V)', () => {
+      const entity = { state: '250', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.voltage_phase1')).toBe('#28a745');
+    });
+
+    it('should return orange for low 220V (180-210V)', () => {
+      const entity = { state: '200', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.voltage_phase1')).toBe('#fd7e14');
+    });
+
+    it('should return orange for minimum low 220V (180V)', () => {
+      const entity = { state: '180', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.voltage_phase1')).toBe('#fd7e14');
+    });
+
+    it('should return red for critical low 220V (< 180V)', () => {
+      const entity = { state: '170', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.voltage_phase1')).toBe('#dc3545');
+    });
+
+    it('should return red for over-voltage 220V (> 250V)', () => {
+      const entity = { state: '260', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.voltage_phase1')).toBe('#dc3545');
+    });
+
+    it('should detect 220V by unit without device_class', () => {
+      const entity = { state: '225', attributes: { unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.voltage')).toBe('#28a745');
+    });
+  });
+
+  describe('Voltage sensors - 110V/120V outlets', () => {
+    it('should return green for normal 110V (105-130V)', () => {
+      const entity = { state: '115', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.voltage_110')).toBe('#28a745');
+    });
+
+    it('should return green for lower normal 110V (105V)', () => {
+      const entity = { state: '105', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.voltage_110')).toBe('#28a745');
+    });
+
+    it('should return green for upper normal 110V (130V)', () => {
+      const entity = { state: '130', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.voltage_110')).toBe('#28a745');
+    });
+
+    it('should return orange for low 110V (90-105V)', () => {
+      const entity = { state: '98', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.voltage_110')).toBe('#fd7e14');
+    });
+
+    it('should return orange for minimum low 110V (90V)', () => {
+      const entity = { state: '90', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.voltage_110')).toBe('#fd7e14');
+    });
+
+    it('should return red for critical low 110V (< 90V)', () => {
+      const entity = { state: '85', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.voltage_110')).toBe('#dc3545');
+    });
+
+    it('should return red for over-voltage 110V (> 130V)', () => {
+      const entity = { state: '135', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.voltage_110')).toBe('#dc3545');
+    });
+  });
+
+  describe('Voltage sensors - 12V DC battery', () => {
+    it('should return green for normal 12V battery (12-14.5V)', () => {
+      const entity = { state: '13.2', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.battery_voltage')).toBe('#28a745');
+    });
+
+    it('should return green for lower normal 12V (12V)', () => {
+      const entity = { state: '12.0', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.battery_voltage')).toBe('#28a745');
+    });
+
+    it('should return green for upper normal 12V (14.5V)', () => {
+      const entity = { state: '14.5', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.battery_voltage')).toBe('#28a745');
+    });
+
+    it('should return orange for low 12V battery (10.5-12V)', () => {
+      const entity = { state: '11.2', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.battery_voltage')).toBe('#fd7e14');
+    });
+
+    it('should return orange for minimum low 12V (10.5V)', () => {
+      const entity = { state: '10.5', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.battery_voltage')).toBe('#fd7e14');
+    });
+
+    it('should return orange for over-charge 12V (14.5-15.2V)', () => {
+      const entity = { state: '14.8', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.battery_voltage')).toBe('#fd7e14');
+    });
+
+    it('should return orange for maximum over-charge 12V (15.2V)', () => {
+      const entity = { state: '15.2', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.battery_voltage')).toBe('#fd7e14');
+    });
+
+    it('should return red for critically low 12V battery (< 10.5V)', () => {
+      const entity = { state: '10.0', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.battery_voltage')).toBe('#dc3545');
+    });
+
+    it('should return red for extreme low 12V battery (< 10V)', () => {
+      const entity = { state: '9.5', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.battery_voltage')).toBe('#dc3545');
+    });
+
+    it('should return red for dangerous over-charge 12V (> 15.2V)', () => {
+      const entity = { state: '15.5', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.battery_voltage')).toBe('#dc3545');
+    });
+
+    it('should detect 12V battery by entity name pattern', () => {
+      const entity = { state: '13.1', attributes: { unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.libatt_battery_voltage')).toBe('#28a745');
+    });
+  });
+
+  describe('Voltage sensors - 24V DC battery', () => {
+    it('should return green for normal 24V battery (24-29V)', () => {
+      const entity = { state: '26.4', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.battery_24v_voltage')).toBe('#28a745');
+    });
+
+    it('should return green for lower normal 24V (24V)', () => {
+      const entity = { state: '24.0', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.battery_24v_voltage')).toBe('#28a745');
+    });
+
+    it('should return green for upper normal 24V (29V)', () => {
+      const entity = { state: '29.0', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.battery_24v_voltage')).toBe('#28a745');
+    });
+
+    it('should return orange for low 24V battery (20-24V)', () => {
+      const entity = { state: '22.4', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.battery_24v_voltage')).toBe('#fd7e14');
+    });
+
+    it('should return orange for over-charge 24V (29-30.4V)', () => {
+      const entity = { state: '29.6', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.battery_24v_voltage')).toBe('#fd7e14');
+    });
+
+    it('should return red for critically low 24V (< 20V)', () => {
+      const entity = { state: '19.0', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.battery_24v_voltage')).toBe('#dc3545');
+    });
+
+    it('should return red for dangerous over-charge 24V (> 30.4V)', () => {
+      const entity = { state: '31.0', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.battery_24v_voltage')).toBe('#dc3545');
+    });
+  });
+
+  describe('Voltage sensors - edge cases', () => {
+    it('should return grey for unknown voltage range', () => {
+      const entity = { state: '50', attributes: { device_class: 'voltage', unit_of_measurement: 'V' } };
+      expect(useIconCircleColor(entity, 'sensor.unknown_voltage')).toBe('#6c757d');
+    });
+
+    it('should handle voltage with volt unit variant', () => {
+      const entity = { state: '230', attributes: { unit_of_measurement: 'volt' } };
+      expect(useIconCircleColor(entity, 'sensor.voltage')).toBe('#28a745');
+    });
+
+    it('should handle non-numeric voltage state', () => {
+      const entity = { state: 'invalid', attributes: { device_class: 'voltage' } };
+      expect(useIconCircleColor(entity, 'sensor.voltage')).toBe('#6c757d');
+    });
+  });
+
   describe('State-based entities', () => {
     it('should return green for switch on', () => {
       const entity = { state: 'on', attributes: {} };
