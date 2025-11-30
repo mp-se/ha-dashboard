@@ -1,21 +1,21 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
-import EntityDashboardView from '../EntityDashboardView.vue';
+import RawEntityView from '../RawEntityView.vue';
 import { createPinia, setActivePinia } from 'pinia';
 import { useHaStore } from '../../stores/haStore';
 
-describe('EntityDashboardView.vue', () => {
+describe('RawEntityView.vue', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
   });
 
   it('renders the view title', () => {
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     expect(wrapper.text()).toContain('Entity Dashboard');
   });
 
   it('renders the filter controls', () => {
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     expect(wrapper.find('select').exists()).toBe(true);
     expect(wrapper.find('input[placeholder*="Filter by name"]').exists()).toBe(true);
     expect(wrapper.find('input[type="checkbox"]').exists()).toBe(true);
@@ -30,7 +30,7 @@ describe('EntityDashboardView.vue', () => {
       { entity_id: 'switch.pump', state: 'off', attributes: {} },
     ];
 
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     const options = wrapper.findAll('select option');
     
     // Should have "All Types" + 3 unique types (sensor, light, switch)
@@ -46,7 +46,7 @@ describe('EntityDashboardView.vue', () => {
       { entity_id: 'switch.pump', state: 'off', attributes: { friendly_name: 'Pump' } },
     ];
 
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     const select = wrapper.find('select');
     
     await select.setValue('sensor');
@@ -65,7 +65,7 @@ describe('EntityDashboardView.vue', () => {
       { entity_id: 'sensor.pressure', state: '1013', attributes: { friendly_name: 'Pressure' } },
     ];
 
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     const input = wrapper.find('input[placeholder*="Filter by name"]');
     
     await input.setValue('humidity');
@@ -87,7 +87,7 @@ describe('EntityDashboardView.vue', () => {
       { entity_id: 'sensor.pressure', state: '1013', attributes: { friendly_name: 'Press' } },
     ];
 
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     const input = wrapper.find('input[placeholder*="Filter by name"]');
     
     await input.setValue('pressure');
@@ -109,7 +109,7 @@ describe('EntityDashboardView.vue', () => {
       { entity_id: 'sensor.unknown', state: 'unknown', attributes: { friendly_name: 'Unknown' } },
     ];
 
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     let cards = wrapper.findAll('.card');
     expect(cards.length).toBe(3); // All shown initially
 
@@ -129,7 +129,7 @@ describe('EntityDashboardView.vue', () => {
       { entity_id: 'sensor.no_name', state: 'on', attributes: {} },
     ];
 
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     const titles = wrapper.findAll('.card-title');
     
     expect(titles[0].text()).toBe('Named Sensor');
@@ -142,7 +142,7 @@ describe('EntityDashboardView.vue', () => {
       { entity_id: 'sensor.test', state: '25.5', attributes: { friendly_name: 'Test' } },
     ];
 
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     expect(wrapper.text()).toContain('25.5');
   });
 
@@ -163,7 +163,7 @@ describe('EntityDashboardView.vue', () => {
       },
     ];
 
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     const text = wrapper.text();
     
     // Should contain custom attributes
@@ -187,7 +187,7 @@ describe('EntityDashboardView.vue', () => {
       },
     ];
 
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     expect(wrapper.text()).toContain('red, green, blue');
   });
 
@@ -204,7 +204,7 @@ describe('EntityDashboardView.vue', () => {
       },
     ];
 
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     expect(wrapper.text()).toContain('{"nested":"value"}');
   });
 
@@ -214,7 +214,7 @@ describe('EntityDashboardView.vue', () => {
       { entity_id: 'sensor.temperature', state: '25', attributes: { friendly_name: 'Temperature' } },
     ];
 
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     const input = wrapper.find('input[placeholder*="Filter by name"]');
     
     await input.setValue('test');
@@ -237,7 +237,7 @@ describe('EntityDashboardView.vue', () => {
       { entity_id: 'sensor.unavailable', state: 'unavailable', attributes: {} },
     ];
 
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     const cards = wrapper.findAll('.card');
     
     expect(cards[0].classes()).toContain('border-info');
@@ -248,7 +248,7 @@ describe('EntityDashboardView.vue', () => {
     const store = useHaStore();
     store.sensors = [];
 
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     const cards = wrapper.findAll('.card');
     expect(cards.length).toBe(0);
   });
@@ -277,7 +277,7 @@ describe('EntityDashboardView.vue', () => {
       { entity_id: 'sensor.test', state: 'on', attributes },
     ];
 
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     const attributeElements = wrapper.findAll('li');
     
     // Should show 12 attributes (after blacklist filtering)
@@ -298,7 +298,7 @@ describe('EntityDashboardView.vue', () => {
       },
     ];
 
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     
     // Should render without errors
     expect(wrapper.find('.card-body').exists()).toBe(true);
@@ -310,7 +310,7 @@ describe('EntityDashboardView.vue', () => {
       { entity_id: 'sensor.test', state: 'on' },
     ];
 
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     expect(wrapper.find('.card-body').exists()).toBe(true);
   });
 
@@ -323,7 +323,7 @@ describe('EntityDashboardView.vue', () => {
       { entity_id: 'sensor.pressure', state: 'unavailable', attributes: { friendly_name: 'Pressure' } },
     ];
 
-    const wrapper = mount(EntityDashboardView);
+    const wrapper = mount(RawEntityView);
     const select = wrapper.find('select');
     const input = wrapper.find('input[placeholder*="Filter by name"]');
     const checkbox = wrapper.find('input[type="checkbox"]');
