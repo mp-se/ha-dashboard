@@ -3,8 +3,11 @@
     <div :class="['card', 'card-display', cardBorderClass, 'h-75', 'rounded-4', 'shadow-lg']">
       <div class="card-body p-0 d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center p-2">
-          <div v-if="iconClass" class="me-2">
-            <i :class="iconClass" style="font-size: 1.5rem"></i>
+          <div v-if="iconClass" class="icon-circle-wrapper-slim me-2">
+            <svg width="36" height="36" viewBox="0 0 40 40" class="icon-circle">
+              <circle cx="20" cy="20" r="18" :fill="iconCircleColor" />
+            </svg>
+            <i :class="iconClass" class="icon-overlay-slim"></i>
           </div>
           <div class="ha-sensor-value fw-bold small">{{ formattedValue }}</div>
         </div>
@@ -20,6 +23,7 @@
 import { computed } from 'vue';
 import { useHaStore } from '@/stores/haStore';
 import { useIconClass } from '@/composables/useIconClass';
+import { useIconCircleColor } from '@/composables/useIconCircleColor';
 
 const props = defineProps({
   entity: {
@@ -57,6 +61,19 @@ const resolvedEntity = computed(() => {
 });
 
 const state = computed(() => resolvedEntity.value?.state ?? 'unknown');
+
+// Get entity ID for icon circle color calculation
+const entityId = computed(() => {
+  if (typeof props.entity === 'string') {
+    return props.entity;
+  }
+  return resolvedEntity.value?.entity_id || '';
+});
+
+// Calculate icon circle color
+const iconCircleColor = computed(() => {
+  return useIconCircleColor(resolvedEntity.value, entityId.value);
+});
 
 // Format numbers if possible, otherwise show raw state
 const formattedValue = computed(() => {
@@ -98,5 +115,29 @@ const iconClass = computed(() => {
 /* Sensor value should be slightly smaller than the name but still prominent */
 .ha-sensor-value {
   font-size: 0.95rem;
+}
+
+.icon-circle-wrapper-slim {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.icon-circle {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.icon-overlay-slim {
+  position: relative;
+  z-index: 1;
+  font-size: 1.2rem;
+  color: white;
 }
 </style>

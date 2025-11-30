@@ -5,8 +5,13 @@
         <!-- Entities Grid -->
         <div class="glance-grid">
           <div v-for="ent in entityList" :key="getEntityId(ent)" class="glance-item">
-            <!-- Icon -->
-            <i v-if="getIconClass(ent)" :class="getIconClass(ent)" class="glance-icon"></i>
+            <!-- Icon with circle background -->
+            <div v-if="getIconClass(ent)" class="icon-circle-wrapper-glance">
+              <svg width="44" height="44" viewBox="0 0 40 40" class="icon-circle">
+                <circle cx="20" cy="20" r="18" :fill="getIconCircleColor(ent)" />
+              </svg>
+              <i :class="getIconClass(ent)" class="icon-overlay-glance"></i>
+            </div>
 
             <!-- Name and State -->
             <div class="glance-content">
@@ -27,6 +32,7 @@
 import { computed } from 'vue';
 import { useHaStore } from '@/stores/haStore';
 import { useIconClass } from '@/composables/useIconClass';
+import { useIconCircleColor } from '@/composables/useIconCircleColor';
 
 const props = defineProps({
   entity: {
@@ -94,6 +100,13 @@ const getIconClass = (ent) => {
   const entityId = getEntityId(ent);
   return useIconClass(res, entityId);
 };
+
+// Get icon circle color
+const getIconCircleColor = (ent) => {
+  const res = getResolved(ent);
+  const entityId = getEntityId(ent);
+  return useIconCircleColor(res, entityId);
+};
 </script>
 
 <style scoped>
@@ -130,14 +143,29 @@ const getIconClass = (ent) => {
   background-color: rgba(52, 58, 64, 0.5);
 }
 
-.glance-icon {
-  font-size: 1.75rem;
+.icon-circle-wrapper-glance {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
   margin-bottom: 0.5rem;
-  color: #495057;
+  flex-shrink: 0;
 }
 
-[data-bs-theme='dark'] .glance-icon {
-  color: #adb5bd;
+.icon-circle {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.icon-overlay-glance {
+  position: relative;
+  z-index: 1;
+  font-size: 1.5rem;
+  color: white;
 }
 
 .glance-content {

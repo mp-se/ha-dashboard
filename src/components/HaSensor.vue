@@ -29,7 +29,12 @@
               {{ formattedValue }} <small class="text-muted ms-1">{{ unit }}</small>
             </div>
           </div>
-          <i v-if="iconClass" :class="iconClass" style="font-size: 1.5rem"></i>
+          <div v-if="iconClass" class="icon-circle-wrapper">
+            <svg width="40" height="40" viewBox="0 0 40 40" class="icon-circle">
+              <circle cx="20" cy="20" r="18" :fill="iconCircleColor" />
+            </svg>
+            <i :class="iconClass" class="icon-overlay"></i>
+          </div>
         </div>
       </div>
     </div>
@@ -51,7 +56,12 @@
                   <small class="text-muted ms-1">{{ getUnit(ent) }}</small>
                 </div>
               </div>
-              <i v-if="getIconClass(ent)" :class="getIconClass(ent)" style="font-size: 1.5rem"></i>
+              <div v-if="getIconClass(ent)" class="icon-circle-wrapper-small">
+                <svg width="32" height="32" viewBox="0 0 40 40" class="icon-circle">
+                  <circle cx="20" cy="20" r="18" :fill="getIconCircleColor(ent)" />
+                </svg>
+                <i :class="getIconClass(ent)" class="icon-overlay-small"></i>
+              </div>
             </div>
           </div>
         </div>
@@ -65,6 +75,7 @@ import { computed } from 'vue';
 import { useHaStore } from '@/stores/haStore';
 import { useEntityResolver } from '@/composables/useEntityResolver';
 import { useIconClass } from '@/composables/useIconClass';
+import { useIconCircleColor } from '@/composables/useIconCircleColor';
 
 const props = defineProps({
   entity: {
@@ -112,6 +123,20 @@ const { resolvedEntity } = useEntityResolver(
 
 const state = computed(() => resolvedEntity.value?.state ?? 'unknown');
 const unit = computed(() => resolvedEntity.value?.attributes?.unit_of_measurement || '');
+
+// Get entity ID for icon circle color calculation
+const entityId = computed(() => {
+  const firstEntity = Array.isArray(props.entity) ? props.entity[0] : props.entity;
+  if (typeof firstEntity === 'string') {
+    return firstEntity;
+  }
+  return resolvedEntity.value?.entity_id || '';
+});
+
+// Calculate icon circle color
+const iconCircleColor = computed(() => {
+  return useIconCircleColor(resolvedEntity.value, entityId.value);
+});
 
 // Format numbers if possible, otherwise show raw state
 const formattedValue = computed(() => {
@@ -254,11 +279,64 @@ const getIconClass = (ent) => {
     return null;
   }
 };
+
+const getIconCircleColor = (ent) => {
+  try {
+    const res = getResolved(ent);
+    if (!res) return '#6c757d';
+    const entityId = typeof ent === 'string' ? ent : res.entity_id;
+    return useIconCircleColor(res, entityId);
+  } catch (error) {
+    console.warn('Error getting icon circle color for entity:', ent, error);
+    return '#6c757d';
+  }
+};
 </script>
 
 <style scoped>
 /* Sensor value should be slightly smaller than the name but still prominent */
 .ha-sensor-value {
   font-size: 0.95rem;
+}
+
+.icon-circle-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.icon-circle-wrapper-small {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.icon-circle {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.icon-overlay {
+  position: relative;
+  z-index: 1;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.icon-overlay-small {
+  position: relative;
+  z-index: 1;
+  font-size: 1.2rem;
+  color: white;
 }
 </style>

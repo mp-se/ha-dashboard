@@ -1,8 +1,20 @@
+![release](https://img.shields.io/github/v/release/mp-se/ha-dashboard?label=latest%20release)
+![issues](https://img.shields.io/github/issues/mp-se/ha-dashboard)
+![GitHub Stars](https://img.shields.io/github/stars/mp-se/ha-dashboard)
+![Docker Pulls](https://img.shields.io/docker/pulls/mpse2/ha-dashboard)
+![Docker Image Size](https://img.shields.io/docker/image-size/mpse2/ha-dashboard/latest)
+![GitHub Actions](https://img.shields.io/github/actions/workflow/status/mp-se/ha-dashboard/publish.yml)
+![License](https://img.shields.io/github/license/mp-se/ha-dashboard)
+![Last Commit](https://img.shields.io/github/last-commit/mp-se/ha-dashboard)
+
 # Home Assistant Dashboard
 
 A Vue.js dashboard app built with Vite that displays real-time sensor data from your local Home Assistant instance. Configure everything via a simple JSON file with support for multiple entity specification methods, dynamic filtering, and flexible card components.
 
 ![Dashboard](./dashboard.png)
+
+This whole project has been an experiment to see what i could create using Github Copilot and let that do most of the coding and documenation.
+
 
 ## ✨ Features
 

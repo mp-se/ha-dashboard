@@ -22,7 +22,12 @@
         <div v-if="!resolvedEntity" class="small">Entity not found</div>
 
         <div v-else class="d-flex align-items-center">
-          <i v-if="iconClass" :class="iconClass" style="font-size: 1.875rem"></i>
+          <div class="icon-circle-wrapper">
+            <svg width="40" height="40" viewBox="0 0 40 40" class="icon-circle">
+              <circle cx="20" cy="20" r="18" :fill="iconCircleColor" />
+            </svg>
+            <i v-if="iconClass" :class="iconClass" class="icon-overlay"></i>
+          </div>
           <div class="ms-2">
             <div class="fw-bold small">
               {{ formattedValue }} <small v-if="unit" class="text-muted">{{ unit }}</small>
@@ -37,6 +42,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useEntityResolver } from '@/composables/useEntityResolver';
+import { useIconCircleColor } from '@/composables/useIconCircleColor';
 
 const props = defineProps({
   entity: {
@@ -58,6 +64,19 @@ const { resolvedEntity } = useEntityResolver(props.entity);
 
 const state = computed(() => resolvedEntity.value?.state ?? 'unknown');
 const unit = computed(() => resolvedEntity.value?.attributes?.unit_of_measurement || '');
+
+// Get entity ID for icon circle color calculation
+const entityId = computed(() => {
+  if (typeof props.entity === 'string') {
+    return props.entity;
+  }
+  return resolvedEntity.value?.entity_id || '';
+});
+
+// Calculate icon circle color
+const iconCircleColor = computed(() => {
+  return useIconCircleColor(resolvedEntity.value, entityId.value);
+});
 
 // Format numbers if possible, otherwise show raw state
 const formattedValue = computed(() => {
@@ -89,5 +108,29 @@ const iconClass = computed(() => {
 .badge {
   font-size: 0.875rem;
   padding: 0.25rem 0.5rem;
+}
+
+.icon-circle-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.icon-circle {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.icon-overlay {
+  position: relative;
+  z-index: 1;
+  font-size: 1.5rem;
+  color: white;
 }
 </style>
