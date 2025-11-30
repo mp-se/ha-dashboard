@@ -43,6 +43,65 @@ The main configuration file is `public/data/dashboard-config.json`. It defines t
 }
 ```
 
+## Areas & Devices
+
+The dashboard integrates with Home Assistant's area organization and device registry to provide structured views of your smart home:
+
+### Area Entities (Virtual Entities)
+
+When the dashboard loads, it automatically creates **virtual area entities** for each area in Home Assistant. These appear in the sensor list with entity IDs in the format:
+
+```
+area.{area_id}
+```
+
+For example:
+- `area.living_room`
+- `area.bedroom`
+- `area.kitchen`
+
+These virtual entities:
+- Display the area's name, icon, and picture (if available)
+- Can be filtered by in the Entity Dashboard view
+- Help visualize the area-to-device-to-entity hierarchy
+- Are automatically managed and don't require configuration
+
+### Device Organization
+
+Devices are automatically fetched from Home Assistant and:
+- Grouped by their assigned area
+- Include all associated entity mappings
+- Display in the Devices view with area filtering
+- Support searching by device name
+
+### Entity to Device Mapping
+
+The dashboard uses Home Assistant's entity registry to map each entity to its device:
+
+1. **REST API** fetches initial entity states
+2. **WebSocket Entity Registry** provides device_id mappings
+3. **Device Registry** associates devices with areas
+4. Dashboard creates the complete hierarchy: **Area → Device → Entity**
+
+This allows you to:
+- Filter entities by area in the Entity Dashboard
+- View all devices in a specific area
+- See which entities belong to which devices
+- Understand your smart home structure
+
+### Getter Functions for Areas
+
+You can use the area filtering in the dashboard UI or filter entities by area using custom logic:
+
+```json
+{
+  "type": "HaEntityList",
+  "getter": "getSensors"
+}
+```
+
+Combine with the Entity Dashboard's area filter dropdown to view entities grouped by area.
+
 ## Entity Specification Methods
 
 There are three ways to specify which entities to display in a card:
@@ -110,6 +169,11 @@ Getter functions return arrays of entities. The following getters are available:
 
 **Device-based Getters:**
 - `getEntitiesForDevice(deviceId)` — All entities for a specific device
+
+**Area-based Features:**
+- Filter by area in the **Entity Dashboard** view using the area dropdown
+- Virtual area entities can be displayed like any other entity
+- Device view supports filtering by area
 
 ## App Configuration
 
@@ -947,6 +1011,9 @@ To see detailed validation errors:
 5. **Test configuration** by reloading the page (F5) to catch JSON errors
 6. **Use HaSpacer** between sections for better visual hierarchy
 7. **Keep views focused** — one view per topic (lights, climate, security, etc.)
+8. **Organize devices by area** — Use the Devices view with area filtering to see device organization
+9. **Filter entities by area** — Use the Entity Dashboard's area dropdown to view entities by area
+10. **Include virtual area entities** — Display area entities like `area.living_room` to show area status
 
 ## Unsupported Entity Types
 

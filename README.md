@@ -21,8 +21,10 @@ Demo is available here: https://mp-se.github.io/ha-dashboard/
 ## ✨ Features
 
 - **Real-time Updates**: WebSocket connection with automatic reconnection and exponential backoff
+- **Area Organization**: View devices and entities grouped by Home Assistant areas with virtual area entities
 - **JSON Configuration**: Entire dashboard driven by a single configuration file—no code changes needed
 - **Flexible Entity Specification**: Direct references, wildcard patterns, or custom getter functions
+- **Device & Area Support**: Browse devices organized by area, filter entities by area, view area entity mappings
 - **Responsive Design**: Dark mode support with mobile-optimized layout
 - **PWA Support**: Install as a native app on any device
 - **Offline Fallback**: Service worker enables offline access with cached data
@@ -86,7 +88,7 @@ Access at `https://localhost:8443` (or your configured domain).
 ## 📖 Documentation
 
 - **[Installation & Deployment](./INSTALL.md)** — Docker setup, certificate generation, Portainer configuration
-- **[Configuration Guide](./CONFIGURATION.md)** — JSON schema, all card types, entity specification methods, examples
+- **[Configuration Guide](./CONFIGURATION.md)** — JSON schema, all card types, entity specification methods, areas & devices, examples
 
 ## 🔒 Security Notes
 
