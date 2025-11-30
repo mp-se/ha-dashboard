@@ -1,5 +1,5 @@
 <template>
-  <div class="col-md-2">
+  <div class="col-6 col-sm-4 col-md-2">
     <div
       :class="[
         'card',
