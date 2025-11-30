@@ -1,0 +1,44 @@
+name: Build and Publish Demo to GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare demo configuration
+        run: |
+          # Copy example config and enable local mode
+          cp public/data/dashboard-config.example.json public/data/dashboard-config.json
+          # Enable local mode for demo (sets localMode to true)
+          sed -i 's/"localMode": false/"localMode": true/g' public/data/dashboard-config.json
+
+      - name: Build Vite app
+        run: npm run build
+        env:
+          BASE: /ha-dashboard/
+
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          cname: false
