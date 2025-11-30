@@ -9,7 +9,9 @@
             </svg>
             <i :class="iconClass" class="icon-overlay-slim"></i>
           </div>
-          <div class="ha-sensor-value fw-bold small">{{ formattedValue }}</div>
+          <div class="ha-sensor-value fw-bold small">
+            {{ formattedValue }}<span v-if="unit" class="text-muted ms-1">{{ unit }}</span>
+          </div>
         </div>
         <div class="text-end p-2">
           <h6 class="card-title mb-0 h6">{{ name }}</h6>
@@ -24,6 +26,7 @@ import { computed } from 'vue';
 import { useHaStore } from '@/stores/haStore';
 import { useIconClass } from '@/composables/useIconClass';
 import { useIconCircleColor } from '@/composables/useIconCircleColor';
+import { useEntityResolver } from '@/composables/useEntityResolver';
 
 const props = defineProps({
   entity: {
@@ -31,7 +34,7 @@ const props = defineProps({
     required: true,
     validator: (value) => {
       if (typeof value === 'string') {
-        return /^[\w]+\.[\w_]+$/.test(value);
+        return /^[\w]+\.[\w_-]+$/.test(value);
       } else if (typeof value === 'object') {
         return value && value.entity_id && value.state && value.attributes;
       }
@@ -45,20 +48,7 @@ const props = defineProps({
 });
 
 const store = useHaStore();
-
-// Smart entity resolution
-const resolvedEntity = computed(() => {
-  if (typeof props.entity === 'string') {
-    const found = store.sensors.find((s) => s.entity_id === props.entity);
-    if (!found) {
-      console.warn(`Entity "${props.entity}" not found`);
-      return null;
-    }
-    return found;
-  } else {
-    return props.entity;
-  }
-});
+const { resolvedEntity } = useEntityResolver(computed(() => props.entity));
 
 const state = computed(() => resolvedEntity.value?.state ?? 'unknown');
 
@@ -78,16 +68,18 @@ const iconCircleColor = computed(() => {
 // Format numbers if possible, otherwise show raw state
 const formattedValue = computed(() => {
   const s = state.value;
-  if (s === 'unknown' || s === 'unavailable') return s;
+  if (s === 'unknown' || s === 'unavailable') return s.charAt(0).toUpperCase() + s.slice(1);
   // try parse as number
   const n = Number(s);
   if (!Number.isNaN(n)) {
-    // If unit indicates temperature or percent, show one decimal, else show up to 2 decimals
+    // If unit indicates temperature, show one decimal; percent show 0 decimals; otherwise up to 2
     const unit = resolvedEntity.value?.attributes?.unit_of_measurement || '';
-    if ((unit && /°|°C|°F|%|percent/i.test(unit)) || Math.abs(n) < 100) {
+    if (unit && /%|percent/i.test(unit)) {
+      return n.toFixed(0);
+    } else if (unit && /°|°C|°F/i.test(unit)) {
       return n.toFixed(1);
     }
-    return n.toFixed(0);
+    return Math.abs(n) < 100 ? n.toFixed(1) : n.toFixed(0);
   }
   return s;
 });
@@ -102,6 +94,10 @@ const cardBorderClass = computed(() => {
 const name = computed(
   () =>
     resolvedEntity.value?.attributes?.friendly_name || resolvedEntity.value?.entity_id || 'Unknown'
+);
+
+const unit = computed(
+  () => resolvedEntity.value?.attributes?.unit_of_measurement || ''
 );
 
 const iconClass = computed(() => {

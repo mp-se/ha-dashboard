@@ -294,32 +294,63 @@ Displays numeric sensor data with value, unit, and optional attributes.
 
 ### HaSensorGraph
 
-Displays sensor data as a line graph with history.
+Displays sensor data as a line graph with history. Supports comparing 1-3 entities with color-coded lines.
 
-**Use for**: Temperature trends, power usage history, any time-series data
+**Use for**: Comparing multiple sensors of the **same data type** over time (e.g., multiple temperature sensors, multiple power readings)
+
+**Important**: This component is designed to display entities with compatible units and ranges. Using entities with different units or vastly different value ranges may produce misleading visualizations.
 
 **Properties**:
-- `entity` (string, required): Primary sensor entity ID
-- `secondEntity` (string, optional): Second entity for dual-axis graph
+
+- `entity` (string | array, required): Single sensor entity ID or array of 1-3 entity IDs
+  - Single entity: `"sensor.temperature_living_room"`
+  - Multiple entities: `["sensor.temperature_living_room", "sensor.temperature_bedroom"]`
 - `hours` (number, optional, default: 24): Hours of history to display
 - `maxPoints` (number, optional, default: 200): Maximum data points to show
+- `attributes` (array, optional): Additional attributes to display
+
+**Graph Colors**:
+
+- 1st entity: Blue (#0d6efd)
+- 2nd entity: Red (#dc3545)
+- 3rd entity: Green (#198754)
 
 **Examples**:
 
+Single temperature sensor with 48-hour history:
+
 ```json
 {
+  "type": "HaSensorGraph",
   "entity": "sensor.temperature_living_room",
   "hours": 48
 }
 ```
 
+Comparing temperatures from multiple rooms (same data type):
+
 ```json
 {
-  "entity": "sensor.upload_speed",
-  "secondEntity": "sensor.download_speed",
+  "type": "HaSensorGraph",
+  "entity": ["sensor.temperature_living_room", "sensor.temperature_bedroom"],
   "hours": 24
 }
 ```
+
+Comparing power consumption across multiple sources (same unit):
+
+```json
+{
+  "type": "HaSensorGraph",
+  "entity": ["sensor.power_usage_main", "sensor.power_usage_ev_charger", "sensor.power_usage_solar"],
+  "maxPoints": 150
+}
+```
+
+**Migration Note**: If you have existing configurations using `secondEntity`, they will display a deprecation warning. Please migrate to the array syntax:
+
+- Old: `"entity": "sensor.temp", "secondEntity": "sensor.humidity"`
+- New: `"entity": ["sensor.temp_living_room", "sensor.temp_bedroom"]`
 
 ### HaBinarySensor
 

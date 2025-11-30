@@ -19,7 +19,7 @@ export const useIconCircleColor = (entity, entityId) => {
   const domain = entityId ? (typeof entityId === 'string' ? entityId.split('.')[0] : entityId.split('.')[0]) : '';
 
   // Battery sensors
-  if (deviceClass === 'battery' || unit.toLowerCase().includes('%')) {
+  if (deviceClass === 'battery' || (domain === 'sensor' && entityId.includes('battery'))) {
     const value = Number(state);
     if (!Number.isNaN(value)) {
       if (value <= 20) return '#dc3545'; // Red - Critical
@@ -40,23 +40,12 @@ export const useIconCircleColor = (entity, entityId) => {
     }
   }
 
-  // Humidity sensors
-  if (deviceClass === 'humidity' || /humidity|%/.test(unit.toLowerCase())) {
-    const value = Number(state);
-    if (!Number.isNaN(value)) {
-      if (value < 30) return '#dc3545'; // Red - Too low
-      if (value <= 60) return '#28a745'; // Green - Ideal
-      if (value <= 80) return '#fd7e14'; // Orange - Too high
-      return '#dc3545'; // Red - Very high
-    }
-  }
-
-  // WiFi signal strength (percentage or dBm)
-  if (deviceClass === 'signal_strength' || /wifi|signal|strength|rssi|dBm/.test(unit)) {
+  // WiFi signal strength (percentage or dBm) - check before humidity since WiFi can be %
+  if (deviceClass === 'signal_strength' || /wifi|signal|strength|rssi|dBm/i.test(unit)) {
     const value = Number(state);
     if (!Number.isNaN(value)) {
       // Handle percentage
-      if (/%/.test(unit)) {
+      if (/%/i.test(unit)) {
         if (value >= 75) return '#28a745'; // Green - Excellent
         if (value >= 50) return '#20c997'; // Light green - Good
         if (value >= 25) return '#ffc107'; // Yellow - Fair
@@ -70,7 +59,39 @@ export const useIconCircleColor = (entity, entityId) => {
     }
   }
 
-  // Power/Energy sensors
+  // Humidity sensors - check for device_class or 'humidity' keyword
+  if (deviceClass === 'humidity' || /humidity/i.test(unit)) {
+    const value = Number(state);
+    if (!Number.isNaN(value)) {
+      if (value < 30) return '#dc3545'; // Red - Too low
+      if (value <= 60) return '#28a745'; // Green - Ideal
+      if (value <= 80) return '#fd7e14'; // Orange - Too high
+      return '#dc3545'; // Red - Very high
+    }
+  }
+
+  // Generic percentage sensors (% unit with no device class)
+  if (!deviceClass && unit === '%') {
+    const value = Number(state);
+    if (!Number.isNaN(value)) {
+      // Default to humidity interpretation for bare %
+      if (value < 30) return '#dc3545'; // Red - Too low
+      if (value <= 60) return '#28a745'; // Green - Ideal
+      if (value <= 80) return '#fd7e14'; // Orange - Too high
+      return '#dc3545'; // Red - Very high
+    }
+  }
+
+  // Power/Energy sensors - check energy first since it's more specific
+  if (deviceClass === 'energy' || /kwh|mwh|wh(?!\w)/i.test(unit)) {
+    const value = Number(state);
+    if (!Number.isNaN(value)) {
+      // For cumulative energy, just show green (it's informational)
+      return '#28a745'; // Green - Energy tracking
+    }
+  }
+
+  // Power sensors
   if (deviceClass === 'power' || /power|watt|kW|W(?!\w)/.test(unit)) {
     const value = Number(state);
     if (!Number.isNaN(value)) {
@@ -81,26 +102,17 @@ export const useIconCircleColor = (entity, entityId) => {
     }
   }
 
-  // Energy sensors (kWh, MWh, etc)
-  if (deviceClass === 'energy' || /kWh|MWh|Wh(?!\w)/.test(unit)) {
-    const value = Number(state);
-    if (!Number.isNaN(value)) {
-      // For cumulative energy, just show green (it's informational)
-      return '#28a745'; // Green - Energy tracking
-    }
-  }
-
   // Air Quality sensors (CO2, PM2.5, PM10, AQI)
-  if (deviceClass === 'aqi' || /co2|ppm|air.*quality|aqi/.test(unit.toLowerCase())) {
+  if (deviceClass === 'aqi' || /co2|ppm|air.*quality|aqi|pm2\.5|pm10|ug\/m|µg\/m/i.test(unit)) {
     const value = Number(state);
     if (!Number.isNaN(value)) {
-      if (/ppm|co2/.test(unit.toLowerCase())) {
+      if (/ppm|co2/i.test(unit)) {
         // CO2 levels
         if (value < 600) return '#28a745'; // Green - Good
         if (value < 1000) return '#ffc107'; // Yellow - Moderate
         return '#dc3545'; // Red - Poor
       }
-      if (/pm2\.5|pm10|µg\/m³|µg\/m3/.test(unit.toLowerCase())) {
+      if (/pm2\.5|pm10|ug\/m|µg\/m/i.test(unit)) {
         // PM2.5/PM10 levels
         if (value < 35) return '#28a745'; // Green - Good
         if (value < 75) return '#ffc107'; // Yellow - Moderate

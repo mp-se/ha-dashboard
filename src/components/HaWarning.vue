@@ -38,7 +38,7 @@ const props = defineProps({
     required: true,
     validator: (value) => {
       if (typeof value === 'string') {
-        return /^[\w]+\.[\w_]+$/.test(value);
+        return /^[\w]+\.[\w_-]+$/.test(value);
       } else if (typeof value === 'object') {
         return value && value.entity_id && value.state && value.attributes;
       }

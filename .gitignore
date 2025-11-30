@@ -10,4 +10,4 @@ public/data/local-data.json
 *local-data.json
 dist/data/dashboard-config.json
 .DS_Store
-
+coverage/*

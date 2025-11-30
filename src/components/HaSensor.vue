@@ -76,6 +76,7 @@ import { useHaStore } from '@/stores/haStore';
 import { useEntityResolver } from '@/composables/useEntityResolver';
 import { useIconClass } from '@/composables/useIconClass';
 import { useIconCircleColor } from '@/composables/useIconCircleColor';
+import { formatAttributeValue, attributeLabel } from '@/utils/attributeFormatters';
 
 const props = defineProps({
   entity: {
@@ -190,25 +191,6 @@ const extraAttributes = computed(() => {
   return (props.attributes || []).filter((k) => k in attrs).map((k) => [k, attrs[k]]);
 });
 
-const attributeLabel = (k) => {
-  const label = k.replace(/_/g, ' ');
-  return label.charAt(0).toUpperCase() + label.slice(1);
-};
-
-const formatAttributeValue = (v) => {
-  if (v === null || v === undefined) return '';
-  if (Array.isArray(v)) return v.join(', ');
-  if (typeof v === 'object') {
-    try {
-      return JSON.stringify(v);
-    } catch (e) {
-      return String(v);
-    }
-  }
-  return String(v);
-};
-
-// Functions for multiple entities
 const getResolved = (ent) => {
   if (typeof ent === 'string') {
     return store.sensors.find((s) => s.entity_id === ent);

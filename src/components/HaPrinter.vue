@@ -77,6 +77,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useHaStore } from '@/stores/haStore';
+import { formatAttributeValue, attributeLabel } from '@/utils/attributeFormatters';
 
 const props = defineProps({
   entity: {
@@ -84,7 +85,7 @@ const props = defineProps({
     required: true,
     validator: (value) => {
       if (typeof value === 'string') {
-        return /^[\w]+\.[\w_]+$/.test(value);
+        return /^[\w]+\.[\w_-]+$/.test(value);
       } else if (typeof value === 'object') {
         return value && value.entity_id && value.state && value.attributes;
       }
@@ -190,24 +191,6 @@ const extraAttributes = computed(() => {
   const attrs = resolvedEntity.value.attributes || {};
   return (props.attributes || []).filter((k) => k in attrs).map((k) => [k, attrs[k]]);
 });
-
-const attributeLabel = (k) => {
-  const label = k.replace(/_/g, ' ');
-  return label.charAt(0).toUpperCase() + label.slice(1);
-};
-
-const formatAttributeValue = (v) => {
-  if (v === null || v === undefined) return '';
-  if (Array.isArray(v)) return v.join(', ');
-  if (typeof v === 'object') {
-    try {
-      return JSON.stringify(v);
-    } catch (e) {
-      return String(v);
-    }
-  }
-  return String(v);
-};
 </script>
 
 <style scoped>

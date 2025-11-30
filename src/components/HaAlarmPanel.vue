@@ -76,6 +76,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useHaStore } from '@/stores/haStore';
+import { useEntityResolver } from '@/composables/useEntityResolver';
 
 const props = defineProps({
   entity: {
@@ -84,7 +85,7 @@ const props = defineProps({
     validator: (value) => {
       if (typeof value === 'string') {
         // Validate entity ID format
-        return /^[\w]+\.[\w_]+$/.test(value);
+        return /^[\w]+\.[\w_-]+$/.test(value);
       } else if (typeof value === 'object') {
         // Validate entity object structure
         return value && value.entity_id && value.state && value.attributes;
@@ -96,22 +97,7 @@ const props = defineProps({
 });
 
 const store = useHaStore();
-
-// Smart entity resolution
-const resolvedEntity = computed(() => {
-  if (typeof props.entity === 'string') {
-    // String input - lookup from store
-    const found = store.sensors.find((s) => s.entity_id === props.entity);
-    if (!found) {
-      console.warn(`Entity "${props.entity}" not found`);
-      return null;
-    }
-    return found;
-  } else {
-    // Object input - use directly
-    return props.entity;
-  }
-});
+const { resolvedEntity } = useEntityResolver(computed(() => props.entity));
 const code = ref('');
 const isLoading = ref(false);
 const passwordVisible = ref(false);

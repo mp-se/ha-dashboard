@@ -32,6 +32,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useHaStore } from '@/stores/haStore';
+import { useEntityResolver } from '@/composables/useEntityResolver';
 
 const props = defineProps({
   entity: {
@@ -39,7 +40,7 @@ const props = defineProps({
     required: true,
     validator: (value) => {
       if (typeof value === 'string') {
-        return /^[\w]+\.[\w_]+$/.test(value);
+        return /^[\w]+\.[\w_-]+$/.test(value);
       } else if (typeof value === 'object') {
         return value && value.entity_id && value.state && value.attributes;
       }
@@ -67,20 +68,7 @@ const props = defineProps({
 });
 
 const store = useHaStore();
-
-// Smart entity resolution
-const resolvedEntity = computed(() => {
-  if (typeof props.entity === 'string') {
-    const found = store.sensors.find((s) => s.entity_id === props.entity);
-    if (!found) {
-      console.warn(`Entity "${props.entity}" not found`);
-      return null;
-    }
-    return found;
-  } else {
-    return props.entity;
-  }
-});
+const { resolvedEntity } = useEntityResolver(computed(() => props.entity));
 
 // Get the current value to check
 const currentValue = computed(() => {

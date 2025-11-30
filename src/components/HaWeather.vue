@@ -21,7 +21,7 @@
               <h6 class="card-title mb-1">{{ name }}</h6>
               <div class="d-flex align-items-center mb-1">
                 <i v-if="weatherIcon" :class="weatherIcon" class="weather-icon me-1"></i>
-                <div class="weather-condition text-capitalize fw-bold me-2">{{ state }}</div>
+                <div class="weather-condition fw-bold me-2">{{ formatCondition(state) }}</div>
                 <span v-if="windSpeedMs" class="text-primary me-2"
                   >{{ windSpeedMs.toFixed(1) }} m/s</span
                 >
@@ -29,6 +29,10 @@
               </div>
             </div>
             <div class="text-end small">
+              <div v-if="humidity" class="mb-1">
+                <span class="text-muted">Humidity:</span>
+                <span class="fw-bold">{{ humidity }}%</span>
+              </div>
               <div v-if="pressure" class="mb-1">
                 <span class="text-muted">Pressure:</span>
                 <span class="fw-bold">{{ pressure }} {{ pressureUnit }}</span>
@@ -45,6 +49,16 @@
           </div>
           <div v-if="deviceName" class="mt-2 pt-1 border-top">
             <small class="text-muted">{{ deviceName }}</small>
+          </div>
+          <div class="mt-2 pt-2 border-top small">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-muted">Wind:</span>
+              <span class="fw-bold">{{ windSpeed ?? '-' }} km/h</span>
+            </div>
+            <div v-if="uvIndex" class="d-flex justify-content-between">
+              <span class="text-muted">UV Index:</span>
+              <span class="fw-bold">{{ uvIndex }}</span>
+            </div>
           </div>
         </template>
       </div>
@@ -139,8 +153,11 @@ const pressureUnit = computed(() => resolvedEntity.value?.attributes?.pressure_u
 const visibility = computed(() => resolvedEntity.value?.attributes?.visibility);
 const visibilityUnit = computed(() => resolvedEntity.value?.attributes?.visibility_unit || 'km');
 
+const humidity = computed(() => resolvedEntity.value?.attributes?.humidity);
+
 const windSpeed = computed(() => resolvedEntity.value?.attributes?.wind_speed);
 const windBearing = computed(() => resolvedEntity.value?.attributes?.wind_bearing);
+const uvIndex = computed(() => resolvedEntity.value?.attributes?.uv_index);
 
 const windSpeedMs = computed(() => {
   const speed = windSpeed.value;
@@ -156,6 +173,14 @@ const windDirectionArrow = computed(() => {
   const index = Math.round(bearing / 45) % 8;
   return directions[index];
 });
+
+const formatCondition = (text) => {
+  return text
+    .replace(/-/g, ' ')
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
 </script>
 
 <style scoped>

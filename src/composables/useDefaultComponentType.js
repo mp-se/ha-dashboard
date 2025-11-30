@@ -13,22 +13,37 @@ const DEFAULT_DOMAIN_MAP = {
   weather: 'HaWeather',
   update: 'HaBinarySensor',
   sun: 'HaSun',
-  device_tracker: 'HaSensor',
+  device_tracker: 'HaPerson',
   fan: 'HaSwitch',
   media_player: 'HaMediaPlayer',
   select: 'HaSelect',
+  input_select: 'HaSelect',
   button: 'HaButton',
+  input_button: 'HaButton',
   person: 'HaPerson',
   camera: 'HaImage',
 };
 
 /**
  * Get the default component type for a given entity ID or getter name
- * @param {string|Array} entityId - The entity ID (e.g., "light.living_room"), getter name, or array of entities
+ * @param {string|Array|Object} entityId - The entity ID (e.g., "light.living_room"), getter name, array of entities, or entity config object
  * @param {string} getterName - Optional getter function name for type hints
  * @returns {string} Component type (e.g., "HaLight", "HaSensor")
  */
 export function getDefaultComponentType(entityId, getterName = '') {
+  // Handle object with type property (entity config)
+  if (entityId && typeof entityId === 'object' && !Array.isArray(entityId)) {
+    if (entityId.type) {
+      return entityId.type;
+    }
+    if (entityId.entity_id) {
+      // Use entity_id property if type not provided
+      entityId = entityId.entity_id;
+    } else {
+      return 'HaSensor';
+    }
+  }
+
   if (!entityId && !getterName) return 'HaSensor';
 
   const getter = getterName?.toLowerCase() || '';
@@ -56,8 +71,17 @@ export function getDefaultComponentType(entityId, getterName = '') {
     return 'HaSensor';
   }
   
-  const domain = entityStr.split('.')[0]?.toLowerCase();
-  return DEFAULT_DOMAIN_MAP[domain] || 'HaSensor';
+  // IMPORTANT: Domain matching is case-sensitive!
+  const parts = entityStr.split('.');
+  const domain = parts[0];
+  
+  // Only match if domain is lowercase (case-sensitive)
+  if (domain === domain.toLowerCase()) {
+    return DEFAULT_DOMAIN_MAP[domain] || 'HaSensor';
+  }
+  
+  // Domain is not all lowercase, return HaSensor
+  return 'HaSensor';
 }
 
 /**
@@ -84,3 +108,6 @@ export function getDefaultTypeForEntityConfig(entityConfig) {
 
   return 'HaSensor';
 }
+
+// Composable alias for getDefaultComponentType
+export const useDefaultComponentType = getDefaultComponentType;

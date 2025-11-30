@@ -41,7 +41,7 @@ const componentSchemas = {
   },
   HaSensorGraph: {
     required: ['entity'],
-    optional: ['attributes', 'secondEntity', 'hours'],
+    optional: ['attributes', 'hours', 'maxPoints'],
   },
   HaMediaPlayer: {
     required: ['entity'],
@@ -162,7 +162,7 @@ function validateEntity(entityConfig, viewName, entityIndex) {
     'type', 'getter', 'entity', 'attributes',
     // Common optional props
     'operator', 'value', 'message', 'attribute',
-    // HaSensorGraph / HaSensor
+    // HaSensorGraph / HaSensor (secondEntity is deprecated for HaSensorGraph)
     'secondEntity',
     // HaPrinter
     'black', 'cyan', 'magenta', 'yellow',
@@ -172,6 +172,8 @@ function validateEntity(entityConfig, viewName, entityIndex) {
     'title',
     // Gauge
     'min', 'max',
+    // HaSensorGraph
+    'hours', 'maxPoints',
     // Add all component-specific schema props
     ...Object.values(schema.required),
     ...Object.values(schema.optional),
@@ -183,6 +185,15 @@ function validateEntity(entityConfig, viewName, entityIndex) {
         message: `Component '${componentType}' in view '${viewName}' entity '${entityId}' has unknown prop '${prop}'`,
       });
     }
+  }
+
+  // Warn about deprecated secondEntity prop in HaSensorGraph
+  if (componentType === 'HaSensorGraph' && entityConfig.secondEntity) {
+    errors.push({
+      message: `⚠️  DEPRECATED: Component 'HaSensorGraph' in view '${viewName}' entity '${entityId}' uses deprecated 'secondEntity' prop. ` +
+        `Update your config to use array syntax instead: "entity": ["${entityConfig.entity}", "${entityConfig.secondEntity}"] ` +
+        `(supports up to 3 entities)`,
+    });
   }
 
   return {

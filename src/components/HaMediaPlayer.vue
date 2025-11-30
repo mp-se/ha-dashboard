@@ -150,7 +150,7 @@ const name = computed(
 );
 
 const deviceName = computed(() => {
-  const deviceId = props.entity.attributes?.device_id;
+  const deviceId = resolvedEntity.value?.attributes?.device_id;
   if (deviceId) {
     const device = store.devices.find((d) => d.id === deviceId);
     return device?.name || device?.name_by_user || `Device ${deviceId}`;

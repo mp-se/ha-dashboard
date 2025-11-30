@@ -50,6 +50,8 @@
 <script setup>
 import { computed } from 'vue';
 import { useHaStore } from '@/stores/haStore';
+import { useEntityResolver } from '@/composables/useEntityResolver';
+import { formatAttributeValue, attributeLabel } from '@/utils/attributeFormatters';
 
 const props = defineProps({
   entity: {
@@ -77,19 +79,7 @@ const props = defineProps({
 });
 
 const store = useHaStore();
-
-const resolvedEntity = computed(() => {
-  if (typeof props.entity === 'string') {
-    const found = store.sensors.find((s) => s.entity_id === props.entity);
-    if (!found) {
-      console.warn(`Entity "${props.entity}" not found`);
-      return null;
-    }
-    return found;
-  } else {
-    return props.entity;
-  }
-});
+const { resolvedEntity } = useEntityResolver(computed(() => props.entity));
 
 const state = computed(() => resolvedEntity.value?.state ?? 'unknown');
 const unit = computed(() => resolvedEntity.value?.attributes?.unit_of_measurement || '');
@@ -163,24 +153,6 @@ const extraAttributes = computed(() => {
   const attrs = resolvedEntity.value.attributes || {};
   return (props.attributes || []).filter((k) => k in attrs).map((k) => [k, attrs[k]]);
 });
-
-const attributeLabel = (k) => {
-  const label = k.replace(/_/g, ' ');
-  return label.charAt(0).toUpperCase() + label.slice(1);
-};
-
-const formatAttributeValue = (v) => {
-  if (v === null || v === undefined) return '';
-  if (Array.isArray(v)) return v.join(', ');
-  if (typeof v === 'object') {
-    try {
-      return JSON.stringify(v);
-    } catch (e) {
-      return String(v);
-    }
-  }
-  return String(v);
-};
 </script>
 
 <style scoped>

@@ -21,20 +21,30 @@
               <h6 class="card-title mb-1">{{ name }}</h6>
               <div class="d-flex align-items-center mb-1">
                 <i :class="sunIcon" class="sun-icon me-2"></i>
-                <div class="sun-condition text-capitalize fw-bold">
-                  {{ state.replace('_', ' ') }}
+                <div class="sun-condition fw-bold">
+                  {{ formatStateText(state) }}
                 </div>
               </div>
             </div>
             <div class="text-end small">
               <div class="mb-1">
-                <span class="text-muted">Dawn:</span>
+                <span class="text-muted">{{ state === 'above_horizon' ? 'Sunrise' : 'Next Sunrise' }}:</span>
                 <span class="fw-bold">{{ formatTime24h(nextRising) }}</span>
               </div>
               <div>
-                <span class="text-muted">Dusk:</span>
+                <span class="text-muted">{{ state === 'above_horizon' ? 'Sunset' : 'Next Sunset' }}:</span>
                 <span class="fw-bold">{{ formatTime24h(nextSetting) }}</span>
               </div>
+            </div>
+          </div>
+          <div class="mt-2 pt-2 border-top small">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-muted">Elevation:</span>
+              <span class="fw-bold">{{ elevation ?? '-' }}°</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Azimuth:</span>
+              <span class="fw-bold">{{ azimuth ?? '-' }}°</span>
             </div>
           </div>
           <div v-if="deviceName" class="mt-2 pt-1 border-top">
@@ -49,6 +59,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useHaStore } from '@/stores/haStore';
+import { useEntityResolver } from '@/composables/useEntityResolver';
 
 const props = defineProps({
   entity: {
@@ -56,7 +67,7 @@ const props = defineProps({
     required: true,
     validator: (value) => {
       if (typeof value === 'string') {
-        return /^[\w]+\.[\w_]+$/.test(value);
+        return /^[\w]+\.[\w_-]+$/.test(value);
       } else if (typeof value === 'object') {
         return value && value.entity_id && value.state && value.attributes;
       }
@@ -70,20 +81,7 @@ const props = defineProps({
 });
 
 const store = useHaStore();
-
-// Smart entity resolution
-const resolvedEntity = computed(() => {
-  if (typeof props.entity === 'string') {
-    const found = store.sensors.find((s) => s.entity_id === props.entity);
-    if (!found) {
-      console.warn(`Entity "${props.entity}" not found`);
-      return null;
-    }
-    return found;
-  } else {
-    return props.entity;
-  }
-});
+const { resolvedEntity } = useEntityResolver(computed(() => props.entity));
 
 const state = computed(() => resolvedEntity.value?.state ?? 'unknown');
 
@@ -120,8 +118,10 @@ const sunIcon = computed(() => {
 });
 
 // Sun-specific attributes
-const nextRising = computed(() => resolvedEntity.value?.attributes?.next_rising);
-const nextSetting = computed(() => resolvedEntity.value?.attributes?.next_setting);
+const nextRising = computed(() => resolvedEntity.value?.attributes?.next_rising || resolvedEntity.value?.attributes?.sunrise);
+const nextSetting = computed(() => resolvedEntity.value?.attributes?.next_setting || resolvedEntity.value?.attributes?.sunset);
+const elevation = computed(() => resolvedEntity.value?.attributes?.elevation);
+const azimuth = computed(() => resolvedEntity.value?.attributes?.azimuth);
 
 const formatTime24h = (dateString) => {
   if (!dateString) return '--:--';
@@ -134,6 +134,17 @@ const formatTime24h = (dateString) => {
     return '--:--';
   }
 };
+
+const formatStateText = (text) => {
+  return text
+    .replace(/_/g, ' ')
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+const formattedSunrise = computed(() => formatTime24h(nextRising.value));
+const formattedSunset = computed(() => formatTime24h(nextSetting.value));
 </script>
 
 <style scoped>

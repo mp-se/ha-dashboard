@@ -1,10 +1,11 @@
-import { computed } from 'vue';
+import { computed, unref } from 'vue';
 import { useHaStore } from '@/stores/haStore';
 
 /**
  * Composable for resolving Home Assistant entities
  * Handles both string entity IDs and full entity objects
- * @param {string|object} entity - Entity ID string or entity object
+ * Supports both direct values and reactive refs/computed
+ * @param {string|object|Ref|Computed} entity - Entity ID string, entity object, or reactive ref
  * @returns {object} - Computed ref with resolved entity and helper methods
  */
 export const useEntityResolver = (entity) => {
@@ -12,21 +13,24 @@ export const useEntityResolver = (entity) => {
 
   // Resolve entity from string ID or use object directly
   const resolvedEntity = computed(() => {
-    if (typeof entity === 'string') {
-      const found = store.sensors.find((s) => s.entity_id === entity);
+    // Use unref to handle both refs and plain values
+    const entityValue = unref(entity);
+    
+    if (typeof entityValue === 'string') {
+      const found = store.sensors.find((s) => s.entity_id === entityValue);
       if (!found) {
-        console.warn(`Entity "${entity}" not found in store`);
+        console.warn(`Entity "${entityValue}" not found in store`);
         return null;
       }
       return found;
     }
 
     // If it's already an object, return it directly
-    if (entity && typeof entity === 'object') {
-      return entity;
+    if (entityValue && typeof entityValue === 'object') {
+      return entityValue;
     }
 
-    console.warn(`Invalid entity format: ${entity}`);
+    console.warn(`Invalid entity format: ${entityValue}`);
     return null;
   });
 
@@ -49,8 +53,9 @@ export const useEntityResolver = (entity) => {
 
   // Get entity ID (works for both string and object)
   const entityId = computed(() => {
-    if (typeof entity === 'string') {
-      return entity;
+    const entityValue = unref(entity);
+    if (typeof entityValue === 'string') {
+      return entityValue;
     }
     return resolvedEntity.value?.entity_id;
   });
