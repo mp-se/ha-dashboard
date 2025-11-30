@@ -5,6 +5,7 @@ import { validateConfig } from '../utils/configValidator';
 export const useHaStore = defineStore('haStore', () => {
   const sensors = ref([]);
   const devices = ref([]);
+  const areas = ref([]);
   const isLoading = ref(true);
   const isInitialized = ref(false);
   // Store credentials separately - don't initialize from env vars
@@ -114,6 +115,7 @@ export const useHaStore = defineStore('haStore', () => {
       }
       const states = await response.json();
       console.log(`Fetched ${states.length} states`);
+      console.log('Sample sensor attributes:', states.slice(0, 3).map(s => ({ entity_id: s.entity_id, device_id: s.attributes?.device_id, attrs: Object.keys(s.attributes || {}) })));
       sensors.value = states;
     } catch (error) {
       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
@@ -251,6 +253,295 @@ export const useHaStore = defineStore('haStore', () => {
     }
   };
 
+  // Map to track pending websocket commands
+  let wsPendingCommands = new Map();
+  let wsCommandId = 1;
+
+  /**
+   * Send a command via websocket and wait for result
+   */
+  const sendWebSocketCommand = async (command, timeout = 10000) => {
+    return new Promise((resolve, reject) => {
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        reject(new Error('WebSocket not connected'));
+        return;
+      }
+
+      const commandId = wsCommandId++;
+      const timeoutId = setTimeout(() => {
+        wsPendingCommands.delete(commandId);
+        reject(new Error(`WebSocket command timeout after ${timeout}ms`));
+      }, timeout);
+
+      wsPendingCommands.set(commandId, { resolve, reject, timeoutId });
+
+      ws.send(
+        JSON.stringify({
+          id: commandId,
+          ...command,
+        })
+      );
+    });
+  };
+
+  /**
+   * Fetch entity registry via websocket to get device_id mappings
+   */
+  const fetchEntityRegistry = async () => {
+    if (isLocalMode.value || !ws || ws.readyState !== WebSocket.OPEN) {
+      return;
+    }
+
+    try {
+      console.log('Fetching entity registry via websocket');
+      const result = await sendWebSocketCommand({
+        type: 'config/entity_registry/list',
+      });
+
+      let entityRegistry = [];
+      if (Array.isArray(result)) {
+        entityRegistry = result;
+      } else if (result && result.result && Array.isArray(result.result)) {
+        entityRegistry = result.result;
+      }
+
+      console.log(`Fetched ${entityRegistry.length} entities from entity registry`);
+      
+      // Create a map from entity_id to device_id
+      const entityToDeviceMap = new Map();
+      for (const entity of entityRegistry) {
+        if (entity.entity_id && entity.device_id) {
+          entityToDeviceMap.set(entity.entity_id, entity.device_id);
+        }
+      }
+      
+      // Now update sensors with device_id from the registry
+      for (const sensor of sensors.value) {
+        if (!sensor.attributes) {
+          sensor.attributes = {};
+        }
+        if (!sensor.attributes.device_id && entityToDeviceMap.has(sensor.entity_id)) {
+          sensor.attributes.device_id = entityToDeviceMap.get(sensor.entity_id);
+          console.log(`Enriched entity ${sensor.entity_id} with device_id ${sensor.attributes.device_id}`);
+        }
+      }
+      
+      console.log(`Enriched ${entityToDeviceMap.size} entities with device_id from entity registry`);
+    } catch (error) {
+      console.error('Error fetching entity registry via websocket:', error);
+    }
+  };
+
+  /**
+   * Fetch entities with device_id mapping via entity registry
+   */
+  const fetchEntitiesWithDeviceId = async () => {
+    if (isLocalMode.value || !ws || ws.readyState !== WebSocket.OPEN) {
+      return;
+    }
+
+    try {
+      console.log('Fetching entity registry to enrich sensors with device_id');
+      await fetchEntityRegistry();
+    } catch (error) {
+      console.error('Error fetching entities with device_id:', error);
+    }
+  };
+
+  /**
+   * Fetch area registry via websocket
+   */
+  const fetchAreaRegistry = async () => {
+    if (isLocalMode.value || !ws || ws.readyState !== WebSocket.OPEN) {
+      return;
+    }
+
+    try {
+      console.log('Fetching area registry via websocket');
+      const result = await sendWebSocketCommand({
+        type: 'config/area_registry/list',
+      });
+
+      let areasArray = [];
+      if (Array.isArray(result)) {
+        areasArray = result;
+      } else if (result && result.result && Array.isArray(result.result)) {
+        areasArray = result.result;
+      } else if (result && Array.isArray(result)) {
+        areasArray = result;
+      } else {
+        console.warn('Unexpected result format for areas:', result);
+      }
+
+      if (areasArray.length > 0) {
+        // Ensure each area has an entities array
+        areas.value = areasArray.map((area) => ({
+          ...area,
+          entities: area.entities || [],
+        }));
+        console.log(`Fetched ${areas.value.length} areas from websocket`);
+
+        // Create virtual area entities
+        for (const area of areasArray) {
+          const areaEntity = {
+            entity_id: `area.${area.id}`,
+            state: area.name,
+            attributes: {
+              id: area.id,
+              friendly_name: area.name,
+              icon: area.icon,
+              picture: area.picture,
+              aliases: area.aliases,
+            },
+          };
+          // Add to sensors so it shows up in entity list
+          if (!sensors.value.find((s) => s.entity_id === areaEntity.entity_id)) {
+            sensors.value.push(areaEntity);
+          }
+        }
+      } else {
+        console.warn('No areas found in result');
+      }
+    } catch (error) {
+      console.error('Error fetching area registry via websocket:', error);
+    }
+  };
+
+  /**
+   * Fetch device registry via websocket (after authentication)
+   */
+  const fetchDevicesAfterAuth = async () => {
+    if (isLocalMode.value || !ws || ws.readyState !== WebSocket.OPEN) {
+      return;
+    }
+
+    try {
+      console.log('Fetching device registry via websocket');
+      const result = await sendWebSocketCommand(
+        {
+          type: 'config/device_registry/list',
+        },
+        10000
+      );
+
+      let deviceList = [];
+      if (Array.isArray(result)) {
+        deviceList = result;
+      } else if (result && result.result && Array.isArray(result.result)) {
+        deviceList = result.result;
+      } else if (result && result.success && Array.isArray(result)) {
+        deviceList = result;
+      }
+
+      console.log(`Fetched ${deviceList.length} devices from websocket`);
+
+      if (deviceList.length > 0) {
+        // Transform device registry format
+        const devicesArray = deviceList.map((device) => ({
+          id: device.id,
+          name: device.name || 'Unknown',
+          model: device.model || null,
+          manufacturer: device.manufacturer || null,
+          sw_version: device.sw_version || null,
+          hw_version: device.hw_version || null,
+          area_id: device.area_id || null,
+          entities: [],
+        }));
+
+        devices.value = devicesArray;
+        console.log(`Updated devices list with ${devicesArray.length} devices`);
+      } else {
+        console.log('No devices fetched from websocket');
+      }
+    } catch (error) {
+      console.error('Error fetching device registry via websocket:', error);
+    }
+  };
+
+  /**
+   * Map entities to devices based on device_id attribute
+   */
+  const mapEntitiesToDevices = () => {
+    console.log('=== mapEntitiesToDevices called ===');
+    console.log('Current sensors count:', sensors.value.length);
+    console.log('Current devices count:', devices.value.length);
+    console.log('Current areas count:', areas.value.length);
+    
+    if (!sensors.value || sensors.value.length === 0) {
+      console.warn('No sensors loaded yet - cannot map entities');
+      return;
+    }
+
+    if (!devices.value || devices.value.length === 0) {
+      console.log('No devices to map entities to');
+      return;
+    }
+
+    // First, map entities to devices
+    console.log('=== Mapping entities to devices ===');
+    const devicesMap = new Map(devices.value.map((d) => [d.id, d]));
+    let mappedCount = 0;
+    let unmappedCount = 0;
+    let noDeviceIdCount = 0;
+
+    console.log('Devices map size:', devicesMap.size);
+    console.log('Sample devices in map:', Array.from(devicesMap.entries()).slice(0, 3).map(([id, d]) => ({ id, name: d.name, area_id: d.area_id })));
+
+    for (const sensor of sensors.value) {
+      const deviceId = sensor.attributes?.device_id;
+      if (!deviceId) {
+        noDeviceIdCount++;
+        continue;
+      }
+      
+      if (devicesMap.has(deviceId)) {
+        const device = devicesMap.get(deviceId);
+        if (!device.entities.includes(sensor.entity_id)) {
+          device.entities.push(sensor.entity_id);
+          mappedCount++;
+        }
+      } else {
+        unmappedCount++;
+      }
+    }
+
+    console.log(`Mapped ${mappedCount} entities to devices. Unmapped: ${unmappedCount}, No device_id: ${noDeviceIdCount}`);
+    console.log('Sample devices after mapping:', devices.value.filter(d => d.entities.length > 0).slice(0, 3).map(d => ({ id: d.id, name: d.name, area_id: d.area_id, entities: d.entities.length })));
+
+    // Then, map entities to areas via devices
+    console.log('=== Mapping entities to areas via devices ===');
+    const areasMap = new Map(areas.value.map((a) => [a.area_id, a]));
+    console.log('Areas map size:', areasMap.size);
+    console.log('Devices with area_id:', devices.value.filter(d => d.area_id).map(d => ({ id: d.id, name: d.name, area_id: d.area_id, entities: d.entities.length })));
+    
+    let areasWithEntities = 0;
+    for (const device of devices.value) {
+      if (device.area_id && areasMap.has(device.area_id)) {
+        const area = areasMap.get(device.area_id);
+        if (!area.entities) {
+          area.entities = [];
+        }
+        const beforeCount = area.entities.length;
+        for (const entityId of device.entities) {
+          if (!area.entities.includes(entityId)) {
+            area.entities.push(entityId);
+          }
+        }
+        const afterCount = area.entities.length;
+        if (afterCount > beforeCount) {
+          console.log(`Added ${afterCount - beforeCount} entities to area ${device.area_id}`);
+        }
+        if (beforeCount === 0 && afterCount > 0) {
+          areasWithEntities++;
+        }
+      }
+    }
+
+    console.log(`Mapped entities to ${areasWithEntities} areas`);
+    console.log('All areas:', areas.value.map(a => ({ id: a.area_id, name: a.name, entities: a.entities?.length || 0 })));
+    console.log('=== mapEntitiesToDevices complete ===');
+  };
+
   const connectWebSocket = () => {
     if (isLocalMode.value) return;
 
@@ -262,8 +553,9 @@ export const useHaStore = defineStore('haStore', () => {
     // Convert http(s) => ws(s) and ensure slashes are correct
     const wsProtocol = haUrl.value?.startsWith('https') ? 'wss' : 'ws';
     const cleaned = haUrl.value.replace(/^https?:\/\//, '');
-    const wsUrl = `${wsProtocol}://${cleaned}/api/websocket?access_token=${encodeURIComponent(accessToken.value)}`;
-    console.log('Connecting to WebSocket:', wsUrl.replace(accessToken.value, 'TOKEN***'));
+    // Don't include token in URL - use auth message instead
+    const wsUrl = `${wsProtocol}://${cleaned}/api/websocket`;
+    console.log('Connecting to WebSocket:', wsUrl);
 
     ws = new WebSocket(wsUrl);
     let authenticated = false;
@@ -277,7 +569,7 @@ export const useHaStore = defineStore('haStore', () => {
       authenticated = false;
     };
 
-    ws.onmessage = (event) => {
+    ws.onmessage = async (event) => {
       try {
         const data = JSON.parse(event.data);
         console.log('WebSocket message:', data.type);
@@ -293,19 +585,37 @@ export const useHaStore = defineStore('haStore', () => {
         } else if (data.type === 'auth_ok') {
           console.log('Authentication successful, subscribing to events');
           authenticated = true;
+          // Don't use hardcoded ID - let sendWebSocketCommand handle it
+          // Or just send without ID since subscription doesn't need response tracking
           ws.send(
             JSON.stringify({
-              id: 1,
               type: 'subscribe_events',
               event_type: 'state_changed',
             })
           );
+          // Fetch devices and areas after authentication
+          console.log('Fetching devices and areas from websocket');
+          await fetchDevicesAfterAuth();
+          await fetchAreaRegistry();
+          // Fetch entity registry to enrich sensors with device_id
+          await fetchEntityRegistry();
+          // Map entities to devices after all data is fetched
+          mapEntitiesToDevices();
         } else if (data.type === 'auth_invalid') {
           console.error('Authentication failed - token is invalid');
           setError('Authentication failed: Invalid access token. Check your VITE_HA_TOKEN.');
           ws.close();
-        } else if (data.type === 'result' && data.success && authenticated) {
-          console.log('Subscription confirmed');
+        } else if (data.type === 'result') {
+          // Handle command responses
+          if (data.id && wsPendingCommands.has(data.id)) {
+            const { resolve, timeoutId } = wsPendingCommands.get(data.id);
+            clearTimeout(timeoutId);
+            wsPendingCommands.delete(data.id);
+            // Always resolve with data.result, even if it's null or undefined
+            resolve(data.result);
+          } else if (authenticated) {
+            console.log('Subscription confirmed');
+          }
         } else if (
           data.type === 'event' &&
           data.event?.event_type === 'state_changed' &&
@@ -539,9 +849,12 @@ export const useHaStore = defineStore('haStore', () => {
         console.log('=== Initialization complete (local mode) ===');
       } else {
         console.log('Step 3: Connecting to Home Assistant API...');
-        await Promise.all([fetchStates(), fetchDevices()]);
-        console.log('Step 3: Initial data loaded, connecting WebSocket...');
+        await fetchStates();
+        console.log('Step 3: States loaded, connecting WebSocket...');
+        console.log('Step 3: Devices will be loaded from websocket after auth...');
         connectWebSocket();
+        // Fetch entities from websocket after connection established
+        console.log('Step 3: Waiting for websocket to provide entity device mapping...');
         isInitialized.value = true;
         isLoading.value = false;
         console.log('=== Initialization complete (HA connected) ===');
@@ -729,6 +1042,7 @@ export const useHaStore = defineStore('haStore', () => {
   return {
     sensors,
     devices,
+    areas,
     isLoading,
     isInitialized,
     isLocalMode,
@@ -746,6 +1060,10 @@ export const useHaStore = defineStore('haStore', () => {
     reloadConfig,
     fetchStates,
     fetchDevices,
+    fetchDevicesAfterAuth,
+    fetchAreaRegistry,
+    fetchEntityRegistry,
+    mapEntitiesToDevices,
     loadLocalData,
     saveLocalData,
     connectWebSocket,

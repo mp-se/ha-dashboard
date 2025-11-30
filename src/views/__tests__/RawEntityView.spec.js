@@ -33,8 +33,8 @@ describe('RawEntityView.vue', () => {
     const wrapper = mount(RawEntityView);
     const options = wrapper.findAll('select option');
     
-    // Should have "All Types" + 3 unique types (sensor, light, switch)
-    expect(options.length).toBe(4);
+    // Should have "All Types" + 4 unique types (area, sensor, light, switch)
+    expect(options.length).toBe(5);
     expect(options[0].text()).toBe('All Types');
   });
 
