@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { validateConfig } from '../utils/configValidator';
+import parseJSON from 'json-parse-even-better-errors';
 
 export const useHaStore = defineStore('haStore', () => {
   const sensors = ref([]);
@@ -680,7 +681,49 @@ export const useHaStore = defineStore('haStore', () => {
         throw new Error(`Failed to load config: ${response.status} ${response.statusText}`);
       }
 
-      const config = await response.json();
+      const rawText = await response.text();
+      let config;
+
+      try {
+        // Use better JSON parser to get helpful error messages
+        config = parseJSON(rawText);
+        
+        // Remove internal Symbol properties added by the parser
+        if (config && typeof config === 'object') {
+          for (const sym of Object.getOwnPropertySymbols(config)) {
+            delete config[sym];
+          }
+        }
+      } catch (jsonError) {
+        // parseJSON provides detailed error info
+        let errorMsg = 'Invalid JSON in dashboard configuration';
+        if (jsonError.message) {
+          errorMsg = `JSON parse error: ${jsonError.message}`;
+        }
+        if (jsonError.position !== undefined) {
+          errorMsg = `JSON parsing error at position ${jsonError.position}: ${jsonError.message}`;
+          // Try to show context around the error
+          const lines = rawText.split('\n');
+          let charCount = 0;
+          for (let i = 0; i < lines.length; i++) {
+            const lineLength = lines[i].length + 1; // +1 for newline
+            if (charCount + lineLength > jsonError.position) {
+              const lineNum = i + 1;
+              const colNum = jsonError.position - charCount;
+              errorMsg = `JSON syntax error at line ${lineNum}, column ${colNum}: ${jsonError.message}`;
+              break;
+            }
+            charCount += lineLength;
+          }
+        }
+        console.error('[CONFIG] JSON parse error details:', {
+          message: errorMsg,
+          rawTextType: typeof rawText,
+          rawTextLength: rawText?.length,
+          rawTextSample: typeof rawText === 'string' ? rawText.substring(0, 100) : rawText,
+        });
+        throw new Error(errorMsg);
+      }
       
       // Validate configuration
       const validationResult = validateConfig(config);
@@ -819,6 +862,16 @@ export const useHaStore = defineStore('haStore', () => {
       console.log('Step 1: Loading dashboard configuration...');
       await loadDashboardConfig();
       console.log('Step 1: Config loaded successfully');
+
+      // Check if there was a JSON syntax error - if so, don't prompt for credentials
+      // Only skip if the error is specifically a JSON parse error, not other validation errors
+      if (configValidationError.value?.length > 0 && 
+          configValidationError.value.some(err => err.message?.includes('JSON'))) {
+        console.log('Step 1: JSON syntax error found - not prompting for credentials');
+        isLoading.value = false;
+        // Exit without setting needsCredentials so we don't show the dialog
+        return;
+      }
 
       // Step 2: Check for credentials
       console.log('Step 2: Checking for credentials...');

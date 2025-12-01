@@ -1011,13 +1011,13 @@ Pressure gauge:
 
 ### HaRoom
 
-Displays an area/room card with temperature/humidity auto-detection and control objects.
+Displays an area/room card with temperature/humidity auto-detection and up to 3 control objects.
 
-**Use for**: Area-based room displays with device controls
+**Use for**: Area-based room displays with device controls (lights, switches, fans, media players)
 
 **Properties**:
 
-- `entity` (array, required): Array of entity IDs (area entity + control objects)
+- `entity` (array, required): Array of entity IDs (area entity + up to 3 control objects)
 - `color` (string, optional, default: "blue"): CSS color name for the room circle
 
 **Features**:
@@ -1025,8 +1025,18 @@ Displays an area/room card with temperature/humidity auto-detection and control 
 - Auto-detects area entity by `area.*` prefix (order-independent)
 - Automatically finds temperature sensors (device_class: temperature)
 - Automatically finds humidity sensors (device_class: humidity)
-- Displays control objects (lights, switches, etc.) as clickable circles
+- Displays up to 3 control objects as clickable circles
 - Shows area icon in the main circle
+- Domain-specific colors:
+  - **Lights**: Yellow (#ffc107)
+  - **Fans**: Blue (#007bff)
+  - **Media Players**: Green (#28a745)
+  - **Other entities**: Green (#28a745)
+- Domain-specific icons with dynamic states:
+  - **Media Players**: Play icon when paused, pause icon when playing
+  - **Fans**: Fan icon
+  - **Lights**: Lightbulb icon
+  - **Switches**: Power plug icon
 
 **Examples**:
 
@@ -1049,7 +1059,7 @@ Living room with custom color:
 }
 ```
 
-Kitchen with multiple control objects:
+Kitchen with multiple control objects (limited to 3):
 
 ```json
 {
@@ -1063,6 +1073,13 @@ Kitchen with multiple control objects:
   "color": "orange"
 }
 ```
+
+**Notes**:
+
+- Only the first 3 control objects (non-area entities) will be displayed to maintain layout
+- Control objects support on/off toggle for switches, lights, and fans
+- Media players use play/pause controls instead of on/off
+- Temperature and humidity are automatically discovered from the area's entities
 
 ### HaEntityList
 

@@ -88,6 +88,7 @@ const roomEntityId = computed(() => {
 const controlObjects = computed(() => {
   return (props.entity || [])
     .filter((entityId) => !entityId.startsWith('area.'))
+    .slice(0, 3) // Limit to 3 additional entities
     .map((entityId) => ({
       entity_id: entityId,
     }));
@@ -229,7 +230,7 @@ const getIconColor = (entityId) => {
     if (domain === 'light') {
       return '#333333'; // Dark gray/black for yellow background
     }
-    // White icon for media players and other entities on green background
+    // White icon for media players, fans, and other entities on colored background
     return 'white';
   } else {
     // Darker gray when off
@@ -250,6 +251,9 @@ const getObjectColor = (entityId) => {
     // Use domain-specific colors when on
     if (domain === 'light') {
       return '#ffc107'; // Yellow for lights
+    }
+    if (domain === 'fan') {
+      return '#007bff'; // Blue for fans
     }
     // Green for media players and other entities
     return '#28a745';

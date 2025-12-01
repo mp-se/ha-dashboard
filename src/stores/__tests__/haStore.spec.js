@@ -520,20 +520,27 @@ describe('useHaStore', () => {
       const store = useHaStore();
 
       const mockConfig = {
+        app: {
+          title: 'Test Dashboard',
+        },
         views: [
           {
             name: 'Living Room',
+            label: 'Living Room',
+            icon: 'mdi-home',
             type: 'grid',
             entities: [{ entity: 'sensor.temp', type: 'HaSensor' }],
           },
         ],
       };
 
+      const mockText = JSON.stringify(mockConfig);
+
       // Use mockImplementation to ensure this mock is used
       global.fetch.mockImplementation(() =>
         Promise.resolve({
           ok: true,
-          json: () => Promise.resolve(mockConfig),
+          text: () => Promise.resolve(mockText),
         })
       );
 
@@ -557,20 +564,52 @@ describe('useHaStore', () => {
       expect(result.errors).toBeDefined();
     });
 
+    it('should provide helpful error for malformed JSON', async () => {
+      const store = useHaStore();
+
+      // Provide invalid JSON
+      global.fetch.mockImplementation(() =>
+        Promise.resolve({
+          ok: true,
+          text: () => Promise.resolve('{"app": {"title": "Test"}, invalid json'),
+        })
+      );
+
+      const result = await store.loadDashboardConfig();
+
+      // Should return error info instead of throwing
+      expect(result.valid).toBe(false);
+      expect(result.errors).toBeDefined();
+      expect(result.errors.length).toBeGreaterThan(0);
+      // Error message should contain helpful context
+      expect(result.errors[0].message).toContain('JSON syntax error');
+      expect(result.errors[0].message).toContain('line');
+      expect(result.errors[0].message).toContain('column');
+    });
+
     it('should set developer mode from config', async () => {
       const store = useHaStore();
 
       const mockConfig = {
         app: {
+          title: 'Test',
           developerMode: true,
           localMode: false,
         },
-        views: [],
+        views: [
+          {
+            name: 'Test',
+            label: 'Test',
+            icon: 'mdi-home',
+          },
+        ],
       };
+
+      const mockText = JSON.stringify(mockConfig);
 
       global.fetch.mockResolvedValueOnce({
         ok: true,
-        json: vi.fn().mockResolvedValueOnce(mockConfig),
+        text: () => Promise.resolve(mockText),
       });
 
       await store.loadDashboardConfig();
@@ -588,12 +627,23 @@ describe('useHaStore', () => {
       store.isLocalMode = false;
 
       const mockConfig = {
-        views: [{ name: 'Test' }],
+        app: {
+          title: 'Test',
+        },
+        views: [
+          {
+            name: 'Test',
+            label: 'Test',
+            icon: 'mdi-home',
+          },
+        ],
       };
+
+      const mockText = JSON.stringify(mockConfig);
 
       global.fetch.mockResolvedValueOnce({
         ok: true,
-        json: vi.fn().mockResolvedValueOnce(mockConfig),
+        text: () => Promise.resolve(mockText),
       });
 
       await store.reloadConfig();
@@ -607,16 +657,29 @@ describe('useHaStore', () => {
       const store = useHaStore();
       store.isLocalMode = true;
 
-      const mockConfig = { views: [] };
+      const mockConfig = {
+        app: {
+          title: 'Test',
+        },
+        views: [
+          {
+            name: 'Test',
+            label: 'Test',
+            icon: 'mdi-home',
+          },
+        ],
+      };
       const mockLocalData = {
         sensors: [{ entity_id: 'sensor.local', state: 'value' }],
         devices: [],
       };
 
+      const mockText = JSON.stringify(mockConfig);
+
       global.fetch
         .mockResolvedValueOnce({
           ok: true,
-          json: vi.fn().mockResolvedValueOnce(mockConfig),
+          text: () => Promise.resolve(mockText),
         })
         .mockResolvedValueOnce({
           ok: true,
@@ -743,13 +806,11 @@ describe('useHaStore', () => {
       global.fetch
         .mockResolvedValueOnce({
           ok: true,
-          json: vi.fn().mockResolvedValueOnce(mockConfig),
-          text: vi.fn().mockResolvedValueOnce(''),
+          text: vi.fn().mockResolvedValueOnce(JSON.stringify(mockConfig)),
         })
         .mockResolvedValueOnce({
           ok: true,
           json: vi.fn().mockResolvedValueOnce(mockLocalData),
-          text: vi.fn().mockResolvedValueOnce(''),
         });
 
       await store.init();
@@ -772,8 +833,7 @@ describe('useHaStore', () => {
 
       global.fetch.mockResolvedValueOnce({
         ok: true,
-        json: vi.fn().mockResolvedValueOnce(mockConfig),
-        text: vi.fn().mockResolvedValueOnce(''),
+        text: vi.fn().mockResolvedValueOnce(JSON.stringify(mockConfig)),
       });
 
       await store.init();

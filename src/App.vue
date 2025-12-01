@@ -477,10 +477,9 @@ onMounted(async () => {
     console.log('Config validation errors detected during init:', store.configValidationError);
     configErrorBanner.value = true;
     // Don't auto-dismiss - keep visible so user can fix issues
-  }
-
-  // If credentials are needed, show credential dialog
-  if (store.needsCredentials) {
+    // Don't show credentials dialog if there are config errors (e.g., JSON syntax error)
+  } else if (store.needsCredentials) {
+    // Only show credentials dialog if config is valid and credentials are needed
     credentialDialog.value?.showModal();
   }
 
@@ -494,7 +493,8 @@ onMounted(async () => {
 watch(
   () => store.needsCredentials,
   (needsCredentials) => {
-    if (needsCredentials && !store.isLoading) {
+    // Don't show credentials dialog if there are config errors
+    if (needsCredentials && !store.isLoading && !store.configValidationError?.length) {
       console.log('Credentials needed - auto-showing dialog');
       // Use nextTick to ensure dialog is mounted
       setTimeout(() => {

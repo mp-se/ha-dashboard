@@ -25,12 +25,14 @@ Demo is available here: https://mp-se.github.io/ha-dashboard/
 - **JSON Configuration**: Entire dashboard driven by a single configuration file—no code changes needed
 - **Flexible Entity Specification**: Direct references, wildcard patterns, or custom getter functions
 - **Device & Area Support**: Browse devices organized by area, filter entities by area, view area entity mappings
+- **Room Cards**: Advanced HaRoom component with temperature/humidity display, multi-entity controls (up to 3), and domain-specific colors
 - **Responsive Design**: Dark mode support with mobile-optimized layout
 - **PWA Support**: Install as a native app on any device
 - **Offline Fallback**: Service worker enables offline access with cached data
 - **Security**: Self-signed SSL certificate support for local LAN deployment
 - **Extensible**: Component-based architecture for easy customization
 - **Error Resilience**: Network failures don't break the UI; connection status always visible
+- **Robust Configuration**: Detailed JSON error reporting with line/column context for malformed configs
 
 ## 🎨 Card Types
 
