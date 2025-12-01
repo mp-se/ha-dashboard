@@ -49,6 +49,63 @@ describe('HaRoom.vue', () => {
     expect(wrapper.find('.card-title').text()).toBe('Bedroom');
   });
 
+  it('accepts entity as string and converts to array', () => {
+    store.sensors = [
+      {
+        entity_id: 'area.bedroom',
+        state: 'Bedroom',
+        attributes: {
+          friendly_name: 'Bedroom',
+          icon: 'mdi:bed',
+        },
+        entities: [],
+      },
+    ];
+
+    wrapper = mount(HaRoom, {
+      props: {
+        entity: 'area.bedroom',
+      },
+      global: { plugins: [pinia] },
+    });
+
+    expect(wrapper.find('.card').exists()).toBe(true);
+    expect(wrapper.find('.card-title').text()).toBe('Bedroom');
+  });
+
+  it('accepts entity string with control objects when passed as array', () => {
+    store.sensors = [
+      {
+        entity_id: 'area.bedroom',
+        state: 'Bedroom',
+        attributes: {
+          friendly_name: 'Bedroom',
+          icon: 'mdi:bed',
+        },
+        entities: [],
+      },
+      {
+        entity_id: 'light.bedroom',
+        state: 'on',
+        attributes: {
+          friendly_name: 'Bedroom Light',
+          icon: 'mdi:lightbulb',
+        },
+      },
+    ];
+
+    wrapper = mount(HaRoom, {
+      props: {
+        entity: ['area.bedroom', 'light.bedroom'],
+      },
+      global: { plugins: [pinia] },
+    });
+
+    expect(wrapper.find('.card').exists()).toBe(true);
+    const controlObjects = wrapper.findAll('.control-object');
+    expect(controlObjects).toHaveLength(1);
+  });
+
   it('finds area entity by checking for area. prefix', () => {
     store.sensors = [
       {

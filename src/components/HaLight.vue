@@ -30,7 +30,7 @@
                   v-model="isOn"
                   class="form-check-input ha-switch-large"
                   type="checkbox"
-                  :disabled="isDisabled || isToggling"
+                  :disabled="isDisabled || isLoading"
                 />
               </div>
             </div>

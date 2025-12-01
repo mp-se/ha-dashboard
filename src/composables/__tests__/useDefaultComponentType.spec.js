@@ -47,8 +47,8 @@ describe('useDefaultComponentType', () => {
       expect(useDefaultComponentType('input_button.restart')).toBe('HaButton');
     });
 
-    it('should map device_tracker domain to HaPerson', () => {
-      expect(useDefaultComponentType('device_tracker.phone')).toBe('HaPerson');
+    it('should map device_tracker domain to HaSensor', () => {
+      expect(useDefaultComponentType('device_tracker.phone')).toBe('HaSensor');
     });
   });
 

@@ -1,4 +1,17 @@
 <template>
+  <!-- Success Notification Banner (Top of viewport) -->
+  <div v-if="successBanner" class="alert alert-success alert-dismissible fade show m-0 rounded-0" role="alert" style="position: sticky; top: 0; left: 0; right: 0; z-index: 1040; margin: 0 !important;">
+    <div class="container-fluid">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <i class="mdi mdi-check-circle me-2"></i>
+          <strong>Configuration generated!</strong> {{ successBannerMessage }}
+        </div>
+        <button type="button" class="btn-close" aria-label="Close" @click="successBanner = false"></button>
+      </div>
+    </div>
+  </div>
+
   <div class="container-fluid overflow-hidden text-center">
     <p>&nbsp;</p>
     <p class="h3">Entity Dashboard</p>
@@ -48,6 +61,14 @@
               <label class="form-check-label ms-2" for="hideUnavailable"> Hide Unavailable </label>
             </div>
           </div>
+          <button
+            class="btn btn-primary"
+            type="button"
+            title="Generate configuration JSON for all supported entities"
+            @click="generateConfigJson"
+          >
+            <i class="mdi mdi-file-json"></i> Generate Config
+          </button>
         </div>
       </div>
       <!-- Areas Display -->
@@ -138,11 +159,22 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useHaStore } from '../stores/haStore';
+import { DEFAULT_DOMAIN_MAP } from '@/composables/useDefaultComponentType';
 import useDebouncedRef from '@/composables/useDebouncedRef';
+
+defineProps({
+  viewName: {
+    type: String,
+    required: false,
+    default: '',
+  },
+});
 
 const store = useHaStore();
 const selectedType = ref('');
 const hideUnavailable = ref(false);
+const successBanner = ref(false);
+const successBannerMessage = ref('');
 const { input: searchText, debounced: debouncedSearch } = useDebouncedRef('', 300);
 
 const uniqueTypes = computed(() => {
@@ -274,6 +306,103 @@ const copyAreaToClipboard = async (area) => {
       console.log('Area JSON copied to clipboard (fallback):', area.id);
     } catch (fallbackError) {
       console.error('Fallback copy also failed:', fallbackError);
+    }
+  }
+};
+
+const generateConfigJson = async () => {
+  // Filter to only supported entities (those in DEFAULT_DOMAIN_MAP)
+  const supportedEntities = store.sensors.filter((entity) => {
+    const domain = entity.entity_id.split('.')[0];
+    return DEFAULT_DOMAIN_MAP[domain] && entity.state !== 'unavailable' && entity.state !== 'unknown';
+  });
+
+  if (supportedEntities.length === 0) {
+    successBannerMessage.value = 'No supported entities found to generate configuration.';
+    successBanner.value = true;
+    setTimeout(() => {
+      successBanner.value = false;
+    }, 5000);
+    return;
+  }
+
+  // Group entities by component type
+  const groupedByType = {};
+  supportedEntities.forEach((entity) => {
+    const domain = entity.entity_id.split('.')[0];
+    const componentType = DEFAULT_DOMAIN_MAP[domain];
+    
+    if (!groupedByType[componentType]) {
+      groupedByType[componentType] = [];
+    }
+    groupedByType[componentType].push({
+      entity: entity.entity_id,
+      type: componentType,
+    });
+  });
+
+  // Create entities array sorted by type
+  const entities = [];
+  const sortedTypes = Object.keys(groupedByType).sort();
+  for (const componentType of sortedTypes) {
+    entities.push(...groupedByType[componentType]);
+  }
+
+  // Create the configuration object
+  const config = {
+    app: {
+      title: 'My Home Assistant Dashboard',
+      developerMode: true,
+      localMode: false,
+    },
+    haConfig: {
+      haUrl: store.haUrl || 'https://your-ha-instance:8123',
+      accessToken: store.accessToken || 'your-long-lived-token-here',
+    },
+    views: [
+      {
+        name: 'overview',
+        label: 'Overview',
+        icon: 'mdi mdi-view-dashboard',
+        entities: entities,
+      },
+    ],
+  };
+
+  // Copy to clipboard
+  try {
+    const jsonString = JSON.stringify(config, null, 2);
+    await navigator.clipboard.writeText(jsonString);
+    console.log('Configuration JSON copied to clipboard');
+    successBannerMessage.value = `${supportedEntities.length} entities generated and copied to clipboard. Paste into your dashboard-config.json and customize as needed.`;
+    successBanner.value = true;
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+      successBanner.value = false;
+    }, 5000);
+  } catch (error) {
+    console.error('Failed to copy config to clipboard:', error);
+    // Fallback for older browsers
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = JSON.stringify(config, null, 2);
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      successBannerMessage.value = `${supportedEntities.length} entities generated and copied to clipboard. Paste into your dashboard-config.json and customize as needed.`;
+      successBanner.value = true;
+      setTimeout(() => {
+        successBanner.value = false;
+      }, 5000);
+    } catch (fallbackError) {
+      console.error('Fallback copy also failed:', fallbackError);
+      successBannerMessage.value = 'Failed to copy configuration to clipboard. Please try again.';
+      successBanner.value = true;
+      setTimeout(() => {
+        successBanner.value = false;
+      }, 5000);
     }
   }
 };

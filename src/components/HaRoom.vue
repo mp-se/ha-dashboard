@@ -61,9 +61,9 @@ import { useServiceCall } from '@/composables/useServiceCall';
 
 const props = defineProps({
   entity: {
-    type: Array,
+    type: [Array, String],
     required: true,
-    description: 'Array of entity IDs (first is room/area, rest are control objects)',
+    description: 'Entity ID or array of entity IDs (first is room/area, rest are control objects)',
   },
   color: {
     type: String,
@@ -76,9 +76,17 @@ const store = useHaStore();
 const normalizeIcon = useNormalizeIcon();
 const { callService } = useServiceCall();
 
+// Normalize entity to always be an array
+const entityArray = computed(() => {
+  if (typeof props.entity === 'string') {
+    return [props.entity];
+  }
+  return props.entity || [];
+});
+
 // First entity should be the room/area entity (starts with area.)
 const roomEntityId = computed(() => {
-  const entities = props.entity || [];
+  const entities = entityArray.value || [];
   // Find the first entity that starts with 'area.'
   const areaEntity = entities.find((e) => typeof e === 'string' && e.startsWith('area.'));
   return areaEntity || '';
@@ -86,7 +94,7 @@ const roomEntityId = computed(() => {
 
 // Remaining entities are control objects (excluding the area entity)
 const controlObjects = computed(() => {
-  return (props.entity || [])
+  return entityArray.value
     .filter((entityId) => !entityId.startsWith('area.'))
     .slice(0, 3) // Limit to 3 additional entities
     .map((entityId) => ({

@@ -250,7 +250,7 @@
         dark_mode ? 'bg-dark' : 'bg-light',
       ]"
     >
-      (c) 2025 Magnus Persson
+      <div class="small">(c) 2025 Magnus Persson, v{{ appVersion }}</div>
     </footer>
   </div>
 </template>
@@ -261,6 +261,9 @@ import { useHaStore } from './stores/haStore';
 import { useNormalizeIcon } from './composables/useNormalizeIcon';
 import PwaInstallModal from './components/PwaInstallModal.vue';
 import CredentialDialog from './components/CredentialDialog.vue';
+
+// Import version from package.json
+import packageJson from '../package.json';
 
 // Static imports for development views
 import DevelopmentView from './views/DevelopmentView.vue';
@@ -284,6 +287,7 @@ const updateAvailable = ref(false);
 const configReloading = ref(false);
 const configErrorBanner = ref(false);
 const configErrorBannerTimeout = ref(null);
+const appVersion = packageJson.version;
 
 // Computed menu items from dashboard config
 const menuItems = computed(() => {

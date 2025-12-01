@@ -4,7 +4,7 @@
  */
 
 // Default mapping for entity domains -> component types
-const DEFAULT_DOMAIN_MAP = {
+export const DEFAULT_DOMAIN_MAP = {
   switch: 'HaSwitch',
   binary_sensor: 'HaBinarySensor',
   sensor: 'HaSensor',
@@ -13,7 +13,6 @@ const DEFAULT_DOMAIN_MAP = {
   weather: 'HaWeather',
   update: 'HaBinarySensor',
   sun: 'HaSun',
-  device_tracker: 'HaPerson',
   fan: 'HaSwitch',
   media_player: 'HaMediaPlayer',
   select: 'HaSelect',
@@ -23,6 +22,7 @@ const DEFAULT_DOMAIN_MAP = {
   person: 'HaPerson',
   camera: 'HaImage',
   area: 'HaRoom',
+  device_tracker: 'HaSensor',
 };
 
 /**
