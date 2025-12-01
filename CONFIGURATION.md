@@ -1017,7 +1017,7 @@ Displays an area/room card with temperature/humidity auto-detection and up to 3 
 
 **Properties**:
 
-- `entity` (array, required): Array of entity IDs (area entity + up to 3 control objects)
+- `entity` (string|array, required): Entity ID or array of entity IDs (area entity + up to 3 control objects)
 - `color` (string, optional, default: "blue"): CSS color name for the room circle
 
 **Features**:
@@ -1040,7 +1040,16 @@ Displays an area/room card with temperature/humidity auto-detection and up to 3 
 
 **Examples**:
 
-Bedroom with auto-detected sensors:
+Simple string format (converted to array internally):
+
+```json
+{
+  "type": "HaRoom",
+  "entity": "area.bedroom"
+}
+```
+
+Array format with control objects:
 
 ```json
 {
@@ -1054,7 +1063,7 @@ Living room with custom color:
 ```json
 {
   "type": "HaRoom",
-  "entity": ["light.living_room", "area.living_room", "switch.outlet"],
+  "entity": ["area.living_room", "light.living_room", "switch.outlet"],
   "color": "red"
 }
 ```

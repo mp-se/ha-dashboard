@@ -5,6 +5,8 @@
 - JSON error parser integration with `json-parse-even-better-errors` library providing line/column context for malformed JSON
 - Fan support in HaRoom cards with blue color (#007bff) and fan icon
 - HaRoom cards limited to 3 control entities maximum for better layout
+- HaRoom now accepts both string and array formats for entity prop (strings automatically converted to arrays)
+- device_tracker entities now map to HaSensor instead of HaPerson for proper type handling
 - JSON syntax errors now display helpful error messages with line numbers
 - Credentials dialog only appears when config is valid and credentials are needed
 - Fixed error handling in App.vue to check config validity before prompting for credentials
@@ -14,6 +16,7 @@
 - Complete configuration documentation for all 21 card components
 - Updated HaHeader.vue, HaRoom.vue, and App.vue for icon normalization
 - Enhanced configValidator with icon validation and error suggestions
+- Config generator in Raw Entity View automatically creates configuration with proper entity and component type mappings
 - 23 tests for icon normalization
 - 32 tests for icon validation
 - 34 tests for config validation with icon support
