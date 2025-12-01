@@ -44,7 +44,7 @@
               <svg width="50" height="50" viewBox="0 0 50 50" class="control-circle">
                 <circle cx="25" cy="25" r="22" :fill="getObjectColor(obj.entity_id)" />
               </svg>
-              <i :class="getObjectIcon(obj.entity_id)" class="control-icon-overlay"></i>
+              <i :class="getObjectIcon(obj.entity_id)" class="control-icon-overlay" :style="{ color: getIconColor(obj.entity_id) }"></i>
             </div>
           </div>
         </div>
@@ -57,6 +57,7 @@
 import { computed } from 'vue';
 import { useHaStore } from '@/stores/haStore';
 import { useNormalizeIcon } from '@/composables/useNormalizeIcon';
+import { useServiceCall } from '@/composables/useServiceCall';
 
 const props = defineProps({
   entity: {
@@ -73,6 +74,7 @@ const props = defineProps({
 
 const store = useHaStore();
 const normalizeIcon = useNormalizeIcon();
+const { callService } = useServiceCall();
 
 // First entity should be the room/area entity (starts with area.)
 const roomEntityId = computed(() => {
@@ -104,7 +106,6 @@ const roomName = computed(() => {
 const temperatureEntity = computed(() => {
   // Get the area entity (first one)
   const areaEntity = store.sensors.find((s) => s.entity_id === roomEntityId.value);
-  console.log('[HaRoom] Area entity found:', areaEntity?.entity_id, 'has entities:', Array.isArray(areaEntity?.entities), 'count:', areaEntity?.entities?.length);
   
   if (!areaEntity || !areaEntity.entities) {
     return null;
@@ -113,11 +114,7 @@ const temperatureEntity = computed(() => {
   // Search for temperature sensor in the area's entities
   for (const entityId of areaEntity.entities) {
     const entity = store.sensors.find((s) => s.entity_id === entityId);
-    if (entity) {
-      console.log('[HaRoom] Checking entity:', entityId, 'device_class:', entity.attributes?.device_class);
-    }
     if (entity && entity.attributes?.device_class === 'temperature') {
-      console.log('[HaRoom] Found temperature:', entityId);
       return entity;
     }
   }
@@ -152,7 +149,6 @@ const humidityEntity = computed(() => {
   for (const entityId of areaEntity.entities) {
     const entity = store.sensors.find((s) => s.entity_id === entityId);
     if (entity && entity.attributes?.device_class === 'humidity') {
-      console.log('[HaRoom] Found humidity:', entityId);
       return entity;
     }
   }
@@ -200,6 +196,14 @@ const getObjectIcon = (entityId) => {
 
   // Default icons by domain
   const domain = entityId.split('.')[0];
+  const state = entity.state?.toLowerCase();
+  
+  // Media player uses play when paused, pause when playing
+  if (domain === 'media_player') {
+    const isPlaying = state === 'playing';
+    return isPlaying ? 'mdi mdi-pause' : 'mdi mdi-play';
+  }
+
   const domainIcons = {
     light: 'mdi mdi-lightbulb',
     switch: 'mdi mdi-power-plug',
@@ -211,17 +215,44 @@ const getObjectIcon = (entityId) => {
   return domainIcons[domain] || 'mdi mdi-help-circle';
 };
 
+// Get icon color for control object (matches circle color when on, darker when off)
+const getIconColor = (entityId) => {
+  const entity = store.sensors.find((s) => s.entity_id === entityId);
+  if (!entity) return '#333333';
+
+  const domain = entityId.split('.')[0];
+  const state = entity.state?.toLowerCase();
+  const isOn = state === 'on' || state === 'open' || state === 'active' || state === 'playing';
+
+  if (isOn) {
+    // Use domain-specific icon colors when on
+    if (domain === 'light') {
+      return '#333333'; // Dark gray/black for yellow background
+    }
+    // White icon for media players and other entities on green background
+    return 'white';
+  } else {
+    // Darker gray when off
+    return '#999999';
+  }
+};
+
 // Get color for control object based on state
 const getObjectColor = (entityId) => {
   const entity = store.sensors.find((s) => s.entity_id === entityId);
-  if (!entity) return 'gray';
+  if (!entity) return '#cccccc';
 
+  const domain = entityId.split('.')[0];
   const state = entity.state?.toLowerCase();
-  const isOn = state === 'on' || state === 'open' || state === 'active';
+  const isOn = state === 'on' || state === 'open' || state === 'active' || state === 'playing';
 
   if (isOn) {
-    // Use the room color when on
-    return props.color || 'blue';
+    // Use domain-specific colors when on
+    if (domain === 'light') {
+      return '#ffc107'; // Yellow for lights
+    }
+    // Green for media players and other entities
+    return '#28a745';
   } else {
     // Gray when off
     return '#cccccc';
@@ -243,12 +274,27 @@ const toggleEntity = async (entityId) => {
   if (!entity) return;
 
   const domain = entityId.split('.')[0];
-  const service = entity.state?.toLowerCase() === 'on' ? 'turn_off' : 'turn_on';
+  const state = entity.state?.toLowerCase();
 
   try {
-    await store.callService(domain, service, {
-      entity_id: entityId,
-    });
+    // Media players use play/pause service instead of on/off
+    if (domain === 'media_player') {
+      if (state === 'playing') {
+        await callService('media_player', 'media_pause', {
+          entity_id: entityId,
+        });
+      } else {
+        await callService('media_player', 'media_play', {
+          entity_id: entityId,
+        });
+      }
+    } else {
+      // Standard on/off toggle for other entities
+      const service = state === 'on' ? 'turn_off' : 'turn_on';
+      await callService(domain, service, {
+        entity_id: entityId,
+      });
+    }
   } catch (error) {
     console.error(`Failed to toggle ${entityId}:`, error);
   }

@@ -3,18 +3,26 @@ import { mount } from '@vue/test-utils';
 import HaRoom from '../HaRoom.vue';
 import { createPinia, setActivePinia } from 'pinia';
 import { useHaStore } from '@/stores/haStore';
+import * as useServiceCallModule from '@/composables/useServiceCall';
 
 describe('HaRoom.vue', () => {
   let wrapper;
   let store;
   let pinia;
+  let mockCallService;
 
   beforeEach(() => {
     pinia = createPinia();
     setActivePinia(pinia);
     store = useHaStore();
     store.sensors = [];
-    store.callService = vi.fn();
+    
+    // Mock useServiceCall composable
+    mockCallService = vi.fn().mockResolvedValue(true);
+    vi.spyOn(useServiceCallModule, 'useServiceCall').mockReturnValue({
+      callService: mockCallService,
+      isLoading: false,
+    });
   });
 
   it('renders the component with area entity', () => {
@@ -388,7 +396,6 @@ describe('HaRoom.vue', () => {
   });
 
   it('calls toggleEntity on control object click', async () => {
-    store.callService = vi.fn().mockResolvedValue(true);
     store.sensors = [
       {
         entity_id: 'area.bedroom',
@@ -419,7 +426,7 @@ describe('HaRoom.vue', () => {
     const controlObject = wrapper.find('.control-object');
     await controlObject.trigger('click');
 
-    expect(store.callService).toHaveBeenCalledWith('light', 'turn_off', {
+    expect(mockCallService).toHaveBeenCalledWith('light', 'turn_off', {
       entity_id: 'light.bedroom',
     });
   });
