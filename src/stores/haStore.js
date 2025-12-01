@@ -336,22 +336,6 @@ export const useHaStore = defineStore('haStore', () => {
   };
 
   /**
-   * Fetch entities with device_id mapping via entity registry
-   */
-  const fetchEntitiesWithDeviceId = async () => {
-    if (isLocalMode.value || !ws || ws.readyState !== WebSocket.OPEN) {
-      return;
-    }
-
-    try {
-      console.log('Fetching entity registry to enrich sensors with device_id');
-      await fetchEntityRegistry();
-    } catch (error) {
-      console.error('Error fetching entities with device_id:', error);
-    }
-  };
-
-  /**
    * Fetch area registry via websocket
    */
   const fetchAreaRegistry = async () => {
@@ -370,8 +354,6 @@ export const useHaStore = defineStore('haStore', () => {
         areasArray = result;
       } else if (result && result.result && Array.isArray(result.result)) {
         areasArray = result.result;
-      } else if (result && Array.isArray(result)) {
-        areasArray = result;
       } else {
         console.warn('Unexpected result format for areas:', result);
       }
@@ -433,8 +415,8 @@ export const useHaStore = defineStore('haStore', () => {
         deviceList = result;
       } else if (result && result.result && Array.isArray(result.result)) {
         deviceList = result.result;
-      } else if (result && result.success && Array.isArray(result)) {
-        deviceList = result;
+      } else if (result && result.success && Array.isArray(result.result)) {
+        deviceList = result.result;
       }
 
       console.log(`Fetched ${deviceList.length} devices from websocket`);
@@ -476,14 +458,10 @@ export const useHaStore = defineStore('haStore', () => {
 
     // First, map entities to devices
     const devicesMap = new Map(devices.value.map((d) => [d.id, d]));
-    let mappedCount = 0;
-    let unmappedCount = 0;
-    let noDeviceIdCount = 0;
 
     for (const sensor of sensors.value) {
       const deviceId = sensor.attributes?.device_id;
       if (!deviceId) {
-        noDeviceIdCount++;
         continue;
       }
       
@@ -491,10 +469,7 @@ export const useHaStore = defineStore('haStore', () => {
         const device = devicesMap.get(deviceId);
         if (!device.entities.includes(sensor.entity_id)) {
           device.entities.push(sensor.entity_id);
-          mappedCount++;
         }
-      } else {
-        unmappedCount++;
       }
     }
 
@@ -529,7 +504,7 @@ export const useHaStore = defineStore('haStore', () => {
     }
 
     if (import.meta.env.DEV) {
-      console.log(`Mapped entities to ${areasWithEntities} areas and ${mappedCount} devices`);
+      console.log(`Mapped entities to ${areasWithEntities} areas`);
     }
   };
 

@@ -534,4 +534,71 @@ describe('HaRoom.vue', () => {
     const icon = wrapper.find('.icon-overlay');
     expect(icon.classes()).toContain('mdi-door');
   });
+
+  it('disables control object when entity is unavailable', () => {
+    store.sensors = [
+      {
+        entity_id: 'area.bedroom',
+        state: 'Bedroom',
+        attributes: {
+          friendly_name: 'Bedroom',
+          icon: 'mdi:bed',
+        },
+        entities: [],
+      },
+      {
+        entity_id: 'light.bedroom',
+        state: 'unavailable',
+        attributes: {
+          friendly_name: 'Bedroom Light',
+          icon: 'mdi:lightbulb',
+        },
+      },
+    ];
+
+    wrapper = mount(HaRoom, {
+      props: {
+        entity: ['area.bedroom', 'light.bedroom'],
+      },
+      global: { plugins: [pinia] },
+    });
+
+    const controlObject = wrapper.find('.control-object');
+    expect(controlObject.classes()).toContain('control-object-disabled');
+    expect(controlObject.classes('opacity')).toBeDefined();
+  });
+
+  it('does not call service when clicking unavailable control object', async () => {
+    store.sensors = [
+      {
+        entity_id: 'area.bedroom',
+        state: 'Bedroom',
+        attributes: {
+          friendly_name: 'Bedroom',
+          icon: 'mdi:bed',
+        },
+        entities: [],
+      },
+      {
+        entity_id: 'light.bedroom',
+        state: 'unavailable',
+        attributes: {
+          friendly_name: 'Bedroom Light',
+          icon: 'mdi:lightbulb',
+        },
+      },
+    ];
+
+    wrapper = mount(HaRoom, {
+      props: {
+        entity: ['area.bedroom', 'light.bedroom'],
+      },
+      global: { plugins: [pinia] },
+    });
+
+    const controlObject = wrapper.find('.control-object');
+    await controlObject.trigger('click');
+
+    expect(mockCallService).not.toHaveBeenCalled();
+  });
 });

@@ -143,8 +143,6 @@ const resolvedEntities = computed(() => {
 });
 
 const resolvedEntity = computed(() => resolvedEntities.value[0]);
-const resolvedSecondEntity = computed(() => resolvedEntities.value[1] || null);
-const resolvedThirdEntity = computed(() => resolvedEntities.value[2] || null);
 
 const loading = ref(false);
 const error = ref(null);

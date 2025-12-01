@@ -1,5 +1,4 @@
-import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
-import { nextTick } from 'vue';
+import { describe, it, expect, vi } from 'vitest';
 import useDebouncedRef from '../useDebouncedRef';
 
 describe('useDebouncedRef', () => {

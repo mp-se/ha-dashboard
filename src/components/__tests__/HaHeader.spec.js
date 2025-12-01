@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
 import HaHeader from '../HaHeader.vue';
 
@@ -354,7 +354,6 @@ describe('HaHeader.vue', () => {
       });
 
       // Icon should be before the text
-      const icon = wrapper.find('i');
       const heading = wrapper.find('h1');
 
       const iconIndex = heading.html().indexOf('<i');

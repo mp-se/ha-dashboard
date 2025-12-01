@@ -291,6 +291,14 @@ export function validateConfig(config) {
       });
     }
 
+    // Validate hidden is boolean if present
+    if (view.hidden !== undefined && typeof view.hidden !== 'boolean') {
+      errors.push({
+        message: `View '${view.name}' hidden property must be a boolean`,
+        line: 15 + viewIndex,
+      });
+    }
+
     // Validate entities in this view
     if (Array.isArray(view.entities)) {
       for (let entityIndex = 0; entityIndex < view.entities.length; entityIndex++) {

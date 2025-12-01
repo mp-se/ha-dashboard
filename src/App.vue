@@ -297,7 +297,7 @@ const menuItems = computed(() => {
   }
   const normalizeIcon = useNormalizeIcon();
   const filtered = store.dashboardConfig.views
-    .filter((view) => view.enabled !== false)
+    .filter((view) => view.hidden !== true)
     .map((view) => ({
       name: view.name,
       label: view.label,

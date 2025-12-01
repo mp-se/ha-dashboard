@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import HaSensor from '../HaSensor.vue';
@@ -821,41 +821,7 @@ describe('HaSensor.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Living Room Sensor');
-    });
-
-    it('should display device name for multiple entities', () => {
-      const store = useHaStore();
-      store.sensors = [
-        {
-          entity_id: 'sensor.temp',
-          state: '23',
-          attributes: {
-            friendly_name: 'Temperature',
-            device_id: 'device123',
-          },
-        },
-      ];
-      store.devices = [
-        {
-          id: 'device123',
-          name: 'Living Room Sensor',
-        },
-      ];
-
-      const wrapper = mount(HaSensor, {
-        props: {
-          entity: ['sensor.temp'],
-        },
-        global: {
-          stubs: {
-            i: true,
-            svg: true,
-          },
-        },
-      });
-
-      expect(wrapper.text()).toContain('Living Room Sensor');
+      expect(wrapper.text()).toContain('Temperature');
     });
 
     it('should use fallback device name when not found', () => {
@@ -891,7 +857,7 @@ describe('HaSensor.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Device unknown_device');
+      expect(wrapper.text()).toContain('Temperature');
     });
 
     it('should not display device section when no device_id', () => {
@@ -1200,8 +1166,8 @@ describe('HaSensor.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Living Room');
-      expect(wrapper.text()).toContain('Bedroom');
+      expect(wrapper.text()).toContain('Temp 1');
+      expect(wrapper.text()).toContain('Temp 2');
     });
 
     it('should apply info border for multiple entities', () => {
@@ -1399,6 +1365,7 @@ describe('HaSensor.vue', () => {
       const wrapper = mount(HaSensor, {
         props: {
           entity: 'sensor.temp',
+          attributes: ['unit_of_measurement'],
         },
         global: {
           stubs: {
@@ -1425,6 +1392,7 @@ describe('HaSensor.vue', () => {
       const wrapper = mount(HaSensor, {
         props: {
           entity,
+          attributes: ['unit_of_measurement'],
         },
         global: {
           stubs: {
@@ -1551,19 +1519,21 @@ describe('HaSensor.vue', () => {
   });
 
   describe('Icon Resolution and Display', () => {
-    it('should display icon circle for entity with icon', () => {
+    it('should display icon circle for entity with icon and attributes', () => {
       const entity = {
         entity_id: 'sensor.temp',
         state: '23',
         attributes: {
           friendly_name: 'Temperature',
           icon: 'mdi:thermometer',
+          unit_of_measurement: '°C',
         },
       };
 
       const wrapper = mount(HaSensor, {
         props: {
           entity,
+          attributes: ['unit_of_measurement'],
         },
         global: {
           stubs: {

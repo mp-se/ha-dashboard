@@ -298,7 +298,7 @@ Views are the top-level dashboard pages. Each view has a name, label, icon, and 
 - **name** (string, required): Unique identifier (used in URLs and routing)
 - **label** (string, required): Display name shown in the navbar
 - **icon** (string, optional): Material Design Icons class (e.g., `mdi mdi-lightbulb`)
-- **enabled** (boolean, optional, default: true): Show/hide view in navbar
+- **hidden** (boolean, optional, default: false): Hide view from navbar navigation
 - **entities** (array, required): List of card configurations for this view
 
 ### Icon Format

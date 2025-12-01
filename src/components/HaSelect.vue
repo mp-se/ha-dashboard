@@ -23,9 +23,6 @@
           </select>
         </div>
 
-        <div v-if="deviceName" class="mt-3 pt-2 border-top">
-          <small class="text-muted">{{ deviceName }}</small>
-        </div>
       </div>
     </div>
   </div>
@@ -73,16 +70,6 @@ const name = computed(
   () =>
     resolvedEntity.value?.attributes?.friendly_name || resolvedEntity.value?.entity_id || 'Unknown'
 );
-
-const deviceName = computed(() => {
-  if (!resolvedEntity.value) return null;
-  const deviceId = resolvedEntity.value.attributes?.device_id;
-  if (deviceId) {
-    const device = store.devices.find((d) => d.id === deviceId);
-    return device?.name || device?.name_by_user || `Device ${deviceId}`;
-  }
-  return null;
-});
 
 const selectIcon = computed(() => {
   return 'mdi mdi-format-list-bulleted';

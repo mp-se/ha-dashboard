@@ -93,6 +93,24 @@ describe('configValidator', () => {
       const result = validateConfig(config);
       expect(result.valid).toBe(true);
     });
+
+    it('should accept hidden attribute as boolean', () => {
+      const config = {
+        app: { title: 'Dashboard' },
+        views: [{ name: 'home', label: 'Home', icon: 'mdi:home', hidden: true, entities: [] }],
+      };
+      const result = validateConfig(config);
+      expect(result.valid).toBe(true);
+    });
+
+    it('should reject hidden attribute if not boolean', () => {
+      const config = {
+        app: { title: 'Dashboard' },
+        views: [{ name: 'home', label: 'Home', icon: 'mdi:home', hidden: 'yes', entities: [] }],
+      };
+      const result = validateConfig(config);
+      expect(result.errors.some(e => e.message.includes('hidden'))).toBe(true);
+    });
   });
 
   describe('validateConfig - entities', () => {

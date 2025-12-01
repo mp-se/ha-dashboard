@@ -37,8 +37,9 @@
             v-for="(obj, index) in controlObjects"
             :key="index"
             class="control-object"
+            :class="{ 'control-object-disabled': isEntityUnavailable(obj.entity_id) }"
             :title="getEntityLabel(obj.entity_id)"
-            @click="toggleEntity(obj.entity_id)"
+            @click="!isEntityUnavailable(obj.entity_id) && toggleEntity(obj.entity_id)"
           >
             <div class="control-circle-wrapper">
               <svg width="50" height="50" viewBox="0 0 50 50" class="control-circle">
@@ -280,6 +281,14 @@ const getEntityLabel = (entityId) => {
   return entityId;
 };
 
+// Check if entity is unavailable
+const isEntityUnavailable = (entityId) => {
+  const entity = store.sensors.find((s) => s.entity_id === entityId);
+  if (!entity) return true;
+  const state = entity.state?.toLowerCase();
+  return state === 'unavailable' || state === 'unknown';
+};
+
 // Toggle entity on/off
 const toggleEntity = async (entityId) => {
   const entity = store.sensors.find((s) => s.entity_id === entityId);
@@ -370,8 +379,18 @@ const toggleEntity = async (entityId) => {
   transition: transform 0.2s ease;
 }
 
-.control-object:hover {
+.control-object:hover:not(.control-object-disabled) {
   transform: scale(1.1);
+}
+
+.control-object.control-object-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.control-object.control-object-disabled .control-circle {
+  filter: grayscale(100%) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
 }
 
 .control-circle-wrapper {

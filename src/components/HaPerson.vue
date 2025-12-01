@@ -23,7 +23,6 @@
 
         <div v-else class="text-start flex-grow-1">
           <h6 class="card-title mb-0">{{ name }}</h6>
-          <small v-if="deviceName" class="text-muted">{{ deviceName }}</small>
           <div class="mt-1 small text-muted">
             <div><strong>Location:</strong> {{ location }}</div>
             <div v-if="lastSeen"><strong>Last Seen:</strong> {{ formattedLastSeen }}</div>
@@ -39,7 +38,6 @@
 
 <script setup>
 import { computed } from 'vue';
-import { useHaStore } from '@/stores/haStore';
 import { useEntityResolver } from '@/composables/useEntityResolver';
 
 const props = defineProps({
@@ -57,7 +55,6 @@ const props = defineProps({
   },
 });
 
-const store = useHaStore();
 const { resolvedEntity } = useEntityResolver(computed(() => props.entity));
 
 const state = computed(() => resolvedEntity.value?.state ?? 'unknown');
@@ -89,16 +86,6 @@ const name = computed(
   () =>
     resolvedEntity.value?.attributes?.friendly_name || resolvedEntity.value?.entity_id || 'Unknown'
 );
-
-const deviceName = computed(() => {
-  if (!resolvedEntity.value) return null;
-  const deviceId = resolvedEntity.value.attributes?.device_id;
-  if (deviceId) {
-    const device = store.devices.find((d) => d.id === deviceId);
-    return device?.name || device?.name_by_user || `Device ${deviceId}`;
-  }
-  return null;
-});
 
 const iconClass = computed(() => {
   if (!resolvedEntity.value) return 'mdi mdi-account-question';

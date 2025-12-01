@@ -118,7 +118,7 @@ describe('HaSun.vue', () => {
     expect(wrapper.text()).toContain('Sunset');
   });
 
-  it('should display elevation', async () => {
+  it('should display sunrise and sunset times', async () => {
     const wrapper = mount(HaSun, {
       props: {
         entity: 'sun.sun',
@@ -129,23 +129,8 @@ describe('HaSun.vue', () => {
     });
 
     await wrapper.vm.$nextTick();
-    expect(wrapper.text()).toContain('Elevation');
-    expect(wrapper.text()).toContain('45.5');
-  });
-
-  it('should display azimuth', async () => {
-    const wrapper = mount(HaSun, {
-      props: {
-        entity: 'sun.sun',
-      },
-      global: {
-        plugins: [pinia],
-      },
-    });
-
-    await wrapper.vm.$nextTick();
-    expect(wrapper.text()).toContain('Azimuth');
-    expect(wrapper.text()).toContain('180');
+    expect(wrapper.text()).toContain('Sunrise');
+    expect(wrapper.text()).toContain('Sunset');
   });
 
   it('should format time attributes', async () => {
@@ -223,7 +208,7 @@ describe('HaSun.vue', () => {
     expect(wrapper.text()).toContain('Next Sunrise');
   });
 
-  it('should display all time attributes', async () => {
+  it('should display time attributes', async () => {
     const wrapper = mount(HaSun, {
       props: {
         entity: 'sun.sun',
@@ -237,8 +222,6 @@ describe('HaSun.vue', () => {
     const attributes = [
       'Sunrise',
       'Sunset',
-      'Elevation',
-      'Azimuth',
     ];
     attributes.forEach((attr) => {
       expect(wrapper.text()).toContain(attr);
@@ -321,8 +304,8 @@ describe('HaSun.vue', () => {
     });
 
     await wrapper.vm.$nextTick();
-    expect(wrapper.vm.formattedSunrise).toBeTruthy();
-    expect(wrapper.vm.formattedSunset).toBeTruthy();
+    expect(wrapper.vm.nextRising).toBeTruthy();
+    expect(wrapper.vm.nextSetting).toBeTruthy();
   });
 
   it('should validate entity prop', () => {

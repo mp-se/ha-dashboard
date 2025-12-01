@@ -112,7 +112,6 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { useHaStore } from '@/stores/haStore';
 import { useEntityResolver } from '@/composables/useEntityResolver';
 import { useServiceCall } from '@/composables/useServiceCall';
 
@@ -140,7 +139,6 @@ const { callService, isLoading } = useServiceCall();
 
 // Use composable for entity resolution
 const { resolvedEntity } = useEntityResolver(computed(() => props.entity));
-const store = useHaStore();
 
 const state = computed(() => resolvedEntity.value?.state ?? 'unknown');
 const attributes = computed(() => resolvedEntity.value?.attributes || {});
@@ -375,16 +373,6 @@ const name = computed(
   () =>
     resolvedEntity.value?.attributes?.friendly_name || resolvedEntity.value?.entity_id || 'Unknown'
 );
-
-const deviceName = computed(() => {
-  if (!resolvedEntity.value) return null;
-  const deviceId = resolvedEntity.value.attributes?.device_id;
-  if (deviceId) {
-    const device = store.devices.find((d) => d.id === deviceId);
-    return device?.name || device?.name_by_user || `Device ${deviceId}`;
-  }
-  return null;
-});
 </script>
 
 <style scoped>

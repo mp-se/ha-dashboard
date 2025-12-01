@@ -20,7 +20,6 @@
           <div class="d-flex justify-content-between align-items-start mb-2">
             <div>
               <h6 class="card-title mb-0">{{ name }}</h6>
-              <small v-if="deviceName" class="text-muted">{{ deviceName }}</small>
             </div>
             <div class="text-end">
               <span class="badge bg-secondary">{{ formattedValue }}</span>
@@ -174,16 +173,6 @@ const name = computed(
   () =>
     resolvedEntity.value?.attributes?.friendly_name || resolvedEntity.value?.entity_id || 'Unknown'
 );
-
-const deviceName = computed(() => {
-  if (!resolvedEntity.value) return null;
-  const deviceId = resolvedEntity.value.attributes?.device_id;
-  if (deviceId) {
-    const device = store.devices.find((d) => d.id === deviceId);
-    return device?.name || device?.name_by_user || `Device ${deviceId}`;
-  }
-  return null;
-});
 
 // Return an array of [key, value] for the attributes to show
 const extraAttributes = computed(() => {

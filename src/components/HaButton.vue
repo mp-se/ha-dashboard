@@ -17,10 +17,6 @@
             Press
           </button>
         </div>
-
-        <div v-if="deviceName" class="mt-3 pt-2 border-top">
-          <small class="text-muted">{{ deviceName }}</small>
-        </div>
       </div>
     </div>
   </div>
@@ -28,7 +24,6 @@
 
 <script setup>
 import { computed } from 'vue';
-import { useHaStore } from '@/stores/haStore';
 import { useEntityResolver } from '@/composables/useEntityResolver';
 import { useServiceCall } from '@/composables/useServiceCall';
 
@@ -51,7 +46,6 @@ const props = defineProps({
   },
 });
 
-const store = useHaStore();
 const { callService } = useServiceCall();
 
 // Use composable for entity resolution
@@ -70,16 +64,6 @@ const name = computed(
   () =>
     resolvedEntity.value?.attributes?.friendly_name || resolvedEntity.value?.entity_id || 'Unknown'
 );
-
-const deviceName = computed(() => {
-  if (!resolvedEntity.value) return null;
-  const deviceId = resolvedEntity.value.attributes?.device_id;
-  if (deviceId) {
-    const device = store.devices.find((d) => d.id === deviceId);
-    return device?.name || device?.name_by_user || `Device ${deviceId}`;
-  }
-  return null;
-});
 
 const buttonIcon = computed(() => {
   return 'mdi mdi-gesture-tap-button';

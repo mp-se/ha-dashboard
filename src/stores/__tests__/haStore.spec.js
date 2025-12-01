@@ -36,7 +36,7 @@ class MockWebSocket {
     this.CLOSED = 3;
   }
   
-  send(data) {}
+  send() {}
   close() {
     this.readyState = this.CLOSED;
   }
@@ -544,7 +544,7 @@ describe('useHaStore', () => {
         })
       );
 
-      const result = await store.loadDashboardConfig();
+      await store.loadDashboardConfig();
 
       expect(store.dashboardConfig).toEqual(mockConfig);
     });
@@ -1167,11 +1167,6 @@ describe('useHaStore', () => {
         store.isLocalMode = false;
 
         // Mock websocket is already set up in the test environment
-        const mockAreas = [
-          { id: 'area1', area_id: 'area1', name: 'Living Room', icon: 'mdi:sofa', picture: null, aliases: [], entities: [] },
-          { id: 'area2', area_id: 'area2', name: 'Bedroom', icon: 'mdi:bed', picture: null, aliases: [], entities: [] },
-        ];
-
         // This would require mocking sendWebSocketCommand, which is complex
         // For now, just verify the method exists and can be called
         expect(typeof store.fetchAreaRegistry).toBe('function');
@@ -1189,11 +1184,6 @@ describe('useHaStore', () => {
         store.haUrl = 'http://localhost:8123';
         store.accessToken = 'test-token';
         store.isLocalMode = false;
-
-        const mockDevices = [
-          { id: 'device1', name: 'Light 1', model: 'Smart Bulb', manufacturer: 'Philips', sw_version: '1.0', hw_version: '1', area_id: 'area1', entities: [] },
-          { id: 'device2', name: 'Light 2', model: 'Smart Bulb', manufacturer: 'IKEA', sw_version: '2.0', hw_version: '2', area_id: 'area2', entities: [] },
-        ];
 
         // Verify the method exists
         expect(typeof store.fetchDevicesAfterAuth).toBe('function');

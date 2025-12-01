@@ -231,7 +231,6 @@ describe('mdiIconValidator', () => {
     });
 
     it('should reject common typos with suggestions', () => {
-      const typos = ['thermometer', 'lightbulb', 'humidty'];
       const shouldInvalid = ['thermomtr', 'lightbuld', 'humidty'];
 
       shouldInvalid.forEach(typo => {
@@ -241,3 +240,4 @@ describe('mdiIconValidator', () => {
     });
   });
 });
+

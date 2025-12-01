@@ -41,7 +41,6 @@
 
 <script setup>
 import { computed } from 'vue';
-import { useHaStore } from '@/stores/haStore';
 import { useEntityResolver } from '@/composables/useEntityResolver';
 import { useIconCircleColor } from '@/composables/useIconCircleColor';
 
@@ -59,8 +58,6 @@ const props = defineProps({
     },
   },
 });
-
-const store = useHaStore();
 
 // Use composable for entity resolution
 const { resolvedEntity } = useEntityResolver(computed(() => props.entity));
@@ -102,16 +99,6 @@ const iconClass = computed(() => {
   const icon = resolvedEntity.value.attributes?.icon;
   if (icon && icon.startsWith('mdi:')) {
     return `mdi mdi-${icon.split(':')[1]}`;
-  }
-  return null;
-});
-
-const deviceName = computed(() => {
-  if (!resolvedEntity.value) return null;
-  const deviceId = resolvedEntity.value.attributes?.device_id;
-  if (deviceId) {
-    const device = store.devices.find((d) => d.id === deviceId);
-    return device?.name || device?.name_by_user || `Device ${deviceId}`;
   }
   return null;
 });

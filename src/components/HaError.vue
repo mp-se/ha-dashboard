@@ -31,7 +31,6 @@
 
 <script setup>
 import { computed } from 'vue';
-import { useHaStore } from '@/stores/haStore';
 import { useEntityResolver } from '@/composables/useEntityResolver';
 
 const props = defineProps({
@@ -67,7 +66,6 @@ const props = defineProps({
   },
 });
 
-const store = useHaStore();
 const { resolvedEntity } = useEntityResolver(computed(() => props.entity));
 
 // Get the current value to check

@@ -23,7 +23,6 @@
 
 <script setup>
 import { computed } from 'vue';
-import { useHaStore } from '@/stores/haStore';
 import { useIconClass } from '@/composables/useIconClass';
 import { useIconCircleColor } from '@/composables/useIconCircleColor';
 import { useEntityResolver } from '@/composables/useEntityResolver';
@@ -47,7 +46,6 @@ const props = defineProps({
   },
 });
 
-const store = useHaStore();
 const { resolvedEntity } = useEntityResolver(computed(() => props.entity));
 
 const state = computed(() => resolvedEntity.value?.state ?? 'unknown');

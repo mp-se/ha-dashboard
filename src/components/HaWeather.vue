@@ -47,19 +47,6 @@
               </div>
             </div>
           </div>
-          <div v-if="deviceName" class="mt-2 pt-1 border-top">
-            <small class="text-muted">{{ deviceName }}</small>
-          </div>
-          <div class="mt-2 pt-2 border-top small">
-            <div class="d-flex justify-content-between mb-1">
-              <span class="text-muted">Wind:</span>
-              <span class="fw-bold">{{ windSpeed ?? '-' }} km/h</span>
-            </div>
-            <div v-if="uvIndex" class="d-flex justify-content-between">
-              <span class="text-muted">UV Index:</span>
-              <span class="fw-bold">{{ uvIndex }}</span>
-            </div>
-          </div>
         </template>
       </div>
     </div>
@@ -68,7 +55,6 @@
 
 <script setup>
 import { computed } from 'vue';
-import { useHaStore } from '@/stores/haStore';
 import { useEntityResolver } from '@/composables/useEntityResolver';
 
 const props = defineProps({
@@ -87,8 +73,6 @@ const props = defineProps({
   attributes: { type: Array, default: () => [] },
 });
 
-const store = useHaStore();
-
 // Use composable for entity resolution
 const { resolvedEntity } = useEntityResolver(props.entity);
 
@@ -105,16 +89,6 @@ const name = computed(
   () =>
     resolvedEntity.value?.attributes?.friendly_name || resolvedEntity.value?.entity_id || 'Unknown'
 );
-
-const deviceName = computed(() => {
-  if (!resolvedEntity.value) return null;
-  const deviceId = resolvedEntity.value.attributes?.device_id;
-  if (deviceId) {
-    const device = store.devices.find((d) => d.id === deviceId);
-    return device?.name || device?.name_by_user || `Device ${deviceId}`;
-  }
-  return null;
-});
 
 const weatherIcon = computed(() => {
   const condition = state.value?.toLowerCase();
@@ -157,7 +131,6 @@ const humidity = computed(() => resolvedEntity.value?.attributes?.humidity);
 
 const windSpeed = computed(() => resolvedEntity.value?.attributes?.wind_speed);
 const windBearing = computed(() => resolvedEntity.value?.attributes?.wind_bearing);
-const uvIndex = computed(() => resolvedEntity.value?.attributes?.uv_index);
 
 const windSpeedMs = computed(() => {
   const speed = windSpeed.value;

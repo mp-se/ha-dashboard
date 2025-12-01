@@ -13,7 +13,6 @@
       <div class="card-body d-flex align-items-center">
         <div class="text-start flex-grow-1">
           <h6 class="card-title mb-0">{{ name }}</h6>
-          <small v-if="deviceName" class="text-muted">{{ deviceName }}</small>
           <div v-if="extraAttributes.length" class="mt-1 small text-muted">
             <ul class="list-unstyled mb-0">
               <li v-for="[k, v] in extraAttributes" :key="k">
@@ -47,7 +46,6 @@
           <div class="d-flex align-items-center">
             <div class="text-start flex-grow-1">
               <h6 class="card-title mb-0">{{ getName(ent) }}</h6>
-              <small v-if="getDeviceName(ent)" class="text-muted">{{ getDeviceName(ent) }}</small>
             </div>
             <div class="d-flex align-items-center">
               <div class="text-end me-2">
@@ -167,16 +165,6 @@ const name = computed(
     resolvedEntity.value?.attributes?.friendly_name || resolvedEntity.value?.entity_id || 'Unknown'
 );
 
-const deviceName = computed(() => {
-  if (!resolvedEntity.value) return null;
-  const deviceId = resolvedEntity.value.attributes?.device_id;
-  if (deviceId) {
-    const device = store.devices.find((d) => d.id === deviceId);
-    return device?.name || device?.name_by_user || `Device ${deviceId}`;
-  }
-  return null;
-});
-
 const iconClass = computed(() => {
   if (!resolvedEntity.value) return null;
   const firstEntity = Array.isArray(props.entity) ? props.entity[0] : props.entity;
@@ -207,17 +195,6 @@ const getName = (ent) => {
     console.warn('Error getting name for entity:', ent, error);
     return 'Unknown';
   }
-};
-
-const getDeviceName = (ent) => {
-  const res = getResolved(ent);
-  if (!res) return null;
-  const deviceId = res.attributes?.device_id;
-  if (deviceId) {
-    const device = store.devices.find((d) => d.id === deviceId);
-    return device?.name || null;
-  }
-  return null;
 };
 
 const getFormattedValue = (ent) => {

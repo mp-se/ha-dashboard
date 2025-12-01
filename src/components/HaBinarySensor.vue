@@ -23,7 +23,6 @@
 
         <div v-if="resolvedEntity" class="text-start flex-grow-1">
           <h6 class="card-title mb-0">{{ name }}</h6>
-          <small v-if="deviceName" class="text-muted">{{ deviceName }}</small>
           <div v-if="extraAttributes.length" class="mt-1 small text-muted">
             <ul class="list-unstyled mb-0">
               <li v-for="[k, v] in extraAttributes" :key="k">
@@ -53,7 +52,6 @@
 
 <script setup>
 import { computed } from 'vue';
-import { useHaStore } from '@/stores/haStore';
 import { useEntityResolver } from '@/composables/useEntityResolver';
 import { formatAttributeValue, attributeLabel } from '@/utils/attributeFormatters';
 
@@ -76,8 +74,6 @@ const props = defineProps({
     default: () => [],
   },
 });
-
-const store = useHaStore();
 
 // Use composable for entity resolution
 const { resolvedEntity } = useEntityResolver(props.entity);
@@ -106,16 +102,6 @@ const name = computed(
   () =>
     resolvedEntity.value?.attributes?.friendly_name || resolvedEntity.value?.entity_id || 'Unknown'
 );
-
-const deviceName = computed(() => {
-  if (!resolvedEntity.value) return null;
-  const deviceId = resolvedEntity.value.attributes?.device_id;
-  if (deviceId) {
-    const device = store.devices.find((d) => d.id === deviceId);
-    return device?.name || device?.name_by_user || `Device ${deviceId}`;
-  }
-  return null;
-});
 
 // card border color
 const cardBorderClass = computed(() => {

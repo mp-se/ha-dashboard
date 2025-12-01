@@ -28,6 +28,7 @@ const store = useHaStore();
 
 // Filter out control props that shouldn't be passed to components
 const getComponentProps = (item) => {
+  // eslint-disable-next-line no-unused-vars
   const { component, ...props } = item;
   return props;
 };

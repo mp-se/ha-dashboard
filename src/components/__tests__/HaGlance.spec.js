@@ -217,7 +217,6 @@ describe('HaGlance.vue', () => {
         props: { entity: ['sensor.temperature', 'sensor.humidity'] },
         global: { plugins: [pinia] },
       });
-      const glanceItems = wrapper.findAll('.glance-item');
       // Should have at least the entities listed
       expect(wrapper.text()).toMatch(/Temperature|Humidity/);
     });
