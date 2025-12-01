@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
+    "@mdi/js": "^7.4.47",
     "bootstrap": "^5.3.8",
     "pinia": "^3.0.4",
     "vite-plugin-pwa": "^1.2.0",
