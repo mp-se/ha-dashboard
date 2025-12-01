@@ -255,9 +255,12 @@ export const useHaStore = defineStore('haStore', () => {
     }
   };
 
-  // Map to track pending websocket commands
   let wsPendingCommands = new Map();
   let wsCommandId = 1;
+
+  // Track subscription status
+  let subscriptionActive = false;
+  let subscriptionId = null;
 
   /**
    * Send a command via websocket and wait for result
@@ -462,30 +465,19 @@ export const useHaStore = defineStore('haStore', () => {
    * Map entities to devices based on device_id attribute
    */
   const mapEntitiesToDevices = () => {
-    console.log('=== mapEntitiesToDevices called ===');
-    console.log('Current sensors count:', sensors.value.length);
-    console.log('Current devices count:', devices.value.length);
-    console.log('Current areas count:', areas.value.length);
-    
     if (!sensors.value || sensors.value.length === 0) {
-      console.warn('No sensors loaded yet - cannot map entities');
       return;
     }
 
     if (!devices.value || devices.value.length === 0) {
-      console.log('No devices to map entities to');
       return;
     }
 
     // First, map entities to devices
-    console.log('=== Mapping entities to devices ===');
     const devicesMap = new Map(devices.value.map((d) => [d.id, d]));
     let mappedCount = 0;
     let unmappedCount = 0;
     let noDeviceIdCount = 0;
-
-    console.log('Devices map size:', devicesMap.size);
-    console.log('Sample devices in map:', Array.from(devicesMap.entries()).slice(0, 3).map(([id, d]) => ({ id, name: d.name, area_id: d.area_id })));
 
     for (const sensor of sensors.value) {
       const deviceId = sensor.attributes?.device_id;
@@ -505,14 +497,8 @@ export const useHaStore = defineStore('haStore', () => {
       }
     }
 
-    console.log(`Mapped ${mappedCount} entities to devices. Unmapped: ${unmappedCount}, No device_id: ${noDeviceIdCount}`);
-    console.log('Sample devices after mapping:', devices.value.filter(d => d.entities.length > 0).slice(0, 3).map(d => ({ id: d.id, name: d.name, area_id: d.area_id, entities: d.entities.length })));
-
     // Then, map entities to areas via devices
-    console.log('=== Mapping entities to areas via devices ===');
     const areasMap = new Map(areas.value.map((a) => [a.area_id, a]));
-    console.log('Areas map size:', areasMap.size);
-    console.log('Devices with area_id:', devices.value.filter(d => d.area_id).map(d => ({ id: d.id, name: d.name, area_id: d.area_id, entities: d.entities.length })));
     
     let areasWithEntities = 0;
     for (const device of devices.value) {
@@ -535,18 +521,15 @@ export const useHaStore = defineStore('haStore', () => {
           virtualAreaEntity.entities = area.entities;
         }
         
-        if (afterCount > beforeCount) {
-          console.log(`Added ${afterCount - beforeCount} entities to area ${device.area_id}`);
-        }
         if (beforeCount === 0 && afterCount > 0) {
           areasWithEntities++;
         }
       }
     }
 
-    console.log(`Mapped entities to ${areasWithEntities} areas`);
-    console.log('All areas:', areas.value.map(a => ({ id: a.area_id, name: a.name, entities: a.entities?.length || 0 })));
-    console.log('=== mapEntitiesToDevices complete ===');
+    if (import.meta.env.DEV) {
+      console.log(`Mapped entities to ${areasWithEntities} areas and ${mappedCount} devices`);
+    }
   };
 
   const connectWebSocket = () => {
@@ -579,7 +562,6 @@ export const useHaStore = defineStore('haStore', () => {
     ws.onmessage = async (event) => {
       try {
         const data = JSON.parse(event.data);
-        console.log('WebSocket message:', data.type);
 
         if (data.type === 'auth_required') {
           console.log('Auth required, sending token');
@@ -592,10 +574,12 @@ export const useHaStore = defineStore('haStore', () => {
         } else if (data.type === 'auth_ok') {
           console.log('Authentication successful, subscribing to events');
           authenticated = true;
-          // Don't use hardcoded ID - let sendWebSocketCommand handle it
-          // Or just send without ID since subscription doesn't need response tracking
+          // Subscribe with an ID to track subscription confirmation
+          subscriptionId = wsCommandId++;
+          subscriptionActive = false; // Will become true when we get confirmation
           ws.send(
             JSON.stringify({
+              id: subscriptionId,
               type: 'subscribe_events',
               event_type: 'state_changed',
             })
@@ -620,8 +604,12 @@ export const useHaStore = defineStore('haStore', () => {
             wsPendingCommands.delete(data.id);
             // Always resolve with data.result, even if it's null or undefined
             resolve(data.result);
-          } else if (authenticated) {
-            console.log('Subscription confirmed');
+          } else if (data.id === subscriptionId) {
+            // This is the subscription confirmation
+            subscriptionActive = data.success === true;
+            if (!subscriptionActive) {
+              console.error('[WS] Subscription failed!', data);
+            }
           }
         } else if (
           data.type === 'event' &&
