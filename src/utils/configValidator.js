@@ -4,6 +4,7 @@
  */
 
 import { getDefaultComponentType } from '../composables/useDefaultComponentType';
+import { isValidMdiIcon, suggestMdiIcons } from './mdiIconValidator';
 
 // Component prop schemas - defines required and optional props for each component
 const componentSchemas = {
@@ -107,6 +108,10 @@ const componentSchemas = {
     required: [],
     optional: ['attributes'],
   },
+  HaRoom: {
+    required: ['entity'],
+    optional: ['color'],
+  },
 };
 
 /**
@@ -187,6 +192,19 @@ function validateEntity(entityConfig, viewName, entityIndex) {
     }
   }
 
+  // Validate icon prop if present (HaHeader, HaLink, etc.)
+  if (entityConfig.icon && typeof entityConfig.icon === 'string') {
+    if (!isValidMdiIcon(entityConfig.icon)) {
+      const suggestions = suggestMdiIcons(entityConfig.icon);
+      const suggestionText = suggestions.length > 0 
+        ? ` Did you mean: ${suggestions.map(s => `"mdi-${s}"`).join(', ')}?`
+        : '';
+      errors.push({
+        message: `Component '${componentType}' in view '${viewName}' entity '${entityId}' has invalid icon '${entityConfig.icon}'. Not a valid MDI icon.${suggestionText}`,
+      });
+    }
+  }
+
   // Warn about deprecated secondEntity prop in HaSensorGraph
   if (componentType === 'HaSensorGraph' && entityConfig.secondEntity) {
     errors.push({
@@ -259,6 +277,16 @@ export function validateConfig(config) {
     if (!view.icon) {
       errors.push({
         message: `View '${view.name}' is missing "icon" property`,
+        line: 14 + viewIndex,
+      });
+    } else if (view.icon && !isValidMdiIcon(view.icon)) {
+      // Validate icon is a real MDI icon
+      const suggestions = suggestMdiIcons(view.icon);
+      const suggestionText = suggestions.length > 0 
+        ? ` Did you mean: ${suggestions.map(s => `"mdi-${s}"`).join(', ')}?`
+        : '';
+      errors.push({
+        message: `View '${view.name}' has invalid icon '${view.icon}'. Not a valid MDI icon.${suggestionText}`,
         line: 14 + viewIndex,
       });
     }

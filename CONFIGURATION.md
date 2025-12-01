@@ -303,17 +303,22 @@ Views are the top-level dashboard pages. Each view has a name, label, icon, and 
 
 ### Icon Format
 
-Icons use Material Design Icons (MDI). Format: `mdi mdi-icon-name`
+Icons use Material Design Icons (MDI). The format is flexible and accepts:
+
+- `mdi-icon-name` — Simplified format (prefix added automatically)
+- `mdi mdi-icon-name` — Full format (classic)
+- `mdi:icon-name` — Home Assistant format (auto-converted)
 
 Common icons:
-- `mdi mdi-view-dashboard` — Dashboard
-- `mdi mdi-lightbulb` — Lights
-- `mdi mdi-power-plug` — Switches/Outlets
-- `mdi mdi-thermometer` — Temperature
-- `mdi mdi-battery` — Battery
-- `mdi mdi-wifi` — WiFi
-- `mdi mdi-cloud` — Weather
-- `mdi mdi-lock` — Security
+
+- `mdi-view-dashboard` — Dashboard
+- `mdi-lightbulb` — Lights
+- `mdi-power-plug` — Switches/Outlets
+- `mdi-thermometer` — Temperature
+- `mdi-battery` — Battery
+- `mdi-wifi` — WiFi
+- `mdi-cloud` — Weather
+- `mdi-lock` — Security
 
 See [Material Design Icons](https://materialdesignicons.com) for the full list.
 
@@ -328,27 +333,37 @@ Displays numeric sensor data with value, unit, and optional attributes.
 **Use for**: Temperature, humidity, battery percentage, any numeric sensor
 
 **Properties**:
-- `entity` (string|array, required): Sensor entity ID(s)
-- `attributes` (array, optional): Attribute keys to display below the state
+
+- `entity` (string|array|object, required): Sensor entity ID(s) or entity objects
+- `attributes` (array, optional, default: []): Attribute keys to display below the state
 - `type` (optional): Explicitly set to `HaSensor` to override auto-detection
 
 **Examples**:
 
+Single sensor with automatic type detection:
+
 ```json
 {
+  "type": "HaSensor",
   "entity": "sensor.temperature_living_room"
 }
 ```
 
-```json
-{
-  "entity": "sensor.air_quality",
-  "attributes": ["aqi", "last_updated"]
-}
-```
+With additional attributes displayed:
 
 ```json
 {
+  "type": "HaSensor",
+  "entity": "sensor.air_quality",
+  "attributes": ["aqi", "pm25", "last_updated"]
+}
+```
+
+Multiple sensors in one card:
+
+```json
+{
+  "type": "HaSensor",
   "entity": [
     "sensor.temperature_living_room",
     "sensor.humidity_living_room"
@@ -423,21 +438,28 @@ Displays binary state (on/off, open/closed, detected/not detected).
 **Use for**: Motion sensors, door sensors, presence detection, binary switches
 
 **Properties**:
-- `entity` (string, required): Binary sensor entity ID
-- `attributes` (array, optional): Additional attributes to display
+
+- `entity` (string|object, required): Binary sensor entity ID or object
+- `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
 
+Basic motion sensor:
+
 ```json
 {
+  "type": "HaBinarySensor",
   "entity": "binary_sensor.motion_living_room"
 }
 ```
 
+With attributes:
+
 ```json
 {
+  "type": "HaBinarySensor",
   "entity": "binary_sensor.door_front",
-  "attributes": ["last_triggered"]
+  "attributes": ["last_triggered", "last_changed"]
 }
 ```
 
@@ -445,24 +467,41 @@ Displays binary state (on/off, open/closed, detected/not detected).
 
 Interactive light control with on/off toggle and brightness slider.
 
-**Use for**: Light entities (RGB, dimmable, etc.)
+**Use for**: Light entities (RGB, dimmable, white, etc.)
 
 **Properties**:
-- `entity` (string, required): Light entity ID
-- `attributes` (array, optional): Additional attributes
+
+- `entity` (string|object, required): Light entity ID or object
+- `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
 
+Basic dimmable light:
+
 ```json
 {
+  "type": "HaLight",
   "entity": "light.living_room"
 }
 ```
 
+With brightness attribute:
+
 ```json
 {
+  "type": "HaLight",
   "entity": "light.kitchen_cabinet",
-  "attributes": ["brightness"]
+  "attributes": ["brightness", "color_temp"]
+}
+```
+
+RGB light with full control:
+
+```json
+{
+  "type": "HaLight",
+  "entity": "light.bedroom",
+  "attributes": ["brightness", "color_temp", "hs_color"]
 }
 ```
 
@@ -473,14 +512,39 @@ Interactive switch control with on/off toggle.
 **Use for**: Switches, outlets, fans, any toggle-able entity
 
 **Properties**:
-- `entity` (string, required): Switch entity ID
-- `attributes` (array, optional): Additional attributes
+
+- `entity` (string|object, required): Switch entity ID or object
+- `mock` (boolean, optional, default: false): Enable mock toggle for testing without HA
+- `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
 
+Basic switch:
+
 ```json
 {
+  "type": "HaSwitch",
   "entity": "switch.kitchen_outlet"
+}
+```
+
+With attributes:
+
+```json
+{
+  "type": "HaSwitch",
+  "entity": "switch.garage_fan",
+  "attributes": ["power", "voltage"]
+}
+```
+
+Mock switch for testing:
+
+```json
+{
+  "type": "HaSwitch",
+  "entity": "switch.test_device",
+  "mock": true
 }
 ```
 
@@ -491,14 +555,28 @@ Displays weather forecast with temperature, conditions, wind speed.
 **Use for**: Weather integration entities
 
 **Properties**:
-- `entity` (string, required): Weather entity ID
-- `attributes` (array, optional): Additional attributes
+
+- `entity` (string|object, required): Weather entity ID or object
+- `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
 
+Basic weather:
+
 ```json
 {
+  "type": "HaWeather",
   "entity": "weather.forecast_home"
+}
+```
+
+With additional forecast details:
+
+```json
+{
+  "type": "HaWeather",
+  "entity": "weather.forecast_home",
+  "attributes": ["temperature", "wind_speed", "humidity"]
 }
 ```
 
@@ -509,13 +587,28 @@ Displays sun position, sunrise/sunset times.
 **Use for**: `sun.sun` entity
 
 **Properties**:
-- `entity` (string, required): Sun entity ID
+
+- `entity` (string|object, required): Sun entity ID or object
+- `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
 
+Basic sun display:
+
 ```json
 {
+  "type": "HaSun",
   "entity": "sun.sun"
+}
+```
+
+With sunrise/sunset times:
+
+```json
+{
+  "type": "HaSun",
+  "entity": "sun.sun",
+  "attributes": ["next_rising", "next_setting", "elevation"]
 }
 ```
 
@@ -526,14 +619,28 @@ Controls media playback (play/pause, volume, track info).
 **Use for**: Audio/video players, media integrations
 
 **Properties**:
-- `entity` (string, required): Media player entity ID
-- `attributes` (array, optional): Additional attributes
+
+- `entity` (string|object, required): Media player entity ID or object
+- `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
 
+Basic media player:
+
 ```json
 {
+  "type": "HaMediaPlayer",
   "entity": "media_player.living_room_speaker"
+}
+```
+
+With track and volume info:
+
+```json
+{
+  "type": "HaMediaPlayer",
+  "entity": "media_player.bedroom_tv",
+  "attributes": ["media_title", "media_artist", "volume_level"]
 }
 ```
 
@@ -544,14 +651,28 @@ Displays and controls alarm system state (armed/disarmed, modes).
 **Use for**: Alarm control panel entities
 
 **Properties**:
-- `entity` (string, required): Alarm panel entity ID
-- `attributes` (array, optional): Additional attributes
+
+- `entity` (string|object, required): Alarm panel entity ID or object
+- `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
 
+Basic alarm panel:
+
 ```json
 {
+  "type": "HaAlarmPanel",
   "entity": "alarm_control_panel.home"
+}
+```
+
+With arm modes:
+
+```json
+{
+  "type": "HaAlarmPanel",
+  "entity": "alarm_control_panel.home",
+  "attributes": ["code_arm_required", "code_disarm_required"]
 }
 ```
 
@@ -562,13 +683,17 @@ Displays printer status including toner levels.
 **Use for**: Printer entities with toner sensors
 
 **Properties**:
-- `entity` (string, required): Main printer sensor entity
-- `black` (string, required): Black toner sensor entity
-- `cyan` (string, required): Cyan toner sensor entity
-- `magenta` (string, required): Magenta toner sensor entity
-- `yellow` (string, required): Yellow toner sensor entity
+
+- `entity` (string|object, required): Main printer sensor entity ID or object
+- `black` (string, required): Black toner sensor entity ID
+- `cyan` (string, required): Cyan toner sensor entity ID
+- `magenta` (string, required): Magenta toner sensor entity ID
+- `yellow` (string, required): Yellow toner sensor entity ID
+- `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
+
+HP printer with toner monitoring:
 
 ```json
 {
@@ -588,13 +713,26 @@ Displays person tracking information (location, state).
 **Use for**: Person tracking entities
 
 **Properties**:
-- `entity` (string, required): Person entity ID
+
+- `entity` (string|object, required): Person entity ID or object
 
 **Examples**:
 
+Basic person tracking:
+
 ```json
 {
+  "type": "HaPerson",
   "entity": "person.john_doe"
+}
+```
+
+Family member location:
+
+```json
+{
+  "type": "HaPerson",
+  "entity": "person.jane_smith"
 }
 ```
 
@@ -605,15 +743,28 @@ Compact sensor display, great for dashboards with many items.
 **Use for**: Quick reference sensors that don't need much space
 
 **Properties**:
-- `entity` (string, required): Sensor entity ID
-- `attributes` (array, optional): Additional attributes
+
+- `entity` (string|object, required): Sensor entity ID or object
+- `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
+
+Time chip:
 
 ```json
 {
   "type": "HaChip",
   "entity": "sensor.time"
+}
+```
+
+Battery level chip:
+
+```json
+{
+  "type": "HaChip",
+  "entity": "sensor.phone_battery",
+  "attributes": ["battery_state"]
 }
 ```
 
@@ -624,15 +775,18 @@ Displays a warning message when a condition is met (yellow styling).
 **Use for**: Conditional warnings based on entity state
 
 **Properties**:
-- `entity` (string, required): Entity to monitor
+
+- `entity` (string|object, required): Entity to monitor
+- `attribute` (string, optional, default: "state"): Entity attribute to check
 - `operator` (string, required): Comparison operator
 - `value` (string|number|boolean, required): Value to compare against
-- `message` (string, required): Warning message
-- `attribute` (string, optional, default: "state"): Entity attribute to check
+- `message` (string, required): Warning message to display
 
 **Operators**: `=`, `!=`, `>`, `<`, `>=`, `<=`, `contains`, `not_contains`, `in`, `not_in`
 
 **Examples**:
+
+High temperature warning:
 
 ```json
 {
@@ -644,6 +798,8 @@ Displays a warning message when a condition is met (yellow styling).
 }
 ```
 
+Door open warning:
+
 ```json
 {
   "type": "HaWarning",
@@ -654,15 +810,38 @@ Displays a warning message when a condition is met (yellow styling).
 }
 ```
 
+High power consumption:
+
+```json
+{
+  "type": "HaWarning",
+  "entity": "sensor.power_usage",
+  "operator": ">",
+  "value": 3000,
+  "message": "High power consumption detected",
+  "attribute": "state"
+}
+```
+
 ### HaError
 
 Displays an error message when a condition is met (red styling).
 
 **Use for**: Error states and critical alerts
 
-**Properties**: Same as HaWarning
+**Properties**:
+
+- `entity` (string|object, required): Entity to monitor
+- `attribute` (string, optional, default: "state"): Entity attribute to check
+- `operator` (string, required): Comparison operator
+- `value` (string|number|boolean, required): Value to compare against
+- `message` (string, required): Error message to display
+
+**Operators**: `=`, `!=`, `>`, `<`, `>=`, `<=`, `contains`, `not_contains`, `in`, `not_in`
 
 **Examples**:
+
+Home Assistant update available:
 
 ```json
 {
@@ -674,6 +853,30 @@ Displays an error message when a condition is met (red styling).
 }
 ```
 
+Internet connection lost:
+
+```json
+{
+  "type": "HaError",
+  "entity": "binary_sensor.internet_connection",
+  "operator": "=",
+  "value": "off",
+  "message": "Internet connection lost"
+}
+```
+
+Disk space critical:
+
+```json
+{
+  "type": "HaError",
+  "entity": "sensor.disk_free",
+  "operator": "<",
+  "value": 1000,
+  "message": "Low disk space!"
+}
+```
+
 ### HaImage
 
 Displays an image from the local data directory or external URL. Images are resized to fit within the standard card container (col-md-4).
@@ -681,10 +884,13 @@ Displays an image from the local data directory or external URL. Images are resi
 **Use for**: Photos, diagrams, floor plans, visual dashboards
 
 **Properties**:
+
 - `url` (string, required): Path to image file relative to `/data/` directory, or full URL
-- `title` (string, optional): Image title/alt text (default: "Image")
+- `title` (string, optional, default: "Image"): Image title/alt text
 
 **Examples**:
+
+Local SVG floor plan:
 
 ```json
 {
@@ -694,6 +900,8 @@ Displays an image from the local data directory or external URL. Images are resi
 }
 ```
 
+Local PNG floor plan:
+
 ```json
 {
   "type": "HaImage",
@@ -701,6 +909,8 @@ Displays an image from the local data directory or external URL. Images are resi
   "title": "Floor Plan"
 }
 ```
+
+External image:
 
 ```json
 {
@@ -717,10 +927,13 @@ Displays a section header with optional icon.
 **Use for**: Visual organization and section titles
 
 **Properties**:
+
 - `name` (string, required): Header text
 - `icon` (string, optional): Material Design Icons class
 
 **Examples**:
+
+Header with icon:
 
 ```json
 {
@@ -730,6 +943,8 @@ Displays a section header with optional icon.
 }
 ```
 
+Simple header without icon:
+
 ```json
 {
   "type": "HaHeader",
@@ -737,19 +952,115 @@ Displays a section header with optional icon.
 }
 ```
 
-### HaSpacer
-
-Empty spacer card for layout purposes.
-
-**Use for**: Adding vertical/horizontal space between cards
-
-**Properties**: None
-
-**Examples**:
+Section header with device icon:
 
 ```json
 {
-  "type": "HaSpacer"
+  "type": "HaHeader",
+  "name": "Bedroom",
+  "icon": "mdi mdi-bed"
+}
+```
+
+### HaGauge
+
+Displays a gauge visualization for numeric sensor values.
+
+**Use for**: Visual representation of values (temperature, pressure, fill level, etc.)
+
+**Properties**:
+
+- `entity` (string|object, optional): Gauge entity ID or object
+- `min` (number, optional, default: 0): Minimum gauge value
+- `max` (number, optional, default: 100): Maximum gauge value
+
+**Examples**:
+
+Temperature gauge:
+
+```json
+{
+  "type": "HaGauge",
+  "entity": "sensor.temperature_living_room",
+  "min": -10,
+  "max": 50
+}
+```
+
+Battery level gauge:
+
+```json
+{
+  "type": "HaGauge",
+  "entity": "sensor.phone_battery",
+  "min": 0,
+  "max": 100
+}
+```
+
+Pressure gauge:
+
+```json
+{
+  "type": "HaGauge",
+  "entity": "sensor.atmospheric_pressure",
+  "min": 950,
+  "max": 1050
+}
+```
+
+### HaRoom
+
+Displays an area/room card with temperature/humidity auto-detection and control objects.
+
+**Use for**: Area-based room displays with device controls
+
+**Properties**:
+
+- `entity` (array, required): Array of entity IDs (area entity + control objects)
+- `color` (string, optional, default: "blue"): CSS color name for the room circle
+
+**Features**:
+
+- Auto-detects area entity by `area.*` prefix (order-independent)
+- Automatically finds temperature sensors (device_class: temperature)
+- Automatically finds humidity sensors (device_class: humidity)
+- Displays control objects (lights, switches, etc.) as clickable circles
+- Shows area icon in the main circle
+
+**Examples**:
+
+Bedroom with auto-detected sensors:
+
+```json
+{
+  "type": "HaRoom",
+  "entity": ["area.bedroom", "light.bedroom", "switch.fan"]
+}
+```
+
+Living room with custom color:
+
+```json
+{
+  "type": "HaRoom",
+  "entity": ["light.living_room", "area.living_room", "switch.outlet"],
+  "color": "red"
+}
+```
+
+Kitchen with multiple control objects:
+
+```json
+{
+  "type": "HaRoom",
+  "entity": [
+    "area.kitchen",
+    "light.kitchen_main",
+    "light.kitchen_island",
+    "switch.kitchen_exhaust"
+  ],
+  "color": "orange"
 }
 ```
 
@@ -760,12 +1071,15 @@ Renders a dynamic list of entities from a getter function.
 **Use for**: Dynamic entity filtering (batteries below 20%, offline devices, etc.)
 
 **Properties**:
+
 - `type` (required): Must be `HaEntityList`
 - `getter` (string, required): Name of getter function on store
-- `componentMap` (object, optional): Override component types for specific domains
-- `attributes` (array, optional): Attributes to display
+- `componentMap` (object, optional, default: {}): Override component types for specific domains
+- `attributes` (array, optional, default: []): Attributes to display
 
 **Examples**:
+
+Show all low battery devices:
 
 ```json
 {
@@ -774,13 +1088,26 @@ Renders a dynamic list of entities from a getter function.
 }
 ```
 
+With custom component mapping:
+
 ```json
 {
   "type": "HaEntityList",
-  "getter": "getOfflineDevices",
+  "getter": "getLowBatterySensors",
   "componentMap": {
-    "switch": "HaWarning"
+    "switch": "HaWarning",
+    "sensor": "HaChip"
   }
+}
+```
+
+Wifi sensors with attributes:
+
+```json
+{
+  "type": "HaEntityList",
+  "getter": "getWifiSensors",
+  "attributes": ["signal_strength", "ssid"]
 }
 ```
 
@@ -788,16 +1115,31 @@ Renders a dynamic list of entities from a getter function.
 
 Dropdown selector for input_select entities.
 
-**Use for**: Input select entities (mode selection, etc.)
+**Use for**: Input select entities (mode selection, scenes, etc.)
 
 **Properties**:
-- `entity` (string, required): Input select entity ID
+
+- `entity` (string|object, required): Input select entity ID or object
+- `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
 
+Home mode selector:
+
 ```json
 {
+  "type": "HaSelect",
   "entity": "input_select.home_mode"
+}
+```
+
+Scene selector with attributes:
+
+```json
+{
+  "type": "HaSelect",
+  "entity": "input_select.active_scene",
+  "attributes": ["options"]
 }
 ```
 
@@ -808,13 +1150,36 @@ Button trigger for input_button entities.
 **Use for**: One-click automations and scripts
 
 **Properties**:
-- `entity` (string, required): Input button entity ID
+
+- `entity` (string|object, required): Input button entity ID or object
+- `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
 
+Notification trigger:
+
 ```json
 {
+  "type": "HaButton",
   "entity": "input_button.notify_me"
+}
+```
+
+Scene activation button:
+
+```json
+{
+  "type": "HaButton",
+  "entity": "input_button.activate_movie_mode"
+}
+```
+
+Restart automation:
+
+```json
+{
+  "type": "HaButton",
+  "entity": "input_button.restart_automations"
 }
 ```
 
@@ -979,19 +1344,23 @@ The dashboard validates the configuration and shows errors if there are problems
 
 ### Common Errors
 
-**"Invalid prop: type check failed for prop 'entities'"**
+#### Invalid prop: type check failed for prop 'entities'
+
 - Check that `entities` array is present and is an array
 - Verify HaEntityList has the `getter` or `entities` property
 
-**"Entity not found: sensor.unknown"**
+#### Entity not found: sensor.unknown
+
 - Verify the entity ID matches Home Assistant's actual entity
 - Check entity is available in Home Assistant
 
-**"Missing required prop: 'entity'"**
+#### Missing required prop: 'entity'
+
 - Cards require an `entity` property (except HaHeader, HaSpacer, HaEntityList)
 - Double-check the entity is specified
 
-**"Invalid operator: '>'"**
+#### Invalid operator: '>'
+
 - For HaWarning/HaError, use valid operators: `=`, `!=`, `>`, `<`, `>=`, `<=`, `contains`, `not_contains`, `in`, `not_in`
 
 ### Enabling Debug Mode
@@ -1019,7 +1388,8 @@ To see detailed validation errors:
 
 The following Home Assistant entity types are not yet supported by the dashboard. While they can be added to the configuration, they will display as generic card placeholders:
 
-**Unsupported Domains:**
+**Unsupported Domains**:
+
 - `automation.*` — Home Assistant automations
 - `camera.*` — Security cameras and webcams
 - `climate.*` — HVAC/Thermostat entities
@@ -1037,9 +1407,10 @@ The following Home Assistant entity types are not yet supported by the dashboard
 - `todo.*` — To-do list entities
 - `zone.*` — Defined zones
 
-**Note on Display vs. Control:** Some unsupported entity types can display their current state values using the standard `HaSensor` component (e.g., a fan's speed or a climate entity's temperature). However, interactive controls for these entities (e.g., changing fan speed, adjusting thermostat, opening/closing covers) are not yet implemented. This is primarily because the development lacks test data and devices for proper implementation and validation of the control logic.
+**Note on Display vs. Control**: Some unsupported entity types can display their current state values using the standard `HaSensor` component (e.g., a fan's speed or a climate entity's temperature). However, interactive controls for these entities (e.g., changing fan speed, adjusting thermostat, opening/closing covers) are not yet implemented. This is primarily because the development lacks test data and devices for proper implementation and validation of the control logic.
 
-**To Request Support:** If you need control support for an unsupported entity type, please open a GitHub issue on the [project repository](https://github.com/mp-se/hassio-dashboard) with:
+**To Request Support**: If you need control support for an unsupported entity type, please open a GitHub issue on the [project repository](https://github.com/mp-se/hassio-dashboard) with:
+
 - The entity type (e.g., `fan`, `climate`, `cover`)
 - Example entity state structure from your Home Assistant (check Developer Tools → States)
 - Description of the control actions needed

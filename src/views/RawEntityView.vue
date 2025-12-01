@@ -64,12 +64,15 @@
                 >
                   <i class="mdi mdi-content-copy"></i>
                 </button>
-                <h6 class="card-title">{{ area.name || area.id }}</h6>
-                <small class="text-muted">{{ area.id }}</small>
-                <div class="mt-3">
-                  <div v-if="area.icon" class="mb-2">
-                    <strong>Icon:</strong> <code>{{ area.icon }}</code>
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <h6 class="card-title mb-0">{{ area.name || 'Unnamed' }}</h6>
+                    <small class="text-muted">area.{{ area.area_id }}</small>
+                    <div v-if="area.icon" class="small text-muted">Icon: <code>{{ area.icon }}</code></div>
                   </div>
+                  <i v-if="area.icon" :class="getIconClass(area.icon)" style="font-size: 1.5rem"></i>
+                </div>
+                <div class="mt-3">
                   <div v-if="area.picture" class="mb-2">
                     <strong>Picture:</strong> <code>{{ area.picture }}</code>
                   </div>
@@ -220,6 +223,14 @@ const formatAttributeValue = (v) => {
     }
   }
   return String(v);
+};
+
+const getIconClass = (icon) => {
+  if (!icon) return '';
+  if (icon.startsWith('mdi:')) {
+    return `mdi mdi-${icon.split(':')[1]}`;
+  }
+  return icon;
 };
 
 const copyEntityToClipboard = async (entity) => {

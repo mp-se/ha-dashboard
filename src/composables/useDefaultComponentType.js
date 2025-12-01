@@ -22,6 +22,7 @@ const DEFAULT_DOMAIN_MAP = {
   input_button: 'HaButton',
   person: 'HaPerson',
   camera: 'HaImage',
+  area: 'HaRoom',
 };
 
 /**

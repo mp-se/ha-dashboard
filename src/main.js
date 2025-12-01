@@ -29,6 +29,7 @@ import HaError from './components/HaError.vue';
 import HaGauge from './components/HaGauge.vue';
 import HaGlance from './components/HaGlance.vue';
 import HaImage from './components/HaImage.vue';
+import HaRoom from './components/HaRoom.vue';
 import { registerSW } from 'virtual:pwa-register';
 
 const app = createApp(App);
@@ -60,6 +61,7 @@ app.component('HaError', HaError);
 app.component('HaGauge', HaGauge);
 app.component('HaGlance', HaGlance);
 app.component('HaImage', HaImage);
+app.component('HaRoom', HaRoom);
 
 app.mount('#app');
 

@@ -258,6 +258,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useHaStore } from './stores/haStore';
+import { useNormalizeIcon } from './composables/useNormalizeIcon';
 import PwaInstallModal from './components/PwaInstallModal.vue';
 import CredentialDialog from './components/CredentialDialog.vue';
 
@@ -290,20 +291,21 @@ const menuItems = computed(() => {
     console.log('No views found in dashboardConfig');
     return [];
   }
+  const normalizeIcon = useNormalizeIcon();
   const filtered = store.dashboardConfig.views
     .filter((view) => view.enabled !== false)
     .map((view) => ({
       name: view.name,
       label: view.label,
-      icon: view.icon,
+      icon: normalizeIcon(view.icon),
     }));
   
   // Add dev views if developer mode is enabled
   if (store.developerMode) {
     filtered.push(
-      { name: 'dev', label: 'Dev', icon: 'mdi mdi-tools' },
-      { name: 'device', label: 'Devices', icon: 'mdi mdi-devices' },
-      { name: 'raw', label: 'Raw', icon: 'mdi mdi-code-json' }
+      { name: 'dev', label: 'Dev', icon: normalizeIcon('mdi-tools') },
+      { name: 'device', label: 'Devices', icon: normalizeIcon('mdi-devices') },
+      { name: 'raw', label: 'Raw', icon: normalizeIcon('mdi-code-json') }
     );
   }
   

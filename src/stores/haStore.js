@@ -186,8 +186,9 @@ export const useHaStore = defineStore('haStore', () => {
       const data = await response.json();
       sensors.value = data.sensors || [];
       devices.value = data.devices || [];
+      areas.value = data.areas || [];
       console.log(
-        `Loaded ${sensors.value.length} sensors and ${devices.value.length} devices from local file`
+        `Loaded ${sensors.value.length} sensors, ${devices.value.length} devices, and ${areas.value.length} areas from local file`
       );
     } catch (error) {
       console.error('Error loading local data:', error);
@@ -200,6 +201,7 @@ export const useHaStore = defineStore('haStore', () => {
       const data = {
         sensors: sensors.value,
         devices: devices.value,
+        areas: areas.value,
         timestamp: new Date().toISOString(),
         version: '1.0',
       };
@@ -322,11 +324,8 @@ export const useHaStore = defineStore('haStore', () => {
         }
         if (!sensor.attributes.device_id && entityToDeviceMap.has(sensor.entity_id)) {
           sensor.attributes.device_id = entityToDeviceMap.get(sensor.entity_id);
-          console.log(`Enriched entity ${sensor.entity_id} with device_id ${sensor.attributes.device_id}`);
         }
       }
-      
-      console.log(`Enriched ${entityToDeviceMap.size} entities with device_id from entity registry`);
     } catch (error) {
       console.error('Error fetching entity registry via websocket:', error);
     }
@@ -384,15 +383,16 @@ export const useHaStore = defineStore('haStore', () => {
         // Create virtual area entities
         for (const area of areasArray) {
           const areaEntity = {
-            entity_id: `area.${area.id}`,
+            entity_id: `area.${area.area_id}`,
             state: area.name,
             attributes: {
-              id: area.id,
+              id: area.area_id,
               friendly_name: area.name,
               icon: area.icon,
               picture: area.picture,
               aliases: area.aliases,
             },
+            entities: area.entities || [],
           };
           // Add to sensors so it shows up in entity list
           if (!sensors.value.find((s) => s.entity_id === areaEntity.entity_id)) {
@@ -528,6 +528,13 @@ export const useHaStore = defineStore('haStore', () => {
           }
         }
         const afterCount = area.entities.length;
+        
+        // Also update the virtual area entity in sensors
+        const virtualAreaEntity = sensors.value.find((s) => s.entity_id === `area.${device.area_id}`);
+        if (virtualAreaEntity) {
+          virtualAreaEntity.entities = area.entities;
+        }
+        
         if (afterCount > beforeCount) {
           console.log(`Added ${afterCount - beforeCount} entities to area ${device.area_id}`);
         }

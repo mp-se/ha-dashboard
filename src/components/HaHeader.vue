@@ -2,7 +2,7 @@
   <div class="row">
     <div class="col-md-12">
       <h1 class="h3 mb-4 text-center">
-        <i v-if="icon" :class="icon" class="me-2"></i>
+        <i v-if="normalizedIcon" :class="normalizedIcon" class="me-2"></i>
         {{ name }}
       </h1>
     </div>
@@ -10,7 +10,9 @@
 </template>
 
 <script setup>
-// eslint-disable-next-line no-unused-vars
+import { computed } from 'vue';
+import { useNormalizeIcon } from '@/composables/useNormalizeIcon';
+
 const props = defineProps({
   name: {
     type: String,
@@ -20,6 +22,12 @@ const props = defineProps({
     type: String,
     default: null,
   },
+});
+
+const normalizeIcon = useNormalizeIcon();
+
+const normalizedIcon = computed(() => {
+  return normalizeIcon(props.icon);
 });
 </script>
 
