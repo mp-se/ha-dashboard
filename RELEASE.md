@@ -23,11 +23,21 @@
 - HaRowSpacer component registered globally for use in dashboard views
 - HaRowSpacer component uses col-12 class to properly span full row width
 - Added special handling for components without entities (HaRowSpacer, HaSpacer, HaLink) in JsonConfigView
+- Removed HaSensorSlim component (served no distinct purpose, use HaSensor instead)
+- Updated HaButton layout - name on left, button on right (matching HaSensor layout)
+- HaButton now has wider button (2x width) for better interaction area
+- Updated HaSelect layout - name on left, icon on right in first row, Bootstrap button group with options in second row
+- HaSelect button group uses primary/outline-primary styling for selected/unselected states
+- HaSelect button group wraps automatically on small screens for responsive display
+- Updated HaMediaPlayer layout to match consistent card design - name on left, icon on right in first row
+- HaMediaPlayer now displays media info (title/artist) compactly below header instead of centered
+- HaMediaPlayer reorganized controls into horizontal flexbox with volume slider below
 - ESLint fixes: Removed 40+ unused variables and imports across component files
 - Fixed duplicate conditional branches in haStore.js entity registry logic
 - Removed unreachable helper function `fetchEntitiesWithDeviceId` from haStore
 - Updated HaSun tests to verify available properties instead of removed computed properties
 - Updated HaWarning and HaError tests to verify icon circles instead of badges
+- Updated HaSelect tests to verify button group instead of select element
 - Added new test in HaSun for sunrise/sunset time display
 - 23 tests for icon normalization
 - 32 tests for icon validation

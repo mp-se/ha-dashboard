@@ -48,10 +48,6 @@ const componentSchemas = {
     required: ['entity'],
     optional: ['attributes'],
   },
-  HaSensorSlim: {
-    required: ['entity'],
-    optional: ['attributes'],
-  },
   HaSun: {
     required: ['entity'],
     optional: ['attributes'],

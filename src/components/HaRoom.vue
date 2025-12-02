@@ -338,7 +338,6 @@ const toggleEntity = async (entityId) => {
 }
 
 .card-title {
-  font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
   word-break: break-word;

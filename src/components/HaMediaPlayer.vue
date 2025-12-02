@@ -17,82 +17,73 @@
         </div>
 
         <template v-else>
-          <div class="text-center mb-3">
-            <h6 class="card-title mb-2">{{ name }}</h6>
-            <div class="d-flex align-items-center justify-content-center mb-2">
-              <i :class="mediaIcon" class="media-icon me-2"></i>
-              <div class="media-state text-capitalize fw-bold">{{ state }}</div>
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <h6 class="card-title mb-0">{{ name }}</h6>
+            <i :class="mediaIcon" class="media-icon"></i>
+          </div>
+
+          <!-- Media Info -->
+          <div v-if="mediaTitle || mediaArtist" class="media-info mb-2 text-start">
+            <div v-if="mediaTitle" class="fw-bold small">{{ mediaTitle }}</div>
+            <div v-if="mediaArtist" class="text-muted small">{{ mediaArtist }}</div>
+          </div>
+
+          <!-- Volume and Source -->
+          <div v-if="volumeLevel !== undefined || source" class="d-flex justify-content-between align-items-center mb-3">
+            <div v-if="volumeLevel !== undefined" class="text-muted small">
+              Volume: <span class="fw-bold">{{ Math.round(volumeLevel * 100) }}%</span>
+            </div>
+            <div v-if="source" class="text-muted small">
+              Source: <span class="fw-bold">{{ source }}</span>
             </div>
           </div>
-          <div class="media-info mb-3">
-            <div v-if="mediaTitle" class="text-center mb-2">
-              <div class="fw-bold media-title">{{ mediaTitle }}</div>
-              <small v-if="mediaArtist" class="text-muted">{{ mediaArtist }}</small>
-            </div>
 
-            <div
-              v-if="volumeLevel !== undefined"
-              class="d-flex justify-content-between align-items-center mb-2"
+          <!-- Control Buttons -->
+          <div v-if="isControllable" class="d-flex flex-wrap gap-2 mb-2">
+            <button
+              :class="['btn btn-sm', isOn ? 'btn-outline-success' : 'btn-outline-secondary']"
+              title="Power Toggle"
+              @click="callService(isOn ? 'turn_off' : 'turn_on')"
             >
-              <span class="text-muted">Volume:</span>
-              <span class="fw-bold">{{ Math.round(volumeLevel * 100) }}%</span>
-            </div>
-
-            <div v-if="source" class="d-flex justify-content-between align-items-center">
-              <span class="text-muted">Source:</span>
-              <span class="fw-bold">{{ source }}</span>
-            </div>
+              <i class="mdi mdi-power"></i>
+            </button>
+            <button
+              class="btn btn-outline-secondary btn-sm"
+              :disabled="!isOn"
+              title="Previous Track"
+              @click="callService('media_previous_track')"
+            >
+              <i class="mdi mdi-skip-previous"></i>
+            </button>
+            <button
+              class="btn btn-outline-primary btn-sm"
+              :disabled="!isOn"
+              title="Play/Pause"
+              @click="callService('media_play_pause')"
+            >
+              <i :class="isPlaying ? 'mdi mdi-pause' : 'mdi mdi-play'"></i>
+            </button>
+            <button
+              class="btn btn-outline-secondary btn-sm"
+              :disabled="!isOn"
+              title="Next Track"
+              @click="callService('media_next_track')"
+            >
+              <i class="mdi mdi-skip-next"></i>
+            </button>
           </div>
 
-          <div v-if="isControllable" class="row g-3 mb-3">
-            <div class="col-auto">
-              <div class="d-flex gap-2">
-                <button
-                  :class="['btn btn-sm', isOn ? 'btn-outline-success' : 'btn-outline-secondary']"
-                  title="Power Toggle"
-                  @click="callService(isOn ? 'turn_off' : 'turn_on')"
-                >
-                  <i class="mdi mdi-power"></i>
-                </button>
-                <button
-                  class="btn btn-outline-secondary btn-sm"
-                  :disabled="!isOn"
-                  title="Previous Track"
-                  @click="callService('media_previous_track')"
-                >
-                  <i class="mdi mdi-skip-previous"></i>
-                </button>
-                <button
-                  class="btn btn-outline-primary btn-sm"
-                  :disabled="!isOn"
-                  title="Play/Pause"
-                  @click="callService('media_play_pause')"
-                >
-                  <i :class="isPlaying ? 'mdi mdi-pause' : 'mdi mdi-play'"></i>
-                </button>
-                <button
-                  class="btn btn-outline-secondary btn-sm"
-                  :disabled="!isOn"
-                  title="Next Track"
-                  @click="callService('media_next_track')"
-                >
-                  <i class="mdi mdi-skip-next"></i>
-                </button>
-              </div>
-            </div>
-            <div v-if="isOn && volumeLevel !== undefined" class="col">
-              <div class="volume-control">
-                <input
-                  type="range"
-                  class="form-range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  :value="volumeLevel"
-                  @input="setVolume($event.target.value)"
-                />
-              </div>
-            </div>
+          <!-- Volume Slider -->
+          <div v-if="isOn && volumeLevel !== undefined" class="volume-control">
+            <input
+              type="range"
+              class="form-range"
+              min="0"
+              max="1"
+              step="0.01"
+              :value="volumeLevel"
+              @input="setVolume($event.target.value)"
+            />
           </div>
 
         </template>
@@ -184,22 +175,17 @@ const setVolume = (volume) => {
 </script>
 
 <style scoped>
-.media-state {
-  font-size: 1.1rem;
-  color: var(--bs-primary);
-}
-
 .media-icon {
   font-size: 1.5rem;
-  color: var(--bs-success);
-}
-
-.media-title {
-  font-size: 0.9rem;
-  word-break: break-word;
+  color: var(--bs-info);
 }
 
 .media-info {
   font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.volume-control {
+  margin-top: 0.5rem;
 }
 </style>

@@ -2,25 +2,31 @@
   <div class="col-lg-4 col-md-6">
     <div :class="['card', 'card-control', cardBorderClass, 'h-100', 'rounded-4', 'shadow-lg']">
       <div class="card-body">
-        <div class="text-center mb-3">
-          <h6 class="card-title mb-2">{{ name }}</h6>
-          <div class="d-flex align-items-center justify-content-center mb-2">
-            <i :class="selectIcon" class="select-icon me-2"></i>
-            <div class="select-state text-capitalize fw-bold">{{ state }}</div>
-          </div>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h6 class="card-title mb-0">{{ name }}</h6>
+          <i :class="selectIcon" class="select-icon"></i>
         </div>
 
-        <div v-if="options && options.length > 0" class="select-control mb-3">
-          <select
-            class="form-select"
-            :value="state"
-            :disabled="isUnavailable"
-            @change="setSelectValue($event.target.value)"
-          >
-            <option v-for="option in options" :key="option" :value="option">
-              {{ option }}
-            </option>
-          </select>
+        <div v-if="options && options.length > 0" class="d-flex flex-wrap">
+          <div class="btn-group" role="group">
+            <template v-for="option in options" :key="option">
+              <input
+                :id="`${resolvedEntity.value?.entity_id}-${option}`"
+                v-model="selectedOption"
+                type="radio"
+                :name="`${resolvedEntity.value?.entity_id}-select`"
+                class="btn-check"
+                :value="option"
+                :disabled="isUnavailable"
+              />
+              <label
+                :for="`${resolvedEntity.value?.entity_id}-${option}`"
+                :class="['btn', 'btn-sm', isUnavailable ? 'disabled' : '', selectedOption === option ? 'btn-primary' : 'btn-outline-primary']"
+              >
+                {{ option }}
+              </label>
+            </template>
+          </div>
         </div>
 
       </div>
@@ -29,7 +35,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useHaStore } from '@/stores/haStore';
 import { useEntityResolver } from '@/composables/useEntityResolver';
 
@@ -59,6 +65,24 @@ const { resolvedEntity } = useEntityResolver(props.entity);
 
 const state = computed(() => resolvedEntity.value?.state ?? 'unknown');
 
+const selectedOption = ref(state.value);
+
+// Update selectedOption when state changes from external source
+watch(state, (newState) => {
+  selectedOption.value = newState;
+});
+
+// Call service when selectedOption changes
+watch(selectedOption, (newOption) => {
+  if (newOption !== state.value && resolvedEntity.value) {
+    const domain = resolvedEntity.value.entity_id.split('.')[0];
+    store.callService(domain, 'select_option', {
+      entity_id: resolvedEntity.value.entity_id,
+      option: newOption,
+    });
+  }
+});
+
 const isUnavailable = computed(() => ['unavailable', 'unknown'].includes(state.value));
 
 const cardBorderClass = computed(() => {
@@ -77,15 +101,6 @@ const selectIcon = computed(() => {
 
 // Select-specific attributes
 const options = computed(() => resolvedEntity.value?.attributes?.options || []);
-
-const setSelectValue = (value) => {
-  if (!resolvedEntity.value) return;
-  const domain = resolvedEntity.value.entity_id.split('.')[0];
-  store.callService(domain, 'select_option', {
-    entity_id: resolvedEntity.value.entity_id,
-    option: value,
-  });
-};
 </script>
 
 <style scoped>

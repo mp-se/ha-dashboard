@@ -14,7 +14,7 @@ describe('HaRowSpacer.vue', () => {
         },
       });
 
-      expect(wrapper.find('.col-md-12').exists()).toBe(true);
+      expect(wrapper.find('.col-12').exists()).toBe(true);
     });
 
     it('should render as an empty div with full-width column class', () => {
@@ -29,7 +29,7 @@ describe('HaRowSpacer.vue', () => {
 
       const div = wrapper.find('div');
       expect(div.exists()).toBe(true);
-      expect(div.classes()).toContain('col-md-12');
+      expect(div.classes()).toContain('col-12');
     });
 
     it('should be a layout spacer with no visible content', () => {
@@ -79,7 +79,7 @@ describe('HaRowSpacer.vue', () => {
   });
 
   describe('Responsive Layout', () => {
-    it('should have col-md-12 for full width', () => {
+    it('should have col-12 for full width', () => {
       const wrapper = mount(HaRowSpacer, {
         global: {
           stubs: {
@@ -89,7 +89,7 @@ describe('HaRowSpacer.vue', () => {
         },
       });
 
-      expect(wrapper.find('.col-md-12').exists()).toBe(true);
+      expect(wrapper.find('.col-12').exists()).toBe(true);
     });
 
     it('should create space for layout separation', () => {
@@ -103,7 +103,7 @@ describe('HaRowSpacer.vue', () => {
       });
 
       const div = wrapper.element;
-      expect(div.className).toContain('col-md-12');
+      expect(div.className).toContain('col-12');
     });
   });
 });

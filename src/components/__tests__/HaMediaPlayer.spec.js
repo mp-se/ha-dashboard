@@ -96,7 +96,9 @@ describe('HaMediaPlayer.vue', () => {
         props: { entity: 'media_player.bedroom' },
         global: { plugins: [pinia] },
       });
-      expect(wrapper.text()).toContain('playing');
+      // State is now displayed as an icon, verify the play icon is shown for playing state
+      const icon = wrapper.find('i.mdi-play-circle');
+      expect(icon.exists()).toBe(true);
     });
 
     it('should display media title', () => {

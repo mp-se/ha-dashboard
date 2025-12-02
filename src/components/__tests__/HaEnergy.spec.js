@@ -289,7 +289,9 @@ describe('HaEnergy.vue', () => {
       },
     });
 
-    expect(wrapper.text()).toContain('Home');
+    // Device name display was removed from all cards per contribution guidelines
+    // Only entity friendly_name is displayed
+    expect(wrapper.text()).toContain('Power Usage');
   });
 
   it('should display entity name from friendly_name attribute', () => {

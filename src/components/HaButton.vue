@@ -1,20 +1,18 @@
 <template>
   <div class="col-lg-4 col-md-6">
     <div :class="['card', 'card-control', cardBorderClass, 'h-100', 'rounded-4', 'shadow-lg']">
-      <div class="card-body">
-        <div class="text-center mb-3">
-          <h6 class="card-title mb-3">{{ name }}</h6>
+      <div class="card-body d-flex align-items-center">
+        <div class="text-start flex-grow-1">
+          <h6 class="card-title mb-0">{{ name }}</h6>
         </div>
-
-        <div class="d-flex justify-content-center mb-3">
+        <div class="d-flex align-items-center">
           <button
-            class="btn btn-outline-primary"
+            class="btn btn-outline-primary btn-wide"
             :disabled="isUnavailable"
             title="Press Button"
             @click="pressButton"
           >
-            <i :class="buttonIcon + ' me-2'"></i>
-            Press
+            <i class="mdi mdi-gesture-tap-button"></i>
           </button>
         </div>
       </div>
@@ -65,10 +63,6 @@ const name = computed(
     resolvedEntity.value?.attributes?.friendly_name || resolvedEntity.value?.entity_id || 'Unknown'
 );
 
-const buttonIcon = computed(() => {
-  return 'mdi mdi-gesture-tap-button';
-});
-
 const pressButton = async () => {
   if (!resolvedEntity.value) return;
   const domain = resolvedEntity.value.entity_id.split('.')[0];
@@ -79,8 +73,9 @@ const pressButton = async () => {
 </script>
 
 <style scoped>
-.button-icon {
-  font-size: 1.5rem;
-  color: var(--bs-primary);
+.btn-wide {
+  min-width: 120px;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 </style>

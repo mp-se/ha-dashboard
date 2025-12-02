@@ -655,7 +655,7 @@ describe('HaError.vue', () => {
         },
       });
 
-      const icon = wrapper.find('i.mdi-alert');
+      const icon = wrapper.find('i.mdi-exclamation');
       expect(icon.exists()).toBe(true);
     });
 
