@@ -225,8 +225,6 @@ export const useHaStore = defineStore('haStore', () => {
         entityRegistry = result;
       } else if (result && result.result && Array.isArray(result.result)) {
         entityRegistry = result.result;
-      } else if (result && Array.isArray(result)) {
-        entityRegistry = result;
       }
 
       console.log(`Fetched ${entityRegistry.length} entities from entity registry`);
@@ -273,8 +271,6 @@ export const useHaStore = defineStore('haStore', () => {
         areasArray = result;
       } else if (result && result.result && Array.isArray(result.result)) {
         areasArray = result.result;
-      } else if (result && Array.isArray(result)) {
-        areasArray = result;
       }
 
       console.log(`Fetched ${areasArray.length} areas from websocket:`, areasArray);
@@ -334,8 +330,6 @@ export const useHaStore = defineStore('haStore', () => {
         deviceList = result;
       } else if (result && result.result && Array.isArray(result.result)) {
         deviceList = result.result;
-      } else if (result && Array.isArray(result)) {
-        deviceList = result;
       }
 
       console.log(`Fetched ${deviceList.length} devices from websocket`);
@@ -915,6 +909,183 @@ export const useHaStore = defineStore('haStore', () => {
     return promise;
   }
 
+  /**
+   * Fetch energy consumption history for a given entity and number of days
+   * Returns aggregated data points for bar chart visualization
+   * @param {string} entityId - Entity ID (e.g., 'sensor.power_hemma')
+   * @param {number} days - Number of days to fetch (1, 3, 7, 14)
+   * @returns {Promise<Array>} Array of { bucket, value, timestamp } for chart display
+   */
+  async function fetchEnergyHistory(entityId, days = 1) {
+    if (isLocalMode.value) {
+      return [];
+    }
+    if (!haUrl.value || !accessToken.value) {
+      return [];
+    }
+
+    const cacheKey = `energy:${entityId}:${days}`;
+    const cached = historyRequestCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < HISTORY_CACHE_TTL) {
+      return cached.promise;
+    }
+
+    const promise = (async () => {
+      try {
+        const now = new Date();
+        const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+        const startIso = startDate.toISOString();
+        const endIso = now.toISOString();
+        const base = haUrl.value ? haUrl.value.replace(/\/$/, '') : '';
+        const urlPath = `/api/history/period/${startIso}?end_time=${encodeURIComponent(endIso)}&filter_entity_id=${encodeURIComponent(entityId)}&minimal_response=true`;
+        const url = base ? `${base}${urlPath}` : urlPath;
+
+        const res = await fetchWithTimeout(
+          url,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken.value}`,
+              'Content-Type': 'application/json',
+            },
+          },
+          30000
+        );
+
+        if (!res.ok) {
+          await res.text();
+          let errorMessage = `Energy history request failed: ${res.status}`;
+          if (res.status === 401) {
+            errorMessage = 'Authentication failed: Invalid access token.';
+          } else if (res.status === 403) {
+            errorMessage = 'Access forbidden: Check permissions.';
+          } else if (res.status === 404) {
+            errorMessage = 'History endpoint not found.';
+          }
+          console.error('Energy history error:', errorMessage);
+          throw new Error(errorMessage);
+        }
+
+        const body = await res.json();
+        if (!body || !Array.isArray(body) || !body[0]) {
+          return [];
+        }
+
+        const entries = body[0];
+        
+        // Determine bucket size based on days
+        let bucketMinutes;
+        if (days <= 1) bucketMinutes = 60; // Hourly for 1 day
+        else if (days <= 3) bucketMinutes = 1440; // Daily for 3 days
+        else if (days <= 7) bucketMinutes = 1440; // Daily for 7 days
+        else bucketMinutes = 1440; // Daily for 14+ days
+
+        // Create all expected buckets for the time range (to ensure full data representation)
+        const bucketMs = bucketMinutes * 60 * 1000;
+        const buckets = new Map();
+        
+        // Initialize all buckets for the requested period
+        const now_ms = now.getTime();
+        let start_ms = startDate.getTime();
+        let end_ms = now_ms;
+        
+        // For daily buckets, align to midnight to avoid spanning extra days
+        let bucketTime;
+        if (bucketMinutes === 1440) {
+          // Daily buckets: create exactly 'days' buckets starting from 'days' ago at midnight
+          // Align NOW to midnight (end of today) and count backward
+          const now_midnight = new Date(now);
+          now_midnight.setUTCHours(0, 0, 0, 0);
+          now_midnight.setUTCDate(now_midnight.getUTCDate() + 1); // Start of tomorrow (end of today)
+          
+          bucketTime = now_midnight.getTime() - (days * bucketMs); // Go back 'days' from end of today
+          start_ms = bucketTime; // Update start_ms to match actual bucket start
+          end_ms = now_midnight.getTime(); // Update end_ms to end of today (start of tomorrow)
+          
+          for (let i = 0; i < days; i++) {
+            buckets.set(bucketTime, { values: [], timestamp: bucketTime });
+            bucketTime += bucketMs;
+          }
+        } else {
+          // Hourly buckets: create exactly 'days * 24' buckets
+          bucketTime = Math.floor(start_ms / bucketMs) * bucketMs;
+          const endBucketTime = bucketTime + (days * 24 * bucketMs);
+          
+          for (; bucketTime < endBucketTime; bucketTime += bucketMs) {
+            buckets.set(bucketTime, { values: [], timestamp: bucketTime });
+          }
+        }
+
+        // Aggregate data into buckets, filtering to only requested time range
+        entries.forEach((entry) => {
+          const timestamp = new Date(entry.last_changed).getTime();
+          
+          // Only include entries within the requested time range
+          if (timestamp < start_ms || timestamp >= end_ms) {
+            return;
+          }
+          
+          const bucketTime = Math.floor(timestamp / bucketMs) * bucketMs;
+          const value = Number(entry.state);
+
+          if (!Number.isNaN(value)) {
+            if (!buckets.has(bucketTime)) {
+              buckets.set(bucketTime, { values: [], timestamp: bucketTime });
+            }
+            buckets.get(bucketTime).values.push(value);
+          }
+        });
+
+        // Calculate average for each bucket
+        const aggregated = Array.from(buckets.values())
+          .map((bucket) => {
+            let avg;
+            if (bucket.values.length > 0) {
+              avg = bucket.values.reduce((a, b) => a + b, 0) / bucket.values.length;
+            } else {
+              // For empty buckets, try to use the last known value
+              // This creates a more continuous-looking chart
+              avg = 0;
+            }
+            return {
+              timestamp: bucket.timestamp,
+              value: Math.round(avg * 100) / 100, // Round to 2 decimals
+              label: formatBucketLabel(bucket.timestamp, days),
+            };
+          })
+          .sort((a, b) => a.timestamp - b.timestamp);
+
+        return aggregated;
+      } catch (e) {
+        console.error('fetchEnergyHistory error:', e);
+        throw e;
+      }
+    })();
+
+    historyRequestCache.set(cacheKey, { promise, timestamp: Date.now() });
+    setTimeout(() => {
+      historyRequestCache.delete(cacheKey);
+    }, HISTORY_CACHE_TTL);
+
+    return promise;
+  }
+
+  /**
+   * Format label for energy history bucket based on time period
+   * @param {number} timestamp - Bucket timestamp in ms
+   * @param {number} days - Number of days (determines label format)
+   * @returns {string} Formatted label (HH:00 for hourly, Day abbr for daily, etc)
+   */
+  function formatBucketLabel(timestamp, days) {
+    const date = new Date(timestamp);
+    if (days <= 1) {
+      // Hourly format: "00", "03", "06", etc
+      return String(date.getHours()).padStart(2, '0');
+    } else {
+      // Daily format: "Mon", "Tue", etc
+      return date.toLocaleDateString('en-US', { weekday: 'short' });
+    }
+  }
+
   return {
     sensors,
     devices,
@@ -946,6 +1117,7 @@ export const useHaStore = defineStore('haStore', () => {
     init,
     callService,
     fetchHistory,
+    fetchEnergyHistory,
     isConnected,
     lastError,
     retryConnection,
@@ -980,6 +1152,24 @@ export const useHaStore = defineStore('haStore', () => {
     getDeviceTrackers: () => sensors.value.filter((s) => s.entity_id.startsWith('device_tracker.')),
     getMediaPlayers: () => sensors.value.filter((s) => s.entity_id.startsWith('media_player.')),
     getBinarySensors: () => sensors.value.filter((s) => s.entity_id.startsWith('binary_sensor.')),
+    // Energy/power consumption sensors
+    getEnergyConsumptionSensors: () =>
+      sensors.value.filter(
+        (s) =>
+          s.entity_id.startsWith('sensor.') &&
+          s.attributes?.device_class === 'energy' &&
+          s.attributes?.state_class === 'total' &&
+          s.state !== 'unavailable' &&
+          s.state !== 'unknown'
+      ),
+    getPowerConsumptionSensors: () =>
+      sensors.value.filter(
+        (s) =>
+          s.entity_id.startsWith('sensor.') &&
+          s.attributes?.device_class === 'power' &&
+          s.state !== 'unavailable' &&
+          s.state !== 'unknown'
+      ),
     // Get all entities for a specific device
     getEntitiesForDevice: (deviceId) => {
       const device = devices.value.find((d) => d.id === deviceId);

@@ -7,5 +7,5 @@ You are welcome to make contributions to this project but for a change to be acc
 3) The design should follow the minimalistic approach
 4) Keep the usage of the cards as easy as possible, dont ask for configuration that can be detected
 5) The unit test coverage should be >70% for all the files under src
-6) Update release.md with a short summary of the changes done 
+6) Update release.md with a short summary of the changes done
 

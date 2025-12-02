@@ -52,6 +52,8 @@ export function getDefaultComponentType(entityId, getterName = '') {
   // Getter-based hints for special cases
   if (getter.includes('battery')) return 'HaSensor';
   if (getter.includes('wifi')) return 'HaSensor';
+  if (getter.includes('energy')) return 'HaEnergy';
+  if (getter.includes('power')) return 'HaEnergy';
   if (getter.includes('light')) return 'HaLight';
   if (getter.includes('switch')) return 'HaSwitch';
   if (getter.includes('button')) return 'HaButton';

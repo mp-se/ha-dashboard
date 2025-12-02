@@ -238,7 +238,8 @@ The `haConfig` object contains Home Assistant connection details:
 
 You have two options for managing credentials:
 
-**Option 1: Store in Configuration (Recommended for shared dashboards)**
+### Option 1: Store in Configuration (Recommended for shared dashboards)
+
 ```json
 {
   "haConfig": {
@@ -247,10 +248,13 @@ You have two options for managing credentials:
   }
 }
 ```
+
 When credentials are provided in the config file, they are used automatically on each page load.
 
-**Option 2: Prompt User (Recommended for personal devices)**
+### Option 2: Prompt User (Recommended for personal devices)
+
 Leave both `haUrl` and `accessToken` empty:
+
 ```json
 {
   "haConfig": {
@@ -259,12 +263,15 @@ Leave both `haUrl` and `accessToken` empty:
   }
 }
 ```
+
 On first load, the dashboard will prompt the user to enter their Home Assistant URL and access token. The credentials are then **automatically saved to the browser's localStorage** and persist across sessions.
 
 Users can update their credentials at any time by clicking the settings/profile menu and re-entering their information. If they clear browser storage or use incognito mode, they'll be prompted to enter credentials again.
 
-**Hybrid Option: URL Only**
+### Hybrid Option: URL Only
+
 You can also specify just the URL and leave the token empty:
+
 ```json
 {
   "haConfig": {
@@ -273,6 +280,7 @@ You can also specify just the URL and leave the token empty:
   }
 }
 ```
+
 Users will be prompted for only the access token, which is then saved to localStorage.
 
 ## View Configuration
@@ -577,6 +585,72 @@ With additional forecast details:
   "type": "HaWeather",
   "entity": "weather.forecast_home",
   "attributes": ["temperature", "wind_speed", "humidity"]
+}
+```
+
+### HaEnergy
+
+Displays energy consumption with interactive bar chart, smart data aggregation, and real-time statistics.
+
+**Use for**: Energy/power sensor analytics with historical data visualization
+
+**Features**:
+
+- Interactive bar chart with 4 time periods (1d, 3d, 7d, 14d)
+- Smart data aggregation: hourly bars for 1-day view, daily bars for 3+ days
+- Real-time statistics: Peak, Average, Total consumption
+- Hover tooltip showing exact values
+- Auto-detection of energy/power sensors (zero-config support)
+- Automatic unit detection and formatting
+
+**Properties**:
+
+- `entity` (string|object, optional): Energy sensor entity ID or object
+  - If not specified, automatically detects entities matching `sensor.*_energy*` or `sensor.*_power*` patterns
+- `attributes` (array, optional, default: []): Additional attributes to display below statistics
+- `type` (optional): Explicitly set to `HaEnergy` to override auto-detection
+
+**Time Periods**:
+
+- **1d** (24 hours): Hourly aggregation with 24 bars
+- **3d** (3 days): Daily aggregation with 3 bars
+- **7d** (7 days): Daily aggregation with 7 bars
+- **14d** (14 days): Daily aggregation with 14 bars
+
+Click the period button to cycle through available time periods.
+
+**Statistics Displayed**:
+
+- **Peak**: Maximum consumption value in the period
+- **Average**: Mean consumption across all buckets
+- **Total**: Sum of consumption for the entire period
+
+**Examples**:
+
+Zero-config energy display (auto-detects energy sensors):
+
+```json
+{
+  "type": "HaEnergy"
+}
+```
+
+Specific energy sensor:
+
+```json
+{
+  "type": "HaEnergy",
+  "entity": "sensor.energy_total"
+}
+```
+
+Power sensor with attributes:
+
+```json
+{
+  "type": "HaEnergy",
+  "entity": "sensor.power_consumption",
+  "attributes": ["last_updated", "source"]
 }
 ```
 

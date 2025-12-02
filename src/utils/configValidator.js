@@ -57,8 +57,8 @@ const componentSchemas = {
     optional: ['black', 'cyan', 'magenta', 'yellow', 'attributes'],
   },
   HaEnergy: {
-    required: ['entity'],
-    optional: ['attributes'],
+    required: [],
+    optional: ['entity', 'attributes'],
   },
   HaEntityList: {
     required: [],
