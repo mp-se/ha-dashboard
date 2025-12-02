@@ -18,10 +18,16 @@
 - Config generator in Raw Entity View automatically creates configuration with proper entity and component type mappings
 - Updated HaHeader.vue, HaRoom.vue, and App.vue for icon normalization
 - Enhanced configValidator with icon validation and error suggestions
+- HaWarning and HaError cards now use icon circles instead of badges for consistent styling with other cards
+- HaRowSpacer component now recognized by the parser and configuration validator
+- HaRowSpacer component registered globally for use in dashboard views
+- HaRowSpacer component uses col-12 class to properly span full row width
+- Added special handling for components without entities (HaRowSpacer, HaSpacer, HaLink) in JsonConfigView
 - ESLint fixes: Removed 40+ unused variables and imports across component files
 - Fixed duplicate conditional branches in haStore.js entity registry logic
 - Removed unreachable helper function `fetchEntitiesWithDeviceId` from haStore
 - Updated HaSun tests to verify available properties instead of removed computed properties
+- Updated HaWarning and HaError tests to verify icon circles instead of badges
 - Added new test in HaSun for sunrise/sunset time display
 - 23 tests for icon normalization
 - 32 tests for icon validation
