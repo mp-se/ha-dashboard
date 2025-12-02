@@ -109,8 +109,8 @@ describe('HaError.vue', () => {
         },
       });
 
-      expect(wrapper.find('.badge').exists()).toBe(true);
-      expect(wrapper.find('.bg-danger').exists()).toBe(true);
+      expect(wrapper.find('.icon-circle-wrapper').exists()).toBe(true);
+      expect(wrapper.find('i.mdi-exclamation').exists()).toBe(true);
       expect(wrapper.text()).toContain('Error');
     });
   });
@@ -681,8 +681,8 @@ describe('HaError.vue', () => {
         },
       });
 
-      const icon = wrapper.find('i.mdi-alert');
-      expect(icon.classes()).toContain('text-danger');
+      const icon = wrapper.find('i.mdi-exclamation');
+      expect(icon.classes()).toContain('icon-overlay');
     });
   });
 
@@ -937,8 +937,8 @@ describe('HaError.vue', () => {
       expect(wrapper.find('.card-status').exists()).toBe(true);
       expect(wrapper.find('.card-body').exists()).toBe(true);
       expect(wrapper.find('.card-title').exists()).toBe(true);
-      expect(wrapper.find('.badge').exists()).toBe(true);
-      expect(wrapper.find('i.mdi-alert').exists()).toBe(true);
+      expect(wrapper.find('.icon-circle-wrapper').exists()).toBe(true);
+      expect(wrapper.find('i.mdi-exclamation').exists()).toBe(true);
     });
 
     it('should handle boolean-like string values in comparison', () => {

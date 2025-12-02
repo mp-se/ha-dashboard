@@ -109,8 +109,8 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      expect(wrapper.find('.badge').exists()).toBe(true);
-      expect(wrapper.find('.bg-warning').exists()).toBe(true);
+      expect(wrapper.find('.icon-circle-wrapper').exists()).toBe(true);
+      expect(wrapper.find('i.mdi-alert-outline').exists()).toBe(true);
       expect(wrapper.text()).toContain('Warning');
     });
   });
@@ -504,7 +504,7 @@ describe('HaWarning.vue', () => {
       });
 
       const icon = wrapper.find('i.mdi-alert-outline');
-      expect(icon.classes()).toContain('text-warning');
+      expect(icon.classes()).toContain('icon-overlay');
     });
   });
 
@@ -531,8 +531,8 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      const badge = wrapper.find('.badge');
-      expect(badge.classes()).toContain('bg-warning');
+      const circle = wrapper.find('circle');
+      expect(circle.attributes('fill')).toBe('#FFC107');
     });
 
     it('should have text-dark on badge', () => {
@@ -557,8 +557,8 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      const badge = wrapper.find('.badge');
-      expect(badge.classes()).toContain('text-dark');
+      const icon = wrapper.find('i.icon-overlay');
+      expect(icon.exists()).toBe(true);
     });
   });
 
@@ -815,7 +815,7 @@ describe('HaWarning.vue', () => {
       expect(wrapper.find('.card-status').exists()).toBe(true);
       expect(wrapper.find('.card-body').exists()).toBe(true);
       expect(wrapper.find('.card-title').exists()).toBe(true);
-      expect(wrapper.find('.badge').exists()).toBe(true);
+      expect(wrapper.find('.icon-circle-wrapper').exists()).toBe(true);
       expect(wrapper.find('i.mdi-alert-outline').exists()).toBe(true);
     });
 

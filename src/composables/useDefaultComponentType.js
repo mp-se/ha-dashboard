@@ -103,7 +103,7 @@ export function getDefaultTypeForEntityConfig(entityConfig) {
   }
 
   // Special cases
-  if (entityConfig.type === 'HaLink' || entityConfig.type === 'HaSpacer') {
+  if (entityConfig.type === 'HaLink' || entityConfig.type === 'HaSpacer' || entityConfig.type === 'HaRowSpacer') {
     return entityConfig.type;
   }
 

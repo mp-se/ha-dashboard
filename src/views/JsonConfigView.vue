@@ -50,8 +50,15 @@ const entitiesList = computed(() => {
     // Determine component type (explicit or default)
     const componentType = entity.type || getDefaultComponentType(entityValue, entity.getter);
     
+    // Special handling for components that don't require an entity (spacers, links, headers)
+    if (!entity.entity && !entity.getter && (componentType === 'HaRowSpacer' || componentType === 'HaSpacer' || componentType === 'HaLink')) {
+      entities.push({
+        ...entity,
+        component: componentType,
+      });
+    }
     // Special handling for HaEntityList - pass getter/entities array directly to component
-    if (componentType === 'HaEntityList') {
+    else if (componentType === 'HaEntityList') {
       // For HaEntityList, we need to provide entities array in the format it expects
       // If getter is specified, convert to entities array format
       let entitiesForList = entity.entities || [];

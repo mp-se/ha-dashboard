@@ -108,6 +108,10 @@ const componentSchemas = {
     required: [],
     optional: ['attributes'],
   },
+  HaRowSpacer: {
+    required: [],
+    optional: [],
+  },
   HaRoom: {
     required: ['entity'],
     optional: ['color'],
@@ -131,7 +135,7 @@ function validateEntity(entityConfig, viewName, entityIndex) {
     entityId = entityVal || 'unknown';
   } else if (entityConfig.getter) {
     entityId = `getter:${entityConfig.getter}`;
-  } else if (entityConfig.type === 'HaLink' || entityConfig.type === 'HaSpacer') {
+  } else if (entityConfig.type === 'HaLink' || entityConfig.type === 'HaSpacer' || entityConfig.type === 'HaRowSpacer') {
     entityId = entityConfig.name || entityConfig.type;
   } else {
     entityId = 'entity-' + entityIndex;

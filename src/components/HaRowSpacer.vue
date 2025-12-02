@@ -1,14 +1,10 @@
 <template>
-  <div class="col-md-12">
-    <!-- Full-width spacer/divider -->
+  <div class="col-12">
   </div>
 </template>
 
 <script setup>
-defineProps({
-  // Added attributes prop for consistency across components
-  attributes: { type: Array, default: () => [] },
-});
+// No props needed for row spacer
 </script>
 
 <style scoped>

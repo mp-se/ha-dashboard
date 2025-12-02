@@ -15,14 +15,16 @@
     >
       <div class="card-body d-flex align-items-center">
         <div class="text-start flex-grow-1">
-          <h6 class="card-title mb-1">
-            <i class="mdi mdi-alert text-danger" style="margin-right: 0.5rem"></i>
-            Error
-          </h6>
+          <h6 class="card-title mb-1">Error</h6>
           <div class="text-muted small">{{ message }}</div>
         </div>
         <div class="d-flex align-items-center">
-          <span class="badge bg-danger">Error</span>
+          <div class="icon-circle-wrapper">
+            <svg width="40" height="40" viewBox="0 0 40 40" class="icon-circle">
+              <circle cx="20" cy="20" r="18" fill="#DC3545" />
+            </svg>
+            <i class="mdi mdi-exclamation icon-overlay"></i>
+          </div>
         </div>
       </div>
     </div>
@@ -120,5 +122,27 @@ const shouldShowError = computed(() => {
 </script>
 
 <style scoped>
-/* Custom styles if needed */
+.icon-circle-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.icon-circle {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.icon-overlay {
+  position: relative;
+  z-index: 1;
+  font-size: 1.5rem;
+  color: white;
+}
 </style>
