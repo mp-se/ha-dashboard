@@ -2,6 +2,63 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useHaStore } from '../haStore';
 
+// Mock home-assistant-js-websocket library
+vi.mock('home-assistant-js-websocket', () => {
+  const mockConnection = {
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  };
+
+  return {
+    createConnection: vi.fn(async () => mockConnection),
+    createLongLivedTokenAuth: vi.fn((url, token) => ({
+      access_token: token,
+      hassUrl: url,
+    })),
+    subscribeEntities: vi.fn((connection, callback) => {
+      // Call the callback with mock entities
+      const mockEntities = {
+        'sensor.temperature': {
+          entity_id: 'sensor.temperature',
+          state: '23',
+          attributes: { friendly_name: 'Temperature' },
+        },
+        'sensor.humidity': {
+          entity_id: 'sensor.humidity',
+          state: '65',
+          attributes: { friendly_name: 'Humidity' },
+        },
+      };
+      callback(mockEntities);
+      return vi.fn(); // Return unsubscribe function
+    }),
+    getCollection: vi.fn(async (connection, key) => {
+      const collections = {
+        'config/device_registry/list': {
+          state: [
+            { id: 'device1', name: 'Light 1', area_id: 'area1' },
+            { id: 'device2', name: 'Light 2', area_id: 'area1' },
+          ],
+        },
+        'config/area_registry/list': {
+          state: [
+            { area_id: 'area1', name: 'Living Room', icon: 'mdi:sofa', picture: null, aliases: [] },
+          ],
+        },
+        'config/entity_registry/list': {
+          state: [
+            { entity_id: 'sensor.temperature', device_id: 'device1' },
+            { entity_id: 'sensor.humidity', device_id: 'device1' },
+          ],
+        },
+      };
+      return collections[key] || { state: [] };
+    }),
+    ERR_CANNOT_CONNECT: 1,
+    ERR_INVALID_AUTH: 2,
+  };
+});
+
 // Mock fetch globally
 global.fetch = vi.fn();
 
@@ -25,24 +82,6 @@ const localStorageMock = (() => {
 Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
 });
-
-// Mock WebSocket
-class MockWebSocket {
-  constructor(url) {
-    this.url = url;
-    this.readyState = 0;
-    this.OPEN = 1;
-    this.CONNECTING = 0;
-    this.CLOSED = 3;
-  }
-  
-  send() {}
-  close() {
-    this.readyState = this.CLOSED;
-  }
-}
-
-global.WebSocket = MockWebSocket;
 
 describe('useHaStore', () => {
   beforeEach(() => {
@@ -300,145 +339,48 @@ describe('useHaStore', () => {
   });
 
   describe('fetchStates', () => {
-    it('should fetch states successfully', async () => {
+    it('should skip if connection is not established', async () => {
       const store = useHaStore();
       store.haUrl = 'http://localhost:8123';
       store.accessToken = 'test-token';
 
-      const mockStates = [
-        { entity_id: 'sensor.temp', state: '23', attributes: { friendly_name: 'Temperature' } },
-        { entity_id: 'sensor.humidity', state: '65', attributes: { friendly_name: 'Humidity' } },
-      ];
+      // fetchStates requires an active connection, so it should handle gracefully
+      await store.fetchStates();
 
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi.fn().mockResolvedValueOnce(mockStates),
-      });
+      // Should handle gracefully without throwing
+      expect(store.sensors).toEqual([]);
+    });
+
+    it('should skip if in local mode', async () => {
+      const store = useHaStore();
+      store.isLocalMode = true;
 
       await store.fetchStates();
 
-      expect(store.sensors).toEqual(mockStates);
-      expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:8123/api/states',
-        expect.objectContaining({
-          headers: expect.objectContaining({
-            Authorization: 'Bearer test-token',
-          }),
-        })
-      );
-    });
-
-    it('should handle 401 authentication error', async () => {
-      const store = useHaStore();
-      store.haUrl = 'http://localhost:8123';
-      store.accessToken = 'invalid-token';
-
-      global.fetch.mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        statusText: 'Unauthorized',
-      });
-
-      await expect(store.fetchStates()).rejects.toThrow(
-        'Authentication failed: Invalid access token'
-      );
-    });
-
-    it('should handle 403 forbidden error', async () => {
-      const store = useHaStore();
-      store.haUrl = 'http://localhost:8123';
-      store.accessToken = 'test-token';
-
-      global.fetch.mockResolvedValueOnce({
-        ok: false,
-        status: 403,
-        statusText: 'Forbidden',
-      });
-
-      await expect(store.fetchStates()).rejects.toThrow(
-        'Access forbidden: Check CORS settings or permissions'
-      );
-    });
-
-    it('should handle 404 not found error', async () => {
-      const store = useHaStore();
-      store.haUrl = 'http://invalid-url:8123';
-      store.accessToken = 'test-token';
-
-      // Create a fresh mock implementation instead of using mockResolvedValueOnce
-      global.fetch.mockImplementation(() =>
-        Promise.resolve({
-          ok: false,
-          status: 404,
-          statusText: 'Not Found',
-        })
-      );
-
-      await expect(store.fetchStates()).rejects.toThrow(
-        'Home Assistant API not found: Verify URL is correct'
-      );
-    });
-
-    it('should handle CORS errors', async () => {
-      const store = useHaStore();
-      store.haUrl = 'http://localhost:8123';
-      store.accessToken = 'test-token';
-
-      global.fetch.mockRejectedValueOnce(
-        new TypeError('Failed to fetch')
-      );
-
-      await expect(store.fetchStates()).rejects.toThrow('CORS error');
+      expect(store.sensors).toEqual([]);
     });
   });
 
   describe('fetchDevices', () => {
-    it('should fetch devices successfully', async () => {
+    it('should skip device fetching (handled by fetchDevicesAfterAuth)', async () => {
       const store = useHaStore();
       store.haUrl = 'http://localhost:8123';
       store.accessToken = 'test-token';
 
-      const mockDevices = [
-        { id: 'device1', name: 'Light 1' },
-        { id: 'device2', name: 'Light 2' },
-      ];
+      // fetchDevices is now a no-op, devices are fetched via fetchDevicesAfterAuth
+      await store.fetchDevices();
 
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        text: vi.fn().mockResolvedValueOnce(JSON.stringify(mockDevices)),
-      });
+      // Should complete without error
+      expect(store.devices).toEqual([]);
+    });
+
+    it('should handle local mode', async () => {
+      const store = useHaStore();
+      store.isLocalMode = true;
 
       await store.fetchDevices();
 
-      expect(store.devices).toEqual(mockDevices);
-    });
-
-    it('should handle device fetch errors', async () => {
-      const store = useHaStore();
-      store.haUrl = 'http://localhost:8123';
-      store.accessToken = 'test-token';
-
-      global.fetch.mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        statusText: 'Unauthorized',
-      });
-
-      await expect(store.fetchDevices()).rejects.toThrow(
-        'Authentication failed'
-      );
-    });
-
-    it('should handle CORS errors in fetchDevices', async () => {
-      const store = useHaStore();
-      store.haUrl = 'http://localhost:8123';
-      store.accessToken = 'test-token';
-
-      global.fetch.mockRejectedValueOnce(
-        new TypeError('Failed to fetch')
-      );
-
-      await expect(store.fetchDevices()).rejects.toThrow('CORS error');
+      expect(store.devices).toEqual([]);
     });
   });
 

@@ -2,6 +2,13 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { validateConfig } from '../utils/configValidator';
 import parseJSON from 'json-parse-even-better-errors';
+import {
+  createConnection,
+  createLongLivedTokenAuth,
+  subscribeEntities,
+  ERR_CANNOT_CONNECT,
+  ERR_INVALID_AUTH,
+} from 'home-assistant-js-websocket';
 
 export const useHaStore = defineStore('haStore', () => {
   const sensors = ref([]);
@@ -38,11 +45,9 @@ export const useHaStore = defineStore('haStore', () => {
     console.log('Running in local mode - data will be loaded from file');
   }
 
-  let ws = null;
-  let reconnectDelay = 1000;
-  const maxReconnectDelay = 30000;
-  let reconnectAttempts = 0;
-  const maxReconnectAttempts = 5; // Show error after 5 failed attempts
+  // Library connection and state
+  let connection = null;
+  let unsubscribeEntitiesFn = null;
   const isConnected = ref(false);
   const lastError = ref(null);
 
@@ -84,95 +89,56 @@ export const useHaStore = defineStore('haStore', () => {
 
   const fetchStates = async () => {
     if (isLocalMode.value) return;
-    if (!haUrl.value || !accessToken.value) {
-      console.warn('fetchStates: Missing haUrl or accessToken', {
-        haUrl: haUrl.value,
-        hasToken: !!accessToken.value,
-      });
+    if (!connection) {
+      console.warn('fetchStates: Connection not established');
       return;
     }
     try {
-      console.log('Fetching states from:', `${haUrl.value}/api/states`);
-      const response = await fetchWithTimeout(
-        `${haUrl.value}/api/states`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken.value}`,
-            'Content-Type': 'application/json',
-          },
-        },
-        30000
-      );
-      if (!response.ok) {
-        let errorMessage = `Failed to fetch states: ${response.status} ${response.statusText}`;
-        if (response.status === 401) {
-          errorMessage = 'Authentication failed: Invalid access token. Please check TOKEN.';
-        } else if (response.status === 403) {
-          errorMessage = 'Access forbidden: Check CORS settings or permissions in Home Assistant.';
-        } else if (response.status === 404) {
-          errorMessage = 'Home Assistant API not found: Verify URL is correct.';
+      console.log('Subscribing to entity states via library');
+      // subscribeEntities will set up real-time updates
+      // We wrap it in a promise to wait for the first update
+      return new Promise((resolve, reject) => {
+        try {
+          let firstUpdate = true;
+          unsubscribeEntitiesFn = subscribeEntities(connection, (entities) => {
+            // Convert library entity format to our format
+            const statesList = Object.values(entities).map(entity => ({
+              entity_id: entity.entity_id,
+              state: entity.state,
+              attributes: entity.attributes || {},
+            }));
+            sensors.value = statesList;
+            console.log(`Updated ${statesList.length} entity states`);
+            
+            // Resolve on first update so caller knows data is available
+            if (firstUpdate) {
+              firstUpdate = false;
+              resolve();
+            }
+          });
+          
+          // Set a timeout in case subscription never fires
+          setTimeout(() => {
+            if (firstUpdate) {
+              console.warn('subscribeEntities did not receive initial data within 5 seconds');
+              resolve();
+            }
+          }, 5000);
+        } catch (error) {
+          reject(error);
         }
-        throw new Error(errorMessage);
-      }
-      const states = await response.json();
-      console.log(`Fetched ${states.length} states`);
-      console.log('Sample sensor attributes:', states.slice(0, 3).map(s => ({ entity_id: s.entity_id, device_id: s.attributes?.device_id, attrs: Object.keys(s.attributes || {}) })));
-      sensors.value = states;
+      });
     } catch (error) {
-      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-        console.error('CORS or network error fetching states:', error);
-        throw new Error(
-          `CORS error: Home Assistant server at ${haUrl.value} does not allow cross-origin requests. Ensure CORS is configured properly in Home Assistant.`
-        );
-      }
-      console.error('Error fetching states:', error);
+      console.error('Error subscribing to states:', error);
       throw error;
     }
   };
 
   const fetchDevices = async () => {
+    // Devices are now fetched via WebSocket library in fetchDevicesAfterAuth
+    // This method is kept for API compatibility but does nothing
     if (isLocalMode.value) return;
-    if (!haUrl.value || !accessToken.value) return;
-    try {
-      const response = await fetchWithTimeout(
-        `${haUrl.value}/api/template`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${accessToken.value}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            template:
-              "{% set devices = states | map(attribute='entity_id') | map('device_id') | unique | reject('eq',None) | list %}{%- set ns = namespace(devices = []) %}{%- for device in devices %}{%- set entities = device_entities(device) | list %}{%- if entities %}{%- set ns.devices = ns.devices +  [ {'id': device, 'name': device_attr(device, 'name'), 'model': device_attr(device, 'model'), 'manufacturer': device_attr(device, 'manufacturer'), 'sw_version': device_attr(device, 'sw_version'), 'hw_version': device_attr(device, 'hw_version'), 'entities': entities} ] %}{%- endif %}{%- endfor %}{{ ns.devices | tojson }}",
-          }),
-        },
-        30000
-      );
-      if (!response.ok) {
-        let errorMessage = `Failed to fetch devices: ${response.status} ${response.statusText}`;
-        if (response.status === 401) {
-          errorMessage = 'Authentication failed: Invalid access token. Please check VITE_HA_TOKEN.';
-        } else if (response.status === 403) {
-          errorMessage = 'Access forbidden: Check CORS settings or permissions in Home Assistant.';
-        } else if (response.status === 404) {
-          errorMessage = 'Home Assistant API not found: Verify VITE_HA_URL is correct.';
-        }
-        throw new Error(errorMessage);
-      }
-      const templateResult = await response.text();
-      const parsed = JSON.parse(templateResult);
-      devices.value = parsed;
-    } catch (error) {
-      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-        console.error('CORS or network error fetching devices:', error);
-        throw new Error(
-          `CORS error: Home Assistant server at ${haUrl.value} does not allow cross-origin requests. Ensure CORS is configured properly in Home Assistant.`
-        );
-      }
-      console.error('Error fetching devices via template:', error);
-      throw error;
-    }
+    console.log('fetchDevices: Devices will be fetched from WebSocket connection');
   };
 
   // Local mode functions
@@ -224,83 +190,33 @@ export const useHaStore = defineStore('haStore', () => {
     }
   };
 
-  // Batching mechanism for WebSocket state updates
-  // Collect updates in a batch and apply them every 100ms to reduce re-renders
-  const pendingUpdates = new Map(); // entity_id -> new_state
-  let batchTimeout = null;
-  const BATCH_WINDOW = 100; // milliseconds
-
-  const processBatch = () => {
-    if (pendingUpdates.size === 0) return;
-
-    // Apply all pending updates in a single operation
-    for (const [entityId, entity] of pendingUpdates) {
-      const index = sensors.value.findIndex((s) => s.entity_id === entityId);
-      if (index !== -1) {
-        sensors.value.splice(index, 1, entity);
-      } else {
-        sensors.value.push(entity);
-      }
-    }
-
-    pendingUpdates.clear();
-    batchTimeout = null;
-  };
-
-  const queueUpdate = (entity) => {
-    pendingUpdates.set(entity.entity_id, entity);
-
-    // Schedule batch processing if not already scheduled
-    if (!batchTimeout) {
-      batchTimeout = setTimeout(processBatch, BATCH_WINDOW);
-    }
-  };
-
-  let wsPendingCommands = new Map();
-  let wsCommandId = 1;
-
-  // Track subscription status
-  let subscriptionActive = false;
-  let subscriptionId = null;
-
   /**
-   * Send a command via websocket and wait for result
+   * Wrap library errors to maintain consistent error messaging
    */
-  const sendWebSocketCommand = async (command, timeout = 10000) => {
-    return new Promise((resolve, reject) => {
-      if (!ws || ws.readyState !== WebSocket.OPEN) {
-        reject(new Error('WebSocket not connected'));
-        return;
-      }
-
-      const commandId = wsCommandId++;
-      const timeoutId = setTimeout(() => {
-        wsPendingCommands.delete(commandId);
-        reject(new Error(`WebSocket command timeout after ${timeout}ms`));
-      }, timeout);
-
-      wsPendingCommands.set(commandId, { resolve, reject, timeoutId });
-
-      ws.send(
-        JSON.stringify({
-          id: commandId,
-          ...command,
-        })
-      );
-    });
+  const wrapLibraryError = (error) => {
+    if (error.code === ERR_INVALID_AUTH) {
+      return 'Authentication failed: Invalid access token. Check your VITE_HA_TOKEN.';
+    }
+    if (error.code === ERR_CANNOT_CONNECT) {
+      return `Failed to connect to Home Assistant. Check URL and network connectivity.`;
+    }
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      return `CORS error: Home Assistant server at ${haUrl.value} does not allow cross-origin requests. Ensure CORS is configured properly in Home Assistant.`;
+    }
+    return error.message || 'Connection error with Home Assistant';
   };
 
   /**
    * Fetch entity registry via websocket to get device_id mappings
    */
   const fetchEntityRegistry = async () => {
-    if (isLocalMode.value || !ws || ws.readyState !== WebSocket.OPEN) {
+    if (isLocalMode.value || !connection) {
       return;
     }
 
     try {
       console.log('Fetching entity registry via websocket');
-      const result = await sendWebSocketCommand({
+      const result = await connection.sendMessagePromise({
         type: 'config/entity_registry/list',
       });
 
@@ -309,6 +225,8 @@ export const useHaStore = defineStore('haStore', () => {
         entityRegistry = result;
       } else if (result && result.result && Array.isArray(result.result)) {
         entityRegistry = result.result;
+      } else if (result && Array.isArray(result)) {
+        entityRegistry = result;
       }
 
       console.log(`Fetched ${entityRegistry.length} entities from entity registry`);
@@ -336,16 +254,17 @@ export const useHaStore = defineStore('haStore', () => {
   };
 
   /**
-   * Fetch area registry via websocket
+   * Fetch area registry via library connection
    */
   const fetchAreaRegistry = async () => {
-    if (isLocalMode.value || !ws || ws.readyState !== WebSocket.OPEN) {
+    if (isLocalMode.value || !connection) {
       return;
     }
 
     try {
       console.log('Fetching area registry via websocket');
-      const result = await sendWebSocketCommand({
+      // Use the library's sendMessagePromise to send raw commands
+      const result = await connection.sendMessagePromise({
         type: 'config/area_registry/list',
       });
 
@@ -354,9 +273,11 @@ export const useHaStore = defineStore('haStore', () => {
         areasArray = result;
       } else if (result && result.result && Array.isArray(result.result)) {
         areasArray = result.result;
-      } else {
-        console.warn('Unexpected result format for areas:', result);
+      } else if (result && Array.isArray(result)) {
+        areasArray = result;
       }
+
+      console.log(`Fetched ${areasArray.length} areas from websocket:`, areasArray);
 
       if (areasArray.length > 0) {
         // Ensure each area has an entities array
@@ -364,7 +285,7 @@ export const useHaStore = defineStore('haStore', () => {
           ...area,
           entities: area.entities || [],
         }));
-        console.log(`Fetched ${areas.value.length} areas from websocket`);
+        console.log(`Updated areas list with ${areas.value.length} areas`);
 
         // Create virtual area entities
         for (const area of areasArray) {
@@ -383,6 +304,7 @@ export const useHaStore = defineStore('haStore', () => {
           // Add to sensors so it shows up in entity list
           if (!sensors.value.find((s) => s.entity_id === areaEntity.entity_id)) {
             sensors.value.push(areaEntity);
+            console.log(`Added virtual area entity: ${areaEntity.entity_id}`);
           }
         }
       } else {
@@ -394,29 +316,26 @@ export const useHaStore = defineStore('haStore', () => {
   };
 
   /**
-   * Fetch device registry via websocket (after authentication)
+   * Fetch device registry via library collection (after authentication)
    */
   const fetchDevicesAfterAuth = async () => {
-    if (isLocalMode.value || !ws || ws.readyState !== WebSocket.OPEN) {
+    if (isLocalMode.value || !connection) {
       return;
     }
 
     try {
       console.log('Fetching device registry via websocket');
-      const result = await sendWebSocketCommand(
-        {
-          type: 'config/device_registry/list',
-        },
-        10000
-      );
+      const result = await connection.sendMessagePromise({
+        type: 'config/device_registry/list',
+      });
 
       let deviceList = [];
       if (Array.isArray(result)) {
         deviceList = result;
       } else if (result && result.result && Array.isArray(result.result)) {
         deviceList = result.result;
-      } else if (result && result.success && Array.isArray(result.result)) {
-        deviceList = result.result;
+      } else if (result && Array.isArray(result)) {
+        deviceList = result;
       }
 
       console.log(`Fetched ${deviceList.length} devices from websocket`);
@@ -508,137 +427,70 @@ export const useHaStore = defineStore('haStore', () => {
     }
   };
 
-  const connectWebSocket = () => {
+  /**
+   * Connect to Home Assistant using the websocket library
+   */
+  const connectWebSocket = async () => {
     if (isLocalMode.value) return;
 
-    // Close existing connection if any
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.close();
+    if (!haUrl.value || !accessToken.value) {
+      setError('Missing credentials for connection');
+      return;
     }
 
-    // Convert http(s) => ws(s) and ensure slashes are correct
-    const wsProtocol = haUrl.value?.startsWith('https') ? 'wss' : 'ws';
-    const cleaned = haUrl.value.replace(/^https?:\/\//, '');
-    // Don't include token in URL - use auth message instead
-    const wsUrl = `${wsProtocol}://${cleaned}/api/websocket`;
-    console.log('Connecting to WebSocket:', wsUrl);
+    try {
+      console.log('Connecting to Home Assistant via websocket library:', haUrl.value);
+      
+      // Ensure URL doesn't end with /
+      let cleanUrl = haUrl.value;
+      if (cleanUrl.endsWith('/')) {
+        cleanUrl = cleanUrl.slice(0, -1);
+      }
 
-    ws = new WebSocket(wsUrl);
-    let authenticated = false;
+      // Create authentication with long-lived token using helper
+      console.log('Creating auth with long-lived token...');
+      const auth = createLongLivedTokenAuth(cleanUrl, accessToken.value);
 
-    ws.onopen = () => {
-      console.log('WebSocket connected, waiting for auth');
-      reconnectDelay = 1000;
-      reconnectAttempts = 0;
+      // Create connection with library
+      console.log('Establishing WebSocket connection...');
+      connection = await createConnection({ 
+        auth,
+        setupRetry: 5, // Retry up to 5 times on connection failure
+      });
+
       isConnected.value = true;
       clearError();
-      authenticated = false;
-    };
+      console.log('Connected to Home Assistant successfully');
 
-    ws.onmessage = async (event) => {
-      try {
-        const data = JSON.parse(event.data);
+      // Subscribe to entity state changes
+      await fetchStates();
 
-        if (data.type === 'auth_required') {
-          console.log('Auth required, sending token');
-          ws.send(
-            JSON.stringify({
-              type: 'auth',
-              access_token: accessToken.value,
-            })
-          );
-        } else if (data.type === 'auth_ok') {
-          console.log('Authentication successful, subscribing to events');
-          authenticated = true;
-          // Subscribe with an ID to track subscription confirmation
-          subscriptionId = wsCommandId++;
-          subscriptionActive = false; // Will become true when we get confirmation
-          ws.send(
-            JSON.stringify({
-              id: subscriptionId,
-              type: 'subscribe_events',
-              event_type: 'state_changed',
-            })
-          );
-          // Fetch devices and areas after authentication
-          console.log('Fetching devices and areas from websocket');
-          await fetchDevicesAfterAuth();
-          await fetchAreaRegistry();
-          // Fetch entity registry to enrich sensors with device_id
-          await fetchEntityRegistry();
-          // Map entities to devices after all data is fetched
-          mapEntitiesToDevices();
-        } else if (data.type === 'auth_invalid') {
-          console.error('Authentication failed - token is invalid');
-          setError('Authentication failed: Invalid access token. Check your VITE_HA_TOKEN.');
-          ws.close();
-        } else if (data.type === 'result') {
-          // Handle command responses
-          if (data.id && wsPendingCommands.has(data.id)) {
-            const { resolve, timeoutId } = wsPendingCommands.get(data.id);
-            clearTimeout(timeoutId);
-            wsPendingCommands.delete(data.id);
-            // Always resolve with data.result, even if it's null or undefined
-            resolve(data.result);
-          } else if (data.id === subscriptionId) {
-            // This is the subscription confirmation
-            subscriptionActive = data.success === true;
-            if (!subscriptionActive) {
-              console.error('[WS] Subscription failed!', data);
-            }
-          }
-        } else if (
-          data.type === 'event' &&
-          data.event?.event_type === 'state_changed' &&
-          authenticated
-        ) {
-          const entity = data.event.data.new_state;
-          // Queue the update instead of applying immediately
-          queueUpdate(entity);
-        }
-      } catch (error) {
-        console.error('Error processing WebSocket message:', error);
-      }
-    };
+      // Fetch registries after successful connection
+      console.log('Fetching devices and areas from websocket');
+      await fetchDevicesAfterAuth();
+      await fetchAreaRegistry();
+      await fetchEntityRegistry();
+      mapEntitiesToDevices();
 
-    ws.onclose = (event) => {
-      console.log('WebSocket closed:', event.code, event.reason);
+      // Set up event listeners for connection changes
+      connection.addEventListener('ready', () => {
+        console.log('WebSocket ready');
+        isConnected.value = true;
+        clearError();
+      });
+
+      connection.addEventListener('disconnected', () => {
+        console.log('WebSocket disconnected');
+        isConnected.value = false;
+      });
+
+    } catch (error) {
+      console.error('Error connecting to Home Assistant:', error);
+      const wrappedError = wrapLibraryError(error);
+      setError(wrappedError);
       isConnected.value = false;
-      authenticated = false;
-
-      // Process any pending updates before closing
-      if (batchTimeout) {
-        clearTimeout(batchTimeout);
-        processBatch();
-      }
-
-      // Only reconnect if it wasn't a clean close (code 1000) and not due to auth failure
-      if (event.code !== 1000 && !lastError.value) {
-        reconnectAttempts++;
-
-        if (reconnectAttempts >= maxReconnectAttempts) {
-          setError(
-            `Failed to connect after ${maxReconnectAttempts} attempts. Check Home Assistant URL and network connectivity.`
-          );
-          return;
-        }
-
-        console.log('WebSocket closed, reconnecting...', {
-          delay: reconnectDelay,
-          attempts: reconnectAttempts,
-        });
-
-        setTimeout(() => {
-          connectWebSocket();
-          reconnectDelay = Math.min(maxReconnectDelay, reconnectDelay * 2);
-        }, reconnectDelay);
-      }
-    };
-
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      setError('Connection error with Home Assistant. Check URL, certificate, and network.');
-    };
+      throw error;
+    }
   };
 
   /**
@@ -871,13 +723,9 @@ export const useHaStore = defineStore('haStore', () => {
         isLoading.value = false;
         console.log('=== Initialization complete (local mode) ===');
       } else {
-        console.log('Step 3: Connecting to Home Assistant API...');
-        await fetchStates();
-        console.log('Step 3: States loaded, connecting WebSocket...');
-        console.log('Step 3: Devices will be loaded from websocket after auth...');
-        connectWebSocket();
-        // Fetch entities from websocket after connection established
-        console.log('Step 3: Waiting for websocket to provide entity device mapping...');
+        console.log('Step 3: Connecting to Home Assistant via websocket...');
+        await connectWebSocket();
+        console.log('Step 3: Websocket connection established and data loaded...');
         isInitialized.value = true;
         isLoading.value = false;
         console.log('=== Initialization complete (HA connected) ===');
@@ -896,7 +744,7 @@ export const useHaStore = defineStore('haStore', () => {
       } else if (error.message.includes('not found')) {
         lastError.value = error.message;
       } else {
-        lastError.value = 'Failed to read data from Home Assistant. Check console for details.';
+        lastError.value = 'Failed to connect to Home Assistant. Check console for details.';
       }
     }
   };
@@ -942,6 +790,11 @@ export const useHaStore = defineStore('haStore', () => {
   const retryConnection = async () => {
     lastError.value = null;
     isConnected.value = false;
+    // Clean up any existing subscriptions
+    if (unsubscribeEntitiesFn) {
+      unsubscribeEntitiesFn();
+      unsubscribeEntitiesFn = null;
+    }
     // Try to re-initialize the store (refresh states and reconnect)
     await init();
   };
