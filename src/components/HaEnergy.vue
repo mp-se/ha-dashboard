@@ -55,17 +55,18 @@
           <svg
             :viewBox="`0 0 ${chartWidth} ${chartHeight}`"
             class="w-100"
-            style="min-height: 200px"
+            style="min-height: 200px; margin: 0 -8px"
+            preserveAspectRatio="none"
           >
             <!-- Y-axis scale labels -->
             <g class="chart-axis">
-              <text x="30" y="20" font-size="12" text-anchor="end" class="text-muted">
+              <text x="25" y="20" font-size="12" text-anchor="end" class="text-muted">
                 {{ formatYAxisLabel(maxValue) }}
               </text>
-              <text x="30" y="100" font-size="12" text-anchor="end" class="text-muted">
+              <text x="25" y="100" font-size="12" text-anchor="end" class="text-muted">
                 {{ formatYAxisLabel(maxValue / 2) }}
               </text>
-              <text x="30" y="180" font-size="12" text-anchor="end" class="text-muted">0</text>
+              <text x="25" y="180" font-size="12" text-anchor="end" class="text-muted">0</text>
             </g>
 
             <!-- Bars -->
@@ -73,9 +74,9 @@
               <rect
                 v-for="(point, idx) in chartData"
                 :key="idx"
-                :x="35 + (idx * (chartWidth - 60)) / chartData.length"
+                :x="25 + (idx * (chartWidth - 30)) / chartData.length"
                 :y="chartHeight - 20 - (point.value / maxValue) * (chartHeight - 40)"
-                :width="(chartWidth - 60) / chartData.length * 0.8"
+                :width="(chartWidth - 30) / chartData.length * 0.95"
                 :height="(point.value / maxValue) * (chartHeight - 40)"
                 class="bar"
                 fill="#007bff"
@@ -90,7 +91,7 @@
               <text
                 v-for="(point, idx) in labelStep === 1 ? chartData : chartData.filter((_, i) => i % labelStep === 0)"
                 :key="`label-${idx}`"
-                :x="35 + (chartData.indexOf(point) * (chartWidth - 60)) / chartData.length + (chartWidth - 60) / (chartData.length * 2)"
+                :x="25 + (chartData.indexOf(point) * (chartWidth - 30)) / chartData.length + (chartWidth - 30) / (chartData.length * 2)"
                 :y="chartHeight - 2"
                 font-size="11"
                 text-anchor="middle"
@@ -234,8 +235,8 @@ const labelStep = computed(() => {
 const tooltipStyle = computed(() => {
   if (hoveredIndex.value < 0) return {};
   
-  const barWidth = (chartWidth - 60) / chartData.value.length;
-  const barX = 35 + (hoveredIndex.value * (chartWidth - 60)) / chartData.value.length + barWidth * 0.5;
+  const barWidth = (chartWidth - 30) / chartData.value.length;
+  const barX = 25 + (hoveredIndex.value * (chartWidth - 30)) / chartData.value.length + barWidth * 0.5;
   const percentage = (barX / chartWidth) * 100;
   
   return {

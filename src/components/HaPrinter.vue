@@ -17,40 +17,50 @@
         </div>
 
         <div v-else>
-          <div class="d-flex justify-content-between align-items-start mb-2">
+          <div class="d-flex justify-content-between align-items-start mb-3">
             <div>
               <h6 class="card-title mb-0">{{ name }}</h6>
             </div>
             <div class="text-end">
-              <span class="badge bg-secondary">{{ formattedValue }}</span>
-              <div v-if="unit" class="small text-muted mt-1">{{ unit }}</div>
+              <span class="badge bg-success">{{ getHighestTonerLevel }}%</span>
+              <div class="small text-muted mt-1">Toner</div>
             </div>
           </div>
-          <!-- Toner Progress Bars -->
-          <div>
-            <div class="d-flex flex-column">
-              <div class="progress mb-1" style="height: 12px">
+          <!-- Toner Progress Bars with Labels -->
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <div>
+              <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem; text-align: left;">Black</div>
+              <div class="progress" style="height: 12px;">
                 <div
                   class="progress-bar bg-dark"
                   :style="{ width: blackLevel + '%' }"
                   :title="'Black: ' + blackLevel + '%'"
                 ></div>
               </div>
-              <div class="progress mb-1" style="height: 12px">
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem; text-align: left;">Cyan</div>
+              <div class="progress" style="height: 12px;">
                 <div
                   class="progress-bar bg-info"
                   :style="{ width: cyanLevel + '%' }"
                   :title="'Cyan: ' + cyanLevel + '%'"
                 ></div>
               </div>
-              <div class="progress mb-1" style="height: 12px">
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem; text-align: left;">Magenta</div>
+              <div class="progress" style="height: 12px;">
                 <div
                   class="progress-bar bg-danger"
                   :style="{ width: magentaLevel + '%' }"
                   :title="'Magenta: ' + magentaLevel + '%'"
                 ></div>
               </div>
-              <div class="progress mb-1" style="height: 12px">
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem; text-align: left;">Yellow</div>
+              <div class="progress" style="height: 12px;">
                 <div
                   class="progress-bar bg-warning"
                   :style="{ width: yellowLevel + '%' }"
@@ -58,14 +68,6 @@
                 ></div>
               </div>
             </div>
-          </div>
-          <div v-if="extraAttributes.length" class="mt-2 small text-muted">
-            <ul class="list-unstyled mb-0">
-              <li v-for="[k, v] in extraAttributes" :key="k">
-                <strong>{{ attributeLabel(k) }}:</strong>
-                <span>{{ formatAttributeValue(v) }}</span>
-              </li>
-            </ul>
           </div>
         </div>
       </div>
@@ -76,7 +78,6 @@
 <script setup>
 import { computed } from 'vue';
 import { useHaStore } from '@/stores/haStore';
-import { formatAttributeValue, attributeLabel } from '@/utils/attributeFormatters';
 
 const props = defineProps({
   entity: {
@@ -106,11 +107,6 @@ const props = defineProps({
   yellow: {
     type: String,
     required: true,
-  },
-  // Optional list of attribute keys to display below the name
-  attributes: {
-    type: Array,
-    default: () => [],
   },
 });
 
@@ -143,43 +139,14 @@ const cyanLevel = computed(() => getTonerLevel(props.cyan));
 const magentaLevel = computed(() => getTonerLevel(props.magenta));
 const yellowLevel = computed(() => getTonerLevel(props.yellow));
 
-const state = computed(() => resolvedEntity.value?.state ?? 'unknown');
-const unit = computed(() => resolvedEntity.value?.attributes?.unit_of_measurement || '');
-
-// Format numbers if possible, otherwise show raw state
-const formattedValue = computed(() => {
-  const s = state.value;
-  if (s === 'unknown' || s === 'unavailable') return s;
-  // try parse as number
-  const n = Number(s);
-  if (!Number.isNaN(n)) {
-    // If unit indicates temperature or percent, show one decimal, else show up to 2 decimals
-    if ((unit.value && /°|°C|°F|%|percent/i.test(unit.value)) || Math.abs(n) < 100) {
-      return n.toFixed(1);
-    }
-    return n.toFixed(0);
-  }
-  return s;
-});
-
-const isUnavailable = computed(() => ['unavailable', 'unknown'].includes(state.value));
-
-const cardBorderClass = computed(() => {
-  if (isUnavailable.value) return 'border-warning';
-  return 'border-info';
+const getHighestTonerLevel = computed(() => {
+  return Math.max(blackLevel.value, cyanLevel.value, magentaLevel.value, yellowLevel.value);
 });
 
 const name = computed(
   () =>
     resolvedEntity.value?.attributes?.friendly_name || resolvedEntity.value?.entity_id || 'Unknown'
 );
-
-// Return an array of [key, value] for the attributes to show
-const extraAttributes = computed(() => {
-  if (!resolvedEntity.value) return [];
-  const attrs = resolvedEntity.value.attributes || {};
-  return (props.attributes || []).filter((k) => k in attrs).map((k) => [k, attrs[k]]);
-});
 </script>
 
 <style scoped>

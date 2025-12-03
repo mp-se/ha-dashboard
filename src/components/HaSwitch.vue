@@ -8,16 +8,11 @@
         'rounded-4',
         'shadow-lg',
         !resolvedEntity ? 'border-warning' : cardBorderClass,
-        { 'card-active': isOn && !isDisabled },
+        isOn && !isDisabled ? 'card-active' : '',
       ]"
     >
       <div
-        :class="[
-          'card-body',
-          !resolvedEntity
-            ? 'text-center text-warning'
-            : 'd-flex align-items-center justify-content-between',
-        ]"
+        :class="['card-body', !resolvedEntity ? 'text-center text-warning' : 'd-flex flex-column']"
       >
         <i v-if="!resolvedEntity" class="mdi mdi-alert-circle mdi-24px mb-2"></i>
         <div v-if="!resolvedEntity">
@@ -25,21 +20,26 @@
         </div>
 
         <template v-else>
-          <div class="text-start">
-            <h6 class="card-title mb-0">
-              {{ resolvedEntity.attributes?.friendly_name || resolvedEntity.entity_id }}
-            </h6>
-          </div>
-          <div>
-            <div class="form-check form-switch m-0">
-              <input
-                :id="`ha-switch-${resolvedEntity.entity_id}`"
-                v-model="isOn"
-                class="form-check-input ha-switch-large"
-                type="checkbox"
-                :disabled="isDisabled || isToggling"
-              />
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="text-start flex-grow-1">
+              <h6 class="card-title mb-0">
+                {{ resolvedEntity.attributes?.friendly_name || resolvedEntity.entity_id }}
+              </h6>
             </div>
+            <button
+              class="control-button"
+              :class="{ 'control-button-on': isOn && !isDisabled }"
+              :disabled="isDisabled || isLoading"
+              :title="isOn ? 'Turn off' : 'Turn on'"
+              @click="isOn = !isOn"
+            >
+              <div class="control-circle-wrapper">
+                <svg width="50" height="50" viewBox="0 0 50 50" class="control-circle">
+                  <circle cx="25" cy="25" r="22" :fill="controlCircleColor" />
+                </svg>
+                <i :class="switchIconClass" class="control-icon" :style="{ color: iconColor }"></i>
+              </div>
+            </button>
           </div>
         </template>
       </div>
@@ -51,6 +51,7 @@
 import { computed, ref } from 'vue';
 import { useEntityResolver } from '@/composables/useEntityResolver';
 import { useServiceCall } from '@/composables/useServiceCall';
+import { useNormalizeIcon } from '@/composables/useNormalizeIcon';
 
 const props = defineProps({
   entity: {
@@ -74,6 +75,7 @@ const props = defineProps({
 const emit = defineEmits(['mockToggle']);
 
 const { callService, isLoading } = useServiceCall();
+const normalizeIcon = useNormalizeIcon();
 
 // Use composable for entity resolution
 const { resolvedEntity } = useEntityResolver(props.entity);
@@ -108,7 +110,41 @@ const isOn = computed({
   },
 });
 
-// displayState intentionally removed (unused)
+// Control circle color based on switch state
+const controlCircleColor = computed(() => {
+  if (isDisabled.value) return '#6c757d'; // Gray for unavailable
+  if (!isOn.value) return '#e9ecef'; // Light gray for off
+  return '#0078d4'; // Blue for on
+});
+
+// Icon color - white when on, dark gray when off
+const iconColor = computed(() => {
+  if (!isOn.value) return '#333'; // Dark gray icon when off
+  return 'white'; // White icon when on
+});
+
+// Get switch icon - from entity attributes or domain-specific defaults
+const switchIconClass = computed(() => {
+  if (!resolvedEntity.value) return 'mdi mdi-help-circle';
+
+  const icon = resolvedEntity.value.attributes?.icon;
+  if (icon) {
+    return normalizeIcon(icon);
+  }
+
+  // Default icons by domain
+  const domain = resolvedEntity.value.entity_id.split('.')[0];
+  
+  const domainIcons = {
+    light: 'mdi mdi-lightbulb',
+    switch: 'mdi mdi-power',
+    fan: 'mdi mdi-fan',
+    binary_sensor: 'mdi mdi-eye',
+    sensor: 'mdi mdi-gauge',
+  };
+
+  return domainIcons[domain] || 'mdi mdi-power';
+});
 
 // Compute a bootstrap border class depending on state
 const cardBorderClass = computed(() => {
@@ -120,14 +156,51 @@ const cardBorderClass = computed(() => {
 </script>
 
 <style scoped>
-.ha-switch-large {
-  transform: scale(1.45);
-  transform-origin: center;
-  /* Nudge vertically for better alignment with text */
-  margin-top: 0.08rem;
-}
-.form-check.form-switch {
-  /* Keep the switch container compact so scaling doesn't add extra gap */
+.control-button {
+  background: none;
+  border: none;
   padding: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.control-button:hover:not(:disabled) {
+  transform: scale(1.1);
+}
+
+.control-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.control-circle-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+}
+
+.control-circle {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  transition: filter 0.2s ease;
+}
+
+.control-button:hover:not(:disabled) .control-circle {
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+}
+
+.control-icon {
+  position: relative;
+  z-index: 1;
+  font-size: 1.5rem;
+  font-weight: 400;
 }
 </style>

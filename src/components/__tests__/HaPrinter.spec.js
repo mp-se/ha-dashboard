@@ -157,10 +157,10 @@ describe('HaPrinter.vue', () => {
         },
         global: { plugins: [pinia] },
       });
-      expect(wrapper.text()).toContain('75');
+      expect(wrapper.text()).toContain('90');
     });
 
-    it('should display unit of measurement', () => {
+    it('should display Toner label', () => {
       const wrapper = mount(HaPrinter, {
         props: {
           entity: 'sensor.printer_toner',
@@ -171,7 +171,7 @@ describe('HaPrinter.vue', () => {
         },
         global: { plugins: [pinia] },
       });
-      expect(wrapper.text()).toContain('%');
+      expect(wrapper.text()).toContain('Toner');
     });
   });
 

@@ -120,11 +120,11 @@ describe('HaLight.vue', () => {
         },
       });
 
-      const checkbox = wrapper.find('input[type="checkbox"]');
-      expect(checkbox.exists()).toBe(true);
+      const button = wrapper.find('button.control-button');
+      expect(button.exists()).toBe(true);
     });
 
-    it('should have correct checkbox ID', () => {
+    it('should have control button clickable', () => {
       const entity = {
         entity_id: 'light.hallway',
         state: 'on',
@@ -143,8 +143,8 @@ describe('HaLight.vue', () => {
         },
       });
 
-      const checkbox = wrapper.find('input[type="checkbox"]');
-      expect(checkbox.attributes('id')).toBe('ha-light-light.hallway');
+      const button = wrapper.find('button.control-button');
+      expect(button.exists()).toBe(true);
     });
 
     it('should reflect on/off state', () => {
@@ -166,8 +166,10 @@ describe('HaLight.vue', () => {
         },
       });
 
-      const checkbox = wrapper.find('input[type="checkbox"]');
-      expect(checkbox.element.checked).toBe(true);
+      // Button should exist and light is on
+      const button = wrapper.find('button.control-button');
+      expect(button.exists()).toBe(true);
+      expect(button.classes('control-button-on')).toBe(true);
     });
   });
 
@@ -191,10 +193,10 @@ describe('HaLight.vue', () => {
         },
       });
 
-      expect(wrapper.find('.card-active').exists()).toBe(true);
+      expect(wrapper.find('button.control-button').classes('control-button-on')).toBe(true);
     });
 
-    it('should not have card-active class when light is off', () => {
+    it('should not have control-button-on class when light is off', () => {
       const entity = {
         entity_id: 'light.off_light',
         state: 'off',
@@ -213,8 +215,8 @@ describe('HaLight.vue', () => {
         },
       });
 
-      const card = wrapper.find('.card');
-      expect(card.classes()).not.toContain('card-active');
+      const button = wrapper.find('button.control-button');
+      expect(button.classes()).not.toContain('control-button-on');
     });
 
     it('should have warning border when entity not found', () => {
@@ -255,7 +257,7 @@ describe('HaLight.vue', () => {
       expect(wrapper.find('.border-warning').exists()).toBe(true);
     });
 
-    it('should have success border when on', () => {
+    it('should have secondary border when on', () => {
       const entity = {
         entity_id: 'light.success',
         state: 'on',
@@ -274,7 +276,7 @@ describe('HaLight.vue', () => {
         },
       });
 
-      expect(wrapper.find('.border-success').exists()).toBe(true);
+      expect(wrapper.find('.border-secondary').exists()).toBe(true);
     });
 
     it('should have secondary border when off', () => {
@@ -672,8 +674,8 @@ describe('HaLight.vue', () => {
         },
       });
 
-      const checkbox = wrapper.find('input[type="checkbox"]');
-      expect(checkbox.attributes('disabled')).toBeDefined();
+      const button = wrapper.find('button.control-button');
+      expect(button.attributes('disabled')).toBeDefined();
     });
 
     it('should disable controls when unknown', () => {
@@ -695,8 +697,8 @@ describe('HaLight.vue', () => {
         },
       });
 
-      const checkbox = wrapper.find('input[type="checkbox"]');
-      expect(checkbox.attributes('disabled')).toBeDefined();
+      const button = wrapper.find('button.control-button');
+      expect(button.attributes('disabled')).toBeDefined();
     });
   });
 
@@ -916,8 +918,8 @@ describe('HaLight.vue', () => {
         },
       });
 
-      expect(wrapper.find('.form-check').exists()).toBe(true);
-      expect(wrapper.find('.form-switch').exists()).toBe(true);
+      expect(wrapper.find('button.control-button').exists()).toBe(true);
+      expect(wrapper.find('.control-circle-wrapper').exists()).toBe(true);
     });
 
     it('should have card-body and h-100 classes', () => {

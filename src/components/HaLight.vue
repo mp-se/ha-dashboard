@@ -8,7 +8,6 @@
         'rounded-4',
         'shadow-lg',
         !resolvedEntity ? 'border-warning' : cardBorderClass,
-        { 'card-active': isOn && !isDisabled },
       ]"
     >
       <div
@@ -19,21 +18,24 @@
           Entity "{{ typeof entity === 'string' ? entity : entity?.entity_id }}" not found
         </div>
         <template v-else>
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <div class="text-start">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="text-start flex-grow-1">
               <h6 class="card-title mb-0">{{ name }}</h6>
             </div>
-            <div class="text-end">
-              <div class="form-check form-switch m-0">
-                <input
-                  :id="`ha-light-${resolvedEntity.entity_id}`"
-                  v-model="isOn"
-                  class="form-check-input ha-switch-large"
-                  type="checkbox"
-                  :disabled="isDisabled || isLoading"
-                />
+            <button
+              class="control-button"
+              :class="{ 'control-button-on': isOn && !isDisabled }"
+              :disabled="isDisabled || isLoading"
+              :title="isOn ? 'Turn off' : 'Turn on'"
+              @click="isOn = !isOn"
+            >
+              <div class="control-circle-wrapper">
+                <svg width="50" height="50" viewBox="0 0 50 50" class="control-circle">
+                  <circle cx="25" cy="25" r="22" :fill="controlCircleColor" />
+                </svg>
+                <i class="mdi mdi-lightbulb control-icon" :style="{ color: iconColor }"></i>
               </div>
-            </div>
+            </button>
           </div>
           <!-- Brightness slider for dimmable lights -->
           <div class="mt-auto">
@@ -366,7 +368,91 @@ const handleBrightnessChange = async (event) => {
 
 const cardBorderClass = computed(() => {
   if (isDisabled.value) return 'border-warning';
-  return state.value === 'on' ? 'border-success' : 'border-secondary';
+  return 'border-secondary';
+});
+
+// Control circle color based on light state
+const controlCircleColor = computed(() => {
+  if (isDisabled.value) return '#6c757d'; // Gray for unavailable
+  if (!isOn.value) return '#e9ecef'; // Light gray for off
+  
+  // Show actual light color if supported
+  if (supportsColor.value && attributes.value.hs_color) {
+    const [hue, sat] = attributes.value.hs_color;
+    // Convert HSV to RGB for display, using brightness for intensity
+    const brightness = attributes.value.brightness || 255;
+    const v = (brightness / 255) * 0.8 + 0.2; // Scale 0.2-1.0
+    
+    const h = hue / 60;
+    const s = sat / 100;
+    const c = v * s;
+    const x = c * (1 - Math.abs((h % 2) - 1));
+    const m = v - c;
+    let r, g, b;
+    
+    if (h >= 0 && h < 1) [r, g, b] = [c, x, 0];
+    else if (h >= 1 && h < 2) [r, g, b] = [x, c, 0];
+    else if (h >= 2 && h < 3) [r, g, b] = [0, c, x];
+    else if (h >= 3 && h < 4) [r, g, b] = [0, x, c];
+    else if (h >= 4 && h < 5) [r, g, b] = [x, 0, c];
+    else [r, g, b] = [c, 0, x];
+    
+    const toHex = (v) => Math.round((v + m) * 255).toString(16).padStart(2, '0');
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  }
+  
+  // Show color temp as gradient if supported
+  if (supportsColorTemp.value && !supportsColor.value && attributes.value.color_temp) {
+    const mireds = attributes.value.color_temp;
+    const kelvin = mireds > 0 ? Math.round(1000000 / mireds) : 5000;
+    
+    // Match to the closest supported preset to get consistent colors
+    let closestPreset = null;
+    let smallestDiff = Infinity;
+    
+    for (const preset of supportedPresets.value) {
+      const diff = Math.abs(preset.kelvin - kelvin);
+      if (diff < smallestDiff) {
+        smallestDiff = diff;
+        closestPreset = preset;
+      }
+    }
+    
+    if (closestPreset) {
+      return getPresetColor(closestPreset.kelvin).backgroundColor;
+    }
+    
+    // Fallback if no preset matches
+    if (kelvin <= 2700) return '#FFB366'; // Warm orange
+    else if (kelvin <= 3000) return '#FFCC80'; // Soft yellow
+    else if (kelvin <= 4000) return '#E8F4FD'; // Cool white
+    else if (kelvin <= 5000) return '#F0F8FF'; // Daylight white
+    else return '#E3F2FD'; // Cold blue-white
+  }
+  
+  // Default yellow for simple on/off lights
+  return '#FFC107';
+});
+
+// Icon color - black for light backgrounds, white for dark backgrounds
+const iconColor = computed(() => {
+  if (!isOn.value) return 'white'; // White icon when off
+  
+  // For on state, use black icon for light colors, white for dark colors
+  const color = controlCircleColor.value.toLowerCase();
+  
+  // Light colors that need dark icon
+  const lightColors = ['#e8f4fd', '#f0f8ff', '#e3f2fd', '#ffcc80', '#ffc107'];
+  
+  // Check if current color is light
+  for (const lightColor of lightColors) {
+    if (color === lightColor) {
+      return '#333'; // Dark icon for light backgrounds
+    }
+  }
+  
+  // Default white icon for darker colors
+  return 'white';
 });
 
 const name = computed(
@@ -381,14 +467,60 @@ const name = computed(
   font-weight: 600;
   padding: 0.35em 0.6em;
 }
-.ha-switch-large {
-  transform: scale(1.45);
-  transform-origin: center;
-  margin-top: 0.08rem;
+
+.control-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
 }
+
+.control-button:hover:not(:disabled) {
+  transform: scale(1.1);
+}
+
+.control-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.control-circle-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+}
+
+.control-circle {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  transition: filter 0.2s ease;
+}
+
+.control-button:hover:not(:disabled) .control-circle {
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+}
+
+.control-icon {
+  position: relative;
+  z-index: 1;
+  font-size: 1.5rem;
+  color: white;
+  font-weight: 400;
+}
+
 .form-check.form-switch {
   padding: 0;
 }
+
 .preset-btn-icon {
   display: flex;
   align-items: center;
@@ -403,19 +535,23 @@ const name = computed(
   transition: all 0.2s ease;
   background-color: inherit;
 }
+
 .preset-btn-icon:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
+
 .preset-btn-icon.active-preset {
   border-color: #007bff;
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
   color: #333;
 }
+
 .preset-btn-icon:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
 .color-preset-btn-icon {
   display: flex;
   align-items: center;
@@ -430,20 +566,24 @@ const name = computed(
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
 .color-preset-btn-icon.white-preset {
   color: #333;
   background-color: #FFFFFF !important;
 }
+
 .color-preset-btn-icon:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
+
 .color-preset-btn-icon.active-color {
   border-color: #fff;
   box-shadow:
     0 0 0 3px rgba(255, 255, 255, 0.5),
     0 4px 12px rgba(0, 0, 0, 0.2);
 }
+
 .color-preset-btn-icon:disabled {
   opacity: 0.5;
   cursor: not-allowed;
