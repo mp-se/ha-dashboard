@@ -462,7 +462,7 @@ describe('HaBinarySensor.vue', () => {
   });
 
   describe('Extra Attributes', () => {
-    it('should display requested attributes', () => {
+    it('should accept attributes prop (no longer displays them)', () => {
       const entity = {
         entity_id: 'binary_sensor.sensor',
         state: 'on',
@@ -486,13 +486,12 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Battery');
-      expect(wrapper.text()).toContain('85');
-      expect(wrapper.text()).toContain('Signal strength');
-      expect(wrapper.text()).toContain('strong');
+      // Attributes prop is accepted for API consistency but no longer displayed
+      expect(wrapper.exists()).toBe(true);
+      expect(wrapper.text()).toContain('Motion Sensor');
     });
 
-    it('should not display attributes not in entity', () => {
+    it('should display only name and state, not attributes', () => {
       const entity = {
         entity_id: 'binary_sensor.sensor',
         state: 'on',
@@ -505,7 +504,7 @@ describe('HaBinarySensor.vue', () => {
       const wrapper = mount(HaBinarySensor, {
         props: {
           entity,
-          attributes: ['battery', 'missing_attr'],
+          attributes: ['battery'],
         },
         global: {
           stubs: {
@@ -515,16 +514,17 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Battery');
-      expect(wrapper.text()).not.toContain('Missing attr');
+      expect(wrapper.text()).toContain('Sensor');
+      expect(wrapper.text()).not.toContain('Battery');
+      expect(wrapper.text()).not.toContain('90');
     });
 
-    it('should format attribute labels correctly', () => {
+    it('should maintain simple layout with name and state indicator only', () => {
       const entity = {
         entity_id: 'binary_sensor.sensor',
         state: 'on',
         attributes: {
-          friendly_name: 'Sensor',
+          friendly_name: 'Test Sensor',
           battery_level: '75',
         },
       };
@@ -542,7 +542,9 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Battery level');
+      expect(wrapper.text()).toContain('Test Sensor');
+      expect(wrapper.text()).not.toContain('Battery level');
+      expect(wrapper.text()).not.toContain('75');
     });
   });
 

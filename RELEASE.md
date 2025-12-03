@@ -32,10 +32,19 @@
 - Updated HaSun tests to verify available properties instead of removed computed properties
 - Added new test in HaSun for sunrise/sunset time display
 - Updated haStore tests to mock `home-assistant-js-websocket` library methods instead of manual WebSocket
+- HaLight component refactored with interactive circular control button (dynamic color: yellow for simple, color-temp adjusted for warm/cool, actual color for RGB)
+- HaSwitch component refactored with interactive circular control button (blue on-state, light gray off-state)
+- Improved entity state management in haStore with in-place array updates preserving Vue reactivity
 - 23 tests for icon normalization
 - 32 tests for icon validation
 - 34 tests for config validation with icon support
-- 1217 tests passing across 43 test files
+- Significantly improved test coverage for view components:
+  - HaEntityList.vue: 72.07% → 90.91% statements (41 new tests)
+  - DevicesView.vue: 72.07% → 83.76% statements, 50% → 100% functions (22 new tests)
+  - RawEntityView.vue: 59.06% → 84.89% statements (33 new tests)
+  - Views directory overall: 87.12% statements, 89.87% branches
+- 96 new tests added across view components for improved reliability
+- 1301 tests passing across 43 test files
 
 ## November 2025 - v0.1.0
 

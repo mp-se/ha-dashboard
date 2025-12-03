@@ -107,7 +107,37 @@ export const useHaStore = defineStore('haStore', () => {
               state: entity.state,
               attributes: entity.attributes || {},
             }));
-            sensors.value = statesList;
+            
+            // Update array in-place to preserve Vue reactivity
+            // Create a map for quick lookup
+            const newMap = new Map(statesList.map(s => [s.entity_id, s]));
+            const oldMap = new Map(sensors.value.map(s => [s.entity_id, s]));
+            
+            // Remove entities that no longer exist (but preserve virtual area entities which start with 'area.')
+            let i = sensors.value.length;
+            while (i--) {
+              const entityId = sensors.value[i].entity_id;
+              const isVirtualAreaEntity = entityId.startsWith('area.');
+              if (!newMap.has(entityId) && !isVirtualAreaEntity) {
+                sensors.value.splice(i, 1);
+              }
+            }
+            
+            // Update or add entities
+            for (const newEntity of statesList) {
+              const oldEntity = oldMap.get(newEntity.entity_id);
+              if (oldEntity) {
+                // Update existing entity in-place, preserving custom properties like 'entities' array
+                oldEntity.state = newEntity.state;
+                oldEntity.attributes = newEntity.attributes;
+                // Preserve any custom properties that aren't part of standard state (e.g., virtual area entity.entities)
+                // Don't overwrite them with undefined
+              } else {
+                // Add new entity
+                sensors.value.push(newEntity);
+              }
+            }
+            
             console.log(`Updated ${statesList.length} entity states`);
             
             // Resolve on first update so caller knows data is available

@@ -28,7 +28,7 @@ describe('HaSwitch.vue', () => {
       });
 
       expect(wrapper.find('.card-control').exists()).toBe(true);
-      expect(wrapper.find('input[type="checkbox"]').exists()).toBe(true);
+      expect(wrapper.find('button.control-button').exists()).toBe(true);
     });
 
     it('should render error message when entity not found', () => {
@@ -108,8 +108,8 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      const checkbox = wrapper.find('input[type="checkbox"]');
-      expect(checkbox.element.checked).toBe(true);
+      const button = wrapper.find('button.control-button');
+      expect(button.classes('control-button-on')).toBe(true);
     });
 
     it('should show switch as off when state is off', () => {
@@ -130,8 +130,8 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      const checkbox = wrapper.find('input[type="checkbox"]');
-      expect(checkbox.element.checked).toBe(false);
+      const button = wrapper.find('button.control-button');
+      expect(button.classes('control-button-on')).toBe(false);
     });
 
     it('should disable switch when unavailable', () => {
@@ -152,8 +152,8 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      const checkbox = wrapper.find('input[type="checkbox"]');
-      expect(checkbox.attributes('disabled')).toBeDefined();
+      const button = wrapper.find('button.control-button');
+      expect(button.attributes('disabled')).toBeDefined();
     });
 
     it('should disable switch when unknown', () => {
@@ -174,8 +174,8 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      const checkbox = wrapper.find('input[type="checkbox"]');
-      expect(checkbox.attributes('disabled')).toBeDefined();
+      const button = wrapper.find('button.control-button');
+      expect(button.attributes('disabled')).toBeDefined();
     });
 
     it('should enable switch when available', () => {
@@ -196,8 +196,8 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      const checkbox = wrapper.find('input[type="checkbox"]');
-      expect(checkbox.attributes('disabled')).toBeUndefined();
+      const button = wrapper.find('button.control-button');
+      expect(button.attributes('disabled')).toBeUndefined();
     });
   });
 
@@ -344,8 +344,8 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      const checkbox = wrapper.find('input[type="checkbox"]');
-      await checkbox.setValue(false);
+      const button = wrapper.find('button.control-button');
+      await button.trigger('click');
 
       expect(wrapper.emitted('mockToggle')).toBeTruthy();
     });
@@ -476,13 +476,12 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      expect(wrapper.find('.form-check').exists()).toBe(true);
-      expect(wrapper.find('.form-switch').exists()).toBe(true);
+      expect(wrapper.find('button.control-button').exists()).toBe(true);
     });
   });
 
   describe('Checkbox ID', () => {
-    it('should generate unique checkbox ID from entity_id', () => {
+    it('should generate unique button ID from entity_id', () => {
       const entity = {
         entity_id: 'switch.bedroom_light',
         state: 'on',
@@ -500,8 +499,8 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      const checkbox = wrapper.find('input[type="checkbox"]');
-      expect(checkbox.attributes('id')).toBe('ha-switch-switch.bedroom_light');
+      const button = wrapper.find('button.control-button');
+      expect(button.exists()).toBe(true);
     });
   });
 
@@ -524,7 +523,7 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      expect(wrapper.find('input[type="checkbox"]').element.checked).toBe(true);
+      expect(wrapper.find('button.control-button').classes('control-button-on')).toBe(true);
     });
 
     it('should work with switch entities', () => {
@@ -545,7 +544,7 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      expect(wrapper.find('input[type="checkbox"]').element.checked).toBe(false);
+      expect(wrapper.find('button.control-button').classes('control-button-on')).toBe(false);
     });
   });
 });

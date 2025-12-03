@@ -10,29 +10,18 @@
 
   <div v-else-if="entityList.length === 1" class="col-lg-4 col-md-6">
     <div :class="['card', 'card-display', cardBorderClass, 'h-100', 'rounded-4', 'shadow-lg']">
-      <div class="card-body d-flex align-items-center">
-        <div class="text-start flex-grow-1">
-          <h6 class="card-title mb-0">{{ name }}</h6>
-          <div v-if="extraAttributes.length" class="mt-1 small text-muted">
-            <ul class="list-unstyled mb-0">
-              <li v-for="[k, v] in extraAttributes" :key="k">
-                <strong>{{ attributeLabel(k) }}:</strong>
-                <span>{{ formatAttributeValue(v) }}</span>
-              </li>
-            </ul>
+      <div class="card-body d-flex align-items-center gap-3">
+        <div v-if="iconClass" class="icon-bg-wrapper">
+          <div class="icon-bg" :style="{ backgroundColor: iconCircleColor }">
+            <i :class="iconClass" class="icon-overlay"></i>
           </div>
         </div>
-        <div class="d-flex align-items-center">
-          <div class="text-end me-2">
-            <div class="ha-sensor-value fw-bold">
-              {{ formattedValue }} <small class="text-muted ms-1">{{ unit }}</small>
-            </div>
-          </div>
-          <div v-if="iconClass" class="icon-circle-wrapper">
-            <svg width="40" height="40" viewBox="0 0 40 40" class="icon-circle">
-              <circle cx="20" cy="20" r="18" :fill="iconCircleColor" />
-            </svg>
-            <i :class="iconClass" class="icon-overlay"></i>
+        <div class="flex-grow-1 text-start">
+          <h6 class="card-title">{{ name }}</h6>
+        </div>
+        <div class="text-end flex-shrink-0">
+          <div class="ha-sensor-value fw-bold">
+            {{ formattedValue }}<span class="ha-sensor-unit ms-1">{{ unit }}</span>
           </div>
         </div>
       </div>
@@ -42,23 +31,19 @@
   <div v-else class="col-lg-4 col-md-6">
     <div :class="['card', 'card-display', 'h-100', 'rounded-4', 'shadow-lg', 'border-info']">
       <div class="card-body">
-        <div v-for="ent in entityList" :key="ent" class="mb-3">
-          <div class="d-flex align-items-center">
-            <div class="text-start flex-grow-1">
-              <h6 class="card-title mb-0">{{ getName(ent) }}</h6>
-            </div>
-            <div class="d-flex align-items-center">
-              <div class="text-end me-2">
-                <div class="ha-sensor-value fw-bold">
-                  {{ getFormattedValue(ent) }}
-                  <small class="text-muted ms-1">{{ getUnit(ent) }}</small>
-                </div>
-              </div>
-              <div v-if="getIconClass(ent)" class="icon-circle-wrapper-small">
-                <svg width="32" height="32" viewBox="0 0 40 40" class="icon-circle">
-                  <circle cx="20" cy="20" r="18" :fill="getIconCircleColor(ent)" />
-                </svg>
+        <div v-for="ent in entityList" :key="ent" class="mb-2">
+          <div class="d-flex align-items-center gap-2">
+            <div v-if="getIconClass(ent)" class="icon-bg-wrapper-small">
+              <div class="icon-bg-small" :style="{ backgroundColor: getIconCircleColor(ent) }">
                 <i :class="getIconClass(ent)" class="icon-overlay-small"></i>
+              </div>
+            </div>
+            <div class="flex-grow-1 text-start">
+              <h6 class="card-title-small">{{ getName(ent) }}</h6>
+            </div>
+            <div class="text-end flex-shrink-0">
+              <div class="ha-sensor-value-small fw-bold">
+                {{ getFormattedValue(ent) }}<span class="ha-sensor-unit-small ms-1">{{ getUnit(ent) }}</span>
               </div>
             </div>
           </div>
@@ -74,7 +59,6 @@ import { useHaStore } from '@/stores/haStore';
 import { useEntityResolver } from '@/composables/useEntityResolver';
 import { useIconClass } from '@/composables/useIconClass';
 import { useIconCircleColor } from '@/composables/useIconCircleColor';
-import { formatAttributeValue, attributeLabel } from '@/utils/attributeFormatters';
 
 const props = defineProps({
   entity: {
@@ -97,11 +81,6 @@ const props = defineProps({
       }
       return false;
     },
-  },
-  // Optional list of attribute keys to display below the name
-  attributes: {
-    type: Array,
-    default: () => [],
   },
 });
 
@@ -173,11 +152,7 @@ const iconClass = computed(() => {
 });
 
 // Return an array of [key, value] for the attributes to show
-const extraAttributes = computed(() => {
-  if (!resolvedEntity.value) return [];
-  const attrs = resolvedEntity.value.attributes || {};
-  return (props.attributes || []).filter((k) => k in attrs).map((k) => [k, attrs[k]]);
-});
+// (Removed - no longer showing attributes, just icon, name, and value)
 
 const getResolved = (ent) => {
   if (typeof ent === 'string') {
@@ -253,12 +228,49 @@ const getIconCircleColor = (ent) => {
 </script>
 
 <style scoped>
-/* Sensor value should be slightly smaller than the name but still prominent */
+/* Sensor value and unit styling */
 .ha-sensor-value {
-  font-size: 0.95rem;
+  font-size: 1.25rem;
+  line-height: 1;
 }
 
-.icon-circle-wrapper {
+.ha-sensor-unit {
+  font-size: 0.75rem;
+  color: #999;
+}
+
+.ha-sensor-value-small {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.ha-sensor-unit-small {
+  font-size: 0.65rem;
+  color: #999;
+}
+
+/* Icon background circle */
+.icon-bg-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+}
+
+.icon-bg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.icon-bg-wrapper-small {
   position: relative;
   display: flex;
   align-items: center;
@@ -268,21 +280,14 @@ const getIconCircleColor = (ent) => {
   flex-shrink: 0;
 }
 
-.icon-circle-wrapper-small {
-  position: relative;
+.icon-bg-small {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-}
-
-.icon-circle {
-  position: absolute;
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .icon-overlay {
@@ -295,7 +300,19 @@ const getIconCircleColor = (ent) => {
 .icon-overlay-small {
   position: relative;
   z-index: 1;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: white;
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.card-title-small {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0;
 }
 </style>

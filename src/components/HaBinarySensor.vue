@@ -23,14 +23,6 @@
 
         <div v-if="resolvedEntity" class="text-start flex-grow-1">
           <h6 class="card-title mb-0">{{ name }}</h6>
-          <div v-if="extraAttributes.length" class="mt-1 small text-muted">
-            <ul class="list-unstyled mb-0">
-              <li v-for="[k, v] in extraAttributes" :key="k">
-                <strong>{{ attributeLabel(k) }}:</strong>
-                <span>{{ formatAttributeValue(v) }}</span>
-              </li>
-            </ul>
-          </div>
         </div>
         <div v-if="resolvedEntity" class="d-flex align-items-center ms-2">
           <div
@@ -53,7 +45,6 @@
 <script setup>
 import { computed } from 'vue';
 import { useEntityResolver } from '@/composables/useEntityResolver';
-import { formatAttributeValue, attributeLabel } from '@/utils/attributeFormatters';
 
 const props = defineProps({
   entity: {
@@ -108,12 +99,6 @@ const cardBorderClass = computed(() => {
   if (isUnavailable.value) return 'border-warning';
   const lowerState = state.value.toLowerCase();
   return lowerState === 'on' || lowerState === 'true' ? 'border-success' : 'border-secondary';
-});
-
-const extraAttributes = computed(() => {
-  if (!resolvedEntity.value) return [];
-  const attrs = resolvedEntity.value.attributes || {};
-  return (props.attributes || []).filter((k) => k in attrs).map((k) => [k, attrs[k]]);
 });
 </script>
 
