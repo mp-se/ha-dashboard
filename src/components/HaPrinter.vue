@@ -22,12 +22,11 @@
               <h6 class="card-title mb-0">{{ name }}</h6>
             </div>
             <div class="text-end">
-              <span class="badge bg-success">{{ getHighestTonerLevel }}%</span>
-              <div class="small text-muted mt-1">Toner</div>
+              <span class="badge bg-success">{{ resolvedEntity.state }}</span>
             </div>
           </div>
           <!-- Toner Progress Bars with Labels -->
-          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <div style="display: flex; flex-direction: column; gap: 0.25rem;">
             <div>
               <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem; text-align: left;">Black</div>
               <div class="progress" style="height: 12px;">
@@ -138,10 +137,6 @@ const blackLevel = computed(() => getTonerLevel(props.black));
 const cyanLevel = computed(() => getTonerLevel(props.cyan));
 const magentaLevel = computed(() => getTonerLevel(props.magenta));
 const yellowLevel = computed(() => getTonerLevel(props.yellow));
-
-const getHighestTonerLevel = computed(() => {
-  return Math.max(blackLevel.value, cyanLevel.value, magentaLevel.value, yellowLevel.value);
-});
 
 const name = computed(
   () =>

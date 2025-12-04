@@ -16,7 +16,7 @@ describe('HaPrinter.vue', () => {
     store.sensors = [
       {
         entity_id: 'sensor.printer_toner',
-        state: '75',
+        state: 'ready',
         attributes: {
           friendly_name: 'Printer Toner',
           unit_of_measurement: '%',
@@ -177,7 +177,7 @@ describe('HaPrinter.vue', () => {
         },
         global: { plugins: [pinia] },
       });
-      expect(wrapper.text()).toContain('90');
+      expect(wrapper.text()).toContain('ready');
     });
 
     it('should display Toner label', () => {
