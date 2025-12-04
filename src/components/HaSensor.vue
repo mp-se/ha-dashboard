@@ -50,8 +50,8 @@
               <h6 class="card-title-small">{{ getName(ent) }}</h6>
             </div>
             <div class="text-end flex-shrink-0">
-              <div class="ha-sensor-value-small fw-bold">
-                {{ getFormattedValue(ent) }}<span class="ha-sensor-unit-small ms-1">{{ getUnit(ent) }}</span>
+              <div class="ha-sensor-value fw-bold">
+                {{ getFormattedValue(ent) }}<span class="ha-sensor-unit ms-1">{{ getUnit(ent) }}</span>
               </div>
             </div>
           </div>
@@ -279,22 +279,12 @@ const getIconCircleColor = (ent) => {
 <style scoped>
 /* Sensor value and unit styling */
 .ha-sensor-value {
-  font-size: 1.25rem;
+  font-size: 0.9rem;
   line-height: 1;
 }
 
 .ha-sensor-unit {
   font-size: 0.75rem;
-  color: #999;
-}
-
-.ha-sensor-value-small {
-  font-size: 0.9rem;
-  line-height: 1;
-}
-
-.ha-sensor-unit-small {
-  font-size: 0.65rem;
   color: #999;
 }
 
