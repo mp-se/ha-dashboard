@@ -22,8 +22,7 @@
             <!-- Display requested attributes if provided -->
             <div v-if="requestedAttributes.length > 0" class="mt-1">
               <div v-for="[key, value] in requestedAttributes" :key="key" class="small d-flex gap-2 mb-0">
-                <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">{{ formatKey(key) }}:</div>
-                <div>{{ formatAttributeValue(value) }}</div>
+                <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">{{ formatKey(key) }}: <span class="fw-bold">{{ formatAttributeValue(value) }}</span></div>
               </div>
             </div>
           </div>
@@ -305,8 +304,8 @@ const getIconCircleColor = (ent) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
 }
 
