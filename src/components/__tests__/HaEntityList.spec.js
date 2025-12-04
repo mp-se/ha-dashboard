@@ -3,10 +3,6 @@ import { mount } from '@vue/test-utils';
 import HaEntityList from '../HaEntityList.vue';
 import { createPinia, setActivePinia } from 'pinia';
 import { useHaStore } from '@/stores/haStore';
-import HaSensor from '../HaSensor.vue';
-import HaSwitch from '../HaSwitch.vue';
-import HaLight from '../HaLight.vue';
-import HaSpacer from '../HaSpacer.vue';
 
 describe('HaEntityList.vue', () => {
   let store;

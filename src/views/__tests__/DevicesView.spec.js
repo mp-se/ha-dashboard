@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import DevicesView from '../DevicesView.vue';
 import { createPinia, setActivePinia } from 'pinia';
@@ -665,7 +665,6 @@ describe('DevicesView.vue', () => {
       ];
 
       const wrapper = mount(DevicesView);
-      const noDevicesMsg = wrapper.find('p.text-muted');
       
       // Should not have the "No devices found" message since there are devices
       expect(wrapper.text()).not.toContain('No devices found matching your filters');

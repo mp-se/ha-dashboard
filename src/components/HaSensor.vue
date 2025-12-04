@@ -10,17 +10,26 @@
 
   <div v-else-if="entityList.length === 1" class="col-lg-4 col-md-6">
     <div :class="['card', 'card-display', cardBorderClass, 'h-100', 'rounded-4', 'shadow-lg']">
-      <div class="card-body d-flex align-items-center gap-3">
-        <div v-if="iconClass" class="icon-bg-wrapper">
+      <div :class="['card-body', 'd-flex', requestedAttributes.length === 0 ? 'align-items-center' : 'align-items-start', 'gap-3']">
+        <div v-if="iconClass" class="icon-circle-wrapper flex-shrink-0">
           <div class="icon-bg" :style="{ backgroundColor: iconCircleColor }">
             <i :class="iconClass" class="icon-overlay"></i>
           </div>
         </div>
-        <div class="flex-grow-1 text-start">
-          <h6 class="card-title">{{ name }}</h6>
+        <div class="flex-grow-1">
+          <div class="text-start">
+            <h6 class="card-title">{{ name }}</h6>
+            <!-- Display requested attributes if provided -->
+            <div v-if="requestedAttributes.length > 0" class="mt-1">
+              <div v-for="[key, value] in requestedAttributes" :key="key" class="small d-flex gap-2 mb-0">
+                <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">{{ formatKey(key) }}:</div>
+                <div>{{ formatAttributeValue(value) }}</div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="text-end flex-shrink-0">
-          <div class="ha-sensor-value fw-bold">
+        <div class="flex-shrink-0">
+          <div class="ha-sensor-value fw-bold text-end">
             {{ formattedValue }}<span class="ha-sensor-unit ms-1">{{ unit }}</span>
           </div>
         </div>
@@ -33,7 +42,7 @@
       <div class="card-body">
         <div v-for="ent in entityList" :key="ent" class="mb-2">
           <div class="d-flex align-items-center gap-2">
-            <div v-if="getIconClass(ent)" class="icon-bg-wrapper-small">
+            <div v-if="getIconClass(ent)" class="icon-circle-wrapper">
               <div class="icon-bg-small" :style="{ backgroundColor: getIconCircleColor(ent) }">
                 <i :class="getIconClass(ent)" class="icon-overlay-small"></i>
               </div>
@@ -81,6 +90,10 @@ const props = defineProps({
       }
       return false;
     },
+  },
+  attributes: {
+    type: Array,
+    default: () => [],
   },
 });
 
@@ -150,6 +163,43 @@ const iconClass = computed(() => {
   const entityId = typeof firstEntity === 'string' ? firstEntity : resolvedEntity.value.entity_id;
   return useIconClass(resolvedEntity.value, entityId);
 });
+
+// Return requested attributes as [key, value] pairs
+const requestedAttributes = computed(() => {
+  if (!props.attributes || props.attributes.length === 0) return [];
+  if (!resolvedEntity.value) return [];
+  
+  const attrs = resolvedEntity.value.attributes || {};
+  const result = [];
+  
+  for (const key of props.attributes) {
+    if (key in attrs) {
+      result.push([key, attrs[key]]);
+    }
+  }
+  
+  return result;
+});
+
+const formatKey = (key) => {
+  return key
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+const formatAttributeValue = (value) => {
+  if (value === null || value === undefined) return '-';
+  if (Array.isArray(value)) return value.join(', ');
+  if (typeof value === 'object') {
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
+    }
+  }
+  return String(value);
+};
 
 // Return an array of [key, value] for the attributes to show
 // (Removed - no longer showing attributes, just icon, name, and value)
@@ -250,6 +300,16 @@ const getIconCircleColor = (ent) => {
 }
 
 /* Icon background circle */
+.icon-circle-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+}
+
 .icon-bg-wrapper {
   position: relative;
   display: flex;

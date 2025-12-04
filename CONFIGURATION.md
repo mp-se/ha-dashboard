@@ -601,6 +601,7 @@ Displays weather forecast with temperature, conditions, wind speed.
 **Properties**:
 
 - `entity` (string|object, required): Weather entity ID or object
+- `forecast` (boolean, optional, default: true): Show/hide the 3-day forecast section
 - `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
@@ -614,13 +615,13 @@ Basic weather:
 }
 ```
 
-With additional forecast details:
+Hide forecast section:
 
 ```json
 {
   "type": "HaWeather",
   "entity": "weather.forecast_home",
-  "attributes": ["temperature", "wind_speed", "humidity"]
+  "forecast": false
 }
 ```
 

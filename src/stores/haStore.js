@@ -45,6 +45,13 @@ export const useHaStore = defineStore('haStore', () => {
     console.log('Running in local mode - data will be loaded from file');
   }
 
+  // Weather forecast state
+  const forecasts = ref({});  // { entityId: { type, data: [], timestamp } }
+  const forecastSubscriptions = ref({});  // { entityId: subscriptionId }
+  const forecastSupport = ref({});  // { entityId: 'daily'|'hourly'|'twice_daily'|null }
+  const forecastErrors = ref({});  // { entityId: errorMessage }
+  const forecastLoading = ref({});  // { entityId: boolean }
+
   // Library connection and state
   let connection = null;
   let unsubscribeEntitiesFn = null;
@@ -451,6 +458,111 @@ export const useHaStore = defineStore('haStore', () => {
     }
   };
 
+  const subscribeToWeatherForecast = async (entityId, forecastType = 'daily') => {
+    // Check if already subscribed
+    if (entityId in forecastSubscriptions.value) {
+      return;
+    }
+
+    // Verify entity exists
+    const entity = sensors.value.find((s) => s.entity_id === entityId);
+    if (!entity) {
+      forecastErrors.value[entityId] = 'Entity not found';
+      return;
+    }
+
+    // Check if entity supports forecasts
+    const supportedFeatures = entity.attributes?.supported_features || 0;
+    const forecastCapabilities = {
+      daily: 1,
+      hourly: 2,
+      twice_daily: 4,
+    };
+
+    if (!(supportedFeatures & forecastCapabilities[forecastType])) {
+      // Try another forecast type
+      let alternativeType = null;
+      if (forecastType !== 'daily' && supportedFeatures & 1) {
+        alternativeType = 'daily';
+      } else if (forecastType !== 'hourly' && supportedFeatures & 2) {
+        alternativeType = 'hourly';
+      } else if (forecastType !== 'twice_daily' && supportedFeatures & 4) {
+        alternativeType = 'twice_daily';
+      }
+
+      if (!alternativeType) {
+        forecastErrors.value[entityId] = `Entity does not support ${forecastType} forecasts`;
+        return;
+      }
+
+      forecastType = alternativeType;
+    }
+
+    if (!connection) {
+      forecastErrors.value[entityId] = 'WebSocket not connected';
+      return;
+    }
+
+    try {
+      forecastLoading.value[entityId] = true;
+
+      // Use the connection's subscribeMessage method to subscribe to forecast updates
+      // This method handles subscription ID management automatically
+      const unsubscribe = await connection.subscribeMessage(
+        (forecastData) => {
+          // Handle forecast response/update
+          if (forecastData && forecastData.forecast) {
+            forecasts.value[entityId] = {
+              type: forecastData.type || forecastType,
+              data: forecastData.forecast,
+              timestamp: Date.now(),
+            };
+
+            // Update entity attributes
+            const ent = sensors.value.find((s) => s.entity_id === entityId);
+            if (ent) {
+              if (!ent.attributes) {
+                ent.attributes = {};
+              }
+              ent.attributes.forecast = forecastData.forecast;
+            }
+
+            forecastLoading.value[entityId] = false;
+            forecastErrors.value[entityId] = null;
+          }
+        },
+        {
+          type: 'weather/subscribe_forecast',
+          entity_id: entityId,
+          forecast_type: forecastType,
+        },
+        { resubscribe: true }
+      );
+
+      // Store the unsubscribe function for cleanup
+      forecastSubscriptions.value[entityId] = unsubscribe;
+      forecastErrors.value[entityId] = null;
+    } catch (error) {
+      forecastLoading.value[entityId] = false;
+      forecastErrors.value[entityId] = error.message || 'Failed to subscribe to forecast';
+      console.error(`Error subscribing to forecast for ${entityId}:`, error);
+    }
+  };
+
+  const unsubscribeFromForecast = (entityId) => {
+    const unsubscribeFn = forecastSubscriptions.value[entityId];
+    if (typeof unsubscribeFn === 'function') {
+      try {
+        unsubscribeFn();
+      } catch (error) {
+        console.error(`Error unsubscribing from forecast for ${entityId}:`, error);
+      }
+    }
+    delete forecastSubscriptions.value[entityId];
+    delete forecasts.value[entityId];
+    delete forecastLoading.value[entityId];
+  };
+
   /**
    * Connect to Home Assistant using the websocket library
    */
@@ -495,6 +607,10 @@ export const useHaStore = defineStore('haStore', () => {
       await fetchAreaRegistry();
       await fetchEntityRegistry();
       mapEntitiesToDevices();
+
+      // Auto-fetch weather forecasts for all available weather entities
+      console.log('Auto-fetching weather forecasts');
+      autoFetchWeatherForecasts();
 
       // Set up event listeners for connection changes
       connection.addEventListener('ready', () => {
@@ -1116,6 +1232,49 @@ export const useHaStore = defineStore('haStore', () => {
     }
   }
 
+  /**
+   * Get all weather entities with forecast capability
+   */
+  const getWeatherEntities = () => {
+    return sensors.value.filter((s) => s.entity_id.startsWith('weather.'));
+  };
+
+  /**
+   * Check if forecast is ready for an entity
+   */
+  const isForecastReady = (entityId) => {
+    return entityId in forecasts.value && !forecastLoading.value[entityId];
+  };
+
+  /**
+   * Get forecast error for an entity
+   */
+  const getForecastError = (entityId) => {
+    return forecastErrors.value[entityId] || null;
+  };
+
+  /**
+   * Auto-fetch forecasts for all available weather entities
+   */
+  const autoFetchWeatherForecasts = () => {
+    const weatherEntities = getWeatherEntities();
+    for (const entity of weatherEntities) {
+      // Determine best forecast type from supported_features
+      const supportedFeatures = entity.attributes?.supported_features || 0;
+      let forecastType = 'daily';
+      
+      if (supportedFeatures & 1) {
+        forecastType = 'daily';
+      } else if (supportedFeatures & 2) {
+        forecastType = 'hourly';
+      } else if (supportedFeatures & 4) {
+        forecastType = 'twice_daily';
+      }
+      
+      subscribeToWeatherForecast(entity.entity_id, forecastType);
+    }
+  };
+
   return {
     sensors,
     devices,
@@ -1206,5 +1365,17 @@ export const useHaStore = defineStore('haStore', () => {
       if (!device || !device.entities) return [];
       return sensors.value.filter((s) => device.entities.includes(s.entity_id));
     },
+    // Weather forecast state and methods
+    forecasts,
+    forecastSubscriptions,
+    forecastSupport,
+    forecastErrors,
+    forecastLoading,
+    subscribeToWeatherForecast,
+    unsubscribeFromForecast,
+    getWeatherEntities,
+    isForecastReady,
+    getForecastError,
+    autoFetchWeatherForecasts,
   };
 });

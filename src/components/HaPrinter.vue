@@ -52,8 +52,8 @@
               <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem; text-align: left;">Magenta</div>
               <div class="progress" style="height: 12px;">
                 <div
-                  class="progress-bar bg-danger"
-                  :style="{ width: magentaLevel + '%' }"
+                  class="progress-bar"
+                  :style="{ width: magentaLevel + '%', backgroundColor: '#e700d9' }"
                   :title="'Magenta: ' + magentaLevel + '%'"
                 ></div>
               </div>
@@ -147,6 +147,10 @@ const name = computed(
   () =>
     resolvedEntity.value?.attributes?.friendly_name || resolvedEntity.value?.entity_id || 'Unknown'
 );
+
+const cardBorderClass = computed(() => {
+  return resolvedEntity.value ? 'border-info' : '';
+});
 </script>
 
 <style scoped>
