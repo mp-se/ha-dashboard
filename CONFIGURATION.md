@@ -4,7 +4,7 @@ This guide explains how to configure the Home Assistant Dashboard using JSON, in
 
 ## Visual Card Reference
 
-All available card types with visual examples and configuration are documented below in the [Card Visual Reference Guide](#card-visual-reference-guide) section.
+All available card types are documented in the [Card Components](#card-components) section with visual examples and configuration.
 
 ## Table of Contents
 
@@ -336,15 +336,23 @@ See [Material Design Icons](https://materialdesignicons.com) for the full list.
 
 ## Card Components
 
-Cards are the individual UI elements that display entity data. Each card type handles a specific Home Assistant domain or use case.
-
-> **Visual Reference**: See the [Card Visual Reference Guide](#card-visual-reference-guide) section for visual examples of all card types with configuration examples.
+Cards are the individual UI elements that display entity data. Each card type handles a specific Home Assistant domain or use case. Each card section below includes a visual example and configuration details.
 
 ### HaSensor
+
+**Single Sensor:**
+
+![HaSensor Card](./images/hasensor-single.png)
 
 Displays numeric sensor data with value, unit, and optional attributes.
 
 **Use for**: Temperature, humidity, battery percentage, any numeric sensor
+
+**Multiple Sensors:**
+
+![HaSensor Card - Multiple](./images/hasensor-multiple.png)
+
+Display multiple sensor values in one card.
 
 **Properties**:
 
@@ -386,6 +394,8 @@ Multiple sensors in one card:
 ```
 
 ### HaSensorGraph
+
+![HaSensorGraph Card](./images/hasensorgraph.png)
 
 Displays sensor data as a line graph with history. Supports comparing 1-3 entities with color-coded lines.
 
@@ -447,6 +457,8 @@ Comparing power consumption across multiple sources (same unit):
 
 ### HaBinarySensor
 
+![HaBinarySensor Card](./images/habinarysensor.png)
+
 Displays binary state (on/off, open/closed, detected/not detected).
 
 **Use for**: Motion sensors, door sensors, presence detection, binary switches
@@ -478,6 +490,14 @@ With attributes:
 ```
 
 ### HaLight
+
+**Light On:**
+
+![HaLight Card - On](./images/halight-on.png)
+
+**Light Off:**
+
+![HaLight Card - Off](./images/halight-off.png)
 
 Interactive light control with on/off toggle and brightness slider.
 
@@ -520,6 +540,14 @@ RGB light with full control:
 ```
 
 ### HaSwitch
+
+**Switch On:**
+
+![HaSwitch Card - On](./images/haswitch-on.png)
+
+**Switch Off:**
+
+![HaSwitch Card - Off](./images/haswitch-off.png)
 
 Interactive switch control with on/off toggle.
 
@@ -564,6 +592,8 @@ Mock switch for testing:
 
 ### HaWeather
 
+![HaWeather Card](./images/haweather.png)
+
 Displays weather forecast with temperature, conditions, wind speed.
 
 **Use for**: Weather integration entities
@@ -595,6 +625,8 @@ With additional forecast details:
 ```
 
 ### HaEnergy
+
+![HaEnergy Card](./images/haenergy.png)
 
 Displays energy consumption with interactive bar chart, smart data aggregation, and real-time statistics.
 
@@ -661,6 +693,8 @@ Power sensor with attributes:
 ```
 
 ### HaSun
+
+![HaSun Card](./images/hasun.png)
 
 Displays sun position, sunrise/sunset times.
 
@@ -758,6 +792,8 @@ With arm modes:
 
 ### HaPrinter
 
+![HaPrinter Card](./images/haprinter.png)
+
 Displays printer status including toner levels.
 
 **Use for**: Printer entities with toner sensors
@@ -787,6 +823,8 @@ HP printer with toner monitoring:
 ```
 
 ### HaPerson
+
+![HaPerson Card](./images/haperson.png)
 
 Displays person tracking information (location, state).
 
@@ -850,6 +888,8 @@ Battery level chip:
 
 ### HaWarning
 
+![HaWarning Card](./images/hawarning.png)
+
 Displays a warning message when a condition is met (yellow styling).
 
 **Use for**: Conditional warnings based on entity state
@@ -905,6 +945,8 @@ High power consumption:
 
 ### HaError
 
+![HaError Card](./images/haerror.png)
+
 Displays an error message when a condition is met (red styling).
 
 **Use for**: Error states and critical alerts
@@ -958,6 +1000,8 @@ Disk space critical:
 ```
 
 ### HaImage
+
+![HaImage Card](./images/haimage.png)
 
 Displays an image from the local data directory or external URL. Images are resized to fit within the standard card container (col-md-4).
 
@@ -1044,6 +1088,8 @@ Section header with device icon:
 
 ### HaGauge
 
+![HaGauge Card](./images/hagauge.png)
+
 Displays a gauge visualization for numeric sensor values.
 
 **Use for**: Visual representation of values (temperature, pressure, fill level, etc.)
@@ -1090,6 +1136,8 @@ Pressure gauge:
 ```
 
 ### HaRoom
+
+![HaRoom Card](./images/haroom.png)
 
 Displays an area/room card with temperature/humidity auto-detection and up to 3 control objects.
 
@@ -1219,6 +1267,8 @@ Wifi sensors with attributes:
 
 ### HaSelect
 
+![HaSelect Card](./images/haselect.png)
+
 Dropdown selector for input_select entities.
 
 **Use for**: Input select entities (mode selection, scenes, etc.)
@@ -1250,6 +1300,8 @@ Scene selector with attributes:
 ```
 
 ### HaButton
+
+![HaButton Card](./images/habutton.png)
 
 Button trigger for input_button entities.
 
@@ -1289,385 +1341,6 @@ Restart automation:
 }
 ```
 
-## Card Visual Reference Guide
-
-This section provides visual examples paired with configuration code for each card type. Each card includes a screenshot, description, use case, and JSON configuration example.
-
-### Control Cards
-
-#### HaLight - Light Control
-
-![HaLight Card](./images/halight.png)
-
-**Visual**: Toggleable on/off with brightness slider and RGB color control
-**Use**: Light entities with various control options
-
-```json
-{
-  "type": "HaLight",
-  "entity": "light.living_room"
-}
-```
-
-#### HaSwitch - On/Off Toggle
-
-![HaSwitch Card](./images/haswitch.png)
-
-**Visual**: Simple on/off switch with state indicator
-**Use**: Switch entities, binary controls
-
-```json
-{
-  "type": "HaSwitch",
-  "entity": "switch.coffee_maker"
-}
-```
-
-#### HaButton - Action Button
-
-![HaButton Card](./images/habutton.png)
-
-**Visual**: Clickable button that triggers service actions
-**Use**: Input buttons, automation triggers
-
-```json
-{
-  "type": "HaButton",
-  "entity": "input_button.restart_services"
-}
-```
-
-#### HaSelect - Option Selection
-
-![HaSelect Card](./images/haselect.png)
-
-**Visual**: Button group with radio selection of options
-**Use**: Select entities with predefined choices
-
-```json
-{
-  "type": "HaSelect",
-  "entity": "select.thermostat_mode"
-}
-```
-
-### Display Cards
-
-#### HaSensor - Numeric Values
-
-![HaSensor Card](./images/hasensor.png)
-
-**Visual**: Value with unit and optional attributes
-**Use**: Temperature, humidity, battery, any numeric sensor
-
-```json
-{
-  "type": "HaSensor",
-  "entity": "sensor.temperature_living_room",
-  "attributes": ["last_changed"]
-}
-```
-
-#### HaBinarySensor - Binary States
-
-![HaBinarySensor Card](./images/habinarysensor.png)
-
-**Visual**: On/off indicator with state text
-**Use**: Motion sensors, door/window sensors, presence detection
-
-```json
-{
-  "type": "HaBinarySensor",
-  "entity": "binary_sensor.motion_living_room"
-}
-```
-
-### Data Visualization Cards
-
-#### HaGauge - Circular Progress
-
-![HaGauge Card](./images/hagauge.png)
-
-**Visual**: Circular gauge with percentage fill and arc
-**Use**: CPU usage, memory, battery percentage, any 0-100% metric
-
-```json
-{
-  "type": "HaGauge",
-  "entity": "sensor.cpu_usage"
-}
-```
-
-#### HaSensorGraph - Line Chart History
-
-![HaSensorGraph Card](./images/hasensorgraph.png)
-
-**Visual**: Multi-line chart showing historical data trends
-**Use**: Compare 1-3 sensors over time (temperature, power, etc.)
-
-```json
-{
-  "type": "HaSensorGraph",
-  "entity": ["sensor.temperature_living_room", "sensor.temperature_bedroom"],
-  "hours": 24
-}
-```
-
-#### HaEnergy - Energy Consumption Chart
-
-![HaEnergy Card](./images/haenergy.png)
-
-**Visual**: Bar chart with daily energy consumption and statistics
-**Use**: Energy tracking with daily/weekly/monthly views
-
-```json
-{
-  "type": "HaEnergy",
-  "entity": "sensor.energy_consumed"
-}
-```
-
-#### HaPrinter - Supply Level Indicator
-
-![HaPrinter Card](./images/haprinter.png)
-
-**Visual**: Color-coded progress bars for supply levels (CMYK toner)
-**Use**: Printer supply tracking and maintenance alerts
-
-```json
-{
-  "type": "HaPrinter",
-  "entity": "device_tracker.printer"
-}
-```
-
-### Specialized Cards
-
-#### HaWeather - Weather Information
-
-![HaWeather Card](./images/haweather.png)
-
-**Visual**: Weather condition with temperature and attributes
-**Use**: Weather entities from Home Assistant integrations
-
-```json
-{
-  "type": "HaWeather",
-  "entity": "weather.home"
-}
-```
-
-#### HaSun - Sunrise/Sunset Times
-
-![HaSun Card](./images/hasun.png)
-
-**Visual**: Current sun position with sunrise/sunset times
-**Use**: Sun entity for sunrise/sunset tracking
-
-```json
-{
-  "type": "HaSun",
-  "entity": "sun.sun"
-}
-```
-
-#### HaPerson - Location Status
-
-![HaPerson Card](./images/haperson.png)
-
-**Visual**: Current location with person name
-**Use**: Person entities to show presence/location
-
-```json
-{
-  "type": "HaPerson",
-  "entity": "person.john"
-}
-```
-
-#### HaImage - Static Image Display
-
-![HaImage Card](./images/haimage.png)
-
-**Visual**: Image entity or static image display
-**Use**: Security camera snapshots, photos, diagrams
-
-```json
-{
-  "type": "HaImage",
-  "entity": "image.front_door"
-}
-```
-
-#### HaLink - Clickable Link
-
-![HaLink Card](./images/halink.png)
-
-**Visual**: Clickable link with icon
-**Use**: Quick access to external URLs or services
-
-```json
-{
-  "type": "HaLink",
-  "entity": "input_text.external_link",
-  "label": "Open System"
-}
-```
-
-#### HaRoom - Area Information with Controls
-
-![HaRoom Card](./images/haroom.png)
-
-**Visual**: Room info (temperature, humidity) with control objects
-**Use**: Room/area display with quick access controls
-
-```json
-{
-  "type": "HaRoom",
-  "entity": ["area.living_room", "light.living_room", "climate.living_room"]
-}
-```
-
-### Utility & List Cards
-
-#### HaChip - Compact Sensor Display
-
-**Visual**: Compact pill-shaped display for single or multiple entities
-**Use**: Quick reference indicators that don't need much space
-
-```json
-{
-  "type": "HaChip",
-  "entity": "sensor.phone_battery",
-  "attributes": ["battery_state"]
-}
-```
-
-#### HaMediaPlayer - Media Playback Control
-
-**Visual**: Playback controls with track information
-**Use**: Audio/video players and media integrations
-
-```json
-{
-  "type": "HaMediaPlayer",
-  "entity": "media_player.living_room_speaker",
-  "attributes": ["media_title", "media_artist", "volume_level"]
-}
-```
-
-#### HaAlarmPanel - Alarm Control
-
-**Visual**: Alarm state indicator with mode controls
-**Use**: Alarm control panel entities and security systems
-
-```json
-{
-  "type": "HaAlarmPanel",
-  "entity": "alarm_control_panel.home",
-  "attributes": ["code_arm_required", "code_disarm_required"]
-}
-```
-
-#### HaEntityList - Dynamic Entity Filtering
-
-**Visual**: List of entities filtered by getter function
-**Use**: Dynamic filtering (batteries below 20%, offline devices, etc.)
-
-```json
-{
-  "type": "HaEntityList",
-  "getter": "getBatterySensors"
-}
-```
-
-#### HaGlance - Multi-Entity Overview
-
-**Visual**: Compact grid display of multiple entities
-**Use**: Quick overview of multiple related entities
-
-```json
-{
-  "type": "HaGlance",
-  "entity": ["sensor.temperature", "sensor.humidity", "sun.sun"]
-}
-```
-
-#### HaWarning - Conditional Warning
-
-**Visual**: Yellow warning card when condition is met
-**Use**: Highlighting warnings based on entity state
-
-```json
-{
-  "type": "HaWarning",
-  "entity": "sensor.cpu_temperature",
-  "operator": ">",
-  "value": 80,
-  "message": "CPU temperature is high!"
-}
-```
-
-#### HaError - Conditional Error
-
-**Visual**: Red error card when condition is met
-**Use**: Highlighting critical errors and alerts
-
-```json
-{
-  "type": "HaError",
-  "entity": "binary_sensor.internet_connection",
-  "operator": "=",
-  "value": "off",
-  "message": "Internet connection lost"
-}
-```
-
-#### HaHeader - Section Header
-
-**Visual**: Section title with optional icon
-**Use**: Organizing cards into labeled sections
-
-```json
-{
-  "type": "HaHeader",
-  "name": "Living Room",
-  "icon": "mdi mdi-sofa"
-}
-```
-
-#### HaSpacer - Vertical Spacing
-
-**Visual**: Empty vertical spacing element
-**Use**: Adding vertical space between card sections
-
-```json
-{
-  "type": "HaSpacer"
-}
-```
-
-#### HaRowSpacer - Horizontal Row Break
-
-**Visual**: Horizontal spacing to force new row
-**Use**: Breaking cards into new rows in the layout
-
-```json
-{
-  "type": "HaRowSpacer"
-}
-```
-
-### Card Reference Summary
-
-All card types are now documented with visual examples and configuration. The 16 main card types with visual references are:
-
-**Control Cards**: HaLight, HaSwitch, HaButton, HaSelect
-**Display Cards**: HaSensor, HaBinarySensor
-**Data Visualization**: HaGauge, HaSensorGraph, HaEnergy, HaPrinter
-**Specialized Cards**: HaWeather, HaSun, HaPerson, HaImage, HaLink, HaRoom
-
-**Additional Cards**: HaChip, HaMediaPlayer, HaAlarmPanel, HaEntityList, HaGlance, HaWarning, HaError, HaHeader, HaSpacer, HaRowSpacer
 
 ---
 
