@@ -47,6 +47,25 @@
               </div>
             </div>
           </div>
+
+          <!-- Forecast Section -->
+          <div v-if="forecastData.length > 0 && !isForecastHourly && forecast" class="mt-2 mb-2">
+            <div class="forecast-container">
+              <div v-for="(item, index) in displayForecast" :key="index" class="forecast-item">
+                <div class="forecast-time">
+                  {{ formatDate(item.datetime) }}
+                </div>
+                <div class="forecast-temp">
+                  {{ Math.round(item.temperature) }}° / {{ Math.round(item.templow) }}°
+                </div>
+                <div class="forecast-condition">{{ formatCondition(item.condition) }}</div>
+                <div v-if="item.wind_speed !== undefined" class="forecast-wind">
+                  <i class="mdi mdi-weather-windy" style="font-size: 0.75rem;"></i>
+                  {{ Math.round(convertToMs(item.wind_speed, windSpeedUnit)) }} m/s
+                </div>
+              </div>
+            </div>
+          </div>
         </template>
       </div>
     </div>
@@ -71,6 +90,7 @@ const props = defineProps({
     },
   },
   attributes: { type: Array, default: () => [] },
+  forecast: { type: Boolean, default: true },
 });
 
 // Use composable for entity resolution
@@ -131,12 +151,26 @@ const humidity = computed(() => resolvedEntity.value?.attributes?.humidity);
 
 const windSpeed = computed(() => resolvedEntity.value?.attributes?.wind_speed);
 const windBearing = computed(() => resolvedEntity.value?.attributes?.wind_bearing);
+const windSpeedUnit = computed(() => resolvedEntity.value?.attributes?.wind_speed_unit || 'km/h');
+
+const convertToMs = (speed, unit) => {
+  if (speed === null || speed === undefined) return null;
+  const conversions = {
+    'km/h': (v) => v / 3.6,
+    'm/s': (v) => v,
+    'mi/h': (v) => v * 0.44704,
+    'ft/s': (v) => v * 0.3048,
+    'kn': (v) => v * 0.51444,
+  };
+  const converter = conversions[unit] || conversions['km/h'];
+  return converter(speed);
+};
 
 const windSpeedMs = computed(() => {
   const speed = windSpeed.value;
   if (!speed && speed !== 0) return null;
-  // Convert to m/s assuming input is km/h
-  return speed / 3.6;
+  // Convert to m/s based on the entity's wind speed unit
+  return convertToMs(speed, windSpeedUnit.value);
 });
 
 const windDirectionArrow = computed(() => {
@@ -147,12 +181,41 @@ const windDirectionArrow = computed(() => {
   return directions[index];
 });
 
+// Forecast data
+const forecastData = computed(() => resolvedEntity.value?.attributes?.forecast || []);
+
+const isForecastHourly = computed(() => {
+  if (forecastData.value.length === 0) return false;
+  const firstItem = forecastData.value[0];
+  // If it has templow, it's daily forecast; otherwise it's hourly
+  return !('templow' in firstItem);
+});
+
+const displayForecast = computed(() => {
+  // Show 3 days forecast
+  return forecastData.value.slice(0, 3);
+});
+
 const formatCondition = (text) => {
   return text
     .replace(/-/g, ' ')
     .split(' ')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+};
+
+const formatDate = (isoDatetime) => {
+  if (!isoDatetime) return '';
+  try {
+    const date = new Date(isoDatetime);
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    });
+  } catch {
+    return '';
+  }
 };
 </script>
 
@@ -169,5 +232,62 @@ const formatCondition = (text) => {
 
 .weather-details {
   font-size: 0.85rem;
+}
+
+.forecast-container {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  margin-left: -1.5rem;
+  margin-right: -1.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-bottom: 0;
+  margin-bottom: -1rem;
+}
+
+.forecast-item {
+  flex: 1;
+  text-align: center;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  background: transparent;
+  font-size: 0.75rem;
+}
+
+.forecast-time {
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.forecast-temp {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #333;
+  margin: 0.25rem 0;
+}
+
+.forecast-condition {
+  font-size: 0.7rem;
+  color: #555;
+  margin: 0.25rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.forecast-wind {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  color: #0078d4;
+  margin-top: 0.25rem;
+  font-size: 0.65rem;
 }
 </style>

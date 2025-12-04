@@ -26,6 +26,26 @@ describe('HaPrinter.vue', () => {
           yellow: 90,
         },
       },
+      {
+        entity_id: 'black',
+        state: '75',
+        attributes: { friendly_name: 'Black Toner' },
+      },
+      {
+        entity_id: 'cyan',
+        state: '60',
+        attributes: { friendly_name: 'Cyan Toner' },
+      },
+      {
+        entity_id: 'magenta',
+        state: '50',
+        attributes: { friendly_name: 'Magenta Toner' },
+      },
+      {
+        entity_id: 'yellow',
+        state: '90',
+        attributes: { friendly_name: 'Yellow Toner' },
+      },
     ];
   });
 
@@ -248,7 +268,7 @@ describe('HaPrinter.vue', () => {
         global: { plugins: [pinia] },
       });
       const bars = wrapper.findAll('.progress-bar');
-      expect(bars[2].classes()).toContain('bg-danger');
+      expect(bars[2].attributes('style')).toContain('#e700d9');
     });
 
     it('should use correct color for yellow toner', () => {

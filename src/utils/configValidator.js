@@ -38,7 +38,7 @@ const componentSchemas = {
   },
   HaWeather: {
     required: ['entity'],
-    optional: ['attributes'],
+    optional: ['attributes', 'forecast'],
   },
   HaSensorGraph: {
     required: ['entity'],
