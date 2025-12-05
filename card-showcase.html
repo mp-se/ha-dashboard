@@ -291,6 +291,16 @@
             flex-shrink: 0;
         }
 
+        .icon-bg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
         .icon-circle {
             position: absolute;
             width: 100%;
@@ -303,6 +313,28 @@
             z-index: 1;
             font-size: 1.5rem;
             color: white;
+        }
+
+        /* Sensor value and unit styling */
+        .ha-sensor-value {
+            font-size: 0.9rem;
+            line-height: 1;
+        }
+
+        .ha-sensor-unit {
+            font-size: 0.75rem;
+            color: #999;
+        }
+
+        /* Display cards - subtle */
+        .card-display {
+            border: 1px solid rgba(222, 226, 230, 0.4) !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .card-display:hover {
+            border-color: rgba(222, 226, 230, 0.6) !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
         }
 
         /* Room Card */
@@ -1401,6 +1433,180 @@
                                     <span style="font-weight: 700; margin-left: 0.25rem;">12.6 kWh</span>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Beer Tap Card Section -->
+        <div class="card-section" id="card-habeertap">
+            <h2>🍺 Beer Tap Card (HaBeerTap)</h2>
+            <div class="showcase-grid">
+                <!-- Tap 1: IPA -->
+                <div class="card card-display h-100 rounded-4 shadow-lg" style="border: 2px solid #D4A574;">
+                    <div class="card-body d-flex align-items-start gap-3">
+                        <!-- Beer icon with color circle -->
+                        <div class="icon-circle-wrapper flex-shrink-0">
+                            <div class="icon-bg" style="background-color: #D4A574;">
+                                <i class="mdi mdi-beer icon-overlay"></i>
+                            </div>
+                        </div>
+                        <!-- Beer info section -->
+                        <div class="flex-grow-1">
+                            <div class="text-start">
+                                <h6 class="card-title">Hoppy IPA</h6>
+                                <!-- Display beer attributes -->
+                                <div class="mt-1">
+                                    <div class="small d-flex gap-2 mb-0">
+                                        <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">ABV: <span class="fw-bold">6.8%</span></div>
+                                    </div>
+                                    <div class="small d-flex gap-2 mb-0">
+                                        <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">EBC: <span class="fw-bold">25</span></div>
+                                    </div>
+                                    <div class="small d-flex gap-2 mb-0">
+                                        <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">IBU: <span class="fw-bold">45</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Volume on the right -->
+                        <div class="flex-shrink-0">
+                            <div class="ha-sensor-value fw-bold text-end">
+                                13.0<span class="ha-sensor-unit ms-1">L</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Volume Progress Bar -->
+                    <div class="px-3 pb-3">
+                        <div class="progress" style="height: 8px; background-color: #e9ecef;">
+                            <div class="progress-bar" role="progressbar" style="width: 65%; background-color: #D4A574;" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tap 2: Stout -->
+                <div class="card card-display h-100 rounded-4 shadow-lg" style="border: 2px solid #3D2817;">
+                    <div class="card-body d-flex align-items-start gap-3">
+                        <!-- Beer icon with color circle -->
+                        <div class="icon-circle-wrapper flex-shrink-0">
+                            <div class="icon-bg" style="background-color: #3D2817;">
+                                <i class="mdi mdi-beer icon-overlay"></i>
+                            </div>
+                        </div>
+                        <!-- Beer info section -->
+                        <div class="flex-grow-1">
+                            <div class="text-start">
+                                <h6 class="card-title">Midnight Stout</h6>
+                                <!-- Display beer attributes -->
+                                <div class="mt-1">
+                                    <div class="small d-flex gap-2 mb-0">
+                                        <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">ABV: <span class="fw-bold">7.2%</span></div>
+                                    </div>
+                                    <div class="small d-flex gap-2 mb-0">
+                                        <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">EBC: <span class="fw-bold">100</span></div>
+                                    </div>
+                                    <div class="small d-flex gap-2 mb-0">
+                                        <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">IBU: <span class="fw-bold">60</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Volume on the right -->
+                        <div class="flex-shrink-0">
+                            <div class="ha-sensor-value fw-bold text-end">
+                                8.4<span class="ha-sensor-unit ms-1">L</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Volume Progress Bar -->
+                    <div class="px-3 pb-3">
+                        <div class="progress" style="height: 8px; background-color: #e9ecef;">
+                            <div class="progress-bar" role="progressbar" style="width: 42%; background-color: #3D2817;" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tap 3: Pilsner -->
+                <div class="card card-display h-100 rounded-4 shadow-lg" style="border: 2px solid #F4D03F;">
+                    <div class="card-body d-flex align-items-start gap-3">
+                        <!-- Beer icon with color circle -->
+                        <div class="icon-circle-wrapper flex-shrink-0">
+                            <div class="icon-bg" style="background-color: #F4D03F;">
+                                <i class="mdi mdi-beer icon-overlay"></i>
+                            </div>
+                        </div>
+                        <!-- Beer info section -->
+                        <div class="flex-grow-1">
+                            <div class="text-start">
+                                <h6 class="card-title">Classic Pilsner</h6>
+                                <!-- Display beer attributes -->
+                                <div class="mt-1">
+                                    <div class="small d-flex gap-2 mb-0">
+                                        <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">ABV: <span class="fw-bold">5.0%</span></div>
+                                    </div>
+                                    <div class="small d-flex gap-2 mb-0">
+                                        <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">EBC: <span class="fw-bold">8</span></div>
+                                    </div>
+                                    <div class="small d-flex gap-2 mb-0">
+                                        <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">IBU: <span class="fw-bold">25</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Volume on the right -->
+                        <div class="flex-shrink-0">
+                            <div class="ha-sensor-value fw-bold text-end">
+                                15.6<span class="ha-sensor-unit ms-1">L</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Volume Progress Bar -->
+                    <div class="px-3 pb-3">
+                        <div class="progress" style="height: 8px; background-color: #e9ecef;">
+                            <div class="progress-bar" role="progressbar" style="width: 78%; background-color: #F4D03F;" aria-valuenow="78" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tap 4: Empty/Low -->
+                <div class="card card-display h-100 rounded-4 shadow-lg" style="border: 2px solid #C0C0C0;">
+                    <div class="card-body d-flex align-items-start gap-3">
+                        <!-- Beer icon with color circle -->
+                        <div class="icon-circle-wrapper flex-shrink-0">
+                            <div class="icon-bg" style="background-color: #C0C0C0;">
+                                <i class="mdi mdi-beer-off icon-overlay"></i>
+                            </div>
+                        </div>
+                        <!-- Beer info section -->
+                        <div class="flex-grow-1">
+                            <div class="text-start">
+                                <h6 class="card-title">No Beer</h6>
+                                <!-- Display beer attributes -->
+                                <div class="mt-1">
+                                    <div class="small d-flex gap-2 mb-0">
+                                        <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">ABV: <span class="fw-bold">-</span></div>
+                                    </div>
+                                    <div class="small d-flex gap-2 mb-0">
+                                        <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">EBC: <span class="fw-bold">-</span></div>
+                                    </div>
+                                    <div class="small d-flex gap-2 mb-0">
+                                        <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">IBU: <span class="fw-bold">-</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Volume on the right -->
+                        <div class="flex-shrink-0">
+                            <div class="ha-sensor-value fw-bold text-end">
+                                0.0<span class="ha-sensor-unit ms-1">L</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Volume Progress Bar -->
+                    <div class="px-3 pb-3">
+                        <div class="progress" style="height: 8px; background-color: #e9ecef;">
+                            <div class="progress-bar" role="progressbar" style="width: 0%; background-color: #C0C0C0;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>
                 </div>

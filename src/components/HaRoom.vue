@@ -230,16 +230,11 @@ const getIconColor = (entityId) => {
   const entity = store.sensors.find((s) => s.entity_id === entityId);
   if (!entity) return '#333333';
 
-  const domain = entityId.split('.')[0];
   const state = entity.state?.toLowerCase();
   const isOn = state === 'on' || state === 'open' || state === 'active' || state === 'playing';
 
   if (isOn) {
-    // Use domain-specific icon colors when on
-    if (domain === 'light') {
-      return '#333333'; // Dark gray/black for yellow background
-    }
-    // White icon for media players, fans, and other entities on colored background
+    // White icon as default
     return 'white';
   } else {
     // Darker gray when off

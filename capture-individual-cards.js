@@ -22,6 +22,7 @@ const cards = [
   { id: 'card-haprinter', name: 'haprinter' },
   { id: 'card-hasensorgraph', name: 'hasensorgraph' },
   { id: 'card-haenergy', name: 'haenergy' },
+  { id: 'card-habeertap', name: 'habeertap' },
 ];
 
 const imagesDir = path.join(__dirname, 'images');
@@ -38,7 +39,7 @@ async function captureCards() {
   // Set viewport to match card display width
   await page.setViewportSize({ width: 600, height: 900 });
 
-  await page.goto('http://localhost:8888/card-showcase.html');
+  await page.goto('http://localhost:5174/card-showcase.html');
 
   for (const card of cards) {
     try {
