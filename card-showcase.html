@@ -254,30 +254,37 @@
             border: 2px solid #ddd;
         }
 
-        .state-indicator {
+                .state-indicator,
+                .binary-state-indicator {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 40px;
-            height: 40px;
-            flex-shrink: 0;
-            font-size: 1.5rem;
+              width: 40px;
+              height: 40px;
+              flex-shrink: 0;
+              padding: 0.5rem;
+              border-radius: 0.5rem;
+              font-size: 1.5rem;
         }
 
-        .state-indicator.state-on {
+        .state-indicator.state-on,
+        .binary-state-indicator.state-on {
             color: #28a745;
         }
 
-        .state-indicator.state-off {
+        .state-indicator.state-off,
+        .binary-state-indicator.state-off {
             color: #6c757d;
         }
 
-        .state-indicator.state-unavailable {
+        .state-indicator.state-unavailable,
+        .binary-state-indicator.state-unavailable {
             color: #ffc107;
         }
 
         .state-icon {
-            font-size: 1.5rem;
+            font-size: 2rem;
+            display: block;
         }
 
         /* Icon circle wrapper for error/warning */
@@ -292,6 +299,7 @@
         }
 
         .icon-bg {
+            position: relative; /* anchor element for absolute icon overlay */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -299,20 +307,25 @@
             height: 100%;
             border-radius: 50%;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
         }
 
         .icon-circle {
             position: absolute;
             width: 100%;
             height: 100%;
+            z-index: 0;
             filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
         }
 
         .icon-overlay {
-            position: relative;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
             z-index: 1;
             font-size: 1.5rem;
-            color: white;
+            color: inherit; /* Use inherited color so card-specific overrides work */
         }
 
         /* Sensor value and unit styling */
@@ -438,6 +451,16 @@
 
         .warning-icon {
             color: #ffc107;
+        }
+
+        /* Icon color overrides for error/warning cards so overlay remains visible */
+        .error-card .icon-circle-wrapper .icon-overlay { color: white; }
+        .warning-card .icon-circle-wrapper .icon-overlay { color: #333; }
+
+        /* Media icon styling - scoped to the media card */
+        .media-card .media-icon {
+            font-size: 1.5rem;
+            color: var(--bs-info);
         }
 
         .footer {
@@ -789,42 +812,42 @@
             <h2>🔲 Binary Sensor Card (HaBinarySensor)</h2>
             <div class="showcase-grid">
                 <!-- Motion Detected -->
-                <div class="card binary-sensor-card">
+                <div class="card card-display h-100 rounded-4 shadow-lg binary-sensor-card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div class="text-start flex-grow-1">
                                 <h6 class="card-title mb-0">Motion Sensor</h6>
                             </div>
-                            <div class="state-indicator state-on">
-                                <i class="mdi mdi-motion-sensor state-icon"></i>
+                            <div class="binary-state-indicator state-on">
+                                <i class="mdi mdi-check-circle state-icon"></i>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- No Motion -->
-                <div class="card binary-sensor-card">
+                <div class="card card-display h-100 rounded-4 shadow-lg binary-sensor-card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div class="text-start flex-grow-1">
                                 <h6 class="card-title mb-0">Door Sensor</h6>
                             </div>
-                            <div class="state-indicator state-off">
-                                <i class="mdi mdi-door-closed state-icon"></i>
+                            <div class="binary-state-indicator state-off">
+                                <i class="mdi mdi-circle-outline state-icon"></i>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Unavailable -->
-                <div class="card binary-sensor-card" style="opacity: 0.5;">
+                <div class="card card-display h-100 rounded-4 shadow-lg binary-sensor-card" style="opacity: 0.5;">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div class="text-start flex-grow-1">
                                 <h6 class="card-title mb-0">Window Sensor</h6>
                             </div>
-                            <div class="state-indicator state-unavailable">
-                                <i class="mdi mdi-window-closed state-icon"></i>
+                            <div class="binary-state-indicator state-unavailable">
+                                <i class="mdi mdi-help-circle-outline state-icon"></i>
                             </div>
                         </div>
                     </div>
@@ -1291,8 +1314,7 @@
                                 <h6 class="card-title mb-0">HP LaserJet</h6>
                             </div>
                             <div class="text-end">
-                                <span class="badge bg-success">85%</span>
-                                <div class="small text-muted mt-1">Toner</div>
+                                <span class="badge bg-success">ready</span>
                             </div>
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
