@@ -38,10 +38,6 @@ const props = defineProps({
       return false;
     },
   },
-  attributes: {
-    type: Array,
-    default: () => [],
-  },
 });
 
 const { callService } = useServiceCall();

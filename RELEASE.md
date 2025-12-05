@@ -1,5 +1,14 @@
 # Release Notes
 
+## December 2025 - v0.3.0
+
+- Added per-entity config JSON generation buttons in RawEntityView for supported entity types (copy entity JSON and generate dashboard config JSON)
+- Removed 'attributes' prop from HaBinarySensor, HaMediaPlayer, HaSun, HaAlarmPanel, HaButton, HaSelect, HaSwitch, HaSpacer, and HaBeerTap components to ensure generated configs only include valid props
+- Updated configValidator.js to remove 'attributes' from optional props for cleaned-up components
+- Removed tests related to the 'attributes' prop in component test files
+- Updated CONFIGURATION.md documentation to remove 'attributes' property descriptions and examples for affected components
+- Modified RawEntityView to hide config JSON generation button for unsupported entity types
+
 ## December 2025 - v0.2.0
 
 - New energy consumption analytics card with interactive bar chart. Auto-detects energy/power sensors (zero-config)

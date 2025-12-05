@@ -466,7 +466,6 @@ Displays binary state (on/off, open/closed, detected/not detected).
 **Properties**:
 
 - `entity` (string|object, required): Binary sensor entity ID or object
-- `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
 
@@ -476,16 +475,6 @@ Basic motion sensor:
 {
   "type": "HaBinarySensor",
   "entity": "binary_sensor.motion_living_room"
-}
-```
-
-With attributes:
-
-```json
-{
-  "type": "HaBinarySensor",
-  "entity": "binary_sensor.door_front",
-  "attributes": ["last_triggered", "last_changed"]
 }
 ```
 
@@ -557,7 +546,6 @@ Interactive switch control with on/off toggle.
 
 - `entity` (string|object, required): Switch entity ID or object
 - `mock` (boolean, optional, default: false): Enable mock toggle for testing without HA
-- `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
 
@@ -567,16 +555,6 @@ Basic switch:
 {
   "type": "HaSwitch",
   "entity": "switch.kitchen_outlet"
-}
-```
-
-With attributes:
-
-```json
-{
-  "type": "HaSwitch",
-  "entity": "switch.garage_fan",
-  "attributes": ["power", "voltage"]
 }
 ```
 
@@ -704,7 +682,6 @@ Displays sun position, sunrise/sunset times.
 **Properties**:
 
 - `entity` (string|object, required): Sun entity ID or object
-- `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
 
@@ -717,16 +694,6 @@ Basic sun display:
 }
 ```
 
-With sunrise/sunset times:
-
-```json
-{
-  "type": "HaSun",
-  "entity": "sun.sun",
-  "attributes": ["next_rising", "next_setting", "elevation"]
-}
-```
-
 ### HaMediaPlayer
 
 Controls media playback (play/pause, volume, track info).
@@ -736,7 +703,6 @@ Controls media playback (play/pause, volume, track info).
 **Properties**:
 
 - `entity` (string|object, required): Media player entity ID or object
-- `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
 
@@ -749,16 +715,6 @@ Basic media player:
 }
 ```
 
-With track and volume info:
-
-```json
-{
-  "type": "HaMediaPlayer",
-  "entity": "media_player.bedroom_tv",
-  "attributes": ["media_title", "media_artist", "volume_level"]
-}
-```
-
 ### HaAlarmPanel
 
 Displays and controls alarm system state (armed/disarmed, modes).
@@ -768,7 +724,6 @@ Displays and controls alarm system state (armed/disarmed, modes).
 **Properties**:
 
 - `entity` (string|object, required): Alarm panel entity ID or object
-- `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
 
@@ -778,16 +733,6 @@ Basic alarm panel:
 {
   "type": "HaAlarmPanel",
   "entity": "alarm_control_panel.home"
-}
-```
-
-With arm modes:
-
-```json
-{
-  "type": "HaAlarmPanel",
-  "entity": "alarm_control_panel.home",
-  "attributes": ["code_arm_required", "code_disarm_required"]
 }
 ```
 
@@ -1277,7 +1222,6 @@ Dropdown selector for input_select entities.
 **Properties**:
 
 - `entity` (string|object, required): Input select entity ID or object
-- `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
 
@@ -1287,16 +1231,6 @@ Home mode selector:
 {
   "type": "HaSelect",
   "entity": "input_select.home_mode"
-}
-```
-
-Scene selector with attributes:
-
-```json
-{
-  "type": "HaSelect",
-  "entity": "input_select.active_scene",
-  "attributes": ["options"]
 }
 ```
 
@@ -1311,7 +1245,6 @@ Button trigger for input_button entities.
 **Properties**:
 
 - `entity` (string|object, required): Input button entity ID or object
-- `attributes` (array, optional, default: []): Additional attributes to display
 
 **Examples**:
 

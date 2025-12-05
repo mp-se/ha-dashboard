@@ -6,8 +6,7 @@
 
 <script setup>
 defineProps({
-  // Added attributes prop for consistency across components
-  attributes: { type: Array, default: () => [] },
+  // No props needed for spacer
 });
 // Spacer card component for layout purposes
 // Provides consistent spacing in dashboard layouts

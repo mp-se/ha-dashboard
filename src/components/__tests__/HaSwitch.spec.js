@@ -387,28 +387,6 @@ describe('HaSwitch.vue', () => {
 
       expect(wrapper.exists()).toBe(true);
     });
-
-    it('should accept attributes prop', () => {
-      const entity = {
-        entity_id: 'switch.light',
-        state: 'on',
-        attributes: {},
-      };
-
-      const wrapper = mount(HaSwitch, {
-        props: {
-          entity,
-          attributes: ['attr1', 'attr2'],
-        },
-        global: {
-          stubs: {
-            i: true,
-          },
-        },
-      });
-
-      expect(wrapper.exists()).toBe(true);
-    });
   });
 
   describe('Classes and Structure', () => {

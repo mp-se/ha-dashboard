@@ -52,10 +52,6 @@ const props = defineProps({
       return false;
     },
   },
-  attributes: {
-    type: Array,
-    default: () => [],
-  },
 });
 
 const store = useHaStore();

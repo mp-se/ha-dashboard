@@ -67,10 +67,6 @@ const props = defineProps({
     },
   },
   mock: { type: Boolean, required: false, default: false },
-  attributes: {
-    type: Array,
-    default: () => [],
-  },
 });
 const emit = defineEmits(['mockToggle']);
 

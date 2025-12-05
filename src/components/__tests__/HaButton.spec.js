@@ -290,22 +290,6 @@ describe('HaButton.vue', () => {
 
       expect(wrapper.exists()).toBe(true);
     });
-
-    it('should accept attributes prop', () => {
-      const wrapper = mount(HaButton, {
-        props: {
-          entity: 'button.test',
-          attributes: ['attribute1', 'attribute2'],
-        },
-        global: {
-          stubs: {
-            i: true,
-          },
-        },
-      });
-
-      expect(wrapper.exists()).toBe(true);
-    });
   });
 
   describe('Button Icon', () => {
