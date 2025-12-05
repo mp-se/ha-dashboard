@@ -457,7 +457,7 @@ Comparing power consumption across multiple sources (same unit):
 
 ### HaBinarySensor
 
-![HaBinarySensor Card](./images/habinarysensor.png)
+![HaBinarySensor Card](./images/habinarysensor-on.png)
 
 Displays binary state (on/off, open/closed, detected/not detected).
 

@@ -150,9 +150,31 @@ async function captureCardVariations() {
   // Set viewport to match card display width
   await page.setViewportSize({ width: 600, height: 900 });
 
-  await page.goto('http://localhost:8888/card-showcase.html');
+  const baseUrl = process.env.BASE_URL || 'http://localhost:8888';
+  const url = baseUrl.replace(/\/$/, '') + '/card-showcase.html';
+  // Try a few times in case the server is still starting
+  const maxRetries = 8;
+  let lastErr = null;
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      await page.goto(url, { waitUntil: 'load' });
+      lastErr = null;
+      break;
+    } catch (err) {
+      lastErr = err;
+      console.log(`Waiting for server at ${url} (attempt ${i + 1}/${maxRetries}) ...`);
+      await page.waitForTimeout(500);
+    }
+  }
+  if (lastErr) throw lastErr;
 
+  // Allow filtering of which cards to capture via CARDS env var
+  let wanted = null;
+  if (process.env.CARDS) {
+    wanted = new Set(process.env.CARDS.split(',').map((s) => s.trim()));
+  }
   for (const cardConfig of cardVariations) {
+    if (wanted && !wanted.has(cardConfig.cardName)) continue;
     try {
       // Wait for the card section to be visible
       await page.waitForSelector(`#${cardConfig.cardId}`, { timeout: 5000 });
