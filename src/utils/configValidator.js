@@ -112,6 +112,10 @@ const componentSchemas = {
     required: ['entity'],
     optional: ['color'],
   },
+  HaBeerTap: {
+    required: ['entity'],
+    optional: ['attributes'],
+  },
 };
 
 /**

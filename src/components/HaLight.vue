@@ -437,22 +437,60 @@ const controlCircleColor = computed(() => {
 // Icon color - black for light backgrounds, white for dark backgrounds
 const iconColor = computed(() => {
   if (!isOn.value) return 'white'; // White icon when off
-  
-  // For on state, use black icon for light colors, white for dark colors
-  const color = controlCircleColor.value.toLowerCase();
-  
-  // Light colors that need dark icon
-  const lightColors = ['#e8f4fd', '#f0f8ff', '#e3f2fd', '#ffcc80', '#ffc107'];
-  
-  // Check if current color is light
-  for (const lightColor of lightColors) {
-    if (color === lightColor) {
-      return '#333'; // Dark icon for light backgrounds
+
+  // Prefer color temperature when available: if the light is showing a cool white
+  // (e.g. >= 4000K) then the icon should be dark for contrast.
+  try {
+    if (supportsColorTemp.value && attributes.value.color_temp) {
+      const mireds = attributes.value.color_temp;
+      const kelvin = mireds > 0 ? Math.round(1000000 / mireds) : 0;
+      const COOL_WHITE_KELVIN = 4000;
+      if (kelvin >= COOL_WHITE_KELVIN) return '#333';
     }
+  } catch (err) {
+    // ignore and fall through to luminance check
+    // console.warn('Error computing kelvin for iconColor:', err);
   }
-  
-  // Default white icon for darker colors
-  return 'white';
+
+  // If the control color is explicitly white (or close to it), prefer dark icon
+  const color = (controlCircleColor.value || '').toLowerCase();
+  if (color === '#ffffff' || color === 'white') return '#333';
+
+  // Convert hex color to RGB and compute luminance. If it's a light color, use dark icon.
+  const hexToRgb = (h) => {
+    if (!h) return null;
+    let hex = h.trim();
+    if (hex.startsWith('#')) hex = hex.slice(1);
+    if (hex.length === 3) hex = hex.split('').map((c) => c + c).join('');
+    if (!/^[0-9a-f]{6}$/i.test(hex)) return null;
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return { r, g, b };
+  };
+
+  const rgb = hexToRgb(color);
+  if (!rgb) return 'white';
+
+  const srgbToLinear = (v) => {
+    const s = v / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
+
+  const rLin = srgbToLinear(rgb.r);
+  const gLin = srgbToLinear(rgb.g);
+  const bLin = srgbToLinear(rgb.b);
+  const luminance = 0.2126 * rLin + 0.7152 * gLin + 0.0722 * bLin;
+
+  // Only very light backgrounds should get a dark icon; tune threshold high
+  const LUMINANCE_THRESHOLD = 0.9;
+
+  // Some common very pale colors that should definitely use a dark icon
+  const explicitLightColors = new Set(['#ffffff', '#fff', '#f0f8ff', '#e8f4fd', '#e3f2fd']);
+  if (explicitLightColors.has(color)) return '#333';
+
+  // threshold tuned high so only whites and very pale colors get dark icon
+  return luminance >= LUMINANCE_THRESHOLD ? '#333' : 'white';
 });
 
 const name = computed(
