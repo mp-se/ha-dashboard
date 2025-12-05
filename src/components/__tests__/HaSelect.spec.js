@@ -370,26 +370,6 @@ describe('HaSelect.vue', () => {
       });
       expect(wrapper.props('entity')).toBe(entity);
     });
-
-    it('should accept attributes prop', () => {
-      const attributes = ['attr1', 'attr2'];
-      const wrapper = mount(HaSelect, {
-        props: {
-          entity: 'select.mode',
-          attributes,
-        },
-        global: { plugins: [pinia] },
-      });
-      expect(wrapper.props('attributes')).toEqual(attributes);
-    });
-
-    it('should default attributes to empty array', () => {
-      const wrapper = mount(HaSelect, {
-        props: { entity: 'select.mode' },
-        global: { plugins: [pinia] },
-      });
-      expect(wrapper.props('attributes')).toEqual([]);
-    });
   });
 
   describe('Classes and Structure', () => {

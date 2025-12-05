@@ -60,10 +60,6 @@ const props = defineProps({
       return false;
     },
   },
-  attributes: {
-    type: Array,
-    default: () => [],
-  },
 });
 
 const { resolvedEntity } = useEntityResolver(computed(() => props.entity));

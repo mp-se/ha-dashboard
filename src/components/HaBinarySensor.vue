@@ -59,11 +59,6 @@ const props = defineProps({
       return false;
     },
   },
-  // Optional list of attribute keys to display below the name
-  attributes: {
-    type: Array,
-    default: () => [],
-  },
 });
 
 // Use composable for entity resolution

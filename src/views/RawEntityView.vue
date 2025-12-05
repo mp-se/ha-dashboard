@@ -127,14 +127,25 @@
             ]"
           >
             <div class="card-body text-start position-relative">
-              <button
-                class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-2"
-                type="button"
-                title="Copy entity JSON to clipboard"
-                @click="copyEntityToClipboard(entity)"
-              >
-                <i class="mdi mdi-content-copy"></i>
-              </button>
+              <div class="position-absolute top-0 end-0 m-2 d-flex gap-1">
+                <button
+                  class="btn btn-sm btn-outline-secondary"
+                  type="button"
+                  title="Copy entity JSON to clipboard"
+                  @click="copyEntityToClipboard(entity)"
+                >
+                  <i class="mdi mdi-content-copy"></i>
+                </button>
+                <button
+                  v-if="DEFAULT_DOMAIN_MAP[entity.entity_id.split('.')[0]]"
+                  class="btn btn-sm btn-outline-secondary"
+                  type="button"
+                  title="Copy config JSON to clipboard"
+                  @click="generateEntityConfigJson(entity)"
+                >
+                  <i class="mdi mdi-code-json"></i>
+                </button>
+              </div>
               <h6 class="card-title">{{ entity.attributes?.friendly_name || entity.entity_id }}</h6>
               <small class="text-muted">{{ entity.entity_id }}</small>
               <p class="mt-2 mb-1"><strong>State:</strong> {{ entity.state }}</p>
@@ -269,8 +280,12 @@ const copyEntityToClipboard = async (entity) => {
   try {
     const jsonString = JSON.stringify(entity, null, 2);
     await navigator.clipboard.writeText(jsonString);
-    // Could add a toast notification here if desired
     console.log('Entity JSON copied to clipboard:', entity.entity_id);
+    successBannerMessage.value = `Entity JSON for ${entity.entity_id} copied to clipboard.`;
+    successBanner.value = true;
+    setTimeout(() => {
+      successBanner.value = false;
+    }, 3000);
   } catch (error) {
     console.error('Failed to copy entity to clipboard:', error);
     // Fallback for older browsers
@@ -282,6 +297,11 @@ const copyEntityToClipboard = async (entity) => {
       document.execCommand('copy');
       document.body.removeChild(textArea);
       console.log('Entity JSON copied to clipboard (fallback):', entity.entity_id);
+      successBannerMessage.value = `Entity JSON for ${entity.entity_id} copied to clipboard.`;
+      successBanner.value = true;
+      setTimeout(() => {
+        successBanner.value = false;
+      }, 3000);
     } catch (fallbackError) {
       console.error('Fallback copy also failed:', fallbackError);
     }
@@ -403,6 +423,90 @@ const generateConfigJson = async () => {
       setTimeout(() => {
         successBanner.value = false;
       }, 5000);
+    }
+  }
+};
+
+const generateEntityConfigJson = async (entity) => {
+  const domain = entity.entity_id.split('.')[0];
+  const componentType = DEFAULT_DOMAIN_MAP[domain];
+  
+  if (!componentType) {
+    console.warn('Unsupported entity type for config generation:', entity.entity_id);
+    return;
+  }
+
+  // Base config
+  const config = {
+    entity: entity.entity_id,
+    type: componentType,
+  };
+
+  // Add component-specific defaults
+  const componentDefaults = {
+    HaSensor: { attributes: [] },
+    HaGauge: { min: 0, max: 100 },
+    HaWarning: { attribute: 'state', operator: '=', value: '', message: '' },
+    HaError: { attribute: 'state', operator: '=', value: '', message: '' },
+    HaBinarySensor: {},
+    HaChip: {},
+    HaWeather: {},
+    HaSensorGraph: { hours: 24, maxPoints: 200, attributes: [] },
+    HaMediaPlayer: {},
+    HaSun: { attributes: [] },
+    HaPrinter: { black: '', cyan: '', magenta: '', yellow: '', attributes: [] },
+    HaEnergy: {},
+    HaEntityList: { componentMap: {}, attributes: [] },
+    HaGlance: { attributes: [] },
+    HaAlarmPanel: {},
+    HaButton: {},
+    HaSelect: {},
+    HaSwitch: {},
+    HaImage: { title: 'Image' },
+    HaHeader: { icon: null, attributes: [] },
+    HaLink: { url: '', name: '', header: '', entity: null, attributes: [] },
+    HaPerson: {},
+    HaSpacer: {},
+    HaRowSpacer: {},
+    HaRoom: { color: 'blue' },
+    HaBeerTap: {},
+  };
+
+  const defaults = componentDefaults[componentType] || {};
+  Object.assign(config, defaults);
+
+  // Copy to clipboard
+  try {
+    const jsonString = JSON.stringify(config, null, 2);
+    await navigator.clipboard.writeText(jsonString);
+    console.log('Entity config JSON copied to clipboard:', entity.entity_id);
+    successBannerMessage.value = `Config for ${entity.entity_id} copied to clipboard.`;
+    successBanner.value = true;
+    setTimeout(() => {
+      successBanner.value = false;
+    }, 3000);
+  } catch (error) {
+    console.error('Failed to copy config to clipboard:', error);
+    // Fallback
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = JSON.stringify(config, null, 2);
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      successBannerMessage.value = `Config for ${entity.entity_id} copied to clipboard.`;
+      successBanner.value = true;
+      setTimeout(() => {
+        successBanner.value = false;
+      }, 3000);
+    } catch (fallbackError) {
+      console.error('Fallback copy also failed:', fallbackError);
+      successBannerMessage.value = 'Failed to copy config to clipboard.';
+      successBanner.value = true;
+      setTimeout(() => {
+        successBanner.value = false;
+      }, 3000);
     }
   }
 };

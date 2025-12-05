@@ -30,11 +30,11 @@ const componentSchemas = {
   },
   HaBinarySensor: {
     required: ['entity'],
-    optional: ['attributes'],
+    optional: [],
   },
   HaChip: {
     required: ['entity'],
-    optional: ['attributes'],
+    optional: [],
   },
   HaWeather: {
     required: ['entity'],
@@ -46,11 +46,11 @@ const componentSchemas = {
   },
   HaMediaPlayer: {
     required: ['entity'],
-    optional: ['attributes'],
+    optional: [],
   },
   HaSun: {
     required: ['entity'],
-    optional: ['attributes'],
+    optional: [],
   },
   HaPrinter: {
     required: ['entity'],
@@ -58,31 +58,31 @@ const componentSchemas = {
   },
   HaEnergy: {
     required: [],
-    optional: ['entity', 'attributes'],
+    optional: ['entity'],
   },
   HaEntityList: {
     required: [],
-    optional: ['entities', 'getter', 'componentMap', 'attributes'],
+    optional: ['entities', 'getter', 'componentMap'],
   },
   HaGlance: {
     required: ['entity'],
-    optional: ['attributes'],
+    optional: [],
   },
   HaAlarmPanel: {
     required: ['entity'],
-    optional: ['attributes'],
+    optional: [],
   },
   HaButton: {
     required: ['entity'],
-    optional: ['attributes'],
+    optional: [],
   },
   HaSelect: {
     required: ['entity'],
-    optional: ['attributes'],
+    optional: [],
   },
   HaSwitch: {
     required: ['entity'],
-    optional: ['attributes'],
+    optional: [],
   },
   HaImage: {
     required: ['url'],
@@ -90,19 +90,19 @@ const componentSchemas = {
   },
   HaHeader: {
     required: ['name'],
-    optional: ['icon', 'attributes'],
+    optional: ['icon'],
   },
   HaLink: {
     required: ['url', 'name', 'header'],
-    optional: ['entity', 'attributes'],
+    optional: ['entity'],
   },
   HaPerson: {
     required: ['entity'],
-    optional: ['attributes'],
+    optional: [],
   },
   HaSpacer: {
     required: [],
-    optional: ['attributes'],
+    optional: [],
   },
   HaRowSpacer: {
     required: [],
@@ -114,7 +114,7 @@ const componentSchemas = {
   },
   HaBeerTap: {
     required: ['entity'],
-    optional: ['attributes'],
+    optional: [],
   },
 };
 
