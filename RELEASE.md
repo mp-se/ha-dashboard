@@ -2,6 +2,8 @@
 
 ## December 2025 - v0.3.0
 
+- Update style on a few sensors for consistent design
+- Updated generated images to match the current desing as good as possible.
 - Added per-entity config JSON generation buttons in RawEntityView for supported entity types (copy entity JSON and generate dashboard config JSON)
 - Removed 'attributes' prop from HaBinarySensor, HaMediaPlayer, HaSun, HaAlarmPanel, HaButton, HaSelect, HaSwitch, HaSpacer, and HaBeerTap components to ensure generated configs only include valid props
 - Updated configValidator.js to remove 'attributes' from optional props for cleaned-up components
