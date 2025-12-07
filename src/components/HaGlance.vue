@@ -3,7 +3,7 @@
     <div :class="['card', 'card-display', 'h-100', 'rounded-4', 'shadow-lg', 'border-info']">
       <div class="card-body">
         <!-- Entities Grid -->
-        <div class="glance-grid">
+        <div :class="['glance-grid', `glance-cols-${gridColumns}`]">
           <div v-for="ent in entityList" :key="getEntityId(ent)" class="glance-item">
             <!-- Icon with circle background -->
             <div v-if="getIconClass(ent)" class="ha-icon-circle-wrapper">
@@ -49,6 +49,15 @@ const entityList = computed(() => {
     return props.entity;
   }
   return [props.entity];
+});
+
+// Dynamic grid columns based on entity count
+// 1 entity = 1 column, 2-3 = fill row with equal width, 4+ = 4 columns
+const gridColumns = computed(() => {
+  const count = entityList.value.length;
+  if (count === 1) return 1;
+  if (count === 2 || count === 3) return count;
+  return 4;
 });
 
 // Get entity ID string from entity object or string
@@ -114,6 +123,21 @@ const getIconCircleColor = (ent) => {
   display: grid;
   gap: 0.75rem;
   grid-auto-flow: dense;
+}
+
+.glance-cols-1 {
+  grid-template-columns: 1fr;
+}
+
+.glance-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.glance-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.glance-cols-4 {
   grid-template-columns: repeat(4, 1fr);
 }
 
