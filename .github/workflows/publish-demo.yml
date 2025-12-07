@@ -23,19 +23,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Prepare demo configuration
-        run: |
-          # Copy example config and enable local mode
-          mkdir public/data
-          cp public/data/dashboard-config.example.json public/data/dashboard-config.json
-          cp public/data/local-data.example.json public/data/local-data.json
-          # Enable local mode for demo (sets localMode to true)
-          sed -i 's/"localMode": false/"localMode": true/g' public/data/dashboard-config.json
-
       - name: Build Vite app
         run: npm run build
         env:
           VITE_BASE_URL: /ha-dashboard/
+
+      - name: Prepare demo configuration
+        run: |
+          # Copy example config and enable local mode
+          mkdir dist/data 
+          cp public/data/dashboard-config.example.json dist/data/dashboard-config.json
+          cp public/data/local-data.example.json dist/data/local-data.json
+          # Enable local mode for demo (sets localMode to true)
+          sed -i 's/"localMode": false/"localMode": true/g' dist/data/dashboard-config.json
 
       - name: Deploy to gh-pages branch
         uses: peaceiris/actions-gh-pages@v3
