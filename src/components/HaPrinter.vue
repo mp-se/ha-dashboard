@@ -31,7 +31,7 @@
               <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem; text-align: left;">Black</div>
               <div class="progress" style="height: 12px;">
                 <div
-                  class="progress-bar bg-dark"
+                  class="ha-progress-bar bg-dark"
                   :style="{ width: blackLevel + '%' }"
                   :title="'Black: ' + blackLevel + '%'"
                 ></div>
@@ -41,7 +41,7 @@
               <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem; text-align: left;">Cyan</div>
               <div class="progress" style="height: 12px;">
                 <div
-                  class="progress-bar bg-info"
+                  class="ha-progress-bar bg-info"
                   :style="{ width: cyanLevel + '%' }"
                   :title="'Cyan: ' + cyanLevel + '%'"
                 ></div>
@@ -51,7 +51,7 @@
               <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem; text-align: left;">Magenta</div>
               <div class="progress" style="height: 12px;">
                 <div
-                  class="progress-bar"
+                  class="ha-progress-bar"
                   :style="{ width: magentaLevel + '%', backgroundColor: '#e700d9' }"
                   :title="'Magenta: ' + magentaLevel + '%'"
                 ></div>
@@ -61,7 +61,7 @@
               <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem; text-align: left;">Yellow</div>
               <div class="progress" style="height: 12px;">
                 <div
-                  class="progress-bar bg-warning"
+                  class="ha-progress-bar bg-warning"
                   :style="{ width: yellowLevel + '%' }"
                   :title="'Yellow: ' + yellowLevel + '%'"
                 ></div>
@@ -147,10 +147,3 @@ const cardBorderClass = computed(() => {
   return resolvedEntity.value ? 'border-info' : '';
 });
 </script>
-
-<style scoped>
-/* Sensor value should be slightly smaller than the name but still prominent */
-.ha-sensor-value {
-  font-size: 0.95rem;
-}
-</style>

@@ -630,7 +630,7 @@ describe('HaSensor.vue', () => {
       });
 
       // Single entity should show value on the right side
-      expect(wrapper.find('.ha-sensor-value').exists()).toBe(true);
+      expect(wrapper.find('.ha-entity-value').exists()).toBe(true);
     });
   });
 
@@ -1543,7 +1543,7 @@ describe('HaSensor.vue', () => {
         },
       });
 
-      expect(wrapper.find('.icon-circle-wrapper').exists()).toBe(true);
+      expect(wrapper.find('.ha-icon-circle-wrapper').exists()).toBe(true);
     });
 
     it('should not display icon wrapper for entity without icon', () => {
@@ -1568,7 +1568,7 @@ describe('HaSensor.vue', () => {
       });
 
       // Sensor domain gets default icon (mdi-gauge) from useIconClass
-      expect(wrapper.find('.icon-circle-wrapper').exists()).toBe(true);
+      expect(wrapper.find('.ha-icon-circle-wrapper').exists()).toBe(true);
     });
 
     it('should have small icon wrapper for multiple entities', () => {

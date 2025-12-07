@@ -46,7 +46,7 @@ describe('HaRoom.vue', () => {
     });
 
     expect(wrapper.find('.card').exists()).toBe(true);
-    expect(wrapper.find('.card-title').text()).toBe('Bedroom');
+    expect(wrapper.find('.ha-entity-name').text()).toBe('Bedroom');
   });
 
   it('accepts entity as string and converts to array', () => {
@@ -70,7 +70,7 @@ describe('HaRoom.vue', () => {
     });
 
     expect(wrapper.find('.card').exists()).toBe(true);
-    expect(wrapper.find('.card-title').text()).toBe('Bedroom');
+    expect(wrapper.find('.ha-entity-name').text()).toBe('Bedroom');
   });
 
   it('accepts entity string with control objects when passed as array', () => {
@@ -126,7 +126,7 @@ describe('HaRoom.vue', () => {
       global: { plugins: [pinia] },
     });
 
-    expect(wrapper.find('.card-title').text()).toBe('Bedroom');
+    expect(wrapper.find('.ha-entity-name').text()).toBe('Bedroom');
   });
 
   it('displays temperature when available in area entities', () => {
@@ -331,7 +331,7 @@ describe('HaRoom.vue', () => {
       global: { plugins: [pinia] },
     });
 
-    const circle = wrapper.find('.icon-circle circle');
+    const circle = wrapper.find('.ha-icon-circle circle');
     expect(circle.attributes('fill')).toBe('green');
   });
 
@@ -355,7 +355,7 @@ describe('HaRoom.vue', () => {
       global: { plugins: [pinia] },
     });
 
-    const circle = wrapper.find('.icon-circle circle');
+    const circle = wrapper.find('.ha-icon-circle circle');
     expect(circle.attributes('fill')).toBe('blue');
   });
 
@@ -508,7 +508,7 @@ describe('HaRoom.vue', () => {
       global: { plugins: [pinia] },
     });
 
-    const icon = wrapper.find('.icon-overlay');
+    const icon = wrapper.find('.ha-icon-overlay');
     expect(icon.classes()).toContain('mdi-bed');
   });
 
@@ -531,7 +531,7 @@ describe('HaRoom.vue', () => {
       global: { plugins: [pinia] },
     });
 
-    const icon = wrapper.find('.icon-overlay');
+    const icon = wrapper.find('.ha-icon-overlay');
     expect(icon.classes()).toContain('mdi-door');
   });
 

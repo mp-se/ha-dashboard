@@ -213,7 +213,7 @@ describe('HaBeerTap.vue', () => {
     });
 
     // Check that color is applied to progress bar and icon background
-    const iconBg = wrapper.find('.icon-bg');
+    const iconBg = wrapper.find('.ha-icon-circle');
     expect(iconBg.attributes('style')).toContain('background-color: #3D2817');
   });
 

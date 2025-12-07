@@ -28,7 +28,7 @@ describe('HaSwitch.vue', () => {
       });
 
       expect(wrapper.find('.card-control').exists()).toBe(true);
-      expect(wrapper.find('button.control-button').exists()).toBe(true);
+      expect(wrapper.find('button.ha-control-button').exists()).toBe(true);
     });
 
     it('should render error message when entity not found', () => {
@@ -108,7 +108,7 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      const button = wrapper.find('button.control-button');
+      const button = wrapper.find('button.ha-control-button');
       expect(button.classes('control-button-on')).toBe(true);
     });
 
@@ -130,7 +130,7 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      const button = wrapper.find('button.control-button');
+      const button = wrapper.find('button.ha-control-button');
       expect(button.classes('control-button-on')).toBe(false);
     });
 
@@ -152,7 +152,7 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      const button = wrapper.find('button.control-button');
+      const button = wrapper.find('button.ha-control-button');
       expect(button.attributes('disabled')).toBeDefined();
     });
 
@@ -174,7 +174,7 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      const button = wrapper.find('button.control-button');
+      const button = wrapper.find('button.ha-control-button');
       expect(button.attributes('disabled')).toBeDefined();
     });
 
@@ -196,7 +196,7 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      const button = wrapper.find('button.control-button');
+      const button = wrapper.find('button.ha-control-button');
       expect(button.attributes('disabled')).toBeUndefined();
     });
   });
@@ -344,7 +344,7 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      const button = wrapper.find('button.control-button');
+      const button = wrapper.find('button.ha-control-button');
       await button.trigger('click');
 
       expect(wrapper.emitted('mockToggle')).toBeTruthy();
@@ -454,7 +454,7 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      expect(wrapper.find('button.control-button').exists()).toBe(true);
+      expect(wrapper.find('button.ha-control-button').exists()).toBe(true);
     });
   });
 
@@ -477,7 +477,7 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      const button = wrapper.find('button.control-button');
+      const button = wrapper.find('button.ha-control-button');
       expect(button.exists()).toBe(true);
     });
   });
@@ -501,7 +501,7 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      expect(wrapper.find('button.control-button').classes('control-button-on')).toBe(true);
+      expect(wrapper.find('button.ha-control-button').classes('control-button-on')).toBe(true);
     });
 
     it('should work with switch entities', () => {
@@ -522,7 +522,7 @@ describe('HaSwitch.vue', () => {
         },
       });
 
-      expect(wrapper.find('button.control-button').classes('control-button-on')).toBe(false);
+      expect(wrapper.find('button.ha-control-button').classes('control-button-on')).toBe(false);
     });
   });
 });

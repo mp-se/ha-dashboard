@@ -18,11 +18,11 @@
           <div class="text-muted small">{{ message }}</div>
         </div>
         <div class="d-flex align-items-center">
-          <div class="icon-circle-wrapper">
-            <svg width="40" height="40" viewBox="0 0 40 40" class="icon-circle">
+          <div class="ha-icon-circle-wrapper">
+            <svg width="40" height="40" viewBox="0 0 40 40" class="ha-icon-circle">
               <circle cx="20" cy="20" r="18" fill="#FFC107" />
             </svg>
-            <i class="mdi mdi-alert-outline icon-overlay"></i>
+            <i class="mdi mdi-alert-outline ha-icon-overlay"></i>
           </div>
         </div>
       </div>
@@ -133,29 +133,3 @@ const shouldShowWarning = computed(() => {
   }
 });
 </script>
-
-<style scoped>
-.icon-circle-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-}
-
-.icon-circle {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
-}
-
-.icon-overlay {
-  position: relative;
-  z-index: 1;
-  font-size: 1.5rem;
-  color: #333;
-}
-</style>

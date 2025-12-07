@@ -463,7 +463,7 @@ describe('HaBinarySensor.vue', () => {
       expect(wrapper.find('.col-md-4').exists()).toBe(true);
       expect(wrapper.find('.card').exists()).toBe(true);
       expect(wrapper.find('.card-body').exists()).toBe(true);
-      expect(wrapper.find('.card-title').exists()).toBe(true);
+      expect(wrapper.find('.ha-entity-name').exists()).toBe(true);
       expect(wrapper.find('.binary-state-indicator').exists()).toBe(true);
     });
 

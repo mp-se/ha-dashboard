@@ -153,8 +153,8 @@
                 <small class="text-muted">Attributes</small>
                 <ul class="list-unstyled small mb-0">
                   <li v-for="[k, v] in displayAttributes(entity)" :key="k">
-                    <strong>{{ k }}:</strong>
-                    <span class="text-wrap">{{ formatAttributeValue(v) }}</span>
+                    <span class="ha-attribute-key">{{ k }}:</span>
+                    <span class="ha-attribute-value text-wrap">{{ formatAttributeValue(v) }}</span>
                   </li>
                 </ul>
               </div>

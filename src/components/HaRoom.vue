@@ -6,27 +6,27 @@
         <div class="room-left d-flex flex-column text-start">
           <!-- Room Header -->
           <div class="room-header mb-3">
-            <h6 class="card-title mb-1">{{ roomName }}</h6>
+            <h6 class="ha-entity-name">{{ roomName }}</h6>
             <!-- Temperature and Humidity on same row -->
             <div v-if="temperatureEntity || humidityEntity" class="d-flex gap-3 align-items-baseline">
               <div v-if="temperatureEntity" class="small">
                 <span class="fw-bold">{{ temperatureValue }}</span>
-                <small class="text-muted ms-1">{{ temperatureUnit }}</small>
+                <small class="ha-entity-unit ms-1">{{ temperatureUnit }}</small>
               </div>
               <div v-if="humidityEntity" class="small">
                 <span class="fw-bold">{{ humidityValue }}</span>
-                <small class="text-muted ms-1">{{ humidityUnit }}</small>
+                <small class="ha-entity-unit ms-1">{{ humidityUnit }}</small>
               </div>
             </div>
           </div>
 
           <!-- Icon Circle: Bottom Left -->
           <div class="mt-auto">
-            <div class="icon-circle-wrapper">
-              <svg width="80" height="80" viewBox="0 0 80 80" class="icon-circle">
-                <circle cx="40" cy="40" r="36" :fill="circleColor" />
+            <div class="room-icon-wrapper ha-icon-circle-large">
+              <svg width="80" height="80" viewBox="0 0 80 80" class="ha-icon-circle">
+                <circle cx="40" cy="40" r="40" :fill="circleColor" />
               </svg>
-              <i :class="roomIconClass" class="icon-overlay"></i>
+              <i :class="roomIconClass" class="ha-icon-overlay"></i>
             </div>
           </div>
         </div>
@@ -41,11 +41,11 @@
             :title="getEntityLabel(obj.entity_id)"
             @click="!isEntityUnavailable(obj.entity_id) && toggleEntity(obj.entity_id)"
           >
-            <div class="control-circle-wrapper">
-              <svg width="50" height="50" viewBox="0 0 50 50" class="control-circle">
+            <div class="ha-control-circle-wrapper">
+              <svg width="50" height="50" viewBox="0 0 50 50" class="ha-control-circle">
                 <circle cx="25" cy="25" r="22" :fill="getObjectColor(obj.entity_id)" />
               </svg>
-              <i :class="getObjectIcon(obj.entity_id)" class="control-icon-overlay" :style="{ color: getIconColor(obj.entity_id) }"></i>
+              <i :class="getObjectIcon(obj.entity_id)" class="ha-control-icon" :style="{ color: getIconColor(obj.entity_id) }"></i>
             </div>
           </div>
         </div>
@@ -332,40 +332,22 @@ const toggleEntity = async (entityId) => {
   padding-bottom: 0.75rem;
 }
 
-.card-title {
-  font-weight: 600;
-  margin: 0;
-  word-break: break-word;
-}
-
-.icon-circle-wrapper {
+.room-icon-wrapper {
   position: relative;
+  margin: 0;
+  width: 80px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 80px;
-  height: 80px;
-  flex-shrink: 0;
 }
 
-.icon-circle {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-  transition: filter 0.3s ease;
+.room-icon-wrapper .ha-icon-circle {
+  background-color: transparent;
 }
 
-.card:hover .icon-circle {
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
-}
-
-.icon-overlay {
-  position: relative;
-  z-index: 1;
+.room-icon-wrapper .ha-icon-overlay {
   font-size: 2.5rem;
-  color: white;
-  font-weight: 500;
 }
 
 .control-object {
@@ -383,37 +365,11 @@ const toggleEntity = async (entityId) => {
   pointer-events: none;
 }
 
-.control-object.control-object-disabled .control-circle {
+.control-object.control-object-disabled .ha-control-circle {
   filter: grayscale(100%) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
 }
 
-.control-circle-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 50px;
-  height: 50px;
-  flex-shrink: 0;
-}
-
-.control-circle {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
-  transition: filter 0.2s ease;
-}
-
-.control-object:hover .control-circle {
+.control-object:hover .ha-control-circle {
   filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
-}
-
-.control-icon-overlay {
-  position: relative;
-  z-index: 1;
-  font-size: 1.5rem;
-  color: white;
-  font-weight: 400;
 }
 </style>

@@ -179,7 +179,3 @@ function togglePasswordVisibility() {
   passwordVisible.value = !passwordVisible.value;
 }
 </script>
-
-<style scoped>
-/* Custom styles if needed */
-</style>
