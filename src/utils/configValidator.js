@@ -30,7 +30,7 @@ const componentSchemas = {
   },
   HaBinarySensor: {
     required: ['entity'],
-    optional: [],
+    optional: ['attributes'],
   },
   HaChip: {
     required: ['entity'],

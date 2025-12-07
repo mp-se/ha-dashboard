@@ -522,4 +522,196 @@ describe('HaBinarySensor.vue', () => {
       expect(wrapper.text()).toContain('binary_sensor.bedroom_motion');
     });
   });
+
+  describe('Attributes Display', () => {
+    it('should not display attributes when not provided', () => {
+      const entity = {
+        entity_id: 'binary_sensor.motion',
+        state: 'on',
+        attributes: {
+          friendly_name: 'Motion Sensor',
+          last_triggered: '2024-12-07T10:30:00',
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      expect(wrapper.text()).not.toContain('Last Triggered');
+    });
+
+    it('should display requested attributes', () => {
+      const entity = {
+        entity_id: 'binary_sensor.motion',
+        state: 'on',
+        attributes: {
+          friendly_name: 'Motion Sensor',
+          last_triggered: '2024-12-07T10:30:00',
+          device_class: 'motion',
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+          attributes: ['last_triggered', 'device_class'],
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('Last Triggered');
+      expect(wrapper.text()).toContain('Device Class');
+      expect(wrapper.text()).toContain('2024-12-07T10:30:00');
+      expect(wrapper.text()).toContain('motion');
+    });
+
+    it('should skip attributes that do not exist', () => {
+      const entity = {
+        entity_id: 'binary_sensor.motion',
+        state: 'on',
+        attributes: {
+          friendly_name: 'Motion Sensor',
+          device_class: 'motion',
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+          attributes: ['device_class', 'nonexistent'],
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('Device Class');
+      expect(wrapper.text()).toContain('motion');
+      expect(wrapper.text()).not.toContain('Nonexistent');
+    });
+
+    it('should format attribute keys with underscores', () => {
+      const entity = {
+        entity_id: 'binary_sensor.door',
+        state: 'on',
+        attributes: {
+          friendly_name: 'Front Door',
+          last_triggered: '2024-12-07',
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+          attributes: ['last_triggered'],
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('Last Triggered');
+    });
+
+    it('should handle array attribute values', () => {
+      const entity = {
+        entity_id: 'binary_sensor.sensor',
+        state: 'on',
+        attributes: {
+          friendly_name: 'Sensor',
+          supported_features: [1, 2, 3],
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+          attributes: ['supported_features'],
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('Supported Features');
+      expect(wrapper.text()).toContain('1, 2, 3');
+    });
+
+    it('should handle object attribute values', () => {
+      const entity = {
+        entity_id: 'binary_sensor.sensor',
+        state: 'on',
+        attributes: {
+          friendly_name: 'Sensor',
+          extra_state_attributes: { key: 'value' },
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+          attributes: ['extra_state_attributes'],
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('Extra State Attributes');
+      expect(wrapper.text()).toContain('{"key":"value"}');
+    });
+
+    it('should handle null attribute values', () => {
+      const entity = {
+        entity_id: 'binary_sensor.sensor',
+        state: 'on',
+        attributes: {
+          friendly_name: 'Sensor',
+          null_attr: null,
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+          attributes: ['null_attr'],
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('Null Attr');
+      expect(wrapper.text()).toContain('-');
+    });
+  });
 });
