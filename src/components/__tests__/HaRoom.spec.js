@@ -601,4 +601,154 @@ describe('HaRoom.vue', () => {
 
     expect(mockCallService).not.toHaveBeenCalled();
   });
+
+  describe('Icon and Button Positioning', () => {
+    it('should have control objects with ha-control-circle-wrapper', () => {
+      store.sensors = [
+        {
+          entity_id: 'area.bedroom',
+          state: 'Bedroom',
+          attributes: {
+            friendly_name: 'Bedroom',
+            icon: 'mdi:bed',
+          },
+          entities: [],
+        },
+        {
+          entity_id: 'light.bedroom',
+          state: 'on',
+          attributes: {
+            friendly_name: 'Bedroom Light',
+            icon: 'mdi:lightbulb',
+          },
+        },
+      ];
+
+      wrapper = mount(HaRoom, {
+        props: {
+          entity: ['area.bedroom', 'light.bedroom'],
+        },
+        global: { plugins: [pinia] },
+      });
+
+      const circleWrappers = wrapper.findAll('.ha-control-circle-wrapper');
+      expect(circleWrappers.length).toBeGreaterThan(0);
+    });
+
+    it('should have ha-control-circle SVG in each wrapper', () => {
+      store.sensors = [
+        {
+          entity_id: 'area.living_room',
+          state: 'Living Room',
+          attributes: {
+            friendly_name: 'Living Room',
+            icon: 'mdi:sofa',
+          },
+          entities: [],
+        },
+        {
+          entity_id: 'light.main',
+          state: 'on',
+          attributes: {
+            friendly_name: 'Main Light',
+            icon: 'mdi:lightbulb',
+          },
+        },
+      ];
+
+      wrapper = mount(HaRoom, {
+        props: {
+          entity: ['area.living_room', 'light.main'],
+        },
+        global: { plugins: [pinia] },
+      });
+
+      const circles = wrapper.findAll('.ha-control-circle');
+      expect(circles.length).toBeGreaterThan(0);
+      
+      // Each circle should be an SVG with proper dimensions
+      circles.forEach((circle) => {
+        expect(circle.element.tagName).toBe('svg');
+        expect(circle.element.getAttribute('width')).toBe('50');
+        expect(circle.element.getAttribute('height')).toBe('50');
+      });
+    });
+
+    it('should have ha-control-icon inside each wrapper', () => {
+      store.sensors = [
+        {
+          entity_id: 'area.test',
+          state: 'Test',
+          attributes: {
+            friendly_name: 'Test Area',
+            icon: 'mdi:home',
+          },
+          entities: [],
+        },
+        {
+          entity_id: 'light.test',
+          state: 'on',
+          attributes: {
+            friendly_name: 'Test Light',
+            icon: 'mdi:lightbulb',
+          },
+        },
+      ];
+
+      wrapper = mount(HaRoom, {
+        props: {
+          entity: ['area.test', 'light.test'],
+        },
+        global: { plugins: [pinia] },
+      });
+
+      const icons = wrapper.findAll('.ha-control-icon');
+      expect(icons.length).toBeGreaterThan(0);
+      
+      // Each icon should be an <i> element with mdi classes
+      icons.forEach((icon) => {
+        expect(icon.element.tagName).toBe('I');
+        expect(icon.classes()).toContain('mdi');
+      });
+    });
+
+    it('should have control icon and circle both inside wrapper', () => {
+      store.sensors = [
+        {
+          entity_id: 'area.bedroom',
+          state: 'Bedroom',
+          attributes: {
+            friendly_name: 'Bedroom',
+            icon: 'mdi:bed',
+          },
+          entities: [],
+        },
+        {
+          entity_id: 'light.bedroom',
+          state: 'on',
+          attributes: {
+            friendly_name: 'Bedroom Light',
+            icon: 'mdi:lightbulb',
+          },
+        },
+      ];
+
+      wrapper = mount(HaRoom, {
+        props: {
+          entity: ['area.bedroom', 'light.bedroom'],
+        },
+        global: { plugins: [pinia] },
+      });
+
+      const wrappers_elems = wrapper.findAll('.ha-control-circle-wrapper');
+      
+      wrappers_elems.forEach((wrapperVm) => {
+        const circle = wrapperVm.find('.ha-control-circle');
+        const icon = wrapperVm.find('.ha-control-icon');
+        
+        expect(circle.exists()).toBe(true);
+        expect(icon.exists()).toBe(true);
+      });
+    });
+  });
 });

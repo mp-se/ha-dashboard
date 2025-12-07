@@ -3,6 +3,7 @@
 ## December 2025 - v0.3.0
 
 - Consolidated duplicate CSS styles into shared classes (`.ha-entity-name`, `.ha-entity-value`, `.ha-entity-unit`, `.ha-attribute-key`, `.ha-attribute-value`) in App.vue, unified icon circle styling across components, removed redundant rules, and ensured consistent light/dark theme support for improved maintainability.
+- Linked card-showcase.html to shared-styles.css so the showcase now uses the same styles as the Vue project
 - Update style on a few sensors for consistent design
 - Updated generated images to match the current desing as good as possible.
 - Added per-entity config JSON generation buttons in RawEntityView for supported entity types (copy entity JSON and generate dashboard config JSON)

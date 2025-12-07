@@ -970,4 +970,136 @@ describe('HaLight.vue', () => {
       expect(wrapper.find('h6').exists()).toBe(true);
     });
   });
+
+  describe('Icon and Button Positioning', () => {
+    it('should have ha-control-button with proper styling', () => {
+      const entity = {
+        entity_id: 'light.test',
+        state: 'on',
+        attributes: {
+          friendly_name: 'Test Light',
+        },
+      };
+
+      const wrapper = mount(HaLight, {
+        props: { entity },
+        global: {
+          stubs: {
+            svg: true,
+          },
+        },
+      });
+
+      const controlButton = wrapper.find('.ha-control-button');
+      expect(controlButton.exists()).toBe(true);
+      
+      // Check that button has no background and border
+      const buttonElement = controlButton.element;
+      expect(buttonElement.tagName).toBe('BUTTON');
+    });
+
+    it('should have ha-control-circle-wrapper as container for circle and icon', () => {
+      const entity = {
+        entity_id: 'light.test',
+        state: 'on',
+        attributes: {
+          friendly_name: 'Test Light',
+        },
+      };
+
+      const wrapper = mount(HaLight, {
+        props: { entity },
+        global: {
+          stubs: {
+            svg: true,
+          },
+        },
+      });
+
+      const wrapper_elem = wrapper.find('.ha-control-circle-wrapper');
+      expect(wrapper_elem.exists()).toBe(true);
+    });
+
+    it('should have ha-control-circle SVG with proper sizing', () => {
+      const entity = {
+        entity_id: 'light.test',
+        state: 'on',
+        attributes: {
+          friendly_name: 'Test Light',
+        },
+      };
+
+      const wrapper = mount(HaLight, {
+        props: { entity },
+      });
+
+      const circle = wrapper.find('.ha-control-circle');
+      expect(circle.exists()).toBe(true);
+      
+      // SVG should have width and height of 50
+      const svgElement = circle.element;
+      expect(svgElement.getAttribute('width')).toBe('50');
+      expect(svgElement.getAttribute('height')).toBe('50');
+      expect(svgElement.getAttribute('viewBox')).toBe('0 0 50 50');
+    });
+
+    it('should have ha-control-icon positioned absolutely over the circle', () => {
+      const entity = {
+        entity_id: 'light.test',
+        state: 'on',
+        attributes: {
+          friendly_name: 'Test Light',
+        },
+      };
+
+      const wrapper = mount(HaLight, {
+        props: { entity },
+      });
+
+      const icon = wrapper.find('.ha-control-icon');
+      expect(icon.exists()).toBe(true);
+      expect(icon.classes()).toContain('ha-control-icon');
+      
+      // Icon should be an <i> element with mdi-lightbulb class
+      expect(icon.element.tagName).toBe('I');
+      expect(icon.classes()).toContain('mdi');
+      expect(icon.classes()).toContain('mdi-lightbulb');
+    });
+
+    it('should have control icon inside the wrapper', () => {
+      const entity = {
+        entity_id: 'light.test',
+        state: 'on',
+        attributes: {
+          friendly_name: 'Test Light',
+        },
+      };
+
+      const wrapper = mount(HaLight, {
+        props: { entity },
+      });
+
+      const circleWrapper = wrapper.find('.ha-control-circle-wrapper');
+      const icon = circleWrapper.find('.ha-control-icon');
+      expect(icon.exists()).toBe(true);
+    });
+
+    it('should have control circle inside the wrapper', () => {
+      const entity = {
+        entity_id: 'light.test',
+        state: 'on',
+        attributes: {
+          friendly_name: 'Test Light',
+        },
+      };
+
+      const wrapper = mount(HaLight, {
+        props: { entity },
+      });
+
+      const circleWrapper = wrapper.find('.ha-control-circle-wrapper');
+      const circle = circleWrapper.find('.ha-control-circle');
+      expect(circle.exists()).toBe(true);
+    });
+  });
 });
