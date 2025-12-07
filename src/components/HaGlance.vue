@@ -6,11 +6,10 @@
         <div :class="['glance-grid', `glance-cols-${gridColumns}`]">
           <div v-for="ent in entityList" :key="getEntityId(ent)" class="glance-item">
             <!-- Icon with circle background -->
-            <div v-if="getIconClass(ent)" class="ha-icon-circle-wrapper">
-              <svg width="44" height="44" viewBox="0 0 40 40" class="ha-icon-circle">
-                <circle cx="20" cy="20" r="18" :fill="getIconCircleColor(ent)" />
-              </svg>
-              <i :class="getIconClass(ent)" class="ha-icon-overlay"></i>
+            <div v-if="getIconClass(ent)" class="glance-icon-wrapper">
+              <div class="glance-icon-bg" :style="{ backgroundColor: getIconCircleColor(ent) }">
+                <i :class="getIconClass(ent)" class="glance-icon-overlay"></i>
+              </div>
             </div>
 
             <!-- Name and State -->
@@ -165,6 +164,32 @@ const getIconCircleColor = (ent) => {
 
 [data-bs-theme='dark'] .glance-item:hover {
   background-color: rgba(52, 58, 64, 0.5);
+}
+
+.glance-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+}
+
+.glance-icon-bg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.glance-icon-overlay {
+  font-size: 1.5rem;
+  color: #fff;
+  font-weight: 400;
 }
 
 .icon-circle-wrapper-glance {
