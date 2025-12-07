@@ -3,6 +3,7 @@
 ## December 2025 - v0.3.1
 
 - HaBinarySensor now supports optional 'attributes' prop to display custom entity attributes (matching HaSensor functionality)
+- HaBinarySensor now handles multiple state types with appropriate icons and labels: open/closed, locked/unlocked, detected, armed/disarmed, triggered
 
 ## December 2025 - v0.3.0
 
