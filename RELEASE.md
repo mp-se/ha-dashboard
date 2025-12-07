@@ -1,5 +1,9 @@
 # Release Notes
 
+## December 2025 - v0.3.1
+
+- HaBinarySensor now supports optional 'attributes' prop to display custom entity attributes (matching HaSensor functionality)
+
 ## December 2025 - v0.3.0
 
 - Consolidated duplicate CSS styles into shared classes (`.ha-entity-name`, `.ha-entity-value`, `.ha-entity-unit`, `.ha-attribute-key`, `.ha-attribute-value`) in App.vue, unified icon circle styling across components, removed redundant rules, and ensured consistent light/dark theme support for improved maintainability.
@@ -8,10 +12,10 @@
 - Updated generated images to match the current desing as good as possible.
 - HaGlance card now uses responsive grid layout - automatically adjusts columns based on entity count (1 entity = 1 column, 2-3 entities = equal width fill, 4+ entities = 4 columns)
 - Added per-entity config JSON generation buttons in RawEntityView for supported entity types (copy entity JSON and generate dashboard config JSON)
-- Removed 'attributes' prop from HaBinarySensor, HaMediaPlayer, HaSun, HaAlarmPanel, HaButton, HaSelect, HaSwitch, HaSpacer, and HaBeerTap components to ensure generated configs only include valid props
-- Updated configValidator.js to remove 'attributes' from optional props for cleaned-up components
-- Removed tests related to the 'attributes' prop in component test files
-- Updated CONFIGURATION.md documentation to remove 'attributes' property descriptions and examples for affected components
+- Removed 'attributes' prop from HaMediaPlayer, HaSun, HaAlarmPanel, HaButton, HaSelect, HaSwitch, HaSpacer, and HaBeerTap components to ensure generated configs only include valid props
+- Updated configValidator.js to include 'attributes' as optional prop for HaGauge
+- Removed tests related to the 'attributes' prop in component test files for components that don't support it
+- Updated CONFIGURATION.md documentation to remove 'attributes' property descriptions for affected components
 - Modified RawEntityView to hide config JSON generation button for unsupported entity types
 
 ## December 2025 - v0.2.0
