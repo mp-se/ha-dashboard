@@ -2,6 +2,8 @@ import { defineConfig, loadEnv } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { VitePWA } from 'vite-plugin-pwa';
 import { fileURLToPath, URL } from 'node:url';
+import fs from 'fs';
+import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -35,6 +37,25 @@ export default defineConfig(({ mode }) => {
           ],
         },
       }),
+      {
+        name: 'remove-unnecessary-files',
+        apply: 'build',
+        writeBundle() {
+          // Remove the shared-styles.css from dist after build
+          const sharedStylesPath = path.join(__dirname, 'dist', 'styles', 'shared-styles.css');
+          if (fs.existsSync(sharedStylesPath)) {
+            fs.unlinkSync(sharedStylesPath);
+            console.log('✓ Removed unnecessary dist/styles/shared-styles.css');
+          }
+          
+          // Remove the data directory from dist
+          const dataPath = path.join(__dirname, 'dist', 'data');
+          if (fs.existsSync(dataPath)) {
+            fs.rmSync(dataPath, { recursive: true, force: true });
+            console.log('✓ Removed unnecessary dist/data/');
+          }
+        },
+      },
     ],
     resolve: {
       alias: {

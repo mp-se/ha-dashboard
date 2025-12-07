@@ -202,6 +202,151 @@ describe('HaGlance.vue', () => {
     });
   });
 
+  describe('Grid Column Layout', () => {
+    it('should use 1 column for single entity', () => {
+      const wrapper = mount(HaGlance, {
+        props: { entity: ['sensor.temperature'] },
+        global: { plugins: [pinia] },
+      });
+      expect(wrapper.vm.gridColumns).toBe(1);
+      expect(wrapper.find('.glance-cols-1').exists()).toBe(true);
+    });
+
+    it('should use 2 columns for two entities', () => {
+      const wrapper = mount(HaGlance, {
+        props: { entity: ['sensor.temperature', 'sensor.humidity'] },
+        global: { plugins: [pinia] },
+      });
+      expect(wrapper.vm.gridColumns).toBe(2);
+      expect(wrapper.find('.glance-cols-2').exists()).toBe(true);
+    });
+
+    it('should use 3 columns for three entities', () => {
+      store.sensors.push({
+        entity_id: 'sensor.pressure',
+        state: '1013',
+        attributes: {
+          friendly_name: 'Pressure',
+          unit_of_measurement: 'hPa',
+          icon: 'mdi:speedometer',
+        },
+      });
+      const wrapper = mount(HaGlance, {
+        props: { entity: ['sensor.temperature', 'sensor.humidity', 'sensor.pressure'] },
+        global: { plugins: [pinia] },
+      });
+      expect(wrapper.vm.gridColumns).toBe(3);
+      expect(wrapper.find('.glance-cols-3').exists()).toBe(true);
+    });
+
+    it('should use 4 columns for four entities', () => {
+      store.sensors.push({
+        entity_id: 'sensor.pressure',
+        state: '1013',
+        attributes: {
+          friendly_name: 'Pressure',
+          unit_of_measurement: 'hPa',
+          icon: 'mdi:speedometer',
+        },
+      });
+      store.sensors.push({
+        entity_id: 'sensor.wind',
+        state: '5.2',
+        attributes: {
+          friendly_name: 'Wind Speed',
+          unit_of_measurement: 'm/s',
+          icon: 'mdi:wind-power',
+        },
+      });
+      const wrapper = mount(HaGlance, {
+        props: { entity: ['sensor.temperature', 'sensor.humidity', 'sensor.pressure', 'sensor.wind'] },
+        global: { plugins: [pinia] },
+      });
+      expect(wrapper.vm.gridColumns).toBe(4);
+      expect(wrapper.find('.glance-cols-4').exists()).toBe(true);
+    });
+
+    it('should use 4 columns for more than four entities', () => {
+      store.sensors.push({
+        entity_id: 'sensor.pressure',
+        state: '1013',
+        attributes: {
+          friendly_name: 'Pressure',
+          unit_of_measurement: 'hPa',
+          icon: 'mdi:speedometer',
+        },
+      });
+      store.sensors.push({
+        entity_id: 'sensor.wind',
+        state: '5.2',
+        attributes: {
+          friendly_name: 'Wind Speed',
+          unit_of_measurement: 'm/s',
+          icon: 'mdi:wind-power',
+        },
+      });
+      store.sensors.push({
+        entity_id: 'sensor.rain',
+        state: '2.5',
+        attributes: {
+          friendly_name: 'Rain',
+          unit_of_measurement: 'mm',
+          icon: 'mdi:water',
+        },
+      });
+      const wrapper = mount(HaGlance, {
+        props: { entity: ['sensor.temperature', 'sensor.humidity', 'sensor.pressure', 'sensor.wind', 'sensor.rain'] },
+        global: { plugins: [pinia] },
+      });
+      expect(wrapper.vm.gridColumns).toBe(4);
+      expect(wrapper.find('.glance-cols-4').exists()).toBe(true);
+    });
+
+    it('should update grid columns when entity count changes', async () => {
+      const wrapper = mount(HaGlance, {
+        props: { entity: ['sensor.temperature'] },
+        global: { plugins: [pinia] },
+      });
+      expect(wrapper.vm.gridColumns).toBe(1);
+
+      await wrapper.setProps({ entity: ['sensor.temperature', 'sensor.humidity'] });
+      expect(wrapper.vm.gridColumns).toBe(2);
+
+      store.sensors.push({
+        entity_id: 'sensor.pressure',
+        state: '1013',
+        attributes: {
+          friendly_name: 'Pressure',
+          unit_of_measurement: 'hPa',
+          icon: 'mdi:speedometer',
+        },
+      });
+      await wrapper.setProps({ entity: ['sensor.temperature', 'sensor.humidity', 'sensor.pressure'] });
+      expect(wrapper.vm.gridColumns).toBe(3);
+    });
+
+    it('should render correct number of glance items', () => {
+      const wrapper = mount(HaGlance, {
+        props: { entity: ['sensor.temperature', 'sensor.humidity'] },
+        global: { plugins: [pinia] },
+      });
+      const items = wrapper.findAll('.glance-item');
+      expect(items).toHaveLength(2);
+    });
+
+    it('should fill row evenly with fewer entities', () => {
+      const wrapper = mount(HaGlance, {
+        props: { entity: ['sensor.temperature', 'sensor.humidity'] },
+        global: { plugins: [pinia] },
+      });
+      const grid = wrapper.find('.glance-grid');
+      expect(grid.classes()).toContain('glance-cols-2');
+      // Both items should have equal width (1fr each in 2-column layout)
+      const items = wrapper.findAll('.glance-item');
+      expect(items).toHaveLength(2);
+    });
+  });
+
   describe('Card Structure', () => {
     it('should have responsive column classes', () => {
       const wrapper = mount(HaGlance, {
