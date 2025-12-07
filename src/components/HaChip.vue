@@ -22,11 +22,11 @@
         <div v-if="!resolvedEntity" class="small">Entity not found</div>
 
         <div v-else class="d-flex align-items-center">
-          <div class="icon-circle-wrapper">
-            <svg width="40" height="40" viewBox="0 0 40 40" class="icon-circle">
+          <div class="ha-icon-circle-wrapper">
+            <svg width="40" height="40" viewBox="0 0 40 40" class="ha-icon-circle">
               <circle cx="20" cy="20" r="18" :fill="iconCircleColor" />
             </svg>
-            <i v-if="iconClass" :class="iconClass" class="icon-overlay"></i>
+            <i v-if="iconClass" :class="iconClass" class="ha-icon-overlay"></i>
           </div>
           <div class="ms-2">
             <div class="fw-bold small">
@@ -108,29 +108,5 @@ const iconClass = computed(() => {
 .badge {
   font-size: 0.875rem;
   padding: 0.25rem 0.5rem;
-}
-
-.icon-circle-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-}
-
-.icon-circle {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
-}
-
-.icon-overlay {
-  position: relative;
-  z-index: 1;
-  font-size: 1.5rem;
-  color: white;
 }
 </style>

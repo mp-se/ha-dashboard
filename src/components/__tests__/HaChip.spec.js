@@ -439,7 +439,7 @@ describe('HaChip.vue', () => {
         },
       });
 
-      expect(wrapper.find('.icon-circle-wrapper').exists()).toBe(true);
+      expect(wrapper.find('.ha-icon-circle-wrapper').exists()).toBe(true);
     });
   });
 

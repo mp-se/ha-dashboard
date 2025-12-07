@@ -120,7 +120,7 @@ describe('HaLight.vue', () => {
         },
       });
 
-      const button = wrapper.find('button.control-button');
+      const button = wrapper.find('button.ha-control-button');
       expect(button.exists()).toBe(true);
     });
 
@@ -143,7 +143,7 @@ describe('HaLight.vue', () => {
         },
       });
 
-      const button = wrapper.find('button.control-button');
+      const button = wrapper.find('button.ha-control-button');
       expect(button.exists()).toBe(true);
     });
 
@@ -167,7 +167,7 @@ describe('HaLight.vue', () => {
       });
 
       // Button should exist and light is on
-      const button = wrapper.find('button.control-button');
+      const button = wrapper.find('button.ha-control-button');
       expect(button.exists()).toBe(true);
       expect(button.classes('control-button-on')).toBe(true);
     });
@@ -193,7 +193,7 @@ describe('HaLight.vue', () => {
         },
       });
 
-      expect(wrapper.find('button.control-button').classes('control-button-on')).toBe(true);
+      expect(wrapper.find('button.ha-control-button').classes('control-button-on')).toBe(true);
     });
 
     it('should not have control-button-on class when light is off', () => {
@@ -215,7 +215,7 @@ describe('HaLight.vue', () => {
         },
       });
 
-      const button = wrapper.find('button.control-button');
+      const button = wrapper.find('button.ha-control-button');
       expect(button.classes()).not.toContain('control-button-on');
     });
 
@@ -674,7 +674,7 @@ describe('HaLight.vue', () => {
         },
       });
 
-      const button = wrapper.find('button.control-button');
+      const button = wrapper.find('button.ha-control-button');
       expect(button.attributes('disabled')).toBeDefined();
     });
 
@@ -697,7 +697,7 @@ describe('HaLight.vue', () => {
         },
       });
 
-      const button = wrapper.find('button.control-button');
+      const button = wrapper.find('button.ha-control-button');
       expect(button.attributes('disabled')).toBeDefined();
     });
   });
@@ -918,8 +918,8 @@ describe('HaLight.vue', () => {
         },
       });
 
-      expect(wrapper.find('button.control-button').exists()).toBe(true);
-      expect(wrapper.find('.control-circle-wrapper').exists()).toBe(true);
+      expect(wrapper.find('button.ha-control-button').exists()).toBe(true);
+      expect(wrapper.find('.ha-control-circle-wrapper').exists()).toBe(true);
     });
 
     it('should have card-body and h-100 classes', () => {

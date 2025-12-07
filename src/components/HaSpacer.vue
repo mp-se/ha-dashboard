@@ -11,7 +11,3 @@ defineProps({
 // Spacer card component for layout purposes
 // Provides consistent spacing in dashboard layouts
 </script>
-
-<style scoped>
-/* Spacer card specific styles if needed */
-</style>

@@ -12,9 +12,9 @@
     <div class="card card-display h-100 rounded-4 shadow-lg" :style="{ borderColor: beerColor, borderWidth: '2px' }">
       <div class="card-body d-flex align-items-start gap-3">
         <!-- Beer icon with color circle -->
-        <div class="icon-circle-wrapper flex-shrink-0">
-          <div class="icon-bg" :style="{ backgroundColor: beerColor }">
-            <i :class="isEmpty ? 'mdi mdi-beer-off' : 'mdi mdi-beer'" class="icon-overlay"></i>
+        <div class="ha-icon-circle-wrapper flex-shrink-0">
+          <div class="ha-icon-circle" :style="{ backgroundColor: beerColor }">
+            <i :class="isEmpty ? 'mdi mdi-beer-off' : 'mdi mdi-beer'" class="ha-icon-overlay"></i>
           </div>
         </div>
 
@@ -49,7 +49,7 @@
       <div class="px-3 pb-3">
         <div class="progress" style="height: 8px; background-color: #e9ecef;">
           <div
-            class="progress-bar"
+            class="ha-progress-bar"
             role="progressbar"
             :style="{ width: percentage + '%', backgroundColor: beerColor }"
             :aria-valuenow="percentage"
@@ -299,37 +299,5 @@ const beerColor = computed(() => {
   background-color: #e9ecef;
   border-radius: 0.25rem;
   overflow: hidden;
-}
-
-.progress-bar {
-  transition: width 0.3s ease;
-}
-
-/* Icon background circle */
-.icon-circle-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-}
-
-.icon-bg {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-.icon-overlay {
-  position: relative;
-  z-index: 1;
-  font-size: 1.5rem;
-  color: white;
 }
 </style>

@@ -32,7 +32,3 @@ const props = defineProps({
 
 // Note: entity and attributes props are included for consistency with other components but not currently used
 </script>
-
-<style scoped>
-/* Custom styles if needed */
-</style>

@@ -207,7 +207,7 @@ describe('HaPrinter.vue', () => {
         },
         global: { plugins: [pinia] },
       });
-      const progressBars = wrapper.findAll('.progress-bar');
+      const progressBars = wrapper.findAll('.ha-progress-bar');
       expect(progressBars.length).toBeGreaterThanOrEqual(4);
     });
 
@@ -237,7 +237,7 @@ describe('HaPrinter.vue', () => {
         },
         global: { plugins: [pinia] },
       });
-      const bars = wrapper.findAll('.progress-bar');
+      const bars = wrapper.findAll('.ha-progress-bar');
       expect(bars[0].classes()).toContain('bg-dark');
     });
 
@@ -252,7 +252,7 @@ describe('HaPrinter.vue', () => {
         },
         global: { plugins: [pinia] },
       });
-      const bars = wrapper.findAll('.progress-bar');
+      const bars = wrapper.findAll('.ha-progress-bar');
       expect(bars[1].classes()).toContain('bg-info');
     });
 
@@ -267,7 +267,7 @@ describe('HaPrinter.vue', () => {
         },
         global: { plugins: [pinia] },
       });
-      const bars = wrapper.findAll('.progress-bar');
+      const bars = wrapper.findAll('.ha-progress-bar');
       expect(bars[2].attributes('style')).toContain('#e700d9');
     });
 
@@ -282,7 +282,7 @@ describe('HaPrinter.vue', () => {
         },
         global: { plugins: [pinia] },
       });
-      const bars = wrapper.findAll('.progress-bar');
+      const bars = wrapper.findAll('.ha-progress-bar');
       expect(bars[3].classes()).toContain('bg-warning');
     });
   });

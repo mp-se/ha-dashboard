@@ -97,7 +97,3 @@ const iconClass = computed(() => {
   return 'mdi mdi-account';
 });
 </script>
-
-<style scoped>
-/* Person card specific styles if needed */
-</style>

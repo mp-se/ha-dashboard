@@ -11,25 +11,25 @@
   <div v-else-if="entityList.length === 1" class="col-lg-4 col-md-6">
     <div :class="['card', 'card-display', cardBorderClass, 'h-100', 'rounded-4', 'shadow-lg']">
       <div :class="['card-body', 'd-flex', requestedAttributes.length === 0 ? 'align-items-center' : 'align-items-start', 'gap-3']">
-        <div v-if="iconClass" class="icon-circle-wrapper flex-shrink-0">
+        <div v-if="iconClass" class="ha-icon-circle-wrapper flex-shrink-0">
           <div class="icon-bg" :style="{ backgroundColor: iconCircleColor }">
-            <i :class="iconClass" class="icon-overlay"></i>
+            <i :class="iconClass" class="ha-icon-overlay"></i>
           </div>
         </div>
         <div class="flex-grow-1">
           <div class="text-start">
-            <h6 class="card-title">{{ name }}</h6>
+            <h6 class="ha-entity-name">{{ name }}</h6>
             <!-- Display requested attributes if provided -->
             <div v-if="requestedAttributes.length > 0" class="mt-1">
               <div v-for="[key, value] in requestedAttributes" :key="key" class="small d-flex gap-2 mb-0">
-                <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">{{ formatKey(key) }}: <span class="fw-bold">{{ formatAttributeValue(value) }}</span></div>
+                <div class="ha-attribute-key">{{ formatKey(key) }}: <span class="ha-attribute-value">{{ formatAttributeValue(value) }}</span></div>
               </div>
             </div>
           </div>
         </div>
         <div class="flex-shrink-0">
-          <div class="ha-sensor-value fw-bold text-end">
-            {{ formattedValue }}<span class="ha-sensor-unit ms-1">{{ unit }}</span>
+          <div class="ha-entity-value fw-bold text-end">
+            {{ formattedValue }}<span class="ha-entity-unit ms-1">{{ unit }}</span>
           </div>
         </div>
       </div>
@@ -41,13 +41,13 @@
       <div class="card-body">
         <div v-for="ent in entityList" :key="ent" class="mb-2">
           <div class="d-flex align-items-center gap-2">
-            <div v-if="getIconClass(ent)" class="icon-circle-wrapper">
+            <div v-if="getIconClass(ent)" class="ha-icon-circle-wrapper">
               <div class="icon-bg-small" :style="{ backgroundColor: getIconCircleColor(ent) }">
                 <i :class="getIconClass(ent)" class="icon-overlay-small"></i>
               </div>
             </div>
             <div class="flex-grow-1 text-start">
-              <h6 class="card-title-small">{{ getName(ent) }}</h6>
+              <h6 class="ha-entity-name">{{ getName(ent) }}</h6>
             </div>
             <div class="text-end flex-shrink-0">
               <div class="ha-sensor-value fw-bold">
@@ -277,28 +277,7 @@ const getIconCircleColor = (ent) => {
 </script>
 
 <style scoped>
-/* Sensor value and unit styling */
-.ha-sensor-value {
-  font-size: 0.9rem;
-  line-height: 1;
-}
-
-.ha-sensor-unit {
-  font-size: 0.75rem;
-  color: #999;
-}
-
 /* Icon background circle */
-.icon-circle-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-}
-
 .icon-bg-wrapper {
   position: relative;
   display: flex;
@@ -339,29 +318,10 @@ const getIconCircleColor = (ent) => {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.icon-overlay {
-  position: relative;
-  z-index: 1;
-  font-size: 1.5rem;
-  color: white;
-}
-
 .icon-overlay-small {
   position: relative;
   z-index: 1;
   font-size: 1.1rem;
   color: white;
-}
-
-.card-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
-
-.card-title-small {
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin-bottom: 0;
 }
 </style>

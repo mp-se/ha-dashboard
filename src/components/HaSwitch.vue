@@ -22,22 +22,22 @@
         <template v-else>
           <div class="d-flex align-items-center justify-content-between mb-3">
             <div class="text-start flex-grow-1">
-              <h6 class="card-title mb-0">
+              <h6 class="ha-entity-name mb-0">
                 {{ resolvedEntity.attributes?.friendly_name || resolvedEntity.entity_id }}
               </h6>
             </div>
             <button
-              class="control-button"
+              class="ha-control-button"
               :class="{ 'control-button-on': isOn && !isDisabled }"
               :disabled="isDisabled || isLoading"
               :title="isOn ? 'Turn off' : 'Turn on'"
               @click="isOn = !isOn"
             >
-              <div class="control-circle-wrapper">
-                <svg width="50" height="50" viewBox="0 0 50 50" class="control-circle">
+              <div class="ha-control-circle-wrapper">
+                <svg width="50" height="50" viewBox="0 0 50 50" class="ha-control-circle">
                   <circle cx="25" cy="25" r="22" :fill="controlCircleColor" />
                 </svg>
-                <i :class="switchIconClass" class="control-icon" :style="{ color: iconColor }"></i>
+                <i :class="switchIconClass" class="ha-control-icon" :style="{ color: iconColor }"></i>
               </div>
             </button>
           </div>
@@ -150,53 +150,3 @@ const cardBorderClass = computed(() => {
   return 'border-info';
 });
 </script>
-
-<style scoped>
-.control-button {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-  flex-shrink: 0;
-}
-
-.control-button:hover:not(:disabled) {
-  transform: scale(1.1);
-}
-
-.control-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.control-circle-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 50px;
-  height: 50px;
-  flex-shrink: 0;
-}
-
-.control-circle {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-  transition: filter 0.2s ease;
-}
-
-.control-button:hover:not(:disabled) .control-circle {
-  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
-}
-
-.control-icon {
-  position: relative;
-  z-index: 1;
-  font-size: 1.5rem;
-  font-weight: 400;
-}
-</style>

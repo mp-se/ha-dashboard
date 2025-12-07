@@ -6,19 +6,19 @@
         <div class="glance-grid">
           <div v-for="ent in entityList" :key="getEntityId(ent)" class="glance-item">
             <!-- Icon with circle background -->
-            <div v-if="getIconClass(ent)" class="icon-circle-wrapper-glance">
-              <svg width="44" height="44" viewBox="0 0 40 40" class="icon-circle">
+            <div v-if="getIconClass(ent)" class="ha-icon-circle-wrapper">
+              <svg width="44" height="44" viewBox="0 0 40 40" class="ha-icon-circle">
                 <circle cx="20" cy="20" r="18" :fill="getIconCircleColor(ent)" />
               </svg>
-              <i :class="getIconClass(ent)" class="icon-overlay-glance"></i>
+              <i :class="getIconClass(ent)" class="ha-icon-overlay"></i>
             </div>
 
             <!-- Name and State -->
             <div class="glance-content">
-              <div class="glance-name">{{ getName(ent) }}</div>
-              <div class="glance-state">
+              <div class="ha-entity-name">{{ getName(ent) }}</div>
+              <div class="ha-entity-value">
                 {{ getFormattedValue(ent) }}
-                <small v-if="getUnit(ent)" class="text-muted">{{ getUnit(ent) }}</small>
+                <small v-if="getUnit(ent)" class="ha-entity-unit ms-1">{{ getUnit(ent) }}</small>
               </div>
             </div>
           </div>
@@ -114,7 +114,7 @@ const getIconCircleColor = (ent) => {
   display: grid;
   gap: 0.75rem;
   grid-auto-flow: dense;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .glance-item {
@@ -154,18 +154,15 @@ const getIconCircleColor = (ent) => {
   flex-shrink: 0;
 }
 
-.icon-circle {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
-}
-
-.icon-overlay-glance {
+.icon-circle-wrapper-glance {
   position: relative;
-  z-index: 1;
-  font-size: 1.5rem;
-  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
 }
 
 .glance-content {
@@ -175,32 +172,5 @@ const getIconCircleColor = (ent) => {
   justify-content: center;
   min-width: 0;
   width: 100%;
-}
-
-.glance-name {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: #495057;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 0.25rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-[data-bs-theme='dark'] .glance-name {
-  color: #adb5bd;
-}
-
-.glance-state {
-  font-size: 0.875rem;
-  color: #212529;
-  font-weight: 500;
-}
-
-[data-bs-theme='dark'] .glance-state {
-  color: #f8f9fa;
 }
 </style>
