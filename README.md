@@ -11,7 +11,19 @@
 
 A Vue.js dashboard app built with Vite that displays real-time sensor data from your local Home Assistant instance. Configure everything via a simple JSON file with support for multiple entity specification methods, dynamic filtering, and flexible card components.
 
-![Dashboard](./dashboard.png)
+## Examples
+
+| Light Control | Switch Control | Sensor Display |
+|---|---|---|
+| ![Light](./images/halight-on.png) | ![Switch](./images/haswitch-on.png) | ![Sensor](./images/hasensor-single.png) |
+
+| Binary Sensor | Gauge | Weather |
+|---|---|---|
+| ![Binary Sensor](./images/habinarysensor-on.png) | ![Gauge](./images/hagauge-medium.png) | ![Weather](./images/haweather.png) |
+
+| Energy Chart | Sun Info | Person Location |
+|---|---|---|
+| ![Energy](./images/haenergy.png) | ![Sun](./images/hasun.png) | ![Person](./images/haperson-home.png) |
 
 This whole project has been an experiment to see what i could create using Github Copilot and let that do most of the coding and documenation.
 
@@ -43,20 +55,6 @@ The dashboard includes 26+ pre-built card components:
 **Information**: Weather, Sun, Person, Energy, Alarms, Printers
 **Layout**: Spacers, Headers, Rows
 **Advanced**: Sensor graphs, Entity lists, Custom getters
-
-### Examples
-
-| Light Control | Switch Control | Sensor Display |
-|---|---|---|
-| ![Light](./images/halight-on.png) | ![Switch](./images/haswitch-on.png) | ![Sensor](./images/hasensor-single.png) |
-
-| Binary Sensor | Gauge | Weather |
-|---|---|---|
-| ![Binary Sensor](./images/habinarysensor-on.png) | ![Gauge](./images/hagauge-medium.png) | ![Weather](./images/haweather.png) |
-
-| Energy Chart | Sun Info | Person Location |
-|---|---|---|
-| ![Energy](./images/haenergy.png) | ![Sun](./images/hasun.png) | ![Person](./images/haperson-home.png) |
 
 ## 🚀 Quick Start
 
