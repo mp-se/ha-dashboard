@@ -44,9 +44,24 @@ The dashboard includes 26+ pre-built card components:
 **Layout**: Spacers, Headers, Rows
 **Advanced**: Sensor graphs, Entity lists, Custom getters
 
+### Examples
+
+| Light Control | Switch Control | Sensor Display |
+|---|---|---|
+| ![Light](./images/halight-on.png) | ![Switch](./images/haswitch-on.png) | ![Sensor](./images/hasensor-single.png) |
+
+| Binary Sensor | Gauge | Weather |
+|---|---|---|
+| ![Binary Sensor](./images/habinarysensor-on.png) | ![Gauge](./images/hagauge-medium.png) | ![Weather](./images/haweather.png) |
+
+| Energy Chart | Sun Info | Person Location |
+|---|---|---|
+| ![Energy](./images/haenergy.png) | ![Sun](./images/hasun.png) | ![Person](./images/haperson-home.png) |
+
 ## 🚀 Quick Start
 
 ### 1. Prerequisites
+
 - Docker and Docker Compose (or Node.js 18+ for development)
 - Home Assistant instance with a long-lived access token
 
