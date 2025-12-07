@@ -34,8 +34,8 @@
           <div
             class="binary-state-indicator"
             :class="{
-              'state-on': state.toLowerCase() === 'on' || state.toLowerCase() === 'true',
-              'state-off': state.toLowerCase() === 'off' || state.toLowerCase() === 'false',
+              'state-on': getActiveState(),
+              'state-off': !getActiveState() && !isUnavailable,
               'state-unavailable': isUnavailable,
             }"
             :title="displayStateLabel"
@@ -80,18 +80,58 @@ const isUnavailable = computed(() => ['unavailable', 'unknown'].includes(state.v
 
 const displayStateLabel = computed(() => {
   if (isUnavailable.value) return 'Unavailable';
-  // Handle both on/off and True/False states
   const lowerState = state.value.toLowerCase();
-  return lowerState === 'on' || lowerState === 'true' ? 'Active' : 'Inactive';
+  
+  // Map common binary sensor states to labels
+  const stateMap = {
+    'on': 'Active',
+    'off': 'Inactive',
+    'true': 'Active',
+    'false': 'Inactive',
+    'open': 'Open',
+    'closed': 'Closed',
+    'locked': 'Locked',
+    'unlocked': 'Unlocked',
+    'detected': 'Detected',
+    'clear': 'Clear',
+    'armed': 'Armed',
+    'disarmed': 'Disarmed',
+    'triggered': 'Triggered',
+  };
+  
+  return stateMap[lowerState] || (getActiveState() ? 'Active' : 'Inactive');
 });
+
+// Determine if state is considered "active" (on, open, detected, etc.)
+const getActiveState = () => {
+  const lowerState = state.value.toLowerCase();
+  const activeStates = ['on', 'true', 'open', 'detected', 'armed', 'triggered', 'locked', 'unlocked'];
+  return activeStates.includes(lowerState);
+};
 
 const stateIcon = computed(() => {
   if (isUnavailable.value) return 'mdi mdi-help-circle-outline';
-  // Handle both on/off and True/False states
+  
   const lowerState = state.value.toLowerCase();
-  return lowerState === 'on' || lowerState === 'true'
-    ? 'mdi mdi-check-circle'
-    : 'mdi mdi-circle-outline';
+  
+  // Map states to appropriate icons
+  const iconMap = {
+    'on': 'mdi mdi-check-circle',
+    'off': 'mdi mdi-circle-outline',
+    'true': 'mdi mdi-check-circle',
+    'false': 'mdi mdi-circle-outline',
+    'open': 'mdi mdi-door-open',
+    'closed': 'mdi mdi-door-closed',
+    'locked': 'mdi mdi-lock',
+    'unlocked': 'mdi mdi-lock-open',
+    'detected': 'mdi mdi-check-circle',
+    'clear': 'mdi mdi-circle-outline',
+    'armed': 'mdi mdi-shield-check',
+    'disarmed': 'mdi mdi-shield-off',
+    'triggered': 'mdi mdi-alert-circle',
+  };
+  
+  return iconMap[lowerState] || (getActiveState() ? 'mdi mdi-check-circle' : 'mdi mdi-circle-outline');
 });
 
 const name = computed(
@@ -102,8 +142,7 @@ const name = computed(
 // card border color
 const cardBorderClass = computed(() => {
   if (isUnavailable.value) return 'border-warning';
-  const lowerState = state.value.toLowerCase();
-  return lowerState === 'on' || lowerState === 'true' ? 'border-success' : 'border-secondary';
+  return getActiveState() ? 'border-success' : 'border-secondary';
 });
 
 // Return requested attributes as [key, value] pairs

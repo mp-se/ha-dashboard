@@ -203,6 +203,194 @@ describe('HaBinarySensor.vue', () => {
       expect(indicator.classes()).toContain('state-unavailable');
       expect(wrapper.find('i.mdi-help-circle-outline').exists()).toBe(true);
     });
+
+    it('should handle open state with door-open icon', () => {
+      const entity = {
+        entity_id: 'binary_sensor.door',
+        state: 'open',
+        attributes: {
+          friendly_name: 'Door',
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      const indicator = wrapper.find('.binary-state-indicator');
+      expect(indicator.classes()).toContain('state-on');
+      expect(wrapper.find('i.mdi-door-open').exists()).toBe(true);
+      expect(indicator.attributes('title')).toBe('Open');
+    });
+
+    it('should handle closed state with door-closed icon', () => {
+      const entity = {
+        entity_id: 'binary_sensor.door',
+        state: 'closed',
+        attributes: {
+          friendly_name: 'Door',
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      const indicator = wrapper.find('.binary-state-indicator');
+      expect(indicator.classes()).toContain('state-off');
+      expect(wrapper.find('i.mdi-door-closed').exists()).toBe(true);
+      expect(indicator.attributes('title')).toBe('Closed');
+    });
+
+    it('should handle locked state with lock icon', () => {
+      const entity = {
+        entity_id: 'binary_sensor.lock',
+        state: 'locked',
+        attributes: {
+          friendly_name: 'Lock',
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      const indicator = wrapper.find('.binary-state-indicator');
+      expect(indicator.classes()).toContain('state-on');
+      expect(wrapper.find('i.mdi-lock').exists()).toBe(true);
+      expect(indicator.attributes('title')).toBe('Locked');
+    });
+
+    it('should handle unlocked state with lock-open icon', () => {
+      const entity = {
+        entity_id: 'binary_sensor.lock',
+        state: 'unlocked',
+        attributes: {
+          friendly_name: 'Lock',
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      const indicator = wrapper.find('.binary-state-indicator');
+      expect(indicator.classes()).toContain('state-on');
+      expect(wrapper.find('i.mdi-lock-open').exists()).toBe(true);
+      expect(indicator.attributes('title')).toBe('Unlocked');
+    });
+
+    it('should handle detected state', () => {
+      const entity = {
+        entity_id: 'binary_sensor.motion',
+        state: 'detected',
+        attributes: {
+          friendly_name: 'Motion',
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      const indicator = wrapper.find('.binary-state-indicator');
+      expect(indicator.classes()).toContain('state-on');
+      expect(indicator.attributes('title')).toBe('Detected');
+    });
+
+    it('should handle armed state with shield icon', () => {
+      const entity = {
+        entity_id: 'binary_sensor.alarm',
+        state: 'armed',
+        attributes: {
+          friendly_name: 'Alarm',
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      const indicator = wrapper.find('.binary-state-indicator');
+      expect(indicator.classes()).toContain('state-on');
+      expect(wrapper.find('i.mdi-shield-check').exists()).toBe(true);
+      expect(indicator.attributes('title')).toBe('Armed');
+    });
+
+    it('should handle triggered state with alert icon', () => {
+      const entity = {
+        entity_id: 'binary_sensor.alarm',
+        state: 'triggered',
+        attributes: {
+          friendly_name: 'Alarm',
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      const indicator = wrapper.find('.binary-state-indicator');
+      expect(indicator.classes()).toContain('state-on');
+      expect(wrapper.find('i.mdi-alert-circle').exists()).toBe(true);
+      expect(indicator.attributes('title')).toBe('Triggered');
+    });
   });
 
   describe('Card Styling', () => {
