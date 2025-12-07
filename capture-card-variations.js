@@ -2,8 +2,19 @@ import { chromium } from '@playwright/test';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import http from 'http';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+/**
+ * NOTE: This script serves card-showcase.html using a simple Node.js HTTP server.
+ * Do NOT use 'npm run dev' (Vite dev console) as it will serve the Vue app instead.
+ * 
+ * To use this script:
+ * 1. Start the server: node capture-card-variations.js
+ * 2. The server will automatically start on port 8888
+ * 3. Screenshots will be captured and saved to the /images directory
+ */
 
 // Card variations to capture - format: {cardId, cardName, variations: [{variantClass, filename}]}
 const cardVariations = [
@@ -144,6 +155,54 @@ if (!fs.existsSync(imagesDir)) {
 }
 
 async function captureCardVariations() {
+  // Start a simple HTTP server to serve the showcase
+  const server = http.createServer((req, res) => {
+    let filePath = path.join(__dirname, req.url === '/' ? 'card-showcase.html' : req.url);
+    
+    // Security: prevent directory traversal
+    if (!filePath.startsWith(__dirname)) {
+      res.writeHead(403);
+      res.end('Forbidden');
+      return;
+    }
+    
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+      res.writeHead(404);
+      res.end('Not Found');
+      return;
+    }
+    
+    // Serve the file
+    const ext = path.extname(filePath);
+    const contentTypes = {
+      '.html': 'text/html',
+      '.css': 'text/css',
+      '.js': 'text/javascript',
+      '.json': 'application/json',
+      '.png': 'image/png',
+      '.jpg': 'image/jpeg',
+      '.gif': 'image/gif',
+      '.svg': 'image/svg+xml',
+      '.woff': 'font/woff',
+      '.woff2': 'font/woff2',
+    };
+    
+    res.writeHead(200, { 'Content-Type': contentTypes[ext] || 'application/octet-stream' });
+    res.end(fs.readFileSync(filePath));
+  });
+
+  const PORT = 8888;
+  const serverPromise = new Promise((resolve) => {
+    server.listen(PORT, () => {
+      console.log(`📡 Server started on http://localhost:${PORT}/card-showcase.html`);
+      resolve();
+    });
+  });
+
+  await serverPromise;
+
+  // Now run the Playwright capture
   const browser = await chromium.launch();
   const page = await browser.newPage();
 
@@ -229,7 +288,8 @@ async function captureCardVariations() {
   }
 
   await browser.close();
-  console.log('Done!');
+  server.close();
+  console.log('✅ Done! Screenshots saved to /images directory');
 }
 
 captureCardVariations().catch(console.error);
