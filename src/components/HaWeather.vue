@@ -70,10 +70,7 @@
           </div>
 
           <!-- Forecast Section -->
-          <div
-            v-if="forecastData.length > 0 && forecast"
-            class="mt-2 mb-2"
-          >
+          <div v-if="forecastData.length > 0 && forecast" class="mt-2 mb-2">
             <div class="forecast-container">
               <div
                 v-for="(item, index) in displayForecast"
@@ -95,9 +92,7 @@
                     class="mdi mdi-weather-windy"
                     style="font-size: 0.75rem"
                   ></i>
-                  {{
-                    Math.round(convertToMs(item.wind_speed, windSpeedUnit))
-                  }}
+                  {{ Math.round(convertToMs(item.wind_speed, windSpeedUnit)) }}
                   m/s
                 </div>
               </div>
@@ -238,13 +233,6 @@ const windDirectionArrow = computed(() => {
 const forecastData = computed(
   () => resolvedEntity.value?.attributes?.forecast || [],
 );
-
-const isForecastHourly = computed(() => {
-  if (forecastData.value.length === 0) return false;
-  const firstItem = forecastData.value[0];
-  // If it has templow, it's daily forecast; otherwise it's hourly
-  return !("templow" in firstItem);
-});
 
 const displayForecast = computed(() => {
   // Show 3 days forecast

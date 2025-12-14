@@ -499,15 +499,13 @@ describe("HaEntityList.vue", () => {
 
   describe("Mixed entity types", () => {
     it("should handle mix of entityId and getter", () => {
-      store.getBatterySensors = vi
-        .fn()
-        .mockReturnValue([
-          {
-            entity_id: "sensor.battery",
-            state: "80",
-            attributes: { friendly_name: "Battery" },
-          },
-        ]);
+      store.getBatterySensors = vi.fn().mockReturnValue([
+        {
+          entity_id: "sensor.battery",
+          state: "80",
+          attributes: { friendly_name: "Battery" },
+        },
+      ]);
       const wrapper = mount(HaEntityList, {
         props: {
           entities: [
