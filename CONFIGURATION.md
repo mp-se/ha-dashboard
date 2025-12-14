@@ -1091,15 +1091,16 @@ Displays an area/room card with temperature/humidity auto-detection and up to 6 
 
 **Properties**:
 
-- `entity` (string|array, required): Entity ID or array of entity IDs (area entity + up to 6 control objects)
+- `entity` (string|array, required): Entity ID or array of entity IDs (area entity + up to 6 control objects, can include temp/humidity sensors)
 - `color` (string, optional, default: "blue"): CSS color name for the room circle
 
 **Features**:
 
 - Auto-detects area entity by `area.*` prefix (order-independent)
-- Automatically finds temperature sensors (device_class: temperature)
-- Automatically finds humidity sensors (device_class: humidity)
-- Displays up to 6 control objects in a 2-column grid layout
+- Automatically finds temperature sensors (device_class: temperature) - first searches area's entities, then fallback searches provided entity list
+- Automatically finds humidity sensors (device_class: humidity) - first searches area's entities, then fallback searches provided entity list
+- Temperature and humidity sensors are automatically excluded from control objects
+- Displays up to 6 control objects in a 2-column grid layout (right column fills first)
 - Shows area icon in the main circle
 - Domain-specific colors:
   - **Lights**: Yellow (#ffc107)
@@ -1132,13 +1133,18 @@ Array format with control objects:
 }
 ```
 
-Living room with custom color:
+Room with temperature and humidity sensors (not shown as controls):
 
 ```json
 {
   "type": "HaRoom",
-  "entity": ["area.living_room", "light.living_room", "switch.outlet"],
-  "color": "red"
+  "entity": [
+    "area.bedroom",
+    "sensor.bedroom_temp",
+    "sensor.bedroom_humidity",
+    "light.bedroom",
+    "switch.fan"
+  ]
 }
 ```
 
@@ -1149,6 +1155,7 @@ Kitchen with multiple control objects (up to 6):
   "type": "HaRoom",
   "entity": [
     "area.kitchen",
+    "sensor.kitchen_temp",
     "light.kitchen_main",
     "light.kitchen_island",
     "switch.kitchen_exhaust",
@@ -1161,11 +1168,12 @@ Kitchen with multiple control objects (up to 6):
 
 **Notes**:
 
-- Control objects are displayed in a 2-column grid layout (3 rows × 2 columns for maximum 6 controls)
-- Only the first 6 control objects (non-area entities) will be displayed to maintain layout
+- Control objects are displayed in a 2-column grid layout (3 rows × 2 columns for maximum 6 controls), filling the right column first
+- Temperature and humidity sensors can be included in the entity list and will be automatically excluded from control objects (only used for display)
+- Only the first 6 non-sensor control objects will be displayed to maintain layout
 - Control objects support on/off toggle for switches, lights, and fans
 - Media players use play/pause controls instead of on/off
-- Temperature and humidity are automatically discovered from the area's entities
+- Temperature and humidity are automatically discovered: first from area's entities, then from the provided entity list if not found in area
 
 ### HaEntityList
 
