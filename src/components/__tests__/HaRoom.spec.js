@@ -1019,4 +1019,344 @@ describe('HaRoom.vue', () => {
       });
     });
   });
+
+  describe('Temperature and Humidity Sensor Detection Fallback', () => {
+    it('uses temperature sensor from entity list when not in area.entities', () => {
+      store.sensors = [
+        {
+          entity_id: 'area.bedroom',
+          state: 'Bedroom',
+          attributes: { friendly_name: 'Bedroom', icon: 'mdi:bed' },
+          entities: [], // Empty, no temp sensor in area
+        },
+        {
+          entity_id: 'sensor.bedroom_temp',
+          state: '21.5',
+          attributes: {
+            friendly_name: 'Bedroom Temperature',
+            device_class: 'temperature',
+            unit_of_measurement: '°C',
+          },
+        },
+        {
+          entity_id: 'light.bedroom',
+          state: 'on',
+          attributes: { friendly_name: 'Bedroom Light' },
+        },
+      ];
+
+      wrapper = mount(HaRoom, {
+        props: {
+          entity: ['area.bedroom', 'sensor.bedroom_temp', 'light.bedroom'],
+        },
+        global: { plugins: [pinia] },
+      });
+
+      expect(wrapper.find('.ha-entity-name').text()).toBe('Bedroom');
+      expect(wrapper.text()).toContain('21.5');
+      expect(wrapper.text()).toContain('°C');
+    });
+
+    it('uses humidity sensor from entity list when not in area.entities', () => {
+      store.sensors = [
+        {
+          entity_id: 'area.bedroom',
+          state: 'Bedroom',
+          attributes: { friendly_name: 'Bedroom', icon: 'mdi:bed' },
+          entities: [], // Empty, no humidity sensor in area
+        },
+        {
+          entity_id: 'sensor.bedroom_humidity',
+          state: '65',
+          attributes: {
+            friendly_name: 'Bedroom Humidity',
+            device_class: 'humidity',
+            unit_of_measurement: '%',
+          },
+        },
+        {
+          entity_id: 'light.bedroom',
+          state: 'on',
+          attributes: { friendly_name: 'Bedroom Light' },
+        },
+      ];
+
+      wrapper = mount(HaRoom, {
+        props: {
+          entity: ['area.bedroom', 'sensor.bedroom_humidity', 'light.bedroom'],
+        },
+        global: { plugins: [pinia] },
+      });
+
+      expect(wrapper.find('.ha-entity-name').text()).toBe('Bedroom');
+      expect(wrapper.text()).toContain('65');
+      expect(wrapper.text()).toContain('%');
+    });
+
+    it('prefers temperature sensor from area.entities over entity list', () => {
+      store.sensors = [
+        {
+          entity_id: 'area.bedroom',
+          state: 'Bedroom',
+          attributes: { friendly_name: 'Bedroom', icon: 'mdi:bed' },
+          entities: ['sensor.area_temp'], // Area has its own temp sensor
+        },
+        {
+          entity_id: 'sensor.area_temp',
+          state: '22.0',
+          attributes: {
+            friendly_name: 'Area Temperature',
+            device_class: 'temperature',
+            unit_of_measurement: '°C',
+          },
+        },
+        {
+          entity_id: 'sensor.entity_temp',
+          state: '20.0',
+          attributes: {
+            friendly_name: 'Entity Temperature',
+            device_class: 'temperature',
+            unit_of_measurement: '°C',
+          },
+        },
+        {
+          entity_id: 'light.bedroom',
+          state: 'on',
+          attributes: { friendly_name: 'Bedroom Light' },
+        },
+      ];
+
+      wrapper = mount(HaRoom, {
+        props: {
+          entity: ['area.bedroom', 'sensor.entity_temp', 'light.bedroom'],
+        },
+        global: { plugins: [pinia] },
+      });
+
+      // Should use area temp (22.0), not entity list temp (20.0)
+      expect(wrapper.text()).toContain('22.0');
+      expect(wrapper.text()).not.toContain('20.0');
+    });
+
+    it('excludes temperature sensor from control objects', () => {
+      store.sensors = [
+        {
+          entity_id: 'area.bedroom',
+          state: 'Bedroom',
+          attributes: { friendly_name: 'Bedroom', icon: 'mdi:bed' },
+          entities: [],
+        },
+        {
+          entity_id: 'sensor.bedroom_temp',
+          state: '21.5',
+          attributes: {
+            friendly_name: 'Bedroom Temperature',
+            device_class: 'temperature',
+            unit_of_measurement: '°C',
+          },
+        },
+        {
+          entity_id: 'light.bedroom',
+          state: 'on',
+          attributes: { friendly_name: 'Bedroom Light' },
+        },
+        {
+          entity_id: 'switch.fan',
+          state: 'off',
+          attributes: { friendly_name: 'Fan' },
+        },
+      ];
+
+      wrapper = mount(HaRoom, {
+        props: {
+          entity: ['area.bedroom', 'sensor.bedroom_temp', 'light.bedroom', 'switch.fan'],
+        },
+        global: { plugins: [pinia] },
+      });
+
+      // Should only have 2 controls (light + switch), not 3
+      const controls = wrapper.findAll('.control-object');
+      expect(controls).toHaveLength(2);
+    });
+
+    it('excludes humidity sensor from control objects', () => {
+      store.sensors = [
+        {
+          entity_id: 'area.bedroom',
+          state: 'Bedroom',
+          attributes: { friendly_name: 'Bedroom', icon: 'mdi:bed' },
+          entities: [],
+        },
+        {
+          entity_id: 'sensor.bedroom_humidity',
+          state: '65',
+          attributes: {
+            friendly_name: 'Bedroom Humidity',
+            device_class: 'humidity',
+            unit_of_measurement: '%',
+          },
+        },
+        {
+          entity_id: 'light.bedroom',
+          state: 'on',
+          attributes: { friendly_name: 'Bedroom Light' },
+        },
+        {
+          entity_id: 'switch.fan',
+          state: 'off',
+          attributes: { friendly_name: 'Fan' },
+        },
+      ];
+
+      wrapper = mount(HaRoom, {
+        props: {
+          entity: ['area.bedroom', 'sensor.bedroom_humidity', 'light.bedroom', 'switch.fan'],
+        },
+        global: { plugins: [pinia] },
+      });
+
+      // Should only have 2 controls (light + switch), humidity excluded
+      const controls = wrapper.findAll('.control-object');
+      expect(controls).toHaveLength(2);
+    });
+
+    it('excludes both temperature and humidity sensors from control objects', () => {
+      store.sensors = [
+        {
+          entity_id: 'area.bedroom',
+          state: 'Bedroom',
+          attributes: { friendly_name: 'Bedroom', icon: 'mdi:bed' },
+          entities: [],
+        },
+        {
+          entity_id: 'sensor.bedroom_temp',
+          state: '21.5',
+          attributes: {
+            friendly_name: 'Bedroom Temperature',
+            device_class: 'temperature',
+            unit_of_measurement: '°C',
+          },
+        },
+        {
+          entity_id: 'sensor.bedroom_humidity',
+          state: '65',
+          attributes: {
+            friendly_name: 'Bedroom Humidity',
+            device_class: 'humidity',
+            unit_of_measurement: '%',
+          },
+        },
+        {
+          entity_id: 'light.bedroom',
+          state: 'on',
+          attributes: { friendly_name: 'Bedroom Light' },
+        },
+        {
+          entity_id: 'switch.fan',
+          state: 'off',
+          attributes: { friendly_name: 'Fan' },
+        },
+        {
+          entity_id: 'light.desk',
+          state: 'on',
+          attributes: { friendly_name: 'Desk Light' },
+        },
+      ];
+
+      wrapper = mount(HaRoom, {
+        props: {
+          entity: ['area.bedroom', 'sensor.bedroom_temp', 'sensor.bedroom_humidity', 'light.bedroom', 'switch.fan', 'light.desk'],
+        },
+        global: { plugins: [pinia] },
+      });
+
+      // Should have 3 controls (2 lights + 1 switch), both sensors excluded
+      const controls = wrapper.findAll('.control-object');
+      expect(controls).toHaveLength(3);
+      
+      // Verify temperature and humidity are displayed
+      expect(wrapper.text()).toContain('21.5');
+      expect(wrapper.text()).toContain('65');
+    });
+
+    it('allows up to 6 non-sensor control objects even with sensors in entity list', () => {
+      store.sensors = [
+        {
+          entity_id: 'area.bedroom',
+          state: 'Bedroom',
+          attributes: { friendly_name: 'Bedroom', icon: 'mdi:bed' },
+          entities: [],
+        },
+        {
+          entity_id: 'sensor.bedroom_temp',
+          state: '21.5',
+          attributes: {
+            friendly_name: 'Bedroom Temperature',
+            device_class: 'temperature',
+            unit_of_measurement: '°C',
+          },
+        },
+        {
+          entity_id: 'sensor.bedroom_humidity',
+          state: '65',
+          attributes: {
+            friendly_name: 'Bedroom Humidity',
+            device_class: 'humidity',
+            unit_of_measurement: '%',
+          },
+        },
+        {
+          entity_id: 'light.light1',
+          state: 'on',
+          attributes: { friendly_name: 'Light 1' },
+        },
+        {
+          entity_id: 'light.light2',
+          state: 'on',
+          attributes: { friendly_name: 'Light 2' },
+        },
+        {
+          entity_id: 'light.light3',
+          state: 'on',
+          attributes: { friendly_name: 'Light 3' },
+        },
+        {
+          entity_id: 'light.light4',
+          state: 'on',
+          attributes: { friendly_name: 'Light 4' },
+        },
+        {
+          entity_id: 'light.light5',
+          state: 'on',
+          attributes: { friendly_name: 'Light 5' },
+        },
+        {
+          entity_id: 'light.light6',
+          state: 'on',
+          attributes: { friendly_name: 'Light 6' },
+        },
+      ];
+
+      wrapper = mount(HaRoom, {
+        props: {
+          entity: [
+            'area.bedroom',
+            'sensor.bedroom_temp',
+            'sensor.bedroom_humidity',
+            'light.light1',
+            'light.light2',
+            'light.light3',
+            'light.light4',
+            'light.light5',
+            'light.light6',
+          ],
+        },
+        global: { plugins: [pinia] },
+      });
+
+      // Should have exactly 6 controls (sensors don't count toward limit)
+      const controls = wrapper.findAll('.control-object');
+      expect(controls).toHaveLength(6);
+    });
+  });
 });

@@ -95,10 +95,18 @@ const roomEntityId = computed(() => {
   return areaEntity || '';
 });
 
-// Remaining entities are control objects (excluding the area entity)
+// Helper to check if entity is temperature or humidity sensor
+const isTempOrHumiditySensor = (entityId) => {
+  const entity = store.sensors.find((s) => s.entity_id === entityId);
+  if (!entity) return false;
+  const deviceClass = entity.attributes?.device_class;
+  return deviceClass === 'temperature' || deviceClass === 'humidity';
+};
+
+// Remaining entities are control objects (excluding the area entity and temp/humidity sensors)
 const controlObjects = computed(() => {
   return entityArray.value
-    .filter((entityId) => !entityId.startsWith('area.'))
+    .filter((entityId) => !entityId.startsWith('area.') && !isTempOrHumiditySensor(entityId))
     .slice(0, 6) // Limit to 6 additional entities
     .map((entityId) => ({
       entity_id: entityId,
@@ -114,22 +122,30 @@ const roomName = computed(() => {
   return 'Room';
 });
 
-// Find temperature sensor in area's entities
+// Find temperature sensor in area's entities, fallback to entity list
 const temperatureEntity = computed(() => {
-  // Get the area entity (first one)
+  // Get the area entity
   const areaEntity = store.sensors.find((s) => s.entity_id === roomEntityId.value);
   
-  if (!areaEntity || !areaEntity.entities) {
-    return null;
+  // First, search for temperature sensor in the area's entities
+  if (areaEntity && areaEntity.entities) {
+    for (const entityId of areaEntity.entities) {
+      const entity = store.sensors.find((s) => s.entity_id === entityId);
+      if (entity && entity.attributes?.device_class === 'temperature') {
+        return entity;
+      }
+    }
   }
   
-  // Search for temperature sensor in the area's entities
-  for (const entityId of areaEntity.entities) {
+  // Fallback: search in the provided entity list
+  for (const entityId of entityArray.value) {
+    if (entityId.startsWith('area.')) continue;
     const entity = store.sensors.find((s) => s.entity_id === entityId);
     if (entity && entity.attributes?.device_class === 'temperature') {
       return entity;
     }
   }
+  
   return null;
 });
 
@@ -149,21 +165,30 @@ const temperatureUnit = computed(() => {
   return temperatureEntity.value.attributes?.unit_of_measurement || '°C';
 });
 
-// Find humidity sensor in area's entities
+// Find humidity sensor in area's entities, fallback to entity list
 const humidityEntity = computed(() => {
-  // Get the area entity (first one)
+  // Get the area entity
   const areaEntity = store.sensors.find((s) => s.entity_id === roomEntityId.value);
-  if (!areaEntity || !areaEntity.entities) {
-    return null;
+  
+  // First, search for humidity sensor in the area's entities
+  if (areaEntity && areaEntity.entities) {
+    for (const entityId of areaEntity.entities) {
+      const entity = store.sensors.find((s) => s.entity_id === entityId);
+      if (entity && entity.attributes?.device_class === 'humidity') {
+        return entity;
+      }
+    }
   }
   
-  // Search for humidity sensor in the area's entities
-  for (const entityId of areaEntity.entities) {
+  // Fallback: search in the provided entity list
+  for (const entityId of entityArray.value) {
+    if (entityId.startsWith('area.')) continue;
     const entity = store.sensors.find((s) => s.entity_id === entityId);
     if (entity && entity.attributes?.device_class === 'humidity') {
       return entity;
     }
   }
+  
   return null;
 });
 
