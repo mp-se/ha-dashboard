@@ -1085,13 +1085,13 @@ Pressure gauge:
 
 ![HaRoom Card](./images/haroom.png)
 
-Displays an area/room card with temperature/humidity auto-detection and up to 3 control objects.
+Displays an area/room card with temperature/humidity auto-detection and up to 6 control objects arranged in a 2-column grid.
 
 **Use for**: Area-based room displays with device controls (lights, switches, fans, media players)
 
 **Properties**:
 
-- `entity` (string|array, required): Entity ID or array of entity IDs (area entity + up to 3 control objects)
+- `entity` (string|array, required): Entity ID or array of entity IDs (area entity + up to 6 control objects)
 - `color` (string, optional, default: "blue"): CSS color name for the room circle
 
 **Features**:
@@ -1099,7 +1099,7 @@ Displays an area/room card with temperature/humidity auto-detection and up to 3 
 - Auto-detects area entity by `area.*` prefix (order-independent)
 - Automatically finds temperature sensors (device_class: temperature)
 - Automatically finds humidity sensors (device_class: humidity)
-- Displays up to 3 control objects as clickable circles
+- Displays up to 6 control objects in a 2-column grid layout
 - Shows area icon in the main circle
 - Domain-specific colors:
   - **Lights**: Yellow (#ffc107)
@@ -1142,7 +1142,7 @@ Living room with custom color:
 }
 ```
 
-Kitchen with multiple control objects (limited to 3):
+Kitchen with multiple control objects (up to 6):
 
 ```json
 {
@@ -1151,7 +1151,9 @@ Kitchen with multiple control objects (limited to 3):
     "area.kitchen",
     "light.kitchen_main",
     "light.kitchen_island",
-    "switch.kitchen_exhaust"
+    "switch.kitchen_exhaust",
+    "light.kitchen_under_cabinet",
+    "switch.kitchen_dimmer"
   ],
   "color": "orange"
 }
@@ -1159,7 +1161,8 @@ Kitchen with multiple control objects (limited to 3):
 
 **Notes**:
 
-- Only the first 3 control objects (non-area entities) will be displayed to maintain layout
+- Control objects are displayed in a 2-column grid layout (3 rows × 2 columns for maximum 6 controls)
+- Only the first 6 control objects (non-area entities) will be displayed to maintain layout
 - Control objects support on/off toggle for switches, lights, and fans
 - Media players use play/pause controls instead of on/off
 - Temperature and humidity are automatically discovered from the area's entities

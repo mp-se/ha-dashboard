@@ -2,6 +2,8 @@
 
 ## December 2025 - v0.3.1
 
+- HaRoom card expanded to support up to 6 control entities (previously limited to 3) with 2-column grid layout for better organization
+- Updated HaRoom documentation to reflect new 6-control limit and grid layout
 - HaBinarySensor now supports optional 'attributes' prop to display custom entity attributes (matching HaSensor functionality)
 - HaBinarySensor now handles multiple state types with appropriate icons and labels: open/closed, locked/unlocked, detected, armed/disarmed, triggered
 
