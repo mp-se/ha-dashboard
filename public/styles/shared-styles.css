@@ -19,11 +19,85 @@
 .nav-icon {
   font-size: 1.5rem; /* larger on small screens */
   line-height: 1;
+  color: inherit; /* Ensure icon inherits text color from parent */
 }
 
 @media (min-width: 992px) {
   .nav-icon {
     font-size: 1.1rem; /* slightly smaller on large screens to match label layout */
+  }
+}
+
+/* Explicit dark mode styling for nav icons - fixes iOS dark mode issue */
+[data-bs-theme='dark'] .nav-icon {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Fix iOS focus state issue - remove tap highlight and prevent focus state from changing colors */
+button {
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-appearance: none;
+  outline: none !important;
+}
+
+button:focus,
+button:focus-visible,
+button:active {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+}
+
+/* Nuclear option: override ALL Bootstrap button focus states */
+.btn:focus,
+.btn:focus-visible,
+.btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Specifically for outline buttons in dark mode */
+[data-bs-theme='dark'] .btn-outline-light:focus,
+[data-bs-theme='dark'] .btn-outline-light:focus-visible,
+[data-bs-theme='dark'] .btn-outline-light:active {
+  color: rgba(255, 255, 255, 0.8) !important;
+  background-color: transparent !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+[data-bs-theme='dark'] .btn-outline-dark:focus,
+[data-bs-theme='dark'] .btn-outline-dark:focus-visible,
+[data-bs-theme='dark'] .btn-outline-dark:active {
+  color: rgba(33, 37, 41, 0.8) !important;
+  background-color: transparent !important;
+  border-color: rgba(33, 37, 41, 0.5) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* On touch devices, be even more aggressive */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  .btn {
+    -webkit-tap-highlight-color: transparent !important;
+  }
+  
+  button:focus,
+  button:focus-visible,
+  button:active,
+  .btn:focus,
+  .btn:focus-visible,
+  .btn:active {
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    background-color: transparent !important;
+    background-image: none !important;
   }
 }
 
@@ -340,4 +414,84 @@
 
 [data-bs-theme='dark'] .ha-attribute-key {
   color: #ccc;
+}
+
+/* iOS dark mode fixes - ensure icons and text are visible */
+[data-bs-theme='dark'] .nav-link,
+[data-bs-theme='dark'] .nav-link i {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+[data-bs-theme='dark'] .nav-link:hover,
+[data-bs-theme='dark'] .nav-link:hover i {
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+/* Fix iOS focus/active state issue - prevents white background on buttons */
+@media (hover: none) and (pointer: coarse) {
+  /* Remove all focus backgrounds on touch devices */
+  button:focus,
+  button:focus-visible,
+  .btn:focus,
+  .btn:focus-visible {
+    outline: none;
+    box-shadow: none;
+    background-color: transparent !important;
+  }
+  
+  /* Specific button type fixes */
+  .btn-outline-secondary:focus,
+  .btn-outline-secondary:focus-visible {
+    background-color: transparent !important;
+    color: rgba(108, 117, 125, 0.8) !important;
+    border-color: rgba(108, 117, 125, 0.5) !important;
+  }
+  
+  .btn-outline-light:focus,
+  .btn-outline-light:focus-visible {
+    background-color: transparent !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+  }
+  
+  .btn-outline-dark:focus,
+  .btn-outline-dark:focus-visible {
+    background-color: transparent !important;
+    color: rgba(33, 37, 41, 0.8) !important;
+    border-color: rgba(33, 37, 41, 0.5) !important;
+  }
+  
+  [data-bs-theme='dark'] .btn-outline-secondary:focus,
+  [data-bs-theme='dark'] .btn-outline-secondary:focus-visible {
+    background-color: transparent !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+  
+  [data-bs-theme='dark'] .btn-outline-light:focus,
+  [data-bs-theme='dark'] .btn-outline-light:focus-visible {
+    background-color: transparent !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+}
+
+[data-bs-theme='dark'] .nav-link.active,
+[data-bs-theme='dark'] .nav-link.active i {
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+/* Ensure button text and icons are visible in dark mode */
+[data-bs-theme='dark'] .btn {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+[data-bs-theme='dark'] .btn-outline-secondary {
+  color: rgba(255, 255, 255, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+[data-bs-theme='dark'] .btn-outline-secondary:hover,
+[data-bs-theme='dark'] .btn-outline-secondary:focus {
+  color: #fff !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
 }

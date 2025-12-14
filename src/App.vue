@@ -424,8 +424,19 @@ const toggleDarkMode = () => {
   const root = document.documentElement;
   if (dark_mode.value) {
     root.setAttribute('data-bs-theme', 'dark');
+    root.style.colorScheme = 'dark';
   } else {
     root.setAttribute('data-bs-theme', 'light');
+    root.style.colorScheme = 'light';
+  }
+  // Blur button and remove focus styles to release iOS focus state
+  const darkModeBtn = document.querySelector('[aria-label="Toggle dark mode"]');
+  if (darkModeBtn) {
+    darkModeBtn.blur();
+    // Remove inline focus styling that iOS applies
+    darkModeBtn.style.outline = 'none';
+    darkModeBtn.style.boxShadow = 'none';
+    darkModeBtn.style.backgroundColor = 'transparent';
   }
 };
 
@@ -487,10 +498,12 @@ onMounted(async () => {
     credentialDialog.value?.showModal();
   }
 
-  // Start with dark_mode OFF explicitly
+  // Initialize dark mode with explicit color-scheme support for iOS
   dark_mode.value = false;
   const root = document.documentElement;
   root.setAttribute('data-bs-theme', 'light');
+  // Also set color-scheme for better iOS/Safari support
+  root.style.colorScheme = 'light';
 });
 
 // Watch for credentials being needed and auto-show dialog
