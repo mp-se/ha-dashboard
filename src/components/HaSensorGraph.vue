@@ -31,11 +31,34 @@
             preserveAspectRatio="none"
             class="w-100"
           >
+            <!-- Filled area under first line -->
+            <path
+              v-if="polylinePoints"
+              :d="`${getAreaPath(polylinePoints)}`"
+              fill="#0d6efd"
+              opacity="0.15"
+            />
+            <!-- Filled area under second line -->
+            <path
+              v-if="polylinePoints2"
+              :d="`${getAreaPath(polylinePoints2)}`"
+              fill="#dc3545"
+              opacity="0.15"
+            />
+            <!-- Filled area under third line -->
+            <path
+              v-if="polylinePoints3"
+              :d="`${getAreaPath(polylinePoints3)}`"
+              fill="#198754"
+              opacity="0.15"
+            />
+            
+            <!-- Line graphs -->
             <polyline
               :points="polylinePoints"
               fill="none"
               stroke="#0d6efd"
-              stroke-width="0.8"
+              stroke-width="0.9"
               stroke-linejoin="round"
               stroke-linecap="round"
             />
@@ -44,7 +67,7 @@
               :points="polylinePoints2"
               fill="none"
               stroke="#dc3545"
-              stroke-width="0.8"
+              stroke-width="0.9"
               stroke-linejoin="round"
               stroke-linecap="round"
             />
@@ -53,7 +76,7 @@
               :points="polylinePoints3"
               fill="none"
               stroke="#198754"
-              stroke-width="0.8"
+              stroke-width="0.9"
               stroke-linejoin="round"
               stroke-linecap="round"
             />
@@ -227,6 +250,22 @@ const polylinePoints2 = computed(() => calculatePolylinePoints(points2.value));
 const polylinePoints3 = computed(() => calculatePolylinePoints(points3.value));
 
 const hoursLocal = ref(24);
+
+// Helper to create a filled area path from polyline points
+const getAreaPath = (polylinePointsStr) => {
+  if (!polylinePointsStr) return '';
+  
+  const points = polylinePointsStr.split(' ');
+  if (points.length < 2) return '';
+  
+  // Create path: M (move to first point) + line points + L (line down) + line back + Z (close)
+  const firstPoint = points[0];
+  const lastPoint = points[points.length - 1];
+  const [lastX, lastY] = lastPoint.split(',');
+  
+  const path = `M ${firstPoint} L ${polylinePointsStr} L ${lastX},40 L ${firstPoint.split(',')[0]},40 Z`;
+  return path;
+};
 
 let intervalId = null;
 
