@@ -425,9 +425,11 @@ const toggleDarkMode = () => {
   if (dark_mode.value) {
     root.setAttribute('data-bs-theme', 'dark');
     root.style.colorScheme = 'dark';
+    localStorage.setItem('ha-dashboard-dark-mode', 'true');
   } else {
     root.setAttribute('data-bs-theme', 'light');
     root.style.colorScheme = 'light';
+    localStorage.setItem('ha-dashboard-dark-mode', 'false');
   }
   // Blur button and remove focus styles to release iOS focus state
   const darkModeBtn = document.querySelector('[aria-label="Toggle dark mode"]');
@@ -498,12 +500,26 @@ onMounted(async () => {
     credentialDialog.value?.showModal();
   }
 
-  // Initialize dark mode with explicit color-scheme support for iOS
-  dark_mode.value = false;
+  // Initialize dark mode from localStorage or system preference
   const root = document.documentElement;
-  root.setAttribute('data-bs-theme', 'light');
-  // Also set color-scheme for better iOS/Safari support
-  root.style.colorScheme = 'light';
+  const savedDarkMode = localStorage.getItem('ha-dashboard-dark-mode');
+  
+  if (savedDarkMode !== null) {
+    // Use saved preference
+    dark_mode.value = savedDarkMode === 'true';
+  } else {
+    // Use system preference if available
+    dark_mode.value = window.matchMedia?.('(prefers-color-scheme: dark)')?.matches ?? false;
+  }
+  
+  // Apply the theme
+  if (dark_mode.value) {
+    root.setAttribute('data-bs-theme', 'dark');
+    root.style.colorScheme = 'dark';
+  } else {
+    root.setAttribute('data-bs-theme', 'light');
+    root.style.colorScheme = 'light';
+  }
 });
 
 // Watch for credentials being needed and auto-show dialog

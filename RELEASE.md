@@ -9,6 +9,9 @@
 - HaSensorGraph visual enhancement: thicker lines with filled area below in semi-transparent colors for better data visualization
 - HaBinarySensor now supports optional 'attributes' prop to display custom entity attributes (matching HaSensor functionality)
 - HaBinarySensor now handles multiple state types with appropriate icons and labels: open/closed, locked/unlocked, detected, armed/disarmed, triggered
+- Fixed iOS dark mode button focus issue - buttons no longer display as white rectangles when tapped in dark mode
+- Dark mode preference now persists across page reloads and browser sessions using localStorage
+- App now respects system dark mode preference (prefers-color-scheme) on first visit if no saved preference exists
 
 ## December 2025 - v0.3.0
 
