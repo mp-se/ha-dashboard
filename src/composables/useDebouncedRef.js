@@ -1,6 +1,6 @@
-import { ref, watch, onBeforeUnmount } from 'vue';
+import { ref, watch, onBeforeUnmount } from "vue";
 
-export default function useDebouncedRef(initial = '', delay = 300) {
+export default function useDebouncedRef(initial = "", delay = 300) {
   const input = ref(initial);
   const debounced = ref(initial);
   let timer = null;
@@ -13,7 +13,7 @@ export default function useDebouncedRef(initial = '', delay = 300) {
         debounced.value = val;
       }, delay);
     },
-    { immediate: true }
+    { immediate: true },
   );
 
   onBeforeUnmount(() => {

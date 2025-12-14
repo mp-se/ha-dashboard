@@ -1,13 +1,29 @@
 <template>
   <div class="col-lg-4 col-md-6">
-    <div :class="['card', 'card-display', 'h-100', 'rounded-4', 'shadow-lg', 'border-info']">
+    <div
+      :class="[
+        'card',
+        'card-display',
+        'h-100',
+        'rounded-4',
+        'shadow-lg',
+        'border-info',
+      ]"
+    >
       <div class="card-body">
         <!-- Entities Grid -->
         <div :class="['glance-grid', `glance-cols-${gridColumns}`]">
-          <div v-for="ent in entityList" :key="getEntityId(ent)" class="glance-item">
+          <div
+            v-for="ent in entityList"
+            :key="getEntityId(ent)"
+            class="glance-item"
+          >
             <!-- Icon with circle background -->
             <div v-if="getIconClass(ent)" class="glance-icon-wrapper">
-              <div class="glance-icon-bg" :style="{ backgroundColor: getIconCircleColor(ent) }">
+              <div
+                class="glance-icon-bg"
+                :style="{ backgroundColor: getIconCircleColor(ent) }"
+              >
                 <i :class="getIconClass(ent)" class="glance-icon-overlay"></i>
               </div>
             </div>
@@ -17,7 +33,9 @@
               <div class="ha-entity-name">{{ getName(ent) }}</div>
               <div class="ha-entity-value">
                 {{ getFormattedValue(ent) }}
-                <small v-if="getUnit(ent)" class="ha-entity-unit ms-1">{{ getUnit(ent) }}</small>
+                <small v-if="getUnit(ent)" class="ha-entity-unit ms-1">{{
+                  getUnit(ent)
+                }}</small>
               </div>
             </div>
           </div>
@@ -28,10 +46,10 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { useHaStore } from '@/stores/haStore';
-import { useIconClass } from '@/composables/useIconClass';
-import { useIconCircleColor } from '@/composables/useIconCircleColor';
+import { computed } from "vue";
+import { useHaStore } from "@/stores/haStore";
+import { useIconClass } from "@/composables/useIconClass";
+import { useIconCircleColor } from "@/composables/useIconCircleColor";
 
 const props = defineProps({
   entity: {
@@ -61,13 +79,15 @@ const gridColumns = computed(() => {
 
 // Get entity ID string from entity object or string
 const getEntityId = (ent) => {
-  return typeof ent === 'string' ? ent : ent.entity_id;
+  return typeof ent === "string" ? ent : ent.entity_id;
 };
 
 // Get resolved entity from store
 const getResolved = (ent) => {
-  if (typeof ent === 'string') {
-    return store.sensors.find((s) => s.entity_id === ent) || store.entities[ent];
+  if (typeof ent === "string") {
+    return (
+      store.sensors.find((s) => s.entity_id === ent) || store.entities[ent]
+    );
   }
   return ent;
 };
@@ -75,16 +95,16 @@ const getResolved = (ent) => {
 // Get entity name
 const getName = (ent) => {
   const res = getResolved(ent);
-  return res?.attributes?.friendly_name || getEntityId(ent) || 'Unknown';
+  return res?.attributes?.friendly_name || getEntityId(ent) || "Unknown";
 };
 
 // Get formatted value
 const getFormattedValue = (ent) => {
   const res = getResolved(ent);
-  const s = res?.state ?? 'unknown';
-  const u = res?.attributes?.unit_of_measurement || '';
+  const s = res?.state ?? "unknown";
+  const u = res?.attributes?.unit_of_measurement || "";
 
-  if (s === 'unknown' || s === 'unavailable') return s;
+  if (s === "unknown" || s === "unavailable") return s;
 
   const n = Number(s);
   if (!Number.isNaN(n)) {
@@ -99,7 +119,7 @@ const getFormattedValue = (ent) => {
 // Get unit
 const getUnit = (ent) => {
   const res = getResolved(ent);
-  return res?.attributes?.unit_of_measurement || '';
+  return res?.attributes?.unit_of_measurement || "";
 };
 
 // Get icon class using composable
@@ -158,11 +178,11 @@ const getIconCircleColor = (ent) => {
   transform: translateY(-1px);
 }
 
-[data-bs-theme='dark'] .glance-item {
+[data-bs-theme="dark"] .glance-item {
   background-color: rgba(52, 58, 64, 0.3);
 }
 
-[data-bs-theme='dark'] .glance-item:hover {
+[data-bs-theme="dark"] .glance-item:hover {
   background-color: rgba(52, 58, 64, 0.5);
 }
 

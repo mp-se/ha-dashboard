@@ -13,6 +13,7 @@ This guide covers deployment options, SSL certificate generation, and configurat
 ## Prerequisites
 
 ### For Docker Deployment
+
 - Docker installed (version 20.10+)
 - Docker Compose installed (version 1.29+)
 - A Home Assistant instance running with network access
@@ -70,11 +71,13 @@ bash ./generate-certs.sh
 ```
 
 This creates:
+
 - `server.crt` — Server SSL certificate (valid for 365 days)
 - `server.key` — Server private key
 - `ca.crt` — CA certificate for client installation
 
 The script prompts for certificate details:
+
 - Country (C)
 - State (ST)
 - Locality (L)
@@ -114,6 +117,7 @@ cp /path/to/your/ca.crt docker/ssl/ca.crt
 ```
 
 **Important**: The nginx server expects:
+
 - `server.crt` — Public certificate
 - `server.key` — Private key
 - Both files are mounted from the `docker/ssl/` volume
@@ -186,7 +190,7 @@ cp server.crt ca.crt
 The provided `docker-compose.yml` includes:
 
 ```yaml
-version: '3.8'
+version: "3.8"
 
 services:
   hassio-dashboard:
@@ -194,8 +198,8 @@ services:
       context: .
       dockerfile: ./docker/Dockerfile
     ports:
-      - '8080:80'      # HTTP (redirects to HTTPS)
-      - '8443:443'     # HTTPS
+      - "8080:80" # HTTP (redirects to HTTPS)
+      - "8443:443" # HTTPS
     volumes:
       - ./public/data:/usr/share/nginx/html/data:ro
       - ./docker/ssl:/etc/nginx/ssl:ro
@@ -203,10 +207,12 @@ services:
 ```
 
 **Volume Mounts**:
+
 - `./public/data` → Contains `dashboard-config.json` and other data files
 - `./docker/ssl` → Contains SSL certificates (`server.crt`, `server.key`)
 
 **Port Mapping**:
+
 - `8080` → HTTP (automatically redirects to HTTPS)
 - `8443` → HTTPS (encrypted connection)
 
@@ -214,8 +220,8 @@ You can change these ports in `docker-compose.yml`. For example, to use standard
 
 ```yaml
 ports:
-  - '80:80'    # HTTP
-  - '443:443'  # HTTPS
+  - "80:80" # HTTP
+  - "443:443" # HTTPS
 ```
 
 ### Environment Variables (Optional)
@@ -298,6 +304,7 @@ The app now loads from `public/local-data.json` instead of connecting to Home As
 ## Certificate Installation on Client Devices
 
 **⚠️ IMPORTANT**: For PWA installations and secure browser access to work with self-signed certificates, the CA certificate **must be installed and marked as trusted** on every device that will access the dashboard. Without this step:
+
 - Browsers will show security warnings and may block access
 - PWA installations will fail
 - API calls to Home Assistant may be blocked by the browser
@@ -421,6 +428,7 @@ If you just want to test the dashboard without installing the certificate:
 **Problem**: `command not found: openssl`
 
 **Solution**:
+
 ```bash
 # macOS (with Homebrew)
 brew install openssl
@@ -437,6 +445,7 @@ sudo yum install openssl
 **Problem**: `docker-compose up -d` fails or container exits immediately
 
 **Solution**:
+
 1. Check logs: `docker-compose logs hassio-dashboard`
 2. Common issues:
    - Missing certificate files in `docker/ssl/` directory
@@ -448,6 +457,7 @@ sudo yum install openssl
 **Problem**: `ERR_CERT_AUTHORITY_INVALID` or similar warnings
 
 **Causes & Solutions**:
+
 - **Self-signed certificate**: This is normal. Install the CA certificate (`ca.crt`) on your device
 - **Domain mismatch**: Certificate Common Name (CN) must match the domain you're accessing
 - **Expired certificate**: Regenerate with: `bash docker/ssl/generate-certs.sh`
@@ -457,7 +467,9 @@ sudo yum install openssl
 **Problem**: Dashboard shows "Disconnected from Home Assistant"
 
 **Solutions**:
+
 1. Verify the URL in `dashboard-config.json`:
+
    ```json
    "haUrl": "https://your-actual-ha-url:8123"
    ```
@@ -468,6 +480,7 @@ sudo yum install openssl
    - Generate a new token if needed
 
 3. Verify network connectivity:
+
    ```bash
    # From the dashboard container, test connectivity
    docker-compose exec hassio-dashboard curl https://your-ha-url:8123
@@ -482,6 +495,7 @@ sudo yum install openssl
 **Problem**: PWA install button doesn't appear or PWA fails to connect
 
 **Solutions**:
+
 1. Install the CA certificate on the device (see [Certificate Installation](#certificate-installation-on-client-devices))
 2. Clear browser cache and restart the app
 3. For iOS PWA: Use Safari, not Chrome or other browsers
@@ -492,6 +506,7 @@ sudo yum install openssl
 **Problem**: Dashboard is slow or unresponsive
 
 **Solutions**:
+
 1. Check network latency to Home Assistant: `ping your-ha-url`
 2. Monitor Home Assistant logs for performance issues
 3. Reduce the number of entities displayed

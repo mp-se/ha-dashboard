@@ -1,5 +1,5 @@
-import { computed, unref } from 'vue';
-import { useHaStore } from '@/stores/haStore';
+import { computed, unref } from "vue";
+import { useHaStore } from "@/stores/haStore";
 
 /**
  * Composable for resolving Home Assistant entities
@@ -15,8 +15,8 @@ export const useEntityResolver = (entity) => {
   const resolvedEntity = computed(() => {
     // Use unref to handle both refs and plain values
     const entityValue = unref(entity);
-    
-    if (typeof entityValue === 'string') {
+
+    if (typeof entityValue === "string") {
       const found = store.sensors.find((s) => s.entity_id === entityValue);
       if (!found) {
         console.warn(`Entity "${entityValue}" not found in store`);
@@ -26,7 +26,7 @@ export const useEntityResolver = (entity) => {
     }
 
     // If it's already an object, return it directly
-    if (entityValue && typeof entityValue === 'object') {
+    if (entityValue && typeof entityValue === "object") {
       return entityValue;
     }
 
@@ -38,23 +38,25 @@ export const useEntityResolver = (entity) => {
   const isAvailable = computed(() => {
     return (
       resolvedEntity.value &&
-      resolvedEntity.value.state !== 'unavailable' &&
-      resolvedEntity.value.state !== 'unknown'
+      resolvedEntity.value.state !== "unavailable" &&
+      resolvedEntity.value.state !== "unknown"
     );
   });
 
   // Get friendly name with fallback
   const friendlyName = computed(() => {
-    if (!resolvedEntity.value) return 'Unknown Entity';
+    if (!resolvedEntity.value) return "Unknown Entity";
     return (
-      resolvedEntity.value.attributes?.friendly_name || resolvedEntity.value.entity_id || 'Unknown'
+      resolvedEntity.value.attributes?.friendly_name ||
+      resolvedEntity.value.entity_id ||
+      "Unknown"
     );
   });
 
   // Get entity ID (works for both string and object)
   const entityId = computed(() => {
     const entityValue = unref(entity);
-    if (typeof entityValue === 'string') {
+    if (typeof entityValue === "string") {
       return entityValue;
     }
     return resolvedEntity.value?.entity_id;

@@ -13,19 +13,27 @@
       <div
         :class="[
           'card-body',
-          !resolvedEntity ? 'text-center text-warning' : 'd-flex align-items-center',
+          !resolvedEntity
+            ? 'text-center text-warning'
+            : 'd-flex align-items-center',
         ]"
       >
-        <i v-if="!resolvedEntity" class="mdi mdi-alert-circle mdi-24px mb-2"></i>
+        <i
+          v-if="!resolvedEntity"
+          class="mdi mdi-alert-circle mdi-24px mb-2"
+        ></i>
         <div v-if="!resolvedEntity">
-          Entity "{{ typeof entity === 'string' ? entity : entity?.entity_id }}" not found
+          Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
+          not found
         </div>
 
         <div v-else class="text-start flex-grow-1">
           <h6 class="card-title mb-0">{{ name }}</h6>
           <div class="mt-1 small text-muted">
             <div><strong>Location:</strong> {{ location }}</div>
-            <div v-if="lastSeen"><strong>Last Seen:</strong> {{ formattedLastSeen }}</div>
+            <div v-if="lastSeen">
+              <strong>Last Seen:</strong> {{ formattedLastSeen }}
+            </div>
           </div>
         </div>
         <div class="d-flex align-items-center ms-2">
@@ -37,17 +45,17 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { useEntityResolver } from '@/composables/useEntityResolver';
+import { computed } from "vue";
+import { useEntityResolver } from "@/composables/useEntityResolver";
 
 const props = defineProps({
   entity: {
     type: [Object, String],
     required: true,
     validator: (value) => {
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         return /^person\.[\w_]+$/.test(value);
-      } else if (typeof value === 'object') {
+      } else if (typeof value === "object") {
         return value && value.entity_id && value.state && value.attributes;
       }
       return false;
@@ -57,12 +65,12 @@ const props = defineProps({
 
 const { resolvedEntity } = useEntityResolver(computed(() => props.entity));
 
-const state = computed(() => resolvedEntity.value?.state ?? 'unknown');
+const state = computed(() => resolvedEntity.value?.state ?? "unknown");
 
 const location = computed(() => {
   const loc = state.value;
-  if (loc === 'home') return 'Home';
-  if (loc === 'not_home') return 'Away';
+  if (loc === "home") return "Home";
+  if (loc === "not_home") return "Away";
   return loc.charAt(0).toUpperCase() + loc.slice(1);
 });
 
@@ -74,26 +82,30 @@ const formattedLastSeen = computed(() => {
   return date.toLocaleString();
 });
 
-const isUnavailable = computed(() => ['unavailable', 'unknown'].includes(state.value));
+const isUnavailable = computed(() =>
+  ["unavailable", "unknown"].includes(state.value),
+);
 
 const cardBorderClass = computed(() => {
-  if (isUnavailable.value) return 'border-warning';
-  if (state.value === 'home') return 'border-success';
-  return 'border-info';
+  if (isUnavailable.value) return "border-warning";
+  if (state.value === "home") return "border-success";
+  return "border-info";
 });
 
 const name = computed(
   () =>
-    resolvedEntity.value?.attributes?.friendly_name || resolvedEntity.value?.entity_id || 'Unknown'
+    resolvedEntity.value?.attributes?.friendly_name ||
+    resolvedEntity.value?.entity_id ||
+    "Unknown",
 );
 
 const iconClass = computed(() => {
-  if (!resolvedEntity.value) return 'mdi mdi-account-question';
+  if (!resolvedEntity.value) return "mdi mdi-account-question";
   const icon = resolvedEntity.value.attributes?.icon;
-  if (icon && icon.startsWith('mdi:')) {
-    return `mdi mdi-${icon.split(':')[1]}`;
+  if (icon && icon.startsWith("mdi:")) {
+    return `mdi mdi-${icon.split(":")[1]}`;
   }
   // Default person icon
-  return 'mdi mdi-account';
+  return "mdi mdi-account";
 });
 </script>

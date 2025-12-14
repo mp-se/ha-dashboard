@@ -1,1 +1,12 @@
-{"name":"Home Assistant Dashboard","short_name":"HA Dashboard","description":"Real-time sensor dashboard for Home Assistant","start_url":"/","display":"standalone","background_color":"#ffffff","theme_color":"#42b883","lang":"en","scope":"/","icons":[{"src":"ha-icon.svg","sizes":"any","type":"image/svg+xml"}]}
+{
+  "name": "Home Assistant Dashboard",
+  "short_name": "HA Dashboard",
+  "description": "Real-time sensor dashboard for Home Assistant",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#42b883",
+  "lang": "en",
+  "scope": "/",
+  "icons": [{ "src": "ha-icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

@@ -7,6 +7,7 @@
 - HaRoom temperature/humidity sensors automatically excluded from control objects when included in entity list
 - Updated HaRoom documentation with new sensor detection behavior and examples
 - HaSensorGraph visual enhancement: thicker lines with filled area below in semi-transparent colors for better data visualization
+- HaSensorGraph curves now smoothed using quadratic Bézier curves for more polished appearance
 - HaBinarySensor now supports optional 'attributes' prop to display custom entity attributes (matching HaSensor functionality)
 - HaBinarySensor now handles multiple state types with appropriate icons and labels: open/closed, locked/unlocked, detected, armed/disarmed, triggered
 - Fixed iOS dark mode button focus issue - buttons no longer display as white rectangles when tapped in dark mode

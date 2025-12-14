@@ -1,36 +1,36 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { mount } from '@vue/test-utils';
-import PwaInstallPrompt from '../PwaInstallPrompt.vue';
-import { createPinia, setActivePinia } from 'pinia';
+import { describe, it, expect, beforeEach } from "vitest";
+import { mount } from "@vue/test-utils";
+import PwaInstallPrompt from "../PwaInstallPrompt.vue";
+import { createPinia, setActivePinia } from "pinia";
 
-describe('PwaInstallPrompt.vue', () => {
+describe("PwaInstallPrompt.vue", () => {
   beforeEach(() => {
     const pinia = createPinia();
     setActivePinia(pinia);
   });
 
-  it('should render placeholder component', () => {
+  it("should render placeholder component", () => {
     const wrapper = mount(PwaInstallPrompt, {
       global: {
         plugins: [createPinia()],
       },
     });
 
-    expect(wrapper.find('div').exists()).toBe(true);
+    expect(wrapper.find("div").exists()).toBe(true);
   });
 
-  it('should be hidden by default', () => {
+  it("should be hidden by default", () => {
     const wrapper = mount(PwaInstallPrompt, {
       global: {
         plugins: [createPinia()],
       },
     });
 
-    const div = wrapper.find('div');
-    expect(div.attributes('style')).toContain('display: none');
+    const div = wrapper.find("div");
+    expect(div.attributes("style")).toContain("display: none");
   });
 
-  it('should maintain backwards compatibility', () => {
+  it("should maintain backwards compatibility", () => {
     const wrapper = mount(PwaInstallPrompt, {
       global: {
         plugins: [createPinia()],
@@ -40,18 +40,18 @@ describe('PwaInstallPrompt.vue', () => {
     expect(wrapper.html()).toBeDefined();
   });
 
-  it('should have no interactive elements', () => {
+  it("should have no interactive elements", () => {
     const wrapper = mount(PwaInstallPrompt, {
       global: {
         plugins: [createPinia()],
       },
     });
 
-    const buttons = wrapper.findAll('button');
+    const buttons = wrapper.findAll("button");
     expect(buttons.length).toBe(0);
   });
 
-  it('should mount without errors', () => {
+  it("should mount without errors", () => {
     const wrapper = mount(PwaInstallPrompt, {
       global: {
         plugins: [createPinia()],
@@ -61,7 +61,7 @@ describe('PwaInstallPrompt.vue', () => {
     expect(wrapper.exists()).toBe(true);
   });
 
-  it('should not emit any events', async () => {
+  it("should not emit any events", async () => {
     const wrapper = mount(PwaInstallPrompt, {
       global: {
         plugins: [createPinia()],
@@ -72,7 +72,7 @@ describe('PwaInstallPrompt.vue', () => {
     expect(Object.keys(wrapper.emitted()).length).toBe(0);
   });
 
-  it('should have no reactive data', () => {
+  it("should have no reactive data", () => {
     const wrapper = mount(PwaInstallPrompt, {
       global: {
         plugins: [createPinia()],
@@ -82,20 +82,20 @@ describe('PwaInstallPrompt.vue', () => {
     expect(Object.keys(wrapper.vm.$data).length).toBe(0);
   });
 
-  it('should render minimal DOM', () => {
+  it("should render minimal DOM", () => {
     const wrapper = mount(PwaInstallPrompt, {
       global: {
         plugins: [createPinia()],
       },
     });
 
-    const children = wrapper.findAll('*');
+    const children = wrapper.findAll("*");
     expect(children.length).toBeLessThan(5);
   });
 
-  it('should work with parent components', () => {
+  it("should work with parent components", () => {
     const ParentComponent = {
-      template: '<div><PwaInstallPrompt /></div>',
+      template: "<div><PwaInstallPrompt /></div>",
       components: { PwaInstallPrompt },
     };
 
@@ -108,7 +108,7 @@ describe('PwaInstallPrompt.vue', () => {
     expect(wrapper.exists()).toBe(true);
   });
 
-  it('should not cause rendering errors', async () => {
+  it("should not cause rendering errors", async () => {
     const wrapper = mount(PwaInstallPrompt, {
       global: {
         plugins: [createPinia()],
@@ -116,10 +116,10 @@ describe('PwaInstallPrompt.vue', () => {
     });
 
     await wrapper.vm.$nextTick();
-    expect(wrapper.find('div').exists()).toBe(true);
+    expect(wrapper.find("div").exists()).toBe(true);
   });
 
-  it('should serve as placeholder for legacy code', () => {
+  it("should serve as placeholder for legacy code", () => {
     const wrapper = mount(PwaInstallPrompt, {
       global: {
         plugins: [createPinia()],
@@ -127,10 +127,10 @@ describe('PwaInstallPrompt.vue', () => {
     });
 
     // Placeholder should have minimal structure
-    expect(wrapper.html()).toContain('display: none');
+    expect(wrapper.html()).toContain("display: none");
   });
 
-  it('should be compatible with v-if directives', () => {
+  it("should be compatible with v-if directives", () => {
     const wrapper = mount(PwaInstallPrompt, {
       global: {
         plugins: [createPinia()],
@@ -141,7 +141,7 @@ describe('PwaInstallPrompt.vue', () => {
     expect(wrapper.exists()).toBe(true);
   });
 
-  it('should not consume resources', () => {
+  it("should not consume resources", () => {
     const wrapper = mount(PwaInstallPrompt, {
       global: {
         plugins: [createPinia()],
@@ -152,7 +152,7 @@ describe('PwaInstallPrompt.vue', () => {
     expect(vm.$options.data).toBeUndefined();
   });
 
-  it('should be a valid Vue component', () => {
+  it("should be a valid Vue component", () => {
     const wrapper = mount(PwaInstallPrompt, {
       global: {
         plugins: [createPinia()],
@@ -163,11 +163,11 @@ describe('PwaInstallPrompt.vue', () => {
     expect(wrapper.vm.$el).toBeDefined();
   });
 
-  it('should accept any props without errors', () => {
+  it("should accept any props without errors", () => {
     const wrapper = mount(PwaInstallPrompt, {
       props: {
         show: true,
-        customProp: 'value',
+        customProp: "value",
       },
       global: {
         plugins: [createPinia()],
@@ -177,7 +177,7 @@ describe('PwaInstallPrompt.vue', () => {
     expect(wrapper.exists()).toBe(true);
   });
 
-  it('should not have lifecycle side effects', async () => {
+  it("should not have lifecycle side effects", async () => {
     const wrapper = mount(PwaInstallPrompt, {
       global: {
         plugins: [createPinia()],

@@ -60,11 +60,13 @@ area.{area_id}
 ```
 
 For example:
+
 - `area.living_room`
 - `area.bedroom`
 - `area.kitchen`
 
 These virtual entities:
+
 - Display the area's name, icon, and picture (if available)
 - Can be filtered by in the Entity Dashboard view
 - Help visualize the area-to-device-to-entity hierarchy
@@ -73,6 +75,7 @@ These virtual entities:
 ### Device Organization
 
 Devices are automatically fetched from Home Assistant and:
+
 - Grouped by their assigned area
 - Include all associated entity mappings
 - Display in the Devices view with area filtering
@@ -88,6 +91,7 @@ The dashboard uses Home Assistant's entity registry to map each entity to its de
 4. Dashboard creates the complete hierarchy: **Area → Device → Entity**
 
 This allows you to:
+
 - Filter entities by area in the Entity Dashboard
 - View all devices in a specific area
 - See which entities belong to which devices
@@ -122,19 +126,19 @@ Specify a single entity by its Home Assistant entity ID:
 
 The dashboard automatically detects the component type based on the entity domain:
 
-| Domain | Component |
-|--------|-----------|
-| `light.*` | HaLight |
-| `switch.*` | HaSwitch |
-| `sensor.*` | HaSensor |
-| `binary_sensor.*` | HaBinarySensor |
-| `weather.*` | HaWeather |
-| `sun` | HaSun |
-| `media_player.*` | HaMediaPlayer |
-| `alarm_control_panel.*` | HaAlarmPanel |
-| `person.*` | HaPerson |
-| `input_select.*` | HaSelect |
-| `input_button.*` | HaButton |
+| Domain                  | Component      |
+| ----------------------- | -------------- |
+| `light.*`               | HaLight        |
+| `switch.*`              | HaSwitch       |
+| `sensor.*`              | HaSensor       |
+| `binary_sensor.*`       | HaBinarySensor |
+| `weather.*`             | HaWeather      |
+| `sun`                   | HaSun          |
+| `media_player.*`        | HaMediaPlayer  |
+| `alarm_control_panel.*` | HaAlarmPanel   |
+| `person.*`              | HaPerson       |
+| `input_select.*`        | HaSelect       |
+| `input_button.*`        | HaButton       |
 
 If you need a different component for a specific entity, you can explicitly set the `type` property.
 
@@ -154,27 +158,31 @@ Getter functions return arrays of entities. The following getters are available:
 ### Available Getters
 
 **Battery & Power Monitoring:**
+
 - `getBatterySensors()` — Sensors with `device_class: battery` and state < 100%
 - `getWifiSensors()` — Sensors with WiFi icon and available state
 
 **Entity Type Getters:**
+
 - `getAll()` — All available entities
-- `getSensors()` — All sensor.* entities
-- `getLights()` — All light.* entities
-- `getSwitches()` — All switch.* entities
-- `getBinarySensors()` — All binary_sensor.* entities
-- `getFans()` — All fan.* entities
-- `getSelects()` — All select.* entities
-- `getButtons()` — All button.* entities
-- `getMediaPlayers()` — All media_player.* entities
-- `getAlarmPanels()` — All alarm_control_panel.* entities
-- `getDeviceTrackers()` — All device_tracker.* entities
-- `getSuns()` — All sun.* entities
+- `getSensors()` — All sensor.\* entities
+- `getLights()` — All light.\* entities
+- `getSwitches()` — All switch.\* entities
+- `getBinarySensors()` — All binary_sensor.\* entities
+- `getFans()` — All fan.\* entities
+- `getSelects()` — All select.\* entities
+- `getButtons()` — All button.\* entities
+- `getMediaPlayers()` — All media_player.\* entities
+- `getAlarmPanels()` — All alarm_control_panel.\* entities
+- `getDeviceTrackers()` — All device_tracker.\* entities
+- `getSuns()` — All sun.\* entities
 
 **Device-based Getters:**
+
 - `getEntitiesForDevice(deviceId)` — All entities for a specific device
 
 **Area-based Features:**
+
 - Filter by area in the **Entity Dashboard** view using the area dropdown
 - Virtual area entities can be displayed like any other entity
 - Device view supports filtering by area
@@ -186,9 +194,9 @@ The `app` object configures dashboard-wide settings:
 ```json
 {
   "app": {
-    "title": "Home Dashboard",      // Browser title and navbar brand
-    "developerMode": false,         // Show dev tools (save button, etc.)
-    "localMode": false              // Use local cached data instead of HA
+    "title": "Home Dashboard", // Browser title and navbar brand
+    "developerMode": false, // Show dev tools (save button, etc.)
+    "localMode": false // Use local cached data instead of HA
   }
 }
 ```
@@ -213,6 +221,7 @@ npm run build
 ```
 
 This is a **build-time** setting that affects:
+
 - Asset paths (CSS, JS, images)
 - Service worker scope
 - PWA manifest URLs
@@ -386,10 +395,7 @@ Multiple sensors in one card:
 ```json
 {
   "type": "HaSensor",
-  "entity": [
-    "sensor.temperature_living_room",
-    "sensor.humidity_living_room"
-  ]
+  "entity": ["sensor.temperature_living_room", "sensor.humidity_living_room"]
 }
 ```
 
@@ -445,7 +451,11 @@ Comparing power consumption across multiple sources (same unit):
 ```json
 {
   "type": "HaSensorGraph",
-  "entity": ["sensor.power_usage_main", "sensor.power_usage_ev_charger", "sensor.power_usage_solar"],
+  "entity": [
+    "sensor.power_usage_main",
+    "sensor.power_usage_ev_charger",
+    "sensor.power_usage_solar"
+  ],
   "maxPoints": 150
 }
 ```
@@ -1285,7 +1295,6 @@ Restart automation:
   "entity": "input_button.restart_automations"
 }
 ```
-
 
 ---
 

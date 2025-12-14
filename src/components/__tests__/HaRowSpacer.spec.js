@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest';
-import { mount } from '@vue/test-utils';
-import HaRowSpacer from '../HaRowSpacer.vue';
+import { describe, it, expect } from "vitest";
+import { mount } from "@vue/test-utils";
+import HaRowSpacer from "../HaRowSpacer.vue";
 
-describe('HaRowSpacer.vue', () => {
-  describe('Rendering', () => {
-    it('should render a full-width spacer', () => {
+describe("HaRowSpacer.vue", () => {
+  describe("Rendering", () => {
+    it("should render a full-width spacer", () => {
       const wrapper = mount(HaRowSpacer, {
         global: {
           stubs: {
@@ -14,10 +14,10 @@ describe('HaRowSpacer.vue', () => {
         },
       });
 
-      expect(wrapper.find('.col-12').exists()).toBe(true);
+      expect(wrapper.find(".col-12").exists()).toBe(true);
     });
 
-    it('should render as an empty div with full-width column class', () => {
+    it("should render as an empty div with full-width column class", () => {
       const wrapper = mount(HaRowSpacer, {
         global: {
           stubs: {
@@ -27,12 +27,12 @@ describe('HaRowSpacer.vue', () => {
         },
       });
 
-      const div = wrapper.find('div');
+      const div = wrapper.find("div");
       expect(div.exists()).toBe(true);
-      expect(div.classes()).toContain('col-12');
+      expect(div.classes()).toContain("col-12");
     });
 
-    it('should be a layout spacer with no visible content', () => {
+    it("should be a layout spacer with no visible content", () => {
       const wrapper = mount(HaRowSpacer, {
         global: {
           stubs: {
@@ -43,15 +43,15 @@ describe('HaRowSpacer.vue', () => {
       });
 
       // Text content should be empty (comments don't count)
-      expect(wrapper.text().trim()).toBe('');
+      expect(wrapper.text().trim()).toBe("");
     });
   });
 
-  describe('Props', () => {
-    it('should accept optional attributes prop', () => {
+  describe("Props", () => {
+    it("should accept optional attributes prop", () => {
       const wrapper = mount(HaRowSpacer, {
         props: {
-          attributes: ['attr1', 'attr2'],
+          attributes: ["attr1", "attr2"],
         },
         global: {
           stubs: {
@@ -64,7 +64,7 @@ describe('HaRowSpacer.vue', () => {
       expect(wrapper.exists()).toBe(true);
     });
 
-    it('should default attributes to empty array', () => {
+    it("should default attributes to empty array", () => {
       const wrapper = mount(HaRowSpacer, {
         global: {
           stubs: {
@@ -78,8 +78,8 @@ describe('HaRowSpacer.vue', () => {
     });
   });
 
-  describe('Responsive Layout', () => {
-    it('should have col-12 for full width', () => {
+  describe("Responsive Layout", () => {
+    it("should have col-12 for full width", () => {
       const wrapper = mount(HaRowSpacer, {
         global: {
           stubs: {
@@ -89,10 +89,10 @@ describe('HaRowSpacer.vue', () => {
         },
       });
 
-      expect(wrapper.find('.col-12').exists()).toBe(true);
+      expect(wrapper.find(".col-12").exists()).toBe(true);
     });
 
-    it('should create space for layout separation', () => {
+    it("should create space for layout separation", () => {
       const wrapper = mount(HaRowSpacer, {
         global: {
           stubs: {
@@ -103,7 +103,7 @@ describe('HaRowSpacer.vue', () => {
       });
 
       const div = wrapper.element;
-      expect(div.className).toContain('col-12');
+      expect(div.className).toContain("col-12");
     });
   });
 });

@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { mount } from '@vue/test-utils';
-import HaSun from '../HaSun.vue';
-import { createPinia, setActivePinia } from 'pinia';
-import { useHaStore } from '@/stores/haStore';
+import { describe, it, expect, beforeEach } from "vitest";
+import { mount } from "@vue/test-utils";
+import HaSun from "../HaSun.vue";
+import { createPinia, setActivePinia } from "pinia";
+import { useHaStore } from "@/stores/haStore";
 
-describe('HaSun.vue', () => {
+describe("HaSun.vue", () => {
   let store;
   let pinia;
 
@@ -15,10 +15,10 @@ describe('HaSun.vue', () => {
 
     store.sensors = [
       {
-        entity_id: 'sun.sun',
-        state: 'above_horizon',
+        entity_id: "sun.sun",
+        state: "above_horizon",
         attributes: {
-          friendly_name: 'Sun',
+          friendly_name: "Sun",
           sunrise: new Date(Date.now() + 3600000).toISOString(),
           sunset: new Date(Date.now() - 3600000).toISOString(),
           elevation: 45.5,
@@ -33,37 +33,23 @@ describe('HaSun.vue', () => {
     store.entities = {};
   });
 
-  it('should render sun card', () => {
+  it("should render sun card", () => {
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],
       },
     });
 
-    expect(wrapper.find('.card').exists()).toBe(true);
+    expect(wrapper.find(".card").exists()).toBe(true);
   });
 
-  it('should display sun entity', async () => {
+  it("should display sun entity", async () => {
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
-      },
-      global: {
-        plugins: [pinia],
-      },
-    });
-
-    await wrapper.vm.$nextTick();
-    expect(wrapper.text()).toContain('Sun');
-  });
-
-  it('should display above_horizon state', async () => {
-    const wrapper = mount(HaSun, {
-      props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],
@@ -71,15 +57,13 @@ describe('HaSun.vue', () => {
     });
 
     await wrapper.vm.$nextTick();
-    expect(wrapper.text()).toContain('Above Horizon');
+    expect(wrapper.text()).toContain("Sun");
   });
 
-  it('should display below_horizon state', async () => {
-    store.sensors[0].state = 'below_horizon';
-
+  it("should display above_horizon state", async () => {
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],
@@ -87,13 +71,15 @@ describe('HaSun.vue', () => {
     });
 
     await wrapper.vm.$nextTick();
-    expect(wrapper.text()).toContain('Below Horizon');
+    expect(wrapper.text()).toContain("Above Horizon");
   });
 
-  it('should display sunrise time', async () => {
+  it("should display below_horizon state", async () => {
+    store.sensors[0].state = "below_horizon";
+
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],
@@ -101,13 +87,13 @@ describe('HaSun.vue', () => {
     });
 
     await wrapper.vm.$nextTick();
-    expect(wrapper.text()).toContain('Sunrise');
+    expect(wrapper.text()).toContain("Below Horizon");
   });
 
-  it('should display sunset time', async () => {
+  it("should display sunrise time", async () => {
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],
@@ -115,13 +101,13 @@ describe('HaSun.vue', () => {
     });
 
     await wrapper.vm.$nextTick();
-    expect(wrapper.text()).toContain('Sunset');
+    expect(wrapper.text()).toContain("Sunrise");
   });
 
-  it('should display sunrise and sunset times', async () => {
+  it("should display sunset time", async () => {
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],
@@ -129,14 +115,28 @@ describe('HaSun.vue', () => {
     });
 
     await wrapper.vm.$nextTick();
-    expect(wrapper.text()).toContain('Sunrise');
-    expect(wrapper.text()).toContain('Sunset');
+    expect(wrapper.text()).toContain("Sunset");
   });
 
-  it('should format time attributes', async () => {
+  it("should display sunrise and sunset times", async () => {
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
+      },
+      global: {
+        plugins: [pinia],
+      },
+    });
+
+    await wrapper.vm.$nextTick();
+    expect(wrapper.text()).toContain("Sunrise");
+    expect(wrapper.text()).toContain("Sunset");
+  });
+
+  it("should format time attributes", async () => {
+    const wrapper = mount(HaSun, {
+      props: {
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],
@@ -148,10 +148,10 @@ describe('HaSun.vue', () => {
     expect(wrapper.vm.nextSetting).toBeTruthy();
   });
 
-  it('should calculate time until sunset', async () => {
+  it("should calculate time until sunset", async () => {
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],
@@ -162,10 +162,10 @@ describe('HaSun.vue', () => {
     expect(wrapper.vm.nextSetting).toBeTruthy();
   });
 
-  it('should display sun icon when above horizon', async () => {
+  it("should display sun icon when above horizon", async () => {
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],
@@ -173,15 +173,15 @@ describe('HaSun.vue', () => {
     });
 
     await wrapper.vm.$nextTick();
-    expect(wrapper.vm.sunIcon).toContain('sun');
+    expect(wrapper.vm.sunIcon).toContain("sun");
   });
 
-  it('should display moon icon when below horizon', async () => {
-    store.sensors[0].state = 'below_horizon';
+  it("should display moon icon when below horizon", async () => {
+    store.sensors[0].state = "below_horizon";
 
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],
@@ -189,15 +189,15 @@ describe('HaSun.vue', () => {
     });
 
     await wrapper.vm.$nextTick();
-    expect(wrapper.vm.sunIcon).toContain('night');
+    expect(wrapper.vm.sunIcon).toContain("night");
   });
 
-  it('should display sunrise in future', async () => {
-    store.sensors[0].state = 'below_horizon';
+  it("should display sunrise in future", async () => {
+    store.sensors[0].state = "below_horizon";
 
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],
@@ -205,13 +205,13 @@ describe('HaSun.vue', () => {
     });
 
     await wrapper.vm.$nextTick();
-    expect(wrapper.text()).toContain('Next Sunrise');
+    expect(wrapper.text()).toContain("Next Sunrise");
   });
 
-  it('should display time attributes', async () => {
+  it("should display time attributes", async () => {
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],
@@ -219,19 +219,16 @@ describe('HaSun.vue', () => {
     });
 
     await wrapper.vm.$nextTick();
-    const attributes = [
-      'Sunrise',
-      'Sunset',
-    ];
+    const attributes = ["Sunrise", "Sunset"];
     attributes.forEach((attr) => {
       expect(wrapper.text()).toContain(attr);
     });
   });
 
-  it('should resolve sun entity from store', async () => {
+  it("should resolve sun entity from store", async () => {
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],
@@ -240,15 +237,15 @@ describe('HaSun.vue', () => {
 
     await wrapper.vm.$nextTick();
     expect(wrapper.vm.resolvedEntity).toBeTruthy();
-    expect(wrapper.vm.resolvedEntity.entity_id).toBe('sun.sun');
+    expect(wrapper.vm.resolvedEntity.entity_id).toBe("sun.sun");
   });
 
-  it('should handle missing elevation', async () => {
+  it("should handle missing elevation", async () => {
     delete store.sensors[0].attributes.elevation;
 
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],
@@ -256,15 +253,15 @@ describe('HaSun.vue', () => {
     });
 
     await wrapper.vm.$nextTick();
-    expect(wrapper.find('.card').exists()).toBe(true);
+    expect(wrapper.find(".card").exists()).toBe(true);
   });
 
-  it('should handle missing azimuth', async () => {
+  it("should handle missing azimuth", async () => {
     delete store.sensors[0].attributes.azimuth;
 
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],
@@ -272,31 +269,31 @@ describe('HaSun.vue', () => {
     });
 
     await wrapper.vm.$nextTick();
-    expect(wrapper.find('.card').exists()).toBe(true);
+    expect(wrapper.find(".card").exists()).toBe(true);
   });
 
-  it('should update when entity state changes', async () => {
+  it("should update when entity state changes", async () => {
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],
       },
     });
 
-    expect(wrapper.text()).toContain('Above Horizon');
+    expect(wrapper.text()).toContain("Above Horizon");
 
-    store.sensors[0].state = 'below_horizon';
+    store.sensors[0].state = "below_horizon";
     await wrapper.vm.$nextTick();
 
-    expect(wrapper.text()).toContain('Below Horizon');
+    expect(wrapper.text()).toContain("Below Horizon");
   });
 
-  it('should display time attributes with formatting', async () => {
+  it("should display time attributes with formatting", async () => {
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],
@@ -308,22 +305,18 @@ describe('HaSun.vue', () => {
     expect(wrapper.vm.nextSetting).toBeTruthy();
   });
 
-  it('should validate entity prop', () => {
-    const validEntity = 'sun.sun';
-    expect(
-      HaSun.props.entity.validator(validEntity)
-    ).toBe(true);
+  it("should validate entity prop", () => {
+    const validEntity = "sun.sun";
+    expect(HaSun.props.entity.validator(validEntity)).toBe(true);
 
-    const invalidEntity = 'invalid';
-    expect(
-      HaSun.props.entity.validator(invalidEntity)
-    ).toBe(false);
+    const invalidEntity = "invalid";
+    expect(HaSun.props.entity.validator(invalidEntity)).toBe(false);
   });
 
-  it('should apply sunrise/sunset styling', async () => {
+  it("should apply sunrise/sunset styling", async () => {
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],
@@ -331,14 +324,14 @@ describe('HaSun.vue', () => {
     });
 
     await wrapper.vm.$nextTick();
-    const card = wrapper.find('.card');
+    const card = wrapper.find(".card");
     expect(card.exists()).toBe(true);
   });
 
-  it('should show approaching sunset color', async () => {
+  it("should show approaching sunset color", async () => {
     const wrapper = mount(HaSun, {
       props: {
-        entity: 'sun.sun',
+        entity: "sun.sun",
       },
       global: {
         plugins: [pinia],

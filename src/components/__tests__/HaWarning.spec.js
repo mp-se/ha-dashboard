@@ -1,29 +1,29 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
-import HaWarning from '../HaWarning.vue';
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { mount } from "@vue/test-utils";
+import { createPinia, setActivePinia } from "pinia";
+import HaWarning from "../HaWarning.vue";
 
-describe('HaWarning.vue', () => {
+describe("HaWarning.vue", () => {
   beforeEach(() => {
     const pinia = createPinia();
     setActivePinia(pinia);
     vi.clearAllMocks();
   });
 
-  describe('Rendering', () => {
-    it('should render warning card when condition matches', () => {
+  describe("Rendering", () => {
+    it("should render warning card when condition matches", () => {
       const entity = {
-        entity_id: 'sensor.battery',
-        state: 'low',
+        entity_id: "sensor.battery",
+        state: "low",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: '=',
-          value: 'low',
-          message: 'Battery low',
+          operator: "=",
+          value: "low",
+          message: "Battery low",
         },
         global: {
           stubs: {
@@ -33,23 +33,23 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      expect(wrapper.find('.card-status').exists()).toBe(true);
-      expect(wrapper.text()).toContain('Warning');
+      expect(wrapper.find(".card-status").exists()).toBe(true);
+      expect(wrapper.text()).toContain("Warning");
     });
 
-    it('should not render when condition does not match', () => {
+    it("should not render when condition does not match", () => {
       const entity = {
-        entity_id: 'sensor.battery',
-        state: 'high',
+        entity_id: "sensor.battery",
+        state: "high",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: '=',
-          value: 'low',
-          message: 'Battery low',
+          operator: "=",
+          value: "low",
+          message: "Battery low",
         },
         global: {
           stubs: {
@@ -59,22 +59,22 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      expect(wrapper.find('.card-status').exists()).toBe(false);
+      expect(wrapper.find(".card-status").exists()).toBe(false);
     });
 
-    it('should display warning message', () => {
+    it("should display warning message", () => {
       const entity = {
-        entity_id: 'sensor.humidity',
-        state: 'high',
+        entity_id: "sensor.humidity",
+        state: "high",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: '=',
-          value: 'high',
-          message: 'Humidity is too high',
+          operator: "=",
+          value: "high",
+          message: "Humidity is too high",
         },
         global: {
           stubs: {
@@ -84,22 +84,22 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Humidity is too high');
+      expect(wrapper.text()).toContain("Humidity is too high");
     });
 
-    it('should display Warning badge', () => {
+    it("should display Warning badge", () => {
       const entity = {
-        entity_id: 'sensor.temp',
-        state: 'warm',
+        entity_id: "sensor.temp",
+        state: "warm",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: '=',
-          value: 'warm',
-          message: 'Temperature warning',
+          operator: "=",
+          value: "warm",
+          message: "Temperature warning",
         },
         global: {
           stubs: {
@@ -109,155 +109,155 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      expect(wrapper.find('.ha-icon-circle-wrapper').exists()).toBe(true);
-      expect(wrapper.find('i.mdi-alert-outline').exists()).toBe(true);
-      expect(wrapper.text()).toContain('Warning');
-    });
-  });
-
-  describe('Operators', () => {
-    it('should support = operator', () => {
-      const entity = {
-        entity_id: 'sensor.status',
-        state: 'warning',
-        attributes: {},
-      };
-
-      const wrapper = mount(HaWarning, {
-        props: {
-          entity,
-          operator: '=',
-          value: 'warning',
-          message: 'Warning state',
-        },
-        global: {
-          stubs: {
-            i: true,
-            svg: true,
-          },
-        },
-      });
-
-      expect(wrapper.find('.card-status').exists()).toBe(true);
-    });
-
-    it('should support > operator', () => {
-      const entity = {
-        entity_id: 'sensor.temperature',
-        state: '85',
-        attributes: {},
-      };
-
-      const wrapper = mount(HaWarning, {
-        props: {
-          entity,
-          operator: '>',
-          value: '80',
-          message: 'High temperature',
-        },
-        global: {
-          stubs: {
-            i: true,
-            svg: true,
-          },
-        },
-      });
-
-      expect(wrapper.find('.card-status').exists()).toBe(true);
-    });
-
-    it('should support < operator', () => {
-      const entity = {
-        entity_id: 'sensor.temperature',
-        state: '15',
-        attributes: {},
-      };
-
-      const wrapper = mount(HaWarning, {
-        props: {
-          entity,
-          operator: '<',
-          value: '20',
-          message: 'Low temperature',
-        },
-        global: {
-          stubs: {
-            i: true,
-            svg: true,
-          },
-        },
-      });
-
-      expect(wrapper.find('.card-status').exists()).toBe(true);
-    });
-
-    it('should support contains operator', () => {
-      const entity = {
-        entity_id: 'sensor.log',
-        state: 'warning: low memory',
-        attributes: {},
-      };
-
-      const wrapper = mount(HaWarning, {
-        props: {
-          entity,
-          operator: 'contains',
-          value: 'memory',
-          message: 'Memory warning',
-        },
-        global: {
-          stubs: {
-            i: true,
-            svg: true,
-          },
-        },
-      });
-
-      expect(wrapper.find('.card-status').exists()).toBe(true);
-    });
-
-    it('should support in operator', () => {
-      const entity = {
-        entity_id: 'sensor.status',
-        state: 'warning',
-        attributes: {},
-      };
-
-      const wrapper = mount(HaWarning, {
-        props: {
-          entity,
-          operator: 'in',
-          value: ['warning', 'caution'],
-          message: 'Alert state',
-        },
-        global: {
-          stubs: {
-            i: true,
-            svg: true,
-          },
-        },
-      });
-
-      expect(wrapper.find('.card-status').exists()).toBe(true);
+      expect(wrapper.find(".ha-icon-circle-wrapper").exists()).toBe(true);
+      expect(wrapper.find("i.mdi-alert-outline").exists()).toBe(true);
+      expect(wrapper.text()).toContain("Warning");
     });
   });
 
-  describe('Attributes', () => {
-    it('should check state by default', () => {
+  describe("Operators", () => {
+    it("should support = operator", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: 'warning',
+        entity_id: "sensor.status",
+        state: "warning",
+        attributes: {},
+      };
+
+      const wrapper = mount(HaWarning, {
+        props: {
+          entity,
+          operator: "=",
+          value: "warning",
+          message: "Warning state",
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      expect(wrapper.find(".card-status").exists()).toBe(true);
+    });
+
+    it("should support > operator", () => {
+      const entity = {
+        entity_id: "sensor.temperature",
+        state: "85",
+        attributes: {},
+      };
+
+      const wrapper = mount(HaWarning, {
+        props: {
+          entity,
+          operator: ">",
+          value: "80",
+          message: "High temperature",
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      expect(wrapper.find(".card-status").exists()).toBe(true);
+    });
+
+    it("should support < operator", () => {
+      const entity = {
+        entity_id: "sensor.temperature",
+        state: "15",
+        attributes: {},
+      };
+
+      const wrapper = mount(HaWarning, {
+        props: {
+          entity,
+          operator: "<",
+          value: "20",
+          message: "Low temperature",
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      expect(wrapper.find(".card-status").exists()).toBe(true);
+    });
+
+    it("should support contains operator", () => {
+      const entity = {
+        entity_id: "sensor.log",
+        state: "warning: low memory",
+        attributes: {},
+      };
+
+      const wrapper = mount(HaWarning, {
+        props: {
+          entity,
+          operator: "contains",
+          value: "memory",
+          message: "Memory warning",
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      expect(wrapper.find(".card-status").exists()).toBe(true);
+    });
+
+    it("should support in operator", () => {
+      const entity = {
+        entity_id: "sensor.status",
+        state: "warning",
+        attributes: {},
+      };
+
+      const wrapper = mount(HaWarning, {
+        props: {
+          entity,
+          operator: "in",
+          value: ["warning", "caution"],
+          message: "Alert state",
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      expect(wrapper.find(".card-status").exists()).toBe(true);
+    });
+  });
+
+  describe("Attributes", () => {
+    it("should check state by default", () => {
+      const entity = {
+        entity_id: "sensor.test",
+        state: "warning",
         attributes: {
-          level: '5',
+          level: "5",
         },
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: '=',
-          value: 'warning',
-          message: 'State warning',
+          operator: "=",
+          value: "warning",
+          message: "State warning",
         },
         global: {
           stubs: {
@@ -267,25 +267,25 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      expect(wrapper.find('.card-status').exists()).toBe(true);
+      expect(wrapper.find(".card-status").exists()).toBe(true);
     });
 
-    it('should check custom attributes', () => {
+    it("should check custom attributes", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: 'ok',
+        entity_id: "sensor.test",
+        state: "ok",
         attributes: {
-          level: '8',
+          level: "8",
         },
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          attribute: 'level',
-          operator: '>=',
-          value: '5',
-          message: 'Level warning',
+          attribute: "level",
+          operator: ">=",
+          value: "5",
+          message: "Level warning",
         },
         global: {
           stubs: {
@@ -295,23 +295,23 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      expect(wrapper.find('.card-status').exists()).toBe(true);
+      expect(wrapper.find(".card-status").exists()).toBe(true);
     });
 
-    it('should not show warning if attribute missing', () => {
+    it("should not show warning if attribute missing", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: 'ok',
+        entity_id: "sensor.test",
+        state: "ok",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          attribute: 'missing',
-          operator: '=',
-          value: 'something',
-          message: 'Missing attribute',
+          attribute: "missing",
+          operator: "=",
+          value: "something",
+          message: "Missing attribute",
         },
         global: {
           stubs: {
@@ -321,153 +321,24 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      expect(wrapper.find('.card-status').exists()).toBe(false);
-    });
-  });
-
-  describe('Card Styling', () => {
-    it('should have warning border', () => {
-      const entity = {
-        entity_id: 'sensor.test',
-        state: 'warning',
-        attributes: {},
-      };
-
-      const wrapper = mount(HaWarning, {
-        props: {
-          entity,
-          operator: '=',
-          value: 'warning',
-          message: 'Warning',
-        },
-        global: {
-          stubs: {
-            i: true,
-            svg: true,
-          },
-        },
-      });
-
-      expect(wrapper.find('.border-warning').exists()).toBe(true);
-      expect(wrapper.find('.border-3').exists()).toBe(true);
-    });
-
-    it('should have responsive column classes', () => {
-      const entity = {
-        entity_id: 'sensor.test',
-        state: 'warning',
-        attributes: {},
-      };
-
-      const wrapper = mount(HaWarning, {
-        props: {
-          entity,
-          operator: '=',
-          value: 'warning',
-          message: 'Warning',
-        },
-        global: {
-          stubs: {
-            i: true,
-            svg: true,
-          },
-        },
-      });
-
-      expect(wrapper.find('.col-lg-4').exists()).toBe(true);
-      expect(wrapper.find('.col-md-6').exists()).toBe(true);
-    });
-
-    it('should have rounded corners', () => {
-      const entity = {
-        entity_id: 'sensor.test',
-        state: 'warning',
-        attributes: {},
-      };
-
-      const wrapper = mount(HaWarning, {
-        props: {
-          entity,
-          operator: '=',
-          value: 'warning',
-          message: 'Warning',
-        },
-        global: {
-          stubs: {
-            i: true,
-            svg: true,
-          },
-        },
-      });
-
-      expect(wrapper.find('.rounded-4').exists()).toBe(true);
-    });
-
-    it('should have shadow', () => {
-      const entity = {
-        entity_id: 'sensor.test',
-        state: 'warning',
-        attributes: {},
-      };
-
-      const wrapper = mount(HaWarning, {
-        props: {
-          entity,
-          operator: '=',
-          value: 'warning',
-          message: 'Warning',
-        },
-        global: {
-          stubs: {
-            i: true,
-            svg: true,
-          },
-        },
-      });
-
-      expect(wrapper.find('.shadow-lg').exists()).toBe(true);
-    });
-
-    it('should have padding', () => {
-      const entity = {
-        entity_id: 'sensor.test',
-        state: 'warning',
-        attributes: {},
-      };
-
-      const wrapper = mount(HaWarning, {
-        props: {
-          entity,
-          operator: '=',
-          value: 'warning',
-          message: 'Warning',
-        },
-        global: {
-          stubs: {
-            i: true,
-            svg: true,
-          },
-        },
-      });
-
-      expect(wrapper.find('.p-3').exists()).toBe(true);
+      expect(wrapper.find(".card-status").exists()).toBe(false);
     });
   });
 
-  describe('Icon Display', () => {
-    it('should display alert-outline icon', () => {
+  describe("Card Styling", () => {
+    it("should have warning border", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: 'warning',
+        entity_id: "sensor.test",
+        state: "warning",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: '=',
-          value: 'warning',
-          message: 'Warning',
+          operator: "=",
+          value: "warning",
+          message: "Warning",
         },
         global: {
           stubs: {
@@ -477,23 +348,152 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      const icon = wrapper.find('i.mdi-alert-outline');
+      expect(wrapper.find(".border-warning").exists()).toBe(true);
+      expect(wrapper.find(".border-3").exists()).toBe(true);
+    });
+
+    it("should have responsive column classes", () => {
+      const entity = {
+        entity_id: "sensor.test",
+        state: "warning",
+        attributes: {},
+      };
+
+      const wrapper = mount(HaWarning, {
+        props: {
+          entity,
+          operator: "=",
+          value: "warning",
+          message: "Warning",
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      expect(wrapper.find(".col-lg-4").exists()).toBe(true);
+      expect(wrapper.find(".col-md-6").exists()).toBe(true);
+    });
+
+    it("should have rounded corners", () => {
+      const entity = {
+        entity_id: "sensor.test",
+        state: "warning",
+        attributes: {},
+      };
+
+      const wrapper = mount(HaWarning, {
+        props: {
+          entity,
+          operator: "=",
+          value: "warning",
+          message: "Warning",
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      expect(wrapper.find(".rounded-4").exists()).toBe(true);
+    });
+
+    it("should have shadow", () => {
+      const entity = {
+        entity_id: "sensor.test",
+        state: "warning",
+        attributes: {},
+      };
+
+      const wrapper = mount(HaWarning, {
+        props: {
+          entity,
+          operator: "=",
+          value: "warning",
+          message: "Warning",
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      expect(wrapper.find(".shadow-lg").exists()).toBe(true);
+    });
+
+    it("should have padding", () => {
+      const entity = {
+        entity_id: "sensor.test",
+        state: "warning",
+        attributes: {},
+      };
+
+      const wrapper = mount(HaWarning, {
+        props: {
+          entity,
+          operator: "=",
+          value: "warning",
+          message: "Warning",
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      expect(wrapper.find(".p-3").exists()).toBe(true);
+    });
+  });
+
+  describe("Icon Display", () => {
+    it("should display alert-outline icon", () => {
+      const entity = {
+        entity_id: "sensor.test",
+        state: "warning",
+        attributes: {},
+      };
+
+      const wrapper = mount(HaWarning, {
+        props: {
+          entity,
+          operator: "=",
+          value: "warning",
+          message: "Warning",
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      const icon = wrapper.find("i.mdi-alert-outline");
       expect(icon.exists()).toBe(true);
     });
 
-    it('should have warning text color on icon', () => {
+    it("should have warning text color on icon", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: 'warning',
+        entity_id: "sensor.test",
+        state: "warning",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: '=',
-          value: 'warning',
-          message: 'Warning',
+          operator: "=",
+          value: "warning",
+          message: "Warning",
         },
         global: {
           stubs: {
@@ -503,25 +503,25 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      const icon = wrapper.find('i.mdi-alert-outline');
-      expect(icon.classes()).toContain('ha-icon-overlay');
+      const icon = wrapper.find("i.mdi-alert-outline");
+      expect(icon.classes()).toContain("ha-icon-overlay");
     });
   });
 
-  describe('Badge Styling', () => {
-    it('should have bg-warning on badge', () => {
+  describe("Badge Styling", () => {
+    it("should have bg-warning on badge", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: 'warning',
+        entity_id: "sensor.test",
+        state: "warning",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: '=',
-          value: 'warning',
-          message: 'Warning',
+          operator: "=",
+          value: "warning",
+          message: "Warning",
         },
         global: {
           stubs: {
@@ -531,23 +531,23 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      const circle = wrapper.find('circle');
-      expect(circle.attributes('fill')).toBe('#FFC107');
+      const circle = wrapper.find("circle");
+      expect(circle.attributes("fill")).toBe("#FFC107");
     });
 
-    it('should have text-dark on badge', () => {
+    it("should have text-dark on badge", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: 'warning',
+        entity_id: "sensor.test",
+        state: "warning",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: '=',
-          value: 'warning',
-          message: 'Warning',
+          operator: "=",
+          value: "warning",
+          message: "Warning",
         },
         global: {
           stubs: {
@@ -557,19 +557,19 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      const icon = wrapper.find('i.ha-icon-overlay');
+      const icon = wrapper.find("i.ha-icon-overlay");
       expect(icon.exists()).toBe(true);
     });
   });
 
-  describe('Props Validation', () => {
-    it('should accept string entity_id', () => {
+  describe("Props Validation", () => {
+    it("should accept string entity_id", () => {
       const wrapper = mount(HaWarning, {
         props: {
-          entity: 'sensor.valid',
-          operator: '=',
-          value: 'warning',
-          message: 'Warning message',
+          entity: "sensor.valid",
+          operator: "=",
+          value: "warning",
+          message: "Warning message",
         },
         global: {
           stubs: {
@@ -582,19 +582,19 @@ describe('HaWarning.vue', () => {
       expect(wrapper.exists()).toBe(true);
     });
 
-    it('should accept object entity', () => {
+    it("should accept object entity", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: 'warning',
+        entity_id: "sensor.test",
+        state: "warning",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: '=',
-          value: 'warning',
-          message: 'Warning',
+          operator: "=",
+          value: "warning",
+          message: "Warning",
         },
         global: {
           stubs: {
@@ -608,20 +608,20 @@ describe('HaWarning.vue', () => {
     });
   });
 
-  describe('Multiple Conditions', () => {
-    it('should show warning when >= condition met', () => {
+  describe("Multiple Conditions", () => {
+    it("should show warning when >= condition met", () => {
       const entity = {
-        entity_id: 'sensor.level',
-        state: '75',
+        entity_id: "sensor.level",
+        state: "75",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: '>=',
-          value: '70',
-          message: 'Level reaching limit',
+          operator: ">=",
+          value: "70",
+          message: "Level reaching limit",
         },
         global: {
           stubs: {
@@ -631,22 +631,22 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      expect(wrapper.find('.card-status').exists()).toBe(true);
+      expect(wrapper.find(".card-status").exists()).toBe(true);
     });
 
-    it('should show warning for not_contains operator', () => {
+    it("should show warning for not_contains operator", () => {
       const entity = {
-        entity_id: 'sensor.status',
-        state: 'Device is running',
+        entity_id: "sensor.status",
+        state: "Device is running",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: 'not_contains',
-          value: 'Error',
-          message: 'No error detected',
+          operator: "not_contains",
+          value: "Error",
+          message: "No error detected",
         },
         global: {
           stubs: {
@@ -656,22 +656,22 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      expect(wrapper.find('.card-status').exists()).toBe(true);
+      expect(wrapper.find(".card-status").exists()).toBe(true);
     });
 
-    it('should show warning for not_in operator', () => {
+    it("should show warning for not_in operator", () => {
       const entity = {
-        entity_id: 'sensor.status',
-        state: 'ok',
+        entity_id: "sensor.status",
+        state: "ok",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: 'not_in',
-          value: ['error', 'critical', 'failed'],
-          message: 'System healthy',
+          operator: "not_in",
+          value: ["error", "critical", "failed"],
+          message: "System healthy",
         },
         global: {
           stubs: {
@@ -681,24 +681,24 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      expect(wrapper.find('.card-status').exists()).toBe(true);
+      expect(wrapper.find(".card-status").exists()).toBe(true);
     });
   });
 
-  describe('Text and Layout', () => {
+  describe("Text and Layout", () => {
     it('should display title as "Warning"', () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: 'warning',
+        entity_id: "sensor.test",
+        state: "warning",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: '=',
-          value: 'warning',
-          message: 'Test warning',
+          operator: "=",
+          value: "warning",
+          message: "Test warning",
         },
         global: {
           stubs: {
@@ -708,23 +708,23 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      const title = wrapper.find('.card-title');
-      expect(title.text()).toContain('Warning');
+      const title = wrapper.find(".card-title");
+      expect(title.text()).toContain("Warning");
     });
 
-    it('should show message in small text', () => {
+    it("should show message in small text", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: 'warning',
+        entity_id: "sensor.test",
+        state: "warning",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: '=',
-          value: 'warning',
-          message: 'Custom warning message',
+          operator: "=",
+          value: "warning",
+          message: "Custom warning message",
         },
         global: {
           stubs: {
@@ -734,24 +734,24 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      const message = wrapper.find('.text-muted');
-      expect(message.classes()).toContain('small');
-      expect(message.text()).toBe('Custom warning message');
+      const message = wrapper.find(".text-muted");
+      expect(message.classes()).toContain("small");
+      expect(message.text()).toBe("Custom warning message");
     });
 
-    it('should have card body with flex layout', () => {
+    it("should have card body with flex layout", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: 'warning',
+        entity_id: "sensor.test",
+        state: "warning",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: '=',
-          value: 'warning',
-          message: 'Warning',
+          operator: "=",
+          value: "warning",
+          message: "Warning",
         },
         global: {
           stubs: {
@@ -761,20 +761,20 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      const body = wrapper.find('.card-body');
-      expect(body.classes()).toContain('d-flex');
-      expect(body.classes()).toContain('align-items-center');
+      const body = wrapper.find(".card-body");
+      expect(body.classes()).toContain("d-flex");
+      expect(body.classes()).toContain("align-items-center");
     });
   });
 
-  describe('Entity Not Found', () => {
-    it('should not render when entity is invalid string', () => {
+  describe("Entity Not Found", () => {
+    it("should not render when entity is invalid string", () => {
       const wrapper = mount(HaWarning, {
         props: {
-          entity: 'sensor.nonexistent',
-          operator: '=',
-          value: 'warning',
-          message: 'Entity not found',
+          entity: "sensor.nonexistent",
+          operator: "=",
+          value: "warning",
+          message: "Entity not found",
         },
         global: {
           stubs: {
@@ -784,24 +784,24 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      expect(wrapper.find('.card-status').exists()).toBe(false);
+      expect(wrapper.find(".card-status").exists()).toBe(false);
     });
   });
 
-  describe('Breadth Coverage', () => {
-    it('should render complete warning structure', () => {
+  describe("Breadth Coverage", () => {
+    it("should render complete warning structure", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: 'warning',
+        entity_id: "sensor.test",
+        state: "warning",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: '=',
-          value: 'warning',
-          message: 'Full warning',
+          operator: "=",
+          value: "warning",
+          message: "Full warning",
         },
         global: {
           stubs: {
@@ -811,27 +811,27 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      expect(wrapper.find('.col-lg-4').exists()).toBe(true);
-      expect(wrapper.find('.card-status').exists()).toBe(true);
-      expect(wrapper.find('.card-body').exists()).toBe(true);
-      expect(wrapper.find('.card-title').exists()).toBe(true);
-      expect(wrapper.find('.ha-icon-circle-wrapper').exists()).toBe(true);
-      expect(wrapper.find('i.mdi-alert-outline').exists()).toBe(true);
+      expect(wrapper.find(".col-lg-4").exists()).toBe(true);
+      expect(wrapper.find(".card-status").exists()).toBe(true);
+      expect(wrapper.find(".card-body").exists()).toBe(true);
+      expect(wrapper.find(".card-title").exists()).toBe(true);
+      expect(wrapper.find(".ha-icon-circle-wrapper").exists()).toBe(true);
+      expect(wrapper.find("i.mdi-alert-outline").exists()).toBe(true);
     });
 
-    it('should handle numeric string values', () => {
+    it("should handle numeric string values", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: '99',
+        entity_id: "sensor.test",
+        state: "99",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: '<=',
-          value: '100',
-          message: 'Near limit',
+          operator: "<=",
+          value: "100",
+          message: "Near limit",
         },
         global: {
           stubs: {
@@ -841,22 +841,22 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      expect(wrapper.find('.card-status').exists()).toBe(true);
+      expect(wrapper.find(".card-status").exists()).toBe(true);
     });
 
-    it('should handle != operator', () => {
+    it("should handle != operator", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: 'ok',
+        entity_id: "sensor.test",
+        state: "ok",
         attributes: {},
       };
 
       const wrapper = mount(HaWarning, {
         props: {
           entity,
-          operator: '!=',
-          value: 'error',
-          message: 'Not error',
+          operator: "!=",
+          value: "error",
+          message: "Not error",
         },
         global: {
           stubs: {
@@ -866,7 +866,7 @@ describe('HaWarning.vue', () => {
         },
       });
 
-      expect(wrapper.find('.card-status').exists()).toBe(true);
+      expect(wrapper.find(".card-status").exists()).toBe(true);
     });
   });
 });

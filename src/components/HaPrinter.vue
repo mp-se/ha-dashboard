@@ -10,10 +10,19 @@
         !resolvedEntity ? 'border-warning' : cardBorderClass,
       ]"
     >
-      <div :class="['card-body', !resolvedEntity ? 'text-center text-warning' : '']">
-        <i v-if="!resolvedEntity" class="mdi mdi-alert-circle mdi-24px mb-2"></i>
+      <div
+        :class="[
+          'card-body',
+          !resolvedEntity ? 'text-center text-warning' : '',
+        ]"
+      >
+        <i
+          v-if="!resolvedEntity"
+          class="mdi mdi-alert-circle mdi-24px mb-2"
+        ></i>
         <div v-if="!resolvedEntity">
-          Entity "{{ typeof entity === 'string' ? entity : entity?.entity_id }}" not found
+          Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
+          not found
         </div>
 
         <div v-else>
@@ -26,10 +35,19 @@
             </div>
           </div>
           <!-- Toner Progress Bars with Labels -->
-          <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+          <div style="display: flex; flex-direction: column; gap: 0.25rem">
             <div>
-              <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem; text-align: left;">Black</div>
-              <div class="progress" style="height: 12px;">
+              <div
+                style="
+                  font-size: 0.75rem;
+                  color: #666;
+                  margin-bottom: 0.25rem;
+                  text-align: left;
+                "
+              >
+                Black
+              </div>
+              <div class="progress" style="height: 12px">
                 <div
                   class="ha-progress-bar bg-dark"
                   :style="{ width: blackLevel + '%' }"
@@ -38,8 +56,17 @@
               </div>
             </div>
             <div>
-              <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem; text-align: left;">Cyan</div>
-              <div class="progress" style="height: 12px;">
+              <div
+                style="
+                  font-size: 0.75rem;
+                  color: #666;
+                  margin-bottom: 0.25rem;
+                  text-align: left;
+                "
+              >
+                Cyan
+              </div>
+              <div class="progress" style="height: 12px">
                 <div
                   class="ha-progress-bar bg-info"
                   :style="{ width: cyanLevel + '%' }"
@@ -48,18 +75,39 @@
               </div>
             </div>
             <div>
-              <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem; text-align: left;">Magenta</div>
-              <div class="progress" style="height: 12px;">
+              <div
+                style="
+                  font-size: 0.75rem;
+                  color: #666;
+                  margin-bottom: 0.25rem;
+                  text-align: left;
+                "
+              >
+                Magenta
+              </div>
+              <div class="progress" style="height: 12px">
                 <div
                   class="ha-progress-bar"
-                  :style="{ width: magentaLevel + '%', backgroundColor: '#e700d9' }"
+                  :style="{
+                    width: magentaLevel + '%',
+                    backgroundColor: '#e700d9',
+                  }"
                   :title="'Magenta: ' + magentaLevel + '%'"
                 ></div>
               </div>
             </div>
             <div>
-              <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem; text-align: left;">Yellow</div>
-              <div class="progress" style="height: 12px;">
+              <div
+                style="
+                  font-size: 0.75rem;
+                  color: #666;
+                  margin-bottom: 0.25rem;
+                  text-align: left;
+                "
+              >
+                Yellow
+              </div>
+              <div class="progress" style="height: 12px">
                 <div
                   class="ha-progress-bar bg-warning"
                   :style="{ width: yellowLevel + '%' }"
@@ -75,17 +123,17 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { useHaStore } from '@/stores/haStore';
+import { computed } from "vue";
+import { useHaStore } from "@/stores/haStore";
 
 const props = defineProps({
   entity: {
     type: [Object, String],
     required: true,
     validator: (value) => {
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         return /^[\w]+\.[\w_-]+$/.test(value);
-      } else if (typeof value === 'object') {
+      } else if (typeof value === "object") {
         return value && value.entity_id && value.state && value.attributes;
       }
       return false;
@@ -113,7 +161,7 @@ const store = useHaStore();
 
 // Smart entity resolution for main entity
 const resolvedEntity = computed(() => {
-  if (typeof props.entity === 'string') {
+  if (typeof props.entity === "string") {
     const found = store.sensors.find((s) => s.entity_id === props.entity);
     if (!found) {
       console.warn(`Entity "${props.entity}" not found`);
@@ -140,10 +188,12 @@ const yellowLevel = computed(() => getTonerLevel(props.yellow));
 
 const name = computed(
   () =>
-    resolvedEntity.value?.attributes?.friendly_name || resolvedEntity.value?.entity_id || 'Unknown'
+    resolvedEntity.value?.attributes?.friendly_name ||
+    resolvedEntity.value?.entity_id ||
+    "Unknown",
 );
 
 const cardBorderClass = computed(() => {
-  return resolvedEntity.value ? 'border-info' : '';
+  return resolvedEntity.value ? "border-info" : "";
 });
 </script>
