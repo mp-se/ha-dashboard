@@ -32,20 +32,22 @@
         </div>
 
         <!-- Right Side: Control Objects -->
-        <div v-if="controlObjects.length > 0" class="room-right d-flex flex-column gap-2">
-          <div
-            v-for="(obj, index) in controlObjects"
-            :key="index"
-            class="control-object"
-            :class="{ 'control-object-disabled': isEntityUnavailable(obj.entity_id) }"
-            :title="getEntityLabel(obj.entity_id)"
-            @click="!isEntityUnavailable(obj.entity_id) && toggleEntity(obj.entity_id)"
-          >
-            <div class="ha-control-circle-wrapper">
-              <svg width="50" height="50" viewBox="0 0 50 50" class="ha-control-circle">
-                <circle cx="25" cy="25" r="22" :fill="getObjectColor(obj.entity_id)" />
-              </svg>
-              <i :class="getObjectIcon(obj.entity_id)" class="ha-control-icon" :style="{ color: getIconColor(obj.entity_id) }"></i>
+        <div v-if="controlObjects.length > 0" class="room-right">
+          <div class="room-controls-grid">
+            <div
+              v-for="(obj, index) in controlObjects"
+              :key="index"
+              class="control-object"
+              :class="{ 'control-object-disabled': isEntityUnavailable(obj.entity_id) }"
+              :title="getEntityLabel(obj.entity_id)"
+              @click="!isEntityUnavailable(obj.entity_id) && toggleEntity(obj.entity_id)"
+            >
+              <div class="ha-control-circle-wrapper">
+                <svg width="50" height="50" viewBox="0 0 50 50" class="ha-control-circle">
+                  <circle cx="25" cy="25" r="22" :fill="getObjectColor(obj.entity_id)" />
+                </svg>
+                <i :class="getObjectIcon(obj.entity_id)" class="ha-control-icon" :style="{ color: getIconColor(obj.entity_id) }"></i>
+              </div>
             </div>
           </div>
         </div>
@@ -97,7 +99,7 @@ const roomEntityId = computed(() => {
 const controlObjects = computed(() => {
   return entityArray.value
     .filter((entityId) => !entityId.startsWith('area.'))
-    .slice(0, 3) // Limit to 3 additional entities
+    .slice(0, 6) // Limit to 6 additional entities
     .map((entityId) => ({
       entity_id: entityId,
     }));
@@ -325,7 +327,19 @@ const toggleEntity = async (entityId) => {
 
 .room-right {
   margin-left: 1rem;
-  justify-content: flex-start;
+}
+
+.room-controls-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(3, auto);
+  grid-auto-flow: column;
+  gap: 0.5rem;
+  direction: rtl;
+}
+
+.room-controls-grid .control-object {
+  direction: ltr;
 }
 
 .room-header {

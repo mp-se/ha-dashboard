@@ -751,4 +751,272 @@ describe('HaRoom.vue', () => {
       });
     });
   });
+
+  describe('Multiple Controls - Up to 6 Limit', () => {
+    it('limits control objects to 6 entities', () => {
+      store.sensors = [
+        {
+          entity_id: 'area.bedroom',
+          state: 'Bedroom',
+          attributes: { friendly_name: 'Bedroom', icon: 'mdi:bed' },
+          entities: [],
+        },
+        {
+          entity_id: 'light.bedroom',
+          state: 'on',
+          attributes: { friendly_name: 'Bedroom Light' },
+        },
+        {
+          entity_id: 'light.ceiling',
+          state: 'off',
+          attributes: { friendly_name: 'Ceiling Light' },
+        },
+        {
+          entity_id: 'switch.fan',
+          state: 'on',
+          attributes: { friendly_name: 'Fan' },
+        },
+        {
+          entity_id: 'fan.bedroom',
+          state: 'off',
+          attributes: { friendly_name: 'Bedroom Fan' },
+        },
+        {
+          entity_id: 'light.desk',
+          state: 'on',
+          attributes: { friendly_name: 'Desk Light' },
+        },
+        {
+          entity_id: 'light.nightstand',
+          state: 'on',
+          attributes: { friendly_name: 'Nightstand Light' },
+        },
+        {
+          entity_id: 'switch.outlet',
+          state: 'off',
+          attributes: { friendly_name: 'Outlet' },
+        },
+      ];
+
+      wrapper = mount(HaRoom, {
+        props: {
+          entity: ['area.bedroom', 'light.bedroom', 'light.ceiling', 'switch.fan', 'fan.bedroom', 'light.desk', 'light.nightstand', 'switch.outlet'],
+        },
+        global: { plugins: [pinia] },
+      });
+
+      // Should only display 6 controls, not 7 (excluding area entity)
+      const controls = wrapper.findAll('.control-object');
+      expect(controls).toHaveLength(6);
+    });
+
+    it('displays 4 controls in 2-column grid layout', () => {
+      store.sensors = [
+        {
+          entity_id: 'area.bedroom',
+          state: 'Bedroom',
+          attributes: { friendly_name: 'Bedroom', icon: 'mdi:bed' },
+          entities: [],
+        },
+        {
+          entity_id: 'light.bedroom',
+          state: 'on',
+          attributes: { friendly_name: 'Bedroom Light' },
+        },
+        {
+          entity_id: 'light.ceiling',
+          state: 'off',
+          attributes: { friendly_name: 'Ceiling Light' },
+        },
+        {
+          entity_id: 'switch.fan',
+          state: 'on',
+          attributes: { friendly_name: 'Fan' },
+        },
+        {
+          entity_id: 'fan.bedroom',
+          state: 'off',
+          attributes: { friendly_name: 'Bedroom Fan' },
+        },
+      ];
+
+      wrapper = mount(HaRoom, {
+        props: {
+          entity: ['area.bedroom', 'light.bedroom', 'light.ceiling', 'switch.fan', 'fan.bedroom'],
+        },
+        global: { plugins: [pinia] },
+      });
+
+      const controls = wrapper.findAll('.control-object');
+      expect(controls).toHaveLength(4);
+
+      const grid = wrapper.find('.room-controls-grid');
+      expect(grid.exists()).toBe(true);
+      expect(grid.classes()).toContain('room-controls-grid');
+    });
+
+    it('displays 5 controls in 2-column grid layout', () => {
+      store.sensors = [
+        {
+          entity_id: 'area.bedroom',
+          state: 'Bedroom',
+          attributes: { friendly_name: 'Bedroom', icon: 'mdi:bed' },
+          entities: [],
+        },
+        {
+          entity_id: 'light.bedroom',
+          state: 'on',
+          attributes: { friendly_name: 'Bedroom Light' },
+        },
+        {
+          entity_id: 'light.ceiling',
+          state: 'off',
+          attributes: { friendly_name: 'Ceiling Light' },
+        },
+        {
+          entity_id: 'switch.fan',
+          state: 'on',
+          attributes: { friendly_name: 'Fan' },
+        },
+        {
+          entity_id: 'fan.bedroom',
+          state: 'off',
+          attributes: { friendly_name: 'Bedroom Fan' },
+        },
+        {
+          entity_id: 'light.desk',
+          state: 'on',
+          attributes: { friendly_name: 'Desk Light' },
+        },
+      ];
+
+      wrapper = mount(HaRoom, {
+        props: {
+          entity: ['area.bedroom', 'light.bedroom', 'light.ceiling', 'switch.fan', 'fan.bedroom', 'light.desk'],
+        },
+        global: { plugins: [pinia] },
+      });
+
+      const controls = wrapper.findAll('.control-object');
+      expect(controls).toHaveLength(5);
+
+      const grid = wrapper.find('.room-controls-grid');
+      expect(grid.exists()).toBe(true);
+    });
+
+    it('displays 6 controls in 2-column grid layout', () => {
+      store.sensors = [
+        {
+          entity_id: 'area.bedroom',
+          state: 'Bedroom',
+          attributes: { friendly_name: 'Bedroom', icon: 'mdi:bed' },
+          entities: [],
+        },
+        {
+          entity_id: 'light.bedroom',
+          state: 'on',
+          attributes: { friendly_name: 'Bedroom Light' },
+        },
+        {
+          entity_id: 'light.ceiling',
+          state: 'off',
+          attributes: { friendly_name: 'Ceiling Light' },
+        },
+        {
+          entity_id: 'switch.fan',
+          state: 'on',
+          attributes: { friendly_name: 'Fan' },
+        },
+        {
+          entity_id: 'fan.bedroom',
+          state: 'off',
+          attributes: { friendly_name: 'Bedroom Fan' },
+        },
+        {
+          entity_id: 'light.desk',
+          state: 'on',
+          attributes: { friendly_name: 'Desk Light' },
+        },
+        {
+          entity_id: 'light.nightstand',
+          state: 'on',
+          attributes: { friendly_name: 'Nightstand Light' },
+        },
+      ];
+
+      wrapper = mount(HaRoom, {
+        props: {
+          entity: ['area.bedroom', 'light.bedroom', 'light.ceiling', 'switch.fan', 'fan.bedroom', 'light.desk', 'light.nightstand'],
+        },
+        global: { plugins: [pinia] },
+      });
+
+      const controls = wrapper.findAll('.control-object');
+      expect(controls).toHaveLength(6);
+
+      const grid = wrapper.find('.room-controls-grid');
+      expect(grid.exists()).toBe(true);
+      // Verify grid contains all 6 control children
+      const gridChildren = grid.findAll('.control-object');
+      expect(gridChildren).toHaveLength(6);
+    });
+
+    it('maintains control functionality with expanded 6-control layout', async () => {
+      store.sensors = [
+        {
+          entity_id: 'area.bedroom',
+          state: 'Bedroom',
+          attributes: { friendly_name: 'Bedroom', icon: 'mdi:bed' },
+          entities: [],
+        },
+        {
+          entity_id: 'light.bedroom',
+          state: 'on',
+          attributes: { friendly_name: 'Bedroom Light' },
+        },
+        {
+          entity_id: 'light.ceiling',
+          state: 'off',
+          attributes: { friendly_name: 'Ceiling Light' },
+        },
+        {
+          entity_id: 'switch.fan',
+          state: 'on',
+          attributes: { friendly_name: 'Fan' },
+        },
+        {
+          entity_id: 'fan.bedroom',
+          state: 'off',
+          attributes: { friendly_name: 'Bedroom Fan' },
+        },
+        {
+          entity_id: 'light.desk',
+          state: 'on',
+          attributes: { friendly_name: 'Desk Light' },
+        },
+        {
+          entity_id: 'light.nightstand',
+          state: 'on',
+          attributes: { friendly_name: 'Nightstand Light' },
+        },
+      ];
+
+      wrapper = mount(HaRoom, {
+        props: {
+          entity: ['area.bedroom', 'light.bedroom', 'light.ceiling', 'switch.fan', 'fan.bedroom', 'light.desk', 'light.nightstand'],
+        },
+        global: { plugins: [pinia] },
+      });
+
+      const controls = wrapper.findAll('.control-object');
+      expect(controls).toHaveLength(6);
+
+      // Click the last control (nightstand light)
+      await controls[5].trigger('click');
+
+      expect(mockCallService).toHaveBeenCalledWith('light', 'turn_off', {
+        entity_id: 'light.nightstand',
+      });
+    });
+  });
 });
