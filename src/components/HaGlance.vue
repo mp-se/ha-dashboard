@@ -167,23 +167,22 @@ const getIconCircleColor = (ent) => {
   text-align: center;
   padding: 0.75rem;
   border-radius: 0.5rem;
-  background-color: rgba(248, 249, 250, 0.3);
   transition: all 0.2s ease;
   overflow: hidden;
   min-width: 0;
 }
 
 .glance-item:hover {
-  background-color: rgba(248, 249, 250, 0.5);
+  background-color: rgba(248, 249, 250, 0.2);
   transform: translateY(-1px);
 }
 
 [data-bs-theme="dark"] .glance-item {
-  background-color: rgba(52, 58, 64, 0.3);
+  background-color: transparent;
 }
 
 [data-bs-theme="dark"] .glance-item:hover {
-  background-color: rgba(52, 58, 64, 0.5);
+  background-color: rgba(52, 58, 64, 0.2);
 }
 
 .glance-icon-wrapper {

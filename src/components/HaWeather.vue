@@ -71,7 +71,7 @@
 
           <!-- Forecast Section -->
           <div
-            v-if="forecastData.length > 0 && !isForecastHourly && forecast"
+            v-if="forecastData.length > 0 && forecast"
             class="mt-2 mb-2"
           >
             <div class="forecast-container">
