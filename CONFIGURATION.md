@@ -60,11 +60,13 @@ area.{area_id}
 ```
 
 For example:
+
 - `area.living_room`
 - `area.bedroom`
 - `area.kitchen`
 
 These virtual entities:
+
 - Display the area's name, icon, and picture (if available)
 - Can be filtered by in the Entity Dashboard view
 - Help visualize the area-to-device-to-entity hierarchy
@@ -73,6 +75,7 @@ These virtual entities:
 ### Device Organization
 
 Devices are automatically fetched from Home Assistant and:
+
 - Grouped by their assigned area
 - Include all associated entity mappings
 - Display in the Devices view with area filtering
@@ -88,6 +91,7 @@ The dashboard uses Home Assistant's entity registry to map each entity to its de
 4. Dashboard creates the complete hierarchy: **Area → Device → Entity**
 
 This allows you to:
+
 - Filter entities by area in the Entity Dashboard
 - View all devices in a specific area
 - See which entities belong to which devices
@@ -122,19 +126,19 @@ Specify a single entity by its Home Assistant entity ID:
 
 The dashboard automatically detects the component type based on the entity domain:
 
-| Domain | Component |
-|--------|-----------|
-| `light.*` | HaLight |
-| `switch.*` | HaSwitch |
-| `sensor.*` | HaSensor |
-| `binary_sensor.*` | HaBinarySensor |
-| `weather.*` | HaWeather |
-| `sun` | HaSun |
-| `media_player.*` | HaMediaPlayer |
-| `alarm_control_panel.*` | HaAlarmPanel |
-| `person.*` | HaPerson |
-| `input_select.*` | HaSelect |
-| `input_button.*` | HaButton |
+| Domain                  | Component      |
+| ----------------------- | -------------- |
+| `light.*`               | HaLight        |
+| `switch.*`              | HaSwitch       |
+| `sensor.*`              | HaSensor       |
+| `binary_sensor.*`       | HaBinarySensor |
+| `weather.*`             | HaWeather      |
+| `sun`                   | HaSun          |
+| `media_player.*`        | HaMediaPlayer  |
+| `alarm_control_panel.*` | HaAlarmPanel   |
+| `person.*`              | HaPerson       |
+| `input_select.*`        | HaSelect       |
+| `input_button.*`        | HaButton       |
 
 If you need a different component for a specific entity, you can explicitly set the `type` property.
 
@@ -154,27 +158,31 @@ Getter functions return arrays of entities. The following getters are available:
 ### Available Getters
 
 **Battery & Power Monitoring:**
+
 - `getBatterySensors()` — Sensors with `device_class: battery` and state < 100%
 - `getWifiSensors()` — Sensors with WiFi icon and available state
 
 **Entity Type Getters:**
+
 - `getAll()` — All available entities
-- `getSensors()` — All sensor.* entities
-- `getLights()` — All light.* entities
-- `getSwitches()` — All switch.* entities
-- `getBinarySensors()` — All binary_sensor.* entities
-- `getFans()` — All fan.* entities
-- `getSelects()` — All select.* entities
-- `getButtons()` — All button.* entities
-- `getMediaPlayers()` — All media_player.* entities
-- `getAlarmPanels()` — All alarm_control_panel.* entities
-- `getDeviceTrackers()` — All device_tracker.* entities
-- `getSuns()` — All sun.* entities
+- `getSensors()` — All sensor.\* entities
+- `getLights()` — All light.\* entities
+- `getSwitches()` — All switch.\* entities
+- `getBinarySensors()` — All binary_sensor.\* entities
+- `getFans()` — All fan.\* entities
+- `getSelects()` — All select.\* entities
+- `getButtons()` — All button.\* entities
+- `getMediaPlayers()` — All media_player.\* entities
+- `getAlarmPanels()` — All alarm_control_panel.\* entities
+- `getDeviceTrackers()` — All device_tracker.\* entities
+- `getSuns()` — All sun.\* entities
 
 **Device-based Getters:**
+
 - `getEntitiesForDevice(deviceId)` — All entities for a specific device
 
 **Area-based Features:**
+
 - Filter by area in the **Entity Dashboard** view using the area dropdown
 - Virtual area entities can be displayed like any other entity
 - Device view supports filtering by area
@@ -186,9 +194,9 @@ The `app` object configures dashboard-wide settings:
 ```json
 {
   "app": {
-    "title": "Home Dashboard",      // Browser title and navbar brand
-    "developerMode": false,         // Show dev tools (save button, etc.)
-    "localMode": false              // Use local cached data instead of HA
+    "title": "Home Dashboard", // Browser title and navbar brand
+    "developerMode": false, // Show dev tools (save button, etc.)
+    "localMode": false // Use local cached data instead of HA
   }
 }
 ```
@@ -213,6 +221,7 @@ npm run build
 ```
 
 This is a **build-time** setting that affects:
+
 - Asset paths (CSS, JS, images)
 - Service worker scope
 - PWA manifest URLs
@@ -386,10 +395,7 @@ Multiple sensors in one card:
 ```json
 {
   "type": "HaSensor",
-  "entity": [
-    "sensor.temperature_living_room",
-    "sensor.humidity_living_room"
-  ]
+  "entity": ["sensor.temperature_living_room", "sensor.humidity_living_room"]
 }
 ```
 
@@ -445,7 +451,11 @@ Comparing power consumption across multiple sources (same unit):
 ```json
 {
   "type": "HaSensorGraph",
-  "entity": ["sensor.power_usage_main", "sensor.power_usage_ev_charger", "sensor.power_usage_solar"],
+  "entity": [
+    "sensor.power_usage_main",
+    "sensor.power_usage_ev_charger",
+    "sensor.power_usage_solar"
+  ],
   "maxPoints": 150
 }
 ```
@@ -695,6 +705,8 @@ Basic sun display:
 ```
 
 ### HaMediaPlayer
+
+![HaMediaPlayer Card](./images/hamediaplayer.png)
 
 Controls media playback (play/pause, volume, track info).
 
@@ -1085,21 +1097,22 @@ Pressure gauge:
 
 ![HaRoom Card](./images/haroom.png)
 
-Displays an area/room card with temperature/humidity auto-detection and up to 3 control objects.
+Displays an area/room card with temperature/humidity auto-detection and up to 6 control objects arranged in a 2-column grid.
 
 **Use for**: Area-based room displays with device controls (lights, switches, fans, media players)
 
 **Properties**:
 
-- `entity` (string|array, required): Entity ID or array of entity IDs (area entity + up to 3 control objects)
+- `entity` (string|array, required): Entity ID or array of entity IDs (area entity + up to 6 control objects, can include temp/humidity sensors)
 - `color` (string, optional, default: "blue"): CSS color name for the room circle
 
 **Features**:
 
 - Auto-detects area entity by `area.*` prefix (order-independent)
-- Automatically finds temperature sensors (device_class: temperature)
-- Automatically finds humidity sensors (device_class: humidity)
-- Displays up to 3 control objects as clickable circles
+- Automatically finds temperature sensors (device_class: temperature) - first searches area's entities, then fallback searches provided entity list
+- Automatically finds humidity sensors (device_class: humidity) - first searches area's entities, then fallback searches provided entity list
+- Temperature and humidity sensors are automatically excluded from control objects
+- Displays up to 6 control objects in a 2-column grid layout (right column fills first)
 - Shows area icon in the main circle
 - Domain-specific colors:
   - **Lights**: Yellow (#ffc107)
@@ -1132,26 +1145,34 @@ Array format with control objects:
 }
 ```
 
-Living room with custom color:
+Room with temperature and humidity sensors (not shown as controls):
 
 ```json
 {
   "type": "HaRoom",
-  "entity": ["area.living_room", "light.living_room", "switch.outlet"],
-  "color": "red"
+  "entity": [
+    "area.bedroom",
+    "sensor.bedroom_temp",
+    "sensor.bedroom_humidity",
+    "light.bedroom",
+    "switch.fan"
+  ]
 }
 ```
 
-Kitchen with multiple control objects (limited to 3):
+Kitchen with multiple control objects (up to 6):
 
 ```json
 {
   "type": "HaRoom",
   "entity": [
     "area.kitchen",
+    "sensor.kitchen_temp",
     "light.kitchen_main",
     "light.kitchen_island",
-    "switch.kitchen_exhaust"
+    "switch.kitchen_exhaust",
+    "light.kitchen_under_cabinet",
+    "switch.kitchen_dimmer"
   ],
   "color": "orange"
 }
@@ -1159,10 +1180,12 @@ Kitchen with multiple control objects (limited to 3):
 
 **Notes**:
 
-- Only the first 3 control objects (non-area entities) will be displayed to maintain layout
+- Control objects are displayed in a 2-column grid layout (3 rows × 2 columns for maximum 6 controls), filling the right column first
+- Temperature and humidity sensors can be included in the entity list and will be automatically excluded from control objects (only used for display)
+- Only the first 6 non-sensor control objects will be displayed to maintain layout
 - Control objects support on/off toggle for switches, lights, and fans
 - Media players use play/pause controls instead of on/off
-- Temperature and humidity are automatically discovered from the area's entities
+- Temperature and humidity are automatically discovered: first from area's entities, then from the provided entity list if not found in area
 
 ### HaEntityList
 
@@ -1274,7 +1297,6 @@ Restart automation:
   "entity": "input_button.restart_automations"
 }
 ```
-
 
 ---
 

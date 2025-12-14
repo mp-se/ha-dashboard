@@ -11,12 +11,20 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 id="credentialDialogLabel" class="modal-title">Home Assistant Credentials</h5>
+          <h5 id="credentialDialogLabel" class="modal-title">
+            Home Assistant Credentials
+          </h5>
         </div>
-        <form class="needs-validation" novalidate @submit.prevent="handleSubmit">
+        <form
+          class="needs-validation"
+          novalidate
+          @submit.prevent="handleSubmit"
+        >
           <div class="modal-body">
             <div class="mb-3">
-              <label for="ha-url-input" class="form-label">Home Assistant URL</label>
+              <label for="ha-url-input" class="form-label"
+                >Home Assistant URL</label
+              >
               <input
                 id="ha-url-input"
                 v-model="formData.haUrl"
@@ -26,13 +34,18 @@
                 placeholder="https://192.168.1.100:8123"
                 required
               />
-              <div v-if="submitted && !formData.haUrl" class="invalid-feedback d-block">
+              <div
+                v-if="submitted && !formData.haUrl"
+                class="invalid-feedback d-block"
+              >
                 Home Assistant URL is required
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="ha-token-input" class="form-label">Access Token</label>
+              <label for="ha-token-input" class="form-label"
+                >Access Token</label
+              >
               <input
                 id="ha-token-input"
                 v-model="formData.accessToken"
@@ -42,13 +55,17 @@
                 placeholder="Enter your Long-Lived Access Token"
                 required
               />
-              <div v-if="submitted && !formData.accessToken" class="invalid-feedback d-block">
+              <div
+                v-if="submitted && !formData.accessToken"
+                class="invalid-feedback d-block"
+              >
                 Access Token is required
               </div>
             </div>
 
             <div class="text-muted small">
-              You can create a Long-Lived Access Token in Home Assistant under Profile → Long-Lived Access Tokens.
+              You can create a Long-Lived Access Token in Home Assistant under
+              Profile → Long-Lived Access Tokens.
             </div>
           </div>
 
@@ -62,17 +79,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref } from "vue";
 
 const show = ref(false);
 const submitted = ref(false);
 
 const formData = ref({
-  haUrl: '',
-  accessToken: '',
+  haUrl: "",
+  accessToken: "",
 });
 
-const emit = defineEmits(['credentials']);
+const emit = defineEmits(["credentials"]);
 
 /**
  * Show the credential dialog
@@ -81,8 +98,8 @@ const showModal = () => {
   show.value = true;
   submitted.value = false;
   formData.value = {
-    haUrl: '',
-    accessToken: '',
+    haUrl: "",
+    accessToken: "",
   };
 };
 
@@ -98,7 +115,7 @@ const handleSubmit = () => {
   }
 
   // Emit credentials and close dialog
-  emit('credentials', {
+  emit("credentials", {
     haUrl: formData.value.haUrl.trim(),
     accessToken: formData.value.accessToken.trim(),
   });

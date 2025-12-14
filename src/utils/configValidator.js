@@ -3,101 +3,101 @@
  * Validates entity configurations against component prop requirements
  */
 
-import { getDefaultComponentType } from '../composables/useDefaultComponentType';
-import { isValidMdiIcon, suggestMdiIcons } from './mdiIconValidator';
+import { getDefaultComponentType } from "../composables/useDefaultComponentType";
+import { isValidMdiIcon, suggestMdiIcons } from "./mdiIconValidator";
 
 // Component prop schemas - defines required and optional props for each component
 const componentSchemas = {
   HaWarning: {
-    required: ['entity', 'operator', 'value', 'message'],
-    optional: ['attribute', 'type'],
+    required: ["entity", "operator", "value", "message"],
+    optional: ["attribute", "type"],
   },
   HaError: {
-    required: ['entity', 'operator', 'value', 'message'],
-    optional: ['attribute', 'type'],
+    required: ["entity", "operator", "value", "message"],
+    optional: ["attribute", "type"],
   },
   HaGauge: {
-    required: ['entity'],
-    optional: ['min', 'max', 'attributes'],
+    required: ["entity"],
+    optional: ["min", "max", "attributes"],
   },
   HaSensor: {
-    required: ['entity'],
-    optional: ['attributes', 'secondEntity'],
+    required: ["entity"],
+    optional: ["attributes", "secondEntity"],
   },
   HaLight: {
-    required: ['entity'],
-    optional: ['attributes'],
+    required: ["entity"],
+    optional: ["attributes"],
   },
   HaBinarySensor: {
-    required: ['entity'],
-    optional: ['attributes'],
+    required: ["entity"],
+    optional: ["attributes"],
   },
   HaChip: {
-    required: ['entity'],
+    required: ["entity"],
     optional: [],
   },
   HaWeather: {
-    required: ['entity'],
-    optional: ['attributes', 'forecast'],
+    required: ["entity"],
+    optional: ["attributes", "forecast"],
   },
   HaSensorGraph: {
-    required: ['entity'],
-    optional: ['attributes', 'hours', 'maxPoints'],
+    required: ["entity"],
+    optional: ["attributes", "hours", "maxPoints"],
   },
   HaMediaPlayer: {
-    required: ['entity'],
+    required: ["entity"],
     optional: [],
   },
   HaSun: {
-    required: ['entity'],
+    required: ["entity"],
     optional: [],
   },
   HaPrinter: {
-    required: ['entity'],
-    optional: ['black', 'cyan', 'magenta', 'yellow', 'attributes'],
+    required: ["entity"],
+    optional: ["black", "cyan", "magenta", "yellow", "attributes"],
   },
   HaEnergy: {
     required: [],
-    optional: ['entity'],
+    optional: ["entity"],
   },
   HaEntityList: {
     required: [],
-    optional: ['entities', 'getter', 'componentMap'],
+    optional: ["entities", "getter", "componentMap"],
   },
   HaGlance: {
-    required: ['entity'],
+    required: ["entity"],
     optional: [],
   },
   HaAlarmPanel: {
-    required: ['entity'],
+    required: ["entity"],
     optional: [],
   },
   HaButton: {
-    required: ['entity'],
+    required: ["entity"],
     optional: [],
   },
   HaSelect: {
-    required: ['entity'],
+    required: ["entity"],
     optional: [],
   },
   HaSwitch: {
-    required: ['entity'],
+    required: ["entity"],
     optional: [],
   },
   HaImage: {
-    required: ['url'],
-    optional: ['title'],
+    required: ["url"],
+    optional: ["title"],
   },
   HaHeader: {
-    required: ['name'],
-    optional: ['icon'],
+    required: ["name"],
+    optional: ["icon"],
   },
   HaLink: {
-    required: ['url', 'name', 'header'],
-    optional: ['entity'],
+    required: ["url", "name", "header"],
+    optional: ["entity"],
   },
   HaPerson: {
-    required: ['entity'],
+    required: ["entity"],
     optional: [],
   },
   HaSpacer: {
@@ -109,11 +109,11 @@ const componentSchemas = {
     optional: [],
   },
   HaRoom: {
-    required: ['entity'],
-    optional: ['color'],
+    required: ["entity"],
+    optional: ["color"],
   },
   HaBeerTap: {
-    required: ['entity'],
+    required: ["entity"],
     optional: [],
   },
 };
@@ -127,22 +127,30 @@ const componentSchemas = {
  */
 function validateEntity(entityConfig, viewName, entityIndex) {
   const errors = [];
-  
+
   // Get entity identifier for error messages
-  let entityId = '';
+  let entityId = "";
   if (entityConfig.entity) {
-    const entityVal = Array.isArray(entityConfig.entity) ? entityConfig.entity[0] : entityConfig.entity;
-    entityId = entityVal || 'unknown';
+    const entityVal = Array.isArray(entityConfig.entity)
+      ? entityConfig.entity[0]
+      : entityConfig.entity;
+    entityId = entityVal || "unknown";
   } else if (entityConfig.getter) {
     entityId = `getter:${entityConfig.getter}`;
-  } else if (entityConfig.type === 'HaLink' || entityConfig.type === 'HaSpacer' || entityConfig.type === 'HaRowSpacer') {
+  } else if (
+    entityConfig.type === "HaLink" ||
+    entityConfig.type === "HaSpacer" ||
+    entityConfig.type === "HaRowSpacer"
+  ) {
     entityId = entityConfig.name || entityConfig.type;
   } else {
-    entityId = 'entity-' + entityIndex;
+    entityId = "entity-" + entityIndex;
   }
 
   // Determine component type (explicit or default) - type is now optional
-  const componentType = entityConfig.type || getDefaultComponentType(entityConfig.entity, entityConfig.getter);
+  const componentType =
+    entityConfig.type ||
+    getDefaultComponentType(entityConfig.entity, entityConfig.getter);
 
   const schema = componentSchemas[componentType];
   if (!schema) {
@@ -155,10 +163,10 @@ function validateEntity(entityConfig, viewName, entityIndex) {
   // Check required props - skip 'entity' if using getter (getter provides entities)
   for (const prop of schema.required) {
     // If using a getter and the required prop is 'entity', skip this requirement
-    if (prop === 'entity' && entityConfig.getter) {
+    if (prop === "entity" && entityConfig.getter) {
       continue;
     }
-    
+
     if (!(prop in entityConfig)) {
       errors.push({
         message: `Component '${componentType}' in view '${viewName}' entity '${entityId}' is missing required prop '${prop}'`,
@@ -168,26 +176,41 @@ function validateEntity(entityConfig, viewName, entityIndex) {
 
   // Warn about unknown props
   const allowedProps = new Set([
-    'type', 'getter', 'entity', 'attributes',
+    "type",
+    "getter",
+    "entity",
+    "attributes",
     // Common optional props
-    'operator', 'value', 'message', 'attribute',
+    "operator",
+    "value",
+    "message",
+    "attribute",
     // HaSensorGraph / HaSensor (secondEntity is deprecated for HaSensorGraph)
-    'secondEntity',
+    "secondEntity",
     // HaPrinter
-    'black', 'cyan', 'magenta', 'yellow',
+    "black",
+    "cyan",
+    "magenta",
+    "yellow",
     // HaLink
-    'url', 'name', 'header', 'label', 'icon',
+    "url",
+    "name",
+    "header",
+    "label",
+    "icon",
     // HaImage
-    'title',
+    "title",
     // Gauge
-    'min', 'max',
+    "min",
+    "max",
     // HaSensorGraph
-    'hours', 'maxPoints',
+    "hours",
+    "maxPoints",
     // Add all component-specific schema props
     ...Object.values(schema.required),
     ...Object.values(schema.optional),
   ]);
-  
+
   for (const prop of Object.keys(entityConfig)) {
     if (!allowedProps.has(prop)) {
       errors.push({
@@ -197,12 +220,13 @@ function validateEntity(entityConfig, viewName, entityIndex) {
   }
 
   // Validate icon prop if present (HaHeader, HaLink, etc.)
-  if (entityConfig.icon && typeof entityConfig.icon === 'string') {
+  if (entityConfig.icon && typeof entityConfig.icon === "string") {
     if (!isValidMdiIcon(entityConfig.icon)) {
       const suggestions = suggestMdiIcons(entityConfig.icon);
-      const suggestionText = suggestions.length > 0 
-        ? ` Did you mean: ${suggestions.map(s => `"mdi-${s}"`).join(', ')}?`
-        : '';
+      const suggestionText =
+        suggestions.length > 0
+          ? ` Did you mean: ${suggestions.map((s) => `"mdi-${s}"`).join(", ")}?`
+          : "";
       errors.push({
         message: `Component '${componentType}' in view '${viewName}' entity '${entityId}' has invalid icon '${entityConfig.icon}'. Not a valid MDI icon.${suggestionText}`,
       });
@@ -210,9 +234,10 @@ function validateEntity(entityConfig, viewName, entityIndex) {
   }
 
   // Warn about deprecated secondEntity prop in HaSensorGraph
-  if (componentType === 'HaSensorGraph' && entityConfig.secondEntity) {
+  if (componentType === "HaSensorGraph" && entityConfig.secondEntity) {
     errors.push({
-      message: `⚠️  DEPRECATED: Component 'HaSensorGraph' in view '${viewName}' entity '${entityId}' uses deprecated 'secondEntity' prop. ` +
+      message:
+        `⚠️  DEPRECATED: Component 'HaSensorGraph' in view '${viewName}' entity '${entityId}' uses deprecated 'secondEntity' prop. ` +
         `Update your config to use array syntax instead: "entity": ["${entityConfig.entity}", "${entityConfig.secondEntity}"] ` +
         `(supports up to 3 entities)`,
     });
@@ -235,7 +260,7 @@ export function validateConfig(config) {
   if (!config) {
     return {
       valid: false,
-      errors: [{ message: 'Configuration is null or undefined', line: 1 }],
+      errors: [{ message: "Configuration is null or undefined", line: 1 }],
       errorCount: 1,
     };
   }
@@ -244,14 +269,17 @@ export function validateConfig(config) {
   if (!config.app) {
     errors.push({ message: 'Missing "app" section in configuration', line: 2 });
   } else {
-    if (typeof config.app.title !== 'string') {
-      errors.push({ message: 'app.title must be a string', line: 3 });
+    if (typeof config.app.title !== "string") {
+      errors.push({ message: "app.title must be a string", line: 3 });
     }
   }
 
   // Validate views
   if (!Array.isArray(config.views)) {
-    errors.push({ message: 'Configuration must have a "views" array', line: 10 });
+    errors.push({
+      message: 'Configuration must have a "views" array',
+      line: 10,
+    });
     return {
       valid: false,
       errors,
@@ -260,14 +288,17 @@ export function validateConfig(config) {
   }
 
   if (config.views.length === 0) {
-    errors.push({ message: 'Views array cannot be empty', line: 11 });
+    errors.push({ message: "Views array cannot be empty", line: 11 });
   }
 
   // Validate each view
   for (let viewIndex = 0; viewIndex < config.views.length; viewIndex++) {
     const view = config.views[viewIndex];
     if (!view.name) {
-      errors.push({ message: `View ${viewIndex} must have a "name" property`, line: 12 + viewIndex });
+      errors.push({
+        message: `View ${viewIndex} must have a "name" property`,
+        line: 12 + viewIndex,
+      });
       continue;
     }
 
@@ -286,9 +317,10 @@ export function validateConfig(config) {
     } else if (view.icon && !isValidMdiIcon(view.icon)) {
       // Validate icon is a real MDI icon
       const suggestions = suggestMdiIcons(view.icon);
-      const suggestionText = suggestions.length > 0 
-        ? ` Did you mean: ${suggestions.map(s => `"mdi-${s}"`).join(', ')}?`
-        : '';
+      const suggestionText =
+        suggestions.length > 0
+          ? ` Did you mean: ${suggestions.map((s) => `"mdi-${s}"`).join(", ")}?`
+          : "";
       errors.push({
         message: `View '${view.name}' has invalid icon '${view.icon}'. Not a valid MDI icon.${suggestionText}`,
         line: 14 + viewIndex,
@@ -296,7 +328,7 @@ export function validateConfig(config) {
     }
 
     // Validate hidden is boolean if present
-    if (view.hidden !== undefined && typeof view.hidden !== 'boolean') {
+    if (view.hidden !== undefined && typeof view.hidden !== "boolean") {
       errors.push({
         message: `View '${view.name}' hidden property must be a boolean`,
         line: 15 + viewIndex,
@@ -305,7 +337,11 @@ export function validateConfig(config) {
 
     // Validate entities in this view
     if (Array.isArray(view.entities)) {
-      for (let entityIndex = 0; entityIndex < view.entities.length; entityIndex++) {
+      for (
+        let entityIndex = 0;
+        entityIndex < view.entities.length;
+        entityIndex++
+      ) {
         const entity = view.entities[entityIndex];
         const validation = validateEntity(entity, view.name, entityIndex);
         if (!validation.valid) {

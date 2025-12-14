@@ -1,5 +1,5 @@
-import { ref } from 'vue';
-import { useHaStore } from '@/stores/haStore';
+import { ref } from "vue";
+import { useHaStore } from "@/stores/haStore";
 
 /**
  * Composable for making Home Assistant service calls with consistent error handling
@@ -24,7 +24,12 @@ export const useServiceCall = () => {
    * @param {boolean} options.showFeedback - Show success/error feedback (default true)
    * @returns {Promise<boolean>} - True if successful, false if failed
    */
-  const callService = async (domain, service, serviceData = {}, options = {}) => {
+  const callService = async (
+    domain,
+    service,
+    serviceData = {},
+    options = {},
+  ) => {
     const { timeout = 5000, showFeedback = true } = options;
 
     isLoading.value = true;
@@ -34,7 +39,10 @@ export const useServiceCall = () => {
     try {
       // Skip actual call if in local mode
       if (store.isLocalMode) {
-        console.log(`[LOCAL MODE] Would call service: ${domain}.${service}`, serviceData);
+        console.log(
+          `[LOCAL MODE] Would call service: ${domain}.${service}`,
+          serviceData,
+        );
         isLoading.value = false;
         return true;
       }
@@ -62,10 +70,10 @@ export const useServiceCall = () => {
       } catch (e) {
         clearTimeout(timeoutId);
 
-        if (e.name === 'AbortError') {
+        if (e.name === "AbortError") {
           error.value = `Service call timeout (${timeout}ms)`;
         } else {
-          error.value = e.message || 'Service call failed';
+          error.value = e.message || "Service call failed";
         }
 
         if (showFeedback) {
@@ -80,8 +88,8 @@ export const useServiceCall = () => {
         return false;
       }
     } catch (e) {
-      error.value = e.message || 'Unexpected error during service call';
-      console.error('Service call error:', e);
+      error.value = e.message || "Unexpected error during service call";
+      console.error("Service call error:", e);
       return false;
     } finally {
       isLoading.value = false;

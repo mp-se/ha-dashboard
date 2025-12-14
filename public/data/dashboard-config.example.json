@@ -86,10 +86,7 @@
           "entity": "light.bedroom"
         },
         {
-          "entity": [
-            "sensor.bedroom_temperature",
-            "sensor.bedroom_humidity"
-          ]
+          "entity": ["sensor.bedroom_temperature", "sensor.bedroom_humidity"]
         }
       ]
     },
@@ -162,10 +159,7 @@
           ]
         },
         {
-          "entity": [
-            "sensor.bedroom_temperature",
-            "sensor.bedroom_humidity"
-          ]
+          "entity": ["sensor.bedroom_temperature", "sensor.bedroom_humidity"]
         }
       ]
     },
@@ -386,6 +380,5 @@
         }
       ]
     }
-
   ]
 }

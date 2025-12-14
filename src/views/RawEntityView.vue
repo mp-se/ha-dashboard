@@ -1,13 +1,30 @@
 <template>
   <!-- Success Notification Banner (Top of viewport) -->
-  <div v-if="successBanner" class="alert alert-success alert-dismissible fade show m-0 rounded-0" role="alert" style="position: sticky; top: 0; left: 0; right: 0; z-index: 1040; margin: 0 !important;">
+  <div
+    v-if="successBanner"
+    class="alert alert-success alert-dismissible fade show m-0 rounded-0"
+    role="alert"
+    style="
+      position: sticky;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1040;
+      margin: 0 !important;
+    "
+  >
     <div class="container-fluid">
       <div class="d-flex justify-content-between align-items-center">
         <div>
           <i class="mdi mdi-check-circle me-2"></i>
           <strong>Configuration generated!</strong> {{ successBannerMessage }}
         </div>
-        <button type="button" class="btn-close" aria-label="Close" @click="successBanner = false"></button>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Close"
+          @click="successBanner = false"
+        ></button>
       </div>
     </div>
   </div>
@@ -23,7 +40,9 @@
             <select v-model="selectedType" class="form-select">
               <option value="">All Types</option>
               <option value="areas">area</option>
-              <option v-for="type in uniqueTypes" :key="type" :value="type">{{ type }}</option>
+              <option v-for="type in uniqueTypes" :key="type" :value="type">
+                {{ type }}
+              </option>
             </select>
           </div>
           <div class="" style="width: 260px">
@@ -58,7 +77,9 @@
                 type="checkbox"
                 style="transform: scale(1.2)"
               />
-              <label class="form-check-label ms-2" for="hideUnavailable"> Hide Unavailable </label>
+              <label class="form-check-label ms-2" for="hideUnavailable">
+                Hide Unavailable
+              </label>
             </div>
           </div>
           <button
@@ -74,7 +95,11 @@
       <!-- Areas Display -->
       <div v-if="selectedType === 'areas'" class="col-md-12">
         <div class="row g-3">
-          <div v-for="area in filteredAreas" :key="area.id" class="col-lg-4 col-md-6">
+          <div
+            v-for="area in filteredAreas"
+            :key="area.id"
+            class="col-lg-4 col-md-6"
+          >
             <div class="card h-100 rounded-4 border-info">
               <div class="card-body text-start position-relative">
                 <button
@@ -85,19 +110,32 @@
                 >
                   <i class="mdi mdi-content-copy"></i>
                 </button>
-                <div class="d-flex justify-content-between align-items-start mb-2">
+                <div
+                  class="d-flex justify-content-between align-items-start mb-2"
+                >
                   <div>
-                    <h6 class="card-title mb-0">{{ area.name || 'Unnamed' }}</h6>
+                    <h6 class="card-title mb-0">
+                      {{ area.name || "Unnamed" }}
+                    </h6>
                     <small class="text-muted">area.{{ area.area_id }}</small>
-                    <div v-if="area.icon" class="small text-muted">Icon: <code>{{ area.icon }}</code></div>
+                    <div v-if="area.icon" class="small text-muted">
+                      Icon: <code>{{ area.icon }}</code>
+                    </div>
                   </div>
-                  <i v-if="area.icon" :class="getIconClass(area.icon)" style="font-size: 1.5rem"></i>
+                  <i
+                    v-if="area.icon"
+                    :class="getIconClass(area.icon)"
+                    style="font-size: 1.5rem"
+                  ></i>
                 </div>
                 <div class="mt-3">
                   <div v-if="area.picture" class="mb-2">
                     <strong>Picture:</strong> <code>{{ area.picture }}</code>
                   </div>
-                  <div v-if="area.aliases && area.aliases.length > 0" class="mb-2">
+                  <div
+                    v-if="area.aliases && area.aliases.length > 0"
+                    class="mb-2"
+                  >
                     <strong>Aliases:</strong>
                     <ul class="list-unstyled small mb-0">
                       <li v-for="alias in area.aliases" :key="alias">
@@ -105,8 +143,13 @@
                       </li>
                     </ul>
                   </div>
-                  <small v-if="area.entities" class="text-muted">Entities ({{ area.entities.length }})</small>
-                  <ul v-if="area.entities && area.entities.length > 0" class="list-unstyled small mb-0">
+                  <small v-if="area.entities" class="text-muted"
+                    >Entities ({{ area.entities.length }})</small
+                  >
+                  <ul
+                    v-if="area.entities && area.entities.length > 0"
+                    class="list-unstyled small mb-0"
+                  >
                     <li v-for="entity in area.entities" :key="entity">
                       <code>{{ entity }}</code>
                     </li>
@@ -119,11 +162,17 @@
       </div>
       <!-- Entities Display -->
       <div v-else class="row g-3 col-md-12">
-        <div v-for="entity in filteredEntities" :key="entity.entity_id" class="col-lg-4 col-md-6">
+        <div
+          v-for="entity in filteredEntities"
+          :key="entity.entity_id"
+          class="col-lg-4 col-md-6"
+        >
           <div
             :class="[
               'card h-100 rounded-4',
-              ['unavailable', 'unknown'].includes(entity.state) ? 'border-warning' : 'border-info',
+              ['unavailable', 'unknown'].includes(entity.state)
+                ? 'border-warning'
+                : 'border-info',
             ]"
           >
             <div class="card-body text-start position-relative">
@@ -146,15 +195,21 @@
                   <i class="mdi mdi-code-json"></i>
                 </button>
               </div>
-              <h6 class="card-title">{{ entity.attributes?.friendly_name || entity.entity_id }}</h6>
+              <h6 class="card-title">
+                {{ entity.attributes?.friendly_name || entity.entity_id }}
+              </h6>
               <small class="text-muted">{{ entity.entity_id }}</small>
-              <p class="mt-2 mb-1"><strong>State:</strong> {{ entity.state }}</p>
+              <p class="mt-2 mb-1">
+                <strong>State:</strong> {{ entity.state }}
+              </p>
               <div class="mt-2">
                 <small class="text-muted">Attributes</small>
                 <ul class="list-unstyled small mb-0">
                   <li v-for="[k, v] in displayAttributes(entity)" :key="k">
                     <span class="ha-attribute-key">{{ k }}:</span>
-                    <span class="ha-attribute-value text-wrap">{{ formatAttributeValue(v) }}</span>
+                    <span class="ha-attribute-value text-wrap">{{
+                      formatAttributeValue(v)
+                    }}</span>
                   </li>
                 </ul>
               </div>
@@ -168,30 +223,35 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
-import { useHaStore } from '../stores/haStore';
-import { DEFAULT_DOMAIN_MAP } from '@/composables/useDefaultComponentType';
-import useDebouncedRef from '@/composables/useDebouncedRef';
+import { computed, ref } from "vue";
+import { useHaStore } from "../stores/haStore";
+import { DEFAULT_DOMAIN_MAP } from "@/composables/useDefaultComponentType";
+import useDebouncedRef from "@/composables/useDebouncedRef";
 
 defineProps({
   viewName: {
     type: String,
     required: false,
-    default: '',
+    default: "",
   },
 });
 
 const store = useHaStore();
-const selectedType = ref('');
+const selectedType = ref("");
 const hideUnavailable = ref(false);
 const successBanner = ref(false);
-const successBannerMessage = ref('');
-const { input: searchText, debounced: debouncedSearch } = useDebouncedRef('', 300);
+const successBannerMessage = ref("");
+const { input: searchText, debounced: debouncedSearch } = useDebouncedRef(
+  "",
+  300,
+);
 
 const uniqueTypes = computed(() => {
-  const types = new Set(store.sensors.map((entity) => entity.entity_id.split('.')[0]));
+  const types = new Set(
+    store.sensors.map((entity) => entity.entity_id.split(".")[0]),
+  );
   // Remove 'area' since it's already a hardcoded option
-  types.delete('area');
+  types.delete("area");
   return Array.from(types).sort();
 });
 
@@ -199,20 +259,26 @@ const filteredEntities = computed(() => {
   let entities = store.sensors;
 
   // Filter by type if selected (but not if "areas" is selected)
-  if (selectedType.value && selectedType.value !== 'areas') {
-    entities = entities.filter((entity) => entity.entity_id.startsWith(`${selectedType.value}.`));
+  if (selectedType.value && selectedType.value !== "areas") {
+    entities = entities.filter((entity) =>
+      entity.entity_id.startsWith(`${selectedType.value}.`),
+    );
   }
 
   // Filter out unavailable entities if checkbox is checked
   if (hideUnavailable.value) {
-    entities = entities.filter((entity) => !['unavailable', 'unknown'].includes(entity.state));
+    entities = entities.filter(
+      (entity) => !["unavailable", "unknown"].includes(entity.state),
+    );
   }
 
   // Filter by search text (match friendly_name or entity_id)
   if (debouncedSearch.value && debouncedSearch.value.trim().length > 0) {
     const q = debouncedSearch.value.trim().toLowerCase();
     entities = entities.filter((entity) => {
-      const name = (entity.attributes?.friendly_name || '').toString().toLowerCase();
+      const name = (entity.attributes?.friendly_name || "")
+        .toString()
+        .toLowerCase();
       const id = entity.entity_id.toLowerCase();
       return name.includes(q) || id.includes(q);
     });
@@ -228,7 +294,7 @@ const filteredAreas = computed(() => {
   if (debouncedSearch.value && debouncedSearch.value.trim().length > 0) {
     const q = debouncedSearch.value.trim().toLowerCase();
     areasData = areasData.filter((area) => {
-      const id = (area.id || '').toLowerCase();
+      const id = (area.id || "").toLowerCase();
       return id.includes(q);
     });
   }
@@ -242,12 +308,12 @@ const filteredAreas = computed(() => {
 const displayAttributes = (entity) => {
   if (!entity || !entity.attributes) return [];
   const blacklist = new Set([
-    'friendly_name',
-    'entity_picture',
-    'icon',
-    'unit_of_measurement',
-    'device_class',
-    'device_id',
+    "friendly_name",
+    "entity_picture",
+    "icon",
+    "unit_of_measurement",
+    "device_class",
+    "device_id",
   ]);
   const entries = Object.entries(entity.attributes || {})
     .filter(([k]) => !blacklist.has(k))
@@ -256,9 +322,9 @@ const displayAttributes = (entity) => {
 };
 
 const formatAttributeValue = (v) => {
-  if (v === null || v === undefined) return '';
-  if (Array.isArray(v)) return v.join(', ');
-  if (typeof v === 'object') {
+  if (v === null || v === undefined) return "";
+  if (Array.isArray(v)) return v.join(", ");
+  if (typeof v === "object") {
     try {
       return JSON.stringify(v);
     } catch (e) {
@@ -269,9 +335,9 @@ const formatAttributeValue = (v) => {
 };
 
 const getIconClass = (icon) => {
-  if (!icon) return '';
-  if (icon.startsWith('mdi:')) {
-    return `mdi mdi-${icon.split(':')[1]}`;
+  if (!icon) return "";
+  if (icon.startsWith("mdi:")) {
+    return `mdi mdi-${icon.split(":")[1]}`;
   }
   return icon;
 };
@@ -280,30 +346,33 @@ const copyEntityToClipboard = async (entity) => {
   try {
     const jsonString = JSON.stringify(entity, null, 2);
     await navigator.clipboard.writeText(jsonString);
-    console.log('Entity JSON copied to clipboard:', entity.entity_id);
+    console.log("Entity JSON copied to clipboard:", entity.entity_id);
     successBannerMessage.value = `Entity JSON for ${entity.entity_id} copied to clipboard.`;
     successBanner.value = true;
     setTimeout(() => {
       successBanner.value = false;
     }, 3000);
   } catch (error) {
-    console.error('Failed to copy entity to clipboard:', error);
+    console.error("Failed to copy entity to clipboard:", error);
     // Fallback for older browsers
     try {
-      const textArea = document.createElement('textarea');
+      const textArea = document.createElement("textarea");
       textArea.value = JSON.stringify(entity, null, 2);
       document.body.appendChild(textArea);
       textArea.select();
-      document.execCommand('copy');
+      document.execCommand("copy");
       document.body.removeChild(textArea);
-      console.log('Entity JSON copied to clipboard (fallback):', entity.entity_id);
+      console.log(
+        "Entity JSON copied to clipboard (fallback):",
+        entity.entity_id,
+      );
       successBannerMessage.value = `Entity JSON for ${entity.entity_id} copied to clipboard.`;
       successBanner.value = true;
       setTimeout(() => {
         successBanner.value = false;
       }, 3000);
     } catch (fallbackError) {
-      console.error('Fallback copy also failed:', fallbackError);
+      console.error("Fallback copy also failed:", fallbackError);
     }
   }
 };
@@ -312,20 +381,20 @@ const copyAreaToClipboard = async (area) => {
   try {
     const jsonString = JSON.stringify(area, null, 2);
     await navigator.clipboard.writeText(jsonString);
-    console.log('Area JSON copied to clipboard:', area.id);
+    console.log("Area JSON copied to clipboard:", area.id);
   } catch (error) {
-    console.error('Failed to copy area to clipboard:', error);
+    console.error("Failed to copy area to clipboard:", error);
     // Fallback for older browsers
     try {
-      const textArea = document.createElement('textarea');
+      const textArea = document.createElement("textarea");
       textArea.value = JSON.stringify(area, null, 2);
       document.body.appendChild(textArea);
       textArea.select();
-      document.execCommand('copy');
+      document.execCommand("copy");
       document.body.removeChild(textArea);
-      console.log('Area JSON copied to clipboard (fallback):', area.id);
+      console.log("Area JSON copied to clipboard (fallback):", area.id);
     } catch (fallbackError) {
-      console.error('Fallback copy also failed:', fallbackError);
+      console.error("Fallback copy also failed:", fallbackError);
     }
   }
 };
@@ -333,12 +402,17 @@ const copyAreaToClipboard = async (area) => {
 const generateConfigJson = async () => {
   // Filter to only supported entities (those in DEFAULT_DOMAIN_MAP)
   const supportedEntities = store.sensors.filter((entity) => {
-    const domain = entity.entity_id.split('.')[0];
-    return DEFAULT_DOMAIN_MAP[domain] && entity.state !== 'unavailable' && entity.state !== 'unknown';
+    const domain = entity.entity_id.split(".")[0];
+    return (
+      DEFAULT_DOMAIN_MAP[domain] &&
+      entity.state !== "unavailable" &&
+      entity.state !== "unknown"
+    );
   });
 
   if (supportedEntities.length === 0) {
-    successBannerMessage.value = 'No supported entities found to generate configuration.';
+    successBannerMessage.value =
+      "No supported entities found to generate configuration.";
     successBanner.value = true;
     setTimeout(() => {
       successBanner.value = false;
@@ -349,9 +423,9 @@ const generateConfigJson = async () => {
   // Group entities by component type
   const groupedByType = {};
   supportedEntities.forEach((entity) => {
-    const domain = entity.entity_id.split('.')[0];
+    const domain = entity.entity_id.split(".")[0];
     const componentType = DEFAULT_DOMAIN_MAP[domain];
-    
+
     if (!groupedByType[componentType]) {
       groupedByType[componentType] = [];
     }
@@ -371,19 +445,19 @@ const generateConfigJson = async () => {
   // Create the configuration object
   const config = {
     app: {
-      title: 'My Home Assistant Dashboard',
+      title: "My Home Assistant Dashboard",
       developerMode: true,
       localMode: false,
     },
     haConfig: {
-      haUrl: store.haUrl || 'https://your-ha-instance:8123',
-      accessToken: store.accessToken || 'your-long-lived-token-here',
+      haUrl: store.haUrl || "https://your-ha-instance:8123",
+      accessToken: store.accessToken || "your-long-lived-token-here",
     },
     views: [
       {
-        name: 'overview',
-        label: 'Overview',
-        icon: 'mdi mdi-view-dashboard',
+        name: "overview",
+        label: "Overview",
+        icon: "mdi mdi-view-dashboard",
         entities: entities,
       },
     ],
@@ -393,23 +467,23 @@ const generateConfigJson = async () => {
   try {
     const jsonString = JSON.stringify(config, null, 2);
     await navigator.clipboard.writeText(jsonString);
-    console.log('Configuration JSON copied to clipboard');
+    console.log("Configuration JSON copied to clipboard");
     successBannerMessage.value = `${supportedEntities.length} entities generated and copied to clipboard. Paste into your dashboard-config.json and customize as needed.`;
     successBanner.value = true;
-    
+
     // Auto-dismiss after 5 seconds
     setTimeout(() => {
       successBanner.value = false;
     }, 5000);
   } catch (error) {
-    console.error('Failed to copy config to clipboard:', error);
+    console.error("Failed to copy config to clipboard:", error);
     // Fallback for older browsers
     try {
-      const textArea = document.createElement('textarea');
+      const textArea = document.createElement("textarea");
       textArea.value = JSON.stringify(config, null, 2);
       document.body.appendChild(textArea);
       textArea.select();
-      document.execCommand('copy');
+      document.execCommand("copy");
       document.body.removeChild(textArea);
       successBannerMessage.value = `${supportedEntities.length} entities generated and copied to clipboard. Paste into your dashboard-config.json and customize as needed.`;
       successBanner.value = true;
@@ -417,8 +491,9 @@ const generateConfigJson = async () => {
         successBanner.value = false;
       }, 5000);
     } catch (fallbackError) {
-      console.error('Fallback copy also failed:', fallbackError);
-      successBannerMessage.value = 'Failed to copy configuration to clipboard. Please try again.';
+      console.error("Fallback copy also failed:", fallbackError);
+      successBannerMessage.value =
+        "Failed to copy configuration to clipboard. Please try again.";
       successBanner.value = true;
       setTimeout(() => {
         successBanner.value = false;
@@ -428,11 +503,14 @@ const generateConfigJson = async () => {
 };
 
 const generateEntityConfigJson = async (entity) => {
-  const domain = entity.entity_id.split('.')[0];
+  const domain = entity.entity_id.split(".")[0];
   const componentType = DEFAULT_DOMAIN_MAP[domain];
-  
+
   if (!componentType) {
-    console.warn('Unsupported entity type for config generation:', entity.entity_id);
+    console.warn(
+      "Unsupported entity type for config generation:",
+      entity.entity_id,
+    );
     return;
   }
 
@@ -446,15 +524,15 @@ const generateEntityConfigJson = async (entity) => {
   const componentDefaults = {
     HaSensor: { attributes: [] },
     HaGauge: { min: 0, max: 100 },
-    HaWarning: { attribute: 'state', operator: '=', value: '', message: '' },
-    HaError: { attribute: 'state', operator: '=', value: '', message: '' },
+    HaWarning: { attribute: "state", operator: "=", value: "", message: "" },
+    HaError: { attribute: "state", operator: "=", value: "", message: "" },
     HaBinarySensor: {},
     HaChip: {},
     HaWeather: {},
     HaSensorGraph: { hours: 24, maxPoints: 200, attributes: [] },
     HaMediaPlayer: {},
     HaSun: { attributes: [] },
-    HaPrinter: { black: '', cyan: '', magenta: '', yellow: '', attributes: [] },
+    HaPrinter: { black: "", cyan: "", magenta: "", yellow: "", attributes: [] },
     HaEnergy: {},
     HaEntityList: { componentMap: {}, attributes: [] },
     HaGlance: { attributes: [] },
@@ -462,13 +540,13 @@ const generateEntityConfigJson = async (entity) => {
     HaButton: {},
     HaSelect: {},
     HaSwitch: {},
-    HaImage: { title: 'Image' },
+    HaImage: { title: "Image" },
     HaHeader: { icon: null, attributes: [] },
-    HaLink: { url: '', name: '', header: '', entity: null, attributes: [] },
+    HaLink: { url: "", name: "", header: "", entity: null, attributes: [] },
     HaPerson: {},
     HaSpacer: {},
     HaRowSpacer: {},
-    HaRoom: { color: 'blue' },
+    HaRoom: { color: "blue" },
     HaBeerTap: {},
   };
 
@@ -479,21 +557,21 @@ const generateEntityConfigJson = async (entity) => {
   try {
     const jsonString = JSON.stringify(config, null, 2);
     await navigator.clipboard.writeText(jsonString);
-    console.log('Entity config JSON copied to clipboard:', entity.entity_id);
+    console.log("Entity config JSON copied to clipboard:", entity.entity_id);
     successBannerMessage.value = `Config for ${entity.entity_id} copied to clipboard.`;
     successBanner.value = true;
     setTimeout(() => {
       successBanner.value = false;
     }, 3000);
   } catch (error) {
-    console.error('Failed to copy config to clipboard:', error);
+    console.error("Failed to copy config to clipboard:", error);
     // Fallback
     try {
-      const textArea = document.createElement('textarea');
+      const textArea = document.createElement("textarea");
       textArea.value = JSON.stringify(config, null, 2);
       document.body.appendChild(textArea);
       textArea.select();
-      document.execCommand('copy');
+      document.execCommand("copy");
       document.body.removeChild(textArea);
       successBannerMessage.value = `Config for ${entity.entity_id} copied to clipboard.`;
       successBanner.value = true;
@@ -501,8 +579,8 @@ const generateEntityConfigJson = async (entity) => {
         successBanner.value = false;
       }, 3000);
     } catch (fallbackError) {
-      console.error('Fallback copy also failed:', fallbackError);
-      successBannerMessage.value = 'Failed to copy config to clipboard.';
+      console.error("Fallback copy also failed:", fallbackError);
+      successBannerMessage.value = "Failed to copy config to clipboard.";
       successBanner.value = true;
       setTimeout(() => {
         successBanner.value = false;

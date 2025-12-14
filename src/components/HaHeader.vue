@@ -10,8 +10,8 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { useNormalizeIcon } from '@/composables/useNormalizeIcon';
+import { computed } from "vue";
+import { useNormalizeIcon } from "@/composables/useNormalizeIcon";
 
 const props = defineProps({
   name: {

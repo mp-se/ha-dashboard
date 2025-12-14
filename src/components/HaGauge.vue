@@ -12,7 +12,10 @@
     >
       <div v-if="!resolvedEntity" class="card-body text-center text-warning">
         <i class="mdi mdi-alert-circle mdi-24px mb-2"></i>
-        <div>Entity "{{ typeof entity === 'string' ? entity : entity?.entity_id }}" not found</div>
+        <div>
+          Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
+          not found
+        </div>
       </div>
       <div v-else class="card-body d-flex flex-column">
         <!-- Title and Icon Row -->
@@ -25,7 +28,12 @@
 
         <!-- Gauge -->
         <div class="d-flex justify-content-center flex-grow-1">
-          <svg :width="160" :height="160" viewBox="0 0 160 160" class="gauge-svg">
+          <svg
+            :width="160"
+            :height="160"
+            viewBox="0 0 160 160"
+            class="gauge-svg"
+          >
             <!-- Background circle -->
             <circle
               cx="80"
@@ -68,15 +76,27 @@
               fill="#212529"
               class="gauge-center-value"
             >
-              {{ formattedValue }}<tspan v-if="entityUnit" font-size="10" fill="#6c757d">{{ entityUnit }}</tspan>
+              {{ formattedValue }}
+              <tspan v-if="entityUnit" font-size="10" fill="#6c757d">
+                {{ entityUnit }}
+              </tspan>
             </text>
           </svg>
         </div>
 
         <!-- Min/Max labels aligned with bottom of gauge -->
-        <div class="d-flex justify-content-between px-2 text-muted small" style="margin-top: -1.5rem">
-          <span>{{ min }}<span v-if="entityUnit" class="ms-1">{{ entityUnit }}</span></span>
-          <span>{{ max }}<span v-if="entityUnit" class="ms-1">{{ entityUnit }}</span></span>
+        <div
+          class="d-flex justify-content-between px-2 text-muted small"
+          style="margin-top: -1.5rem"
+        >
+          <span
+            >{{ min
+            }}<span v-if="entityUnit" class="ms-1">{{ entityUnit }}</span></span
+          >
+          <span
+            >{{ max
+            }}<span v-if="entityUnit" class="ms-1">{{ entityUnit }}</span></span
+          >
         </div>
       </div>
     </div>
@@ -84,8 +104,8 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { useEntityResolver } from '@/composables/useEntityResolver';
+import { computed } from "vue";
+import { useEntityResolver } from "@/composables/useEntityResolver";
 
 const props = defineProps({
   // Entity properties
@@ -108,14 +128,18 @@ const { resolvedEntity } = useEntityResolver(computed(() => props.entity));
 
 // Get name from entity's friendly_name attribute
 const entityName = computed(() => {
-  return resolvedEntity.value?.attributes?.friendly_name || 
-         (typeof props.entity === 'string' ? props.entity : props.entity?.entity_id) ||
-         'Gauge';
+  return (
+    resolvedEntity.value?.attributes?.friendly_name ||
+    (typeof props.entity === "string"
+      ? props.entity
+      : props.entity?.entity_id) ||
+    "Gauge"
+  );
 });
 
 // Get unit from entity's unit_of_measurement attribute
 const entityUnit = computed(() => {
-  return resolvedEntity.value?.attributes?.unit_of_measurement || '';
+  return resolvedEntity.value?.attributes?.unit_of_measurement || "";
 });
 
 // Get numeric value from entity state
@@ -128,31 +152,32 @@ const numericValue = computed(() => {
 // Get icon class from entity
 const iconClass = computed(() => {
   if (!resolvedEntity.value) return null;
-  
+
   let icon = resolvedEntity.value.attributes?.icon;
-  
+
   // If no icon attribute, try to infer from entity domain or unit
   if (!icon) {
-    const entityId = typeof props.entity === 'string' ? props.entity : props.entity?.entity_id;
-    const domain = entityId?.split('.')[0];
-    const unit = resolvedEntity.value.attributes?.unit_of_measurement || '';
-    
+    const entityId =
+      typeof props.entity === "string" ? props.entity : props.entity?.entity_id;
+    const domain = entityId?.split(".")[0];
+    const unit = resolvedEntity.value.attributes?.unit_of_measurement || "";
+
     // Infer icon based on domain or unit
-    if (domain === 'sensor') {
-      if (unit.includes('°') || unit.includes('C') || unit.includes('F')) {
-        icon = 'mdi:thermometer';
-      } else if (unit.includes('%')) {
-        icon = 'mdi:percent';
-      } else if (unit.includes('kW') || unit.includes('W')) {
-        icon = 'mdi:lightning-bolt';
+    if (domain === "sensor") {
+      if (unit.includes("°") || unit.includes("C") || unit.includes("F")) {
+        icon = "mdi:thermometer";
+      } else if (unit.includes("%")) {
+        icon = "mdi:percent";
+      } else if (unit.includes("kW") || unit.includes("W")) {
+        icon = "mdi:lightning-bolt";
       } else {
-        icon = 'mdi:gauge';
+        icon = "mdi:gauge";
       }
     }
   }
-  
-  if (icon && icon.startsWith('mdi:')) {
-    return `mdi mdi-${icon.split(':')[1]}`;
+
+  if (icon && icon.startsWith("mdi:")) {
+    return `mdi mdi-${icon.split(":")[1]}`;
   }
   return null;
 });
@@ -176,7 +201,10 @@ const gaugeArc = computed(() => {
 });
 
 const valueArc = computed(() => {
-  const normalizedValue = Math.max(props.min, Math.min(props.max, numericValue.value));
+  const normalizedValue = Math.max(
+    props.min,
+    Math.min(props.max, numericValue.value),
+  );
   const ratio = (normalizedValue - props.min) / (props.max - props.min);
   const valueAngle = startAngle.value + ratio * angleRange.value;
 
@@ -218,12 +246,12 @@ const formattedValue = computed(() => {
 }
 
 .gauge-label {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   user-select: none;
 }
 
 .gauge-center-value {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   user-select: none;
 }
 </style>

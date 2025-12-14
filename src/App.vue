@@ -70,7 +70,11 @@
             @click="handleReloadConfig"
           >
             <i v-if="!configReloading" class="mdi mdi-refresh"></i>
-            <span v-if="configReloading" class="spinner-border spinner-border-sm" role="status">
+            <span
+              v-if="configReloading"
+              class="spinner-border spinner-border-sm"
+              role="status"
+            >
               <span class="visually-hidden">Loading...</span>
             </span>
           </button>
@@ -89,7 +93,9 @@
 
           <!-- Edit credentials button (only if set manually, not from config) -->
           <button
-            v-if="store.haUrl && store.accessToken && !store.credentialsFromConfig"
+            v-if="
+              store.haUrl && store.accessToken && !store.credentialsFromConfig
+            "
             class="btn btn-outline-secondary btn-sm me-2"
             title="Edit Home Assistant credentials"
             @click="handleEditCredentials"
@@ -101,7 +107,9 @@
             :class="[
               'btn',
               'btn-sm',
-              dark_mode ? 'btn-outline-light text-light' : 'btn-outline-dark text-dark',
+              dark_mode
+                ? 'btn-outline-light text-light'
+                : 'btn-outline-dark text-dark',
             ]"
             :aria-pressed="String(dark_mode)"
             aria-label="Toggle dark mode"
@@ -109,7 +117,11 @@
             @click="toggleDarkMode"
           >
             <i
-              :class="dark_mode ? 'mdi mdi-white-balance-sunny' : 'mdi mdi-moon-waning-crescent'"
+              :class="
+                dark_mode
+                  ? 'mdi mdi-white-balance-sunny'
+                  : 'mdi mdi-moon-waning-crescent'
+              "
             ></i>
           </button>
           <!-- Manual open for PWA install dialog -->
@@ -153,7 +165,9 @@
       role="alert"
     >
       <div class="d-flex justify-content-between align-items-center">
-        <div class="me-2 small">Disconnected from Home Assistant — live data will not update.</div>
+        <div class="me-2 small">
+          Disconnected from Home Assistant — live data will not update.
+        </div>
         <div>
           <button
             class="btn btn-sm btn-warning"
@@ -178,7 +192,11 @@
     <div class="d-flex justify-content-between align-items-center">
       <div class="me-2 small">A new version of the app is available!</div>
       <div>
-        <button class="btn btn-sm btn-success" title="Refresh to update" @click="refreshApp">
+        <button
+          class="btn btn-sm btn-success"
+          title="Refresh to update"
+          @click="refreshApp"
+        >
           Refresh
         </button>
       </div>
@@ -192,15 +210,29 @@
       'alert',
       'm-0',
       'p-3',
-      store.configValidationError?.length > 0 ? 'alert-danger' : 'alert-success',
+      store.configValidationError?.length > 0
+        ? 'alert-danger'
+        : 'alert-success',
     ]"
     role="alert"
   >
-    <div v-if="store.configValidationError?.length > 0" class="d-flex flex-column gap-2">
-      <div class="fw-bold">Configuration error: {{ store.configErrorCount }} issue(s) found</div>
+    <div
+      v-if="store.configValidationError?.length > 0"
+      class="d-flex flex-column gap-2"
+    >
+      <div class="fw-bold">
+        Configuration error: {{ store.configErrorCount }} issue(s) found
+      </div>
       <div class="small" style="max-height: 200px; overflow-y: auto">
-        <div v-for="(error, idx) in store.configValidationError" :key="idx" class="mb-1">
-          <span v-if="error.line && error.line > 0" class="badge bg-danger me-2">
+        <div
+          v-for="(error, idx) in store.configValidationError"
+          :key="idx"
+          class="mb-1"
+        >
+          <span
+            v-if="error.line && error.line > 0"
+            class="badge bg-danger me-2"
+          >
             Line {{ error.line }}
           </span>
           <span>{{ error.message || error }}</span>
@@ -235,11 +267,24 @@
   </div>
 
   <!-- Credential Dialog - only show when NOT loading and credentials are needed -->
-  <CredentialDialog v-if="!store.isLoading && store.needsCredentials" ref="credentialDialog" @credentials="handleCredentialSubmit" />
+  <CredentialDialog
+    v-if="!store.isLoading && store.needsCredentials"
+    ref="credentialDialog"
+    @credentials="handleCredentialSubmit"
+  />
 
-  <div v-if="!store.isLoading" class="container-fluid" @touchstart="onTouchStart" @touchend="onTouchEnd">
+  <div
+    v-if="!store.isLoading"
+    class="container-fluid"
+    @touchstart="onTouchStart"
+    @touchend="onTouchEnd"
+  >
     <!-- Dynamic View Rendering from Config -->
-    <component :is="getViewComponent(currentView)" :key="currentView" :view-name="currentView" />
+    <component
+      :is="getViewComponent(currentView)"
+      :key="currentView"
+      :view-name="currentView"
+    />
 
     <footer
       :class="[
@@ -256,22 +301,22 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
-import { useHaStore } from './stores/haStore';
-import { useNormalizeIcon } from './composables/useNormalizeIcon';
-import PwaInstallModal from './components/PwaInstallModal.vue';
-import CredentialDialog from './components/CredentialDialog.vue';
+import { ref, onMounted, computed, watch } from "vue";
+import { useHaStore } from "./stores/haStore";
+import { useNormalizeIcon } from "./composables/useNormalizeIcon";
+import PwaInstallModal from "./components/PwaInstallModal.vue";
+import CredentialDialog from "./components/CredentialDialog.vue";
 
 // Import version from package.json
-import packageJson from '../package.json';
+import packageJson from "../package.json";
 
 // Static imports for development views
-import DevelopmentView from './views/DevelopmentView.vue';
-import RawEntityView from './views/RawEntityView.vue';
-import DevicesView from './views/DevicesView.vue';
+import DevelopmentView from "./views/DevelopmentView.vue";
+import RawEntityView from "./views/RawEntityView.vue";
+import DevicesView from "./views/DevicesView.vue";
 
 // Generic config-driven view component
-import JsonConfigView from './views/JsonConfigView.vue';
+import JsonConfigView from "./views/JsonConfigView.vue";
 
 // Static development view components
 const devViewComponents = {
@@ -281,7 +326,7 @@ const devViewComponents = {
 };
 
 const store = useHaStore();
-const currentView = ref('overview');
+const currentView = ref("overview");
 const dark_mode = ref(false);
 const updateAvailable = ref(false);
 const configReloading = ref(false);
@@ -292,7 +337,7 @@ const appVersion = packageJson.version;
 // Computed menu items from dashboard config
 const menuItems = computed(() => {
   if (!store.dashboardConfig?.views) {
-    console.log('No views found in dashboardConfig');
+    console.log("No views found in dashboardConfig");
     return [];
   }
   const normalizeIcon = useNormalizeIcon();
@@ -303,17 +348,26 @@ const menuItems = computed(() => {
       label: view.label,
       icon: normalizeIcon(view.icon),
     }));
-  
+
   // Add dev views if developer mode is enabled
   if (store.developerMode) {
     filtered.push(
-      { name: 'dev', label: 'Dev', icon: normalizeIcon('mdi-tools') },
-      { name: 'device', label: 'Devices', icon: normalizeIcon('mdi-devices') },
-      { name: 'raw', label: 'Raw', icon: normalizeIcon('mdi-code-json') }
+      { name: "dev", label: "Dev", icon: normalizeIcon("mdi-tools") },
+      { name: "device", label: "Devices", icon: normalizeIcon("mdi-devices") },
+      { name: "raw", label: "Raw", icon: normalizeIcon("mdi-code-json") },
     );
   }
-  
-  console.log('Menu items computed. Total views:', store.dashboardConfig.views.length, 'Filtered:', filtered.length, 'Developer mode:', store.developerMode, 'Items:', filtered);
+
+  console.log(
+    "Menu items computed. Total views:",
+    store.dashboardConfig.views.length,
+    "Filtered:",
+    filtered.length,
+    "Developer mode:",
+    store.developerMode,
+    "Items:",
+    filtered,
+  );
   return filtered;
 });
 
@@ -340,7 +394,9 @@ const handleSwipe = () => {
 
   if (Math.abs(diff) < swipeThreshold) return;
 
-  const currentIndex = menuItems.value.findIndex((item) => item.name === currentView.value);
+  const currentIndex = menuItems.value.findIndex(
+    (item) => item.name === currentView.value,
+  );
   if (currentIndex === -1) return;
 
   if (diff > 0) {
@@ -349,7 +405,8 @@ const handleSwipe = () => {
     currentView.value = menuItems.value[nextIndex].name;
   } else {
     // Swiped right - go to previous view
-    const prevIndex = (currentIndex - 1 + menuItems.value.length) % menuItems.value.length;
+    const prevIndex =
+      (currentIndex - 1 + menuItems.value.length) % menuItems.value.length;
     currentView.value = menuItems.value[prevIndex].name;
   }
 };
@@ -370,7 +427,7 @@ const openPwaDialog = () => {
     pwaInstallModal.value?.showModal();
   } catch (e) {
     // Ignore errors; showModal may not be present during SSR or if the component was removed
-    console.warn('Failed to open PWA dialog:', e);
+    console.warn("Failed to open PWA dialog:", e);
   }
 };
 
@@ -381,7 +438,7 @@ const credentialDialog = ref(null);
  * Handle credential submission from dialog
  */
 const handleCredentialSubmit = async (credentials) => {
-  console.log('Credentials submitted:', credentials.haUrl);
+  console.log("Credentials submitted:", credentials.haUrl);
   store.saveCredentials(credentials.haUrl, credentials.accessToken);
   // Resume initialization after credentials are provided
   await store.init();
@@ -400,20 +457,23 @@ const handleReloadConfig = async () => {
     if (!validationResult.valid) {
       configErrorBanner.value = true;
       // Don't auto-dismiss error banner - keep it visible so user has time to fix issues
-      if (configErrorBannerTimeout.value) clearTimeout(configErrorBannerTimeout.value);
+      if (configErrorBannerTimeout.value)
+        clearTimeout(configErrorBannerTimeout.value);
     } else {
       // Show success briefly then auto-dismiss on success
       configErrorBanner.value = true;
-      if (configErrorBannerTimeout.value) clearTimeout(configErrorBannerTimeout.value);
+      if (configErrorBannerTimeout.value)
+        clearTimeout(configErrorBannerTimeout.value);
       configErrorBannerTimeout.value = setTimeout(() => {
         configErrorBanner.value = false;
       }, 2000);
     }
   } catch (error) {
-    console.error('Error reloading config:', error);
+    console.error("Error reloading config:", error);
     configErrorBanner.value = true;
     // Don't auto-dismiss error banner - keep it visible so user has time to fix issues
-    if (configErrorBannerTimeout.value) clearTimeout(configErrorBannerTimeout.value);
+    if (configErrorBannerTimeout.value)
+      clearTimeout(configErrorBannerTimeout.value);
   } finally {
     configReloading.value = false;
   }
@@ -423,9 +483,22 @@ const toggleDarkMode = () => {
   dark_mode.value = !dark_mode.value;
   const root = document.documentElement;
   if (dark_mode.value) {
-    root.setAttribute('data-bs-theme', 'dark');
+    root.setAttribute("data-bs-theme", "dark");
+    root.style.colorScheme = "dark";
+    localStorage.setItem("ha-dashboard-dark-mode", "true");
   } else {
-    root.setAttribute('data-bs-theme', 'light');
+    root.setAttribute("data-bs-theme", "light");
+    root.style.colorScheme = "light";
+    localStorage.setItem("ha-dashboard-dark-mode", "false");
+  }
+  // Blur button and remove focus styles to release iOS focus state
+  const darkModeBtn = document.querySelector('[aria-label="Toggle dark mode"]');
+  if (darkModeBtn) {
+    darkModeBtn.blur();
+    // Remove inline focus styling that iOS applies
+    darkModeBtn.style.outline = "none";
+    darkModeBtn.style.boxShadow = "none";
+    darkModeBtn.style.backgroundColor = "transparent";
   }
 };
 
@@ -444,10 +517,10 @@ const refreshApp = () => {
 
 const isPwaInstalled = () => {
   try {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === "undefined") return false;
     return (
       window.navigator?.standalone === true ||
-      window.matchMedia('(display-mode: standalone)').matches
+      window.matchMedia("(display-mode: standalone)").matches
     );
   } catch (e) {
     return false;
@@ -456,20 +529,22 @@ const isPwaInstalled = () => {
 
 const isPwaSupported = () => {
   try {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === "undefined") return false;
     const ua = window.navigator.userAgent.toLowerCase();
     const isIos = /iphone|ipad|ipod/.test(ua);
-    return 'serviceWorker' in navigator && ('beforeinstallprompt' in window || isIos);
+    return (
+      "serviceWorker" in navigator && ("beforeinstallprompt" in window || isIos)
+    );
   } catch (e) {
     return false;
   }
 };
 
 onMounted(async () => {
-  console.log('App.vue onMounted called');
+  console.log("App.vue onMounted called");
 
   // Listen for service worker update
-  window.addEventListener('sw-need-refresh', () => {
+  window.addEventListener("sw-need-refresh", () => {
     updateAvailable.value = true;
   });
 
@@ -478,7 +553,10 @@ onMounted(async () => {
 
   // Show config errors if any were found during init
   if (store.configValidationError?.length > 0) {
-    console.log('Config validation errors detected during init:', store.configValidationError);
+    console.log(
+      "Config validation errors detected during init:",
+      store.configValidationError,
+    );
     configErrorBanner.value = true;
     // Don't auto-dismiss - keep visible so user can fix issues
     // Don't show credentials dialog if there are config errors (e.g., JSON syntax error)
@@ -487,10 +565,27 @@ onMounted(async () => {
     credentialDialog.value?.showModal();
   }
 
-  // Start with dark_mode OFF explicitly
-  dark_mode.value = false;
+  // Initialize dark mode from localStorage or system preference
   const root = document.documentElement;
-  root.setAttribute('data-bs-theme', 'light');
+  const savedDarkMode = localStorage.getItem("ha-dashboard-dark-mode");
+
+  if (savedDarkMode !== null) {
+    // Use saved preference
+    dark_mode.value = savedDarkMode === "true";
+  } else {
+    // Use system preference if available
+    dark_mode.value =
+      window.matchMedia?.("(prefers-color-scheme: dark)")?.matches ?? false;
+  }
+
+  // Apply the theme
+  if (dark_mode.value) {
+    root.setAttribute("data-bs-theme", "dark");
+    root.style.colorScheme = "dark";
+  } else {
+    root.setAttribute("data-bs-theme", "light");
+    root.style.colorScheme = "light";
+  }
 });
 
 // Watch for credentials being needed and auto-show dialog
@@ -498,16 +593,19 @@ watch(
   () => store.needsCredentials,
   (needsCredentials) => {
     // Don't show credentials dialog if there are config errors
-    if (needsCredentials && !store.isLoading && !store.configValidationError?.length) {
-      console.log('Credentials needed - auto-showing dialog');
+    if (
+      needsCredentials &&
+      !store.isLoading &&
+      !store.configValidationError?.length
+    ) {
+      console.log("Credentials needed - auto-showing dialog");
       // Use nextTick to ensure dialog is mounted
       setTimeout(() => {
         credentialDialog.value?.showModal();
       }, 0);
     }
-  }
+  },
 );
-
 </script>
 
 <style>
@@ -515,5 +613,5 @@ watch(
  * Using scoped styles would prevent these styles from applying to child components
  * that need to use the shared classes (ha-control-button, ha-control-circle, etc.)
  */
-@import '/styles/shared-styles.css';
+@import "/styles/shared-styles.css";
 </style>

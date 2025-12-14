@@ -1,8 +1,24 @@
 # Release Notes
 
-## December 2025 - v0.3.1
+## December 2025 - v0.4.0
 
+- Updated dependecies and fixed security issues
+- HaMediaPlayer redesigned with compact three-row layout and Bootstrap buttons
+- Media progress tracking now uses timestamp-based estimation for devices with incomplete position attributes (e.g., Sonos)
+- Updated card-showcase.html to reflect new design
+- HaWeather forecast section now displays for all forecast types (was hiding hourly forecasts)
+- HaGlance item backdrop now transparent with subtle hover effect (removed grey background)
+- HaRoom card expanded to support up to 6 control entities (previously limited to 3) with 2-column grid layout that fills right column first
+- HaRoom temperature and humidity sensor detection now includes fallback search from provided entity list (not just area.entities)
+- HaRoom temperature/humidity sensors automatically excluded from control objects when included in entity list
+- Updated HaRoom documentation with new sensor detection behavior and examples
+- HaSensorGraph visual enhancement: thicker lines with filled area below in semi-transparent colors for better data visualization
+- HaSensorGraph curves now smoothed using quadratic Bézier curves for more polished appearance
 - HaBinarySensor now supports optional 'attributes' prop to display custom entity attributes (matching HaSensor functionality)
+- HaBinarySensor now handles multiple state types with appropriate icons and labels: open/closed, locked/unlocked, detected, armed/disarmed, triggered
+- Fixed iOS dark mode button focus issue - buttons no longer display as white rectangles when tapped in dark mode
+- Dark mode preference now persists across page reloads and browser sessions using localStorage
+- App now respects system dark mode preference (prefers-color-scheme) on first visit if no saved preference exists
 
 ## December 2025 - v0.3.0
 
@@ -80,3 +96,4 @@
 - Created mock server for local testing
 - Dashboard config examples and documentation
 - 1200+ initial tests for core components
+

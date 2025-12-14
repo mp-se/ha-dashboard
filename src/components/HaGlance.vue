@@ -1,16 +1,31 @@
 <template>
   <div class="col-lg-4 col-md-6">
-    <div :class="['card', 'card-display', 'h-100', 'rounded-4', 'shadow-lg', 'border-info']">
+    <div
+      :class="[
+        'card',
+        'card-display',
+        'h-100',
+        'rounded-4',
+        'shadow-lg',
+        'border-info',
+      ]"
+    >
       <div class="card-body">
         <!-- Entities Grid -->
         <div :class="['glance-grid', `glance-cols-${gridColumns}`]">
-          <div v-for="ent in entityList" :key="getEntityId(ent)" class="glance-item">
+          <div
+            v-for="ent in entityList"
+            :key="getEntityId(ent)"
+            class="glance-item"
+          >
             <!-- Icon with circle background -->
-            <div v-if="getIconClass(ent)" class="ha-icon-circle-wrapper">
-              <svg width="44" height="44" viewBox="0 0 40 40" class="ha-icon-circle">
-                <circle cx="20" cy="20" r="18" :fill="getIconCircleColor(ent)" />
-              </svg>
-              <i :class="getIconClass(ent)" class="ha-icon-overlay"></i>
+            <div v-if="getIconClass(ent)" class="glance-icon-wrapper">
+              <div
+                class="glance-icon-bg"
+                :style="{ backgroundColor: getIconCircleColor(ent) }"
+              >
+                <i :class="getIconClass(ent)" class="glance-icon-overlay"></i>
+              </div>
             </div>
 
             <!-- Name and State -->
@@ -18,7 +33,9 @@
               <div class="ha-entity-name">{{ getName(ent) }}</div>
               <div class="ha-entity-value">
                 {{ getFormattedValue(ent) }}
-                <small v-if="getUnit(ent)" class="ha-entity-unit ms-1">{{ getUnit(ent) }}</small>
+                <small v-if="getUnit(ent)" class="ha-entity-unit ms-1">{{
+                  getUnit(ent)
+                }}</small>
               </div>
             </div>
           </div>
@@ -29,10 +46,10 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { useHaStore } from '@/stores/haStore';
-import { useIconClass } from '@/composables/useIconClass';
-import { useIconCircleColor } from '@/composables/useIconCircleColor';
+import { computed } from "vue";
+import { useHaStore } from "@/stores/haStore";
+import { useIconClass } from "@/composables/useIconClass";
+import { useIconCircleColor } from "@/composables/useIconCircleColor";
 
 const props = defineProps({
   entity: {
@@ -62,13 +79,15 @@ const gridColumns = computed(() => {
 
 // Get entity ID string from entity object or string
 const getEntityId = (ent) => {
-  return typeof ent === 'string' ? ent : ent.entity_id;
+  return typeof ent === "string" ? ent : ent.entity_id;
 };
 
 // Get resolved entity from store
 const getResolved = (ent) => {
-  if (typeof ent === 'string') {
-    return store.sensors.find((s) => s.entity_id === ent) || store.entities[ent];
+  if (typeof ent === "string") {
+    return (
+      store.sensors.find((s) => s.entity_id === ent) || store.entities[ent]
+    );
   }
   return ent;
 };
@@ -76,16 +95,16 @@ const getResolved = (ent) => {
 // Get entity name
 const getName = (ent) => {
   const res = getResolved(ent);
-  return res?.attributes?.friendly_name || getEntityId(ent) || 'Unknown';
+  return res?.attributes?.friendly_name || getEntityId(ent) || "Unknown";
 };
 
 // Get formatted value
 const getFormattedValue = (ent) => {
   const res = getResolved(ent);
-  const s = res?.state ?? 'unknown';
-  const u = res?.attributes?.unit_of_measurement || '';
+  const s = res?.state ?? "unknown";
+  const u = res?.attributes?.unit_of_measurement || "";
 
-  if (s === 'unknown' || s === 'unavailable') return s;
+  if (s === "unknown" || s === "unavailable") return s;
 
   const n = Number(s);
   if (!Number.isNaN(n)) {
@@ -100,7 +119,7 @@ const getFormattedValue = (ent) => {
 // Get unit
 const getUnit = (ent) => {
   const res = getResolved(ent);
-  return res?.attributes?.unit_of_measurement || '';
+  return res?.attributes?.unit_of_measurement || "";
 };
 
 // Get icon class using composable
@@ -148,23 +167,48 @@ const getIconCircleColor = (ent) => {
   text-align: center;
   padding: 0.75rem;
   border-radius: 0.5rem;
-  background-color: rgba(248, 249, 250, 0.3);
   transition: all 0.2s ease;
   overflow: hidden;
   min-width: 0;
 }
 
 .glance-item:hover {
-  background-color: rgba(248, 249, 250, 0.5);
+  background-color: rgba(248, 249, 250, 0.2);
   transform: translateY(-1px);
 }
 
-[data-bs-theme='dark'] .glance-item {
-  background-color: rgba(52, 58, 64, 0.3);
+[data-bs-theme="dark"] .glance-item {
+  background-color: transparent;
 }
 
-[data-bs-theme='dark'] .glance-item:hover {
-  background-color: rgba(52, 58, 64, 0.5);
+[data-bs-theme="dark"] .glance-item:hover {
+  background-color: rgba(52, 58, 64, 0.2);
+}
+
+.glance-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+}
+
+.glance-icon-bg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.glance-icon-overlay {
+  font-size: 1.5rem;
+  color: #fff;
+  font-weight: 400;
 }
 
 .icon-circle-wrapper-glance {

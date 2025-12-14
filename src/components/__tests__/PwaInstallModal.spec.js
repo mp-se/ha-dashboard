@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { mount } from '@vue/test-utils';
-import PwaInstallModal from '../PwaInstallModal.vue';
-import { createPinia, setActivePinia } from 'pinia';
-import { useHaStore } from '@/stores/haStore';
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { mount } from "@vue/test-utils";
+import PwaInstallModal from "../PwaInstallModal.vue";
+import { createPinia, setActivePinia } from "pinia";
+import { useHaStore } from "@/stores/haStore";
 
-describe('PwaInstallModal.vue', () => {
+describe("PwaInstallModal.vue", () => {
   let pinia;
   let store;
 
@@ -15,7 +15,7 @@ describe('PwaInstallModal.vue', () => {
     store.isLocalMode = false;
   });
 
-  it('should render modal when shouldShow is true', async () => {
+  it("should render modal when shouldShow is true", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -26,20 +26,20 @@ describe('PwaInstallModal.vue', () => {
     wrapper.vm.dismissed = false;
     wrapper.vm.showInstallButton = true;
     await wrapper.vm.$nextTick();
-    expect(wrapper.find('.modal').exists()).toBe(true);
+    expect(wrapper.find(".modal").exists()).toBe(true);
   });
 
-  it('should be hidden when shouldShow is false', () => {
+  it("should be hidden when shouldShow is false", () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
       },
     });
 
-    expect(wrapper.find('.modal').exists()).toBe(false);
+    expect(wrapper.find(".modal").exists()).toBe(false);
   });
 
-  it('should display modal title', async () => {
+  it("should display modal title", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -52,7 +52,7 @@ describe('PwaInstallModal.vue', () => {
     expect(wrapper.text()).toMatch(/Install app|Install on iPhone/);
   });
 
-  it('should display installation instructions', async () => {
+  it("should display installation instructions", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -62,12 +62,12 @@ describe('PwaInstallModal.vue', () => {
     wrapper.vm.dismissed = false;
     wrapper.vm.showInstallButton = true;
     await wrapper.vm.$nextTick();
-    const bodyElement = wrapper.find('.modal-body');
+    const bodyElement = wrapper.find(".modal-body");
     expect(bodyElement.exists()).toBe(true);
     expect(bodyElement.text().length).toBeGreaterThan(0);
   });
 
-  it('should have close button in header', async () => {
+  it("should have close button in header", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -77,11 +77,11 @@ describe('PwaInstallModal.vue', () => {
     wrapper.vm.dismissed = false;
     wrapper.vm.showInstallButton = true;
     await wrapper.vm.$nextTick();
-    const closeBtn = wrapper.find('.btn-close');
+    const closeBtn = wrapper.find(".btn-close");
     expect(closeBtn.exists()).toBe(true);
   });
 
-  it('should emit dismiss on close button click', async () => {
+  it("should emit dismiss on close button click", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -91,12 +91,12 @@ describe('PwaInstallModal.vue', () => {
     wrapper.vm.dismissed = false;
     wrapper.vm.showInstallButton = true;
     await wrapper.vm.$nextTick();
-    const closeBtn = wrapper.find('.btn-close');
-    await closeBtn.trigger('click');
+    const closeBtn = wrapper.find(".btn-close");
+    await closeBtn.trigger("click");
     expect(wrapper.vm.dismissed).toBe(true);
   });
 
-  it('should emit dismiss on dismiss button click', async () => {
+  it("should emit dismiss on dismiss button click", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -106,16 +106,16 @@ describe('PwaInstallModal.vue', () => {
     wrapper.vm.dismissed = false;
     wrapper.vm.showInstallButton = true;
     await wrapper.vm.$nextTick();
-    const buttons = wrapper.findAll('button');
-    const dismissBtn = buttons.find((btn) => btn.text().includes('Dismiss'));
+    const buttons = wrapper.findAll("button");
+    const dismissBtn = buttons.find((btn) => btn.text().includes("Dismiss"));
 
     if (dismissBtn) {
-      await dismissBtn.trigger('click');
+      await dismissBtn.trigger("click");
       expect(wrapper.vm.dismissed).toBe(true);
     }
   });
 
-  it('should have modal dialog', async () => {
+  it("should have modal dialog", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -126,10 +126,10 @@ describe('PwaInstallModal.vue', () => {
     wrapper.vm.dismissed = false;
     wrapper.vm.showInstallButton = true;
     await wrapper.vm.$nextTick();
-    expect(wrapper.find('.modal-dialog').exists()).toBe(true);
+    expect(wrapper.find(".modal-dialog").exists()).toBe(true);
   });
 
-  it('should have modal header', async () => {
+  it("should have modal header", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -140,10 +140,10 @@ describe('PwaInstallModal.vue', () => {
     wrapper.vm.dismissed = false;
     wrapper.vm.showInstallButton = true;
     await wrapper.vm.$nextTick();
-    expect(wrapper.find('.modal-header').exists()).toBe(true);
+    expect(wrapper.find(".modal-header").exists()).toBe(true);
   });
 
-  it('should have modal body', async () => {
+  it("should have modal body", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -153,10 +153,10 @@ describe('PwaInstallModal.vue', () => {
     wrapper.vm.dismissed = false;
     wrapper.vm.showInstallButton = true;
     await wrapper.vm.$nextTick();
-    expect(wrapper.find('.modal-body').exists()).toBe(true);
+    expect(wrapper.find(".modal-body").exists()).toBe(true);
   });
 
-  it('should have modal footer', async () => {
+  it("should have modal footer", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -166,10 +166,10 @@ describe('PwaInstallModal.vue', () => {
     wrapper.vm.dismissed = false;
     wrapper.vm.showInstallButton = true;
     await wrapper.vm.$nextTick();
-    expect(wrapper.find('.modal-footer').exists()).toBe(true);
+    expect(wrapper.find(".modal-footer").exists()).toBe(true);
   });
 
-  it('should display install button', async () => {
+  it("should display install button", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -180,27 +180,27 @@ describe('PwaInstallModal.vue', () => {
     wrapper.vm.showInstallButton = true;
     wrapper.vm.deferredPrompt = { prompt: vi.fn() };
     await wrapper.vm.$nextTick();
-    const buttons = wrapper.findAll('button');
+    const buttons = wrapper.findAll("button");
     expect(buttons.length).toBeGreaterThan(0);
   });
 
-  it('should update visibility when shouldShow changes', async () => {
+  it("should update visibility when shouldShow changes", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
       },
     });
 
-    expect(wrapper.find('.modal').exists()).toBe(false);
+    expect(wrapper.find(".modal").exists()).toBe(false);
 
     wrapper.vm.dismissed = false;
     wrapper.vm.showInstallButton = true;
     await wrapper.vm.$nextTick();
 
-    expect(wrapper.find('.modal').exists()).toBe(true);
+    expect(wrapper.find(".modal").exists()).toBe(true);
   });
 
-  it('should have modal-dialog-centered class', async () => {
+  it("should have modal-dialog-centered class", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -210,11 +210,11 @@ describe('PwaInstallModal.vue', () => {
     wrapper.vm.dismissed = false;
     wrapper.vm.showInstallButton = true;
     await wrapper.vm.$nextTick();
-    const dialog = wrapper.find('.modal-dialog');
-    expect(dialog.classes()).toContain('modal-dialog-centered');
+    const dialog = wrapper.find(".modal-dialog");
+    expect(dialog.classes()).toContain("modal-dialog-centered");
   });
 
-  it('should have dark overlay', async () => {
+  it("should have dark overlay", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -224,11 +224,11 @@ describe('PwaInstallModal.vue', () => {
     wrapper.vm.dismissed = false;
     wrapper.vm.showInstallButton = true;
     await wrapper.vm.$nextTick();
-    const modal = wrapper.find('.modal');
-    expect(modal.attributes('style')).toContain('rgba(0, 0, 0');
+    const modal = wrapper.find(".modal");
+    expect(modal.attributes("style")).toContain("rgba(0, 0, 0");
   });
 
-  it('should display icon in title', async () => {
+  it("should display icon in title", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -238,11 +238,11 @@ describe('PwaInstallModal.vue', () => {
     wrapper.vm.dismissed = false;
     wrapper.vm.showInstallButton = true;
     await wrapper.vm.$nextTick();
-    const icon = wrapper.find('.mdi');
+    const icon = wrapper.find(".mdi");
     expect(icon.exists()).toBe(true);
   });
 
-  it('should have tabindex attribute', async () => {
+  it("should have tabindex attribute", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -252,11 +252,11 @@ describe('PwaInstallModal.vue', () => {
     wrapper.vm.dismissed = false;
     wrapper.vm.showInstallButton = true;
     await wrapper.vm.$nextTick();
-    const modal = wrapper.find('.modal');
-    expect(modal.attributes('tabindex')).toBe('-1');
+    const modal = wrapper.find(".modal");
+    expect(modal.attributes("tabindex")).toBe("-1");
   });
 
-  it('should have modal title element', async () => {
+  it("should have modal title element", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -266,10 +266,10 @@ describe('PwaInstallModal.vue', () => {
     wrapper.vm.dismissed = false;
     wrapper.vm.showInstallButton = true;
     await wrapper.vm.$nextTick();
-    expect(wrapper.find('.modal-title').exists()).toBe(true);
+    expect(wrapper.find(".modal-title").exists()).toBe(true);
   });
 
-  it('should have modal content', async () => {
+  it("should have modal content", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -279,10 +279,10 @@ describe('PwaInstallModal.vue', () => {
     wrapper.vm.dismissed = false;
     wrapper.vm.showInstallButton = true;
     await wrapper.vm.$nextTick();
-    expect(wrapper.find('.modal-content').exists()).toBe(true);
+    expect(wrapper.find(".modal-content").exists()).toBe(true);
   });
 
-  it('should track isInstalled state', () => {
+  it("should track isInstalled state", () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -292,7 +292,7 @@ describe('PwaInstallModal.vue', () => {
     expect(wrapper.vm.isInstalled).toBeDefined();
   });
 
-  it('should track deferredPrompt state', () => {
+  it("should track deferredPrompt state", () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -302,7 +302,7 @@ describe('PwaInstallModal.vue', () => {
     expect(wrapper.vm.deferredPrompt).toBeDefined();
   });
 
-  it('should track showInstallButton state', () => {
+  it("should track showInstallButton state", () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -312,7 +312,7 @@ describe('PwaInstallModal.vue', () => {
     expect(wrapper.vm.showInstallButton).toBeDefined();
   });
 
-  it('should have dismiss method', () => {
+  it("should have dismiss method", () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -322,7 +322,7 @@ describe('PwaInstallModal.vue', () => {
     expect(wrapper.vm.dismiss).toBeDefined();
   });
 
-  it('should have promptInstall method', () => {
+  it("should have promptInstall method", () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -332,7 +332,7 @@ describe('PwaInstallModal.vue', () => {
     expect(wrapper.vm.promptInstall).toBeDefined();
   });
 
-  it('should have button in footer', async () => {
+  it("should have button in footer", async () => {
     const wrapper = mount(PwaInstallModal, {
       global: {
         plugins: [pinia],
@@ -342,7 +342,7 @@ describe('PwaInstallModal.vue', () => {
     wrapper.vm.dismissed = false;
     wrapper.vm.showInstallButton = true;
     await wrapper.vm.$nextTick();
-    const buttons = wrapper.findAll('button');
+    const buttons = wrapper.findAll("button");
     expect(buttons.length).toBeGreaterThan(0);
   });
 });

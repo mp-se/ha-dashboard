@@ -10,9 +10,9 @@
  * @returns {string} Formatted string representation
  */
 export const formatAttributeValue = (v) => {
-  if (v === null || v === undefined) return '';
-  if (Array.isArray(v)) return v.join(', ');
-  if (typeof v === 'object') {
+  if (v === null || v === undefined) return "";
+  if (Array.isArray(v)) return v.join(", ");
+  if (typeof v === "object") {
     try {
       return JSON.stringify(v);
     } catch (e) {
@@ -29,6 +29,6 @@ export const formatAttributeValue = (v) => {
  * @returns {string} Formatted label (e.g., "Device id", "Friendly name")
  */
 export const attributeLabel = (k) => {
-  const label = k.replace(/_/g, ' ');
+  const label = k.replace(/_/g, " ");
   return label.charAt(0).toUpperCase() + label.slice(1);
 };

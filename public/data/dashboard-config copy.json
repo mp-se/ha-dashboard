@@ -16,7 +16,12 @@
       "entities": [
         {
           "type": "HaRoom",
-          "entity": ["area.bedroom", "light.group_livingroom_floor", "media_player.vardagsrum", "fan.aircleaner"]
+          "entity": [
+            "area.bedroom",
+            "light.group_livingroom_floor",
+            "media_player.vardagsrum",
+            "fan.aircleaner"
+          ]
         },
         {
           "type": "HaWarning",
@@ -263,7 +268,7 @@
           "type": "HaSensorGraph"
         },
         {
-          "entity": [ "sensor.speedtest_upload", "sensor.speedtest_download" ],
+          "entity": ["sensor.speedtest_upload", "sensor.speedtest_download"],
           "type": "HaSensorGraph"
         },
         {

@@ -4,12 +4,20 @@
       <div class="card-body d-flex align-items-center">
         <div class="text-start flex-grow-1">
           <h6 class="card-title mb-1">{{ header }}</h6>
-          <a :href="url" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+          <a
+            :href="url"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-decoration-none"
+          >
             {{ name }}
           </a>
         </div>
         <div class="d-flex align-items-center">
-          <i class="mdi mdi-open-in-new" style="font-size: 1.5rem; color: #6c757d"></i>
+          <i
+            class="mdi mdi-open-in-new"
+            style="font-size: 1.5rem; color: #6c757d"
+          ></i>
         </div>
       </div>
     </div>

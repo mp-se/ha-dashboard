@@ -19,7 +19,12 @@
         </div>
         <div class="d-flex align-items-center">
           <div class="ha-icon-circle-wrapper">
-            <svg width="40" height="40" viewBox="0 0 40 40" class="ha-icon-circle">
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 40 40"
+              class="ha-icon-circle"
+            >
               <circle cx="20" cy="20" r="18" fill="#FFC107" />
             </svg>
             <i class="mdi mdi-alert-outline ha-icon-overlay"></i>
@@ -31,17 +36,17 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { useHaStore } from '@/stores/haStore';
+import { computed } from "vue";
+import { useHaStore } from "@/stores/haStore";
 
 const props = defineProps({
   entity: {
     type: [Object, String],
     required: true,
     validator: (value) => {
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         return /^[\w]+\.[\w_-]+$/.test(value);
-      } else if (typeof value === 'object') {
+      } else if (typeof value === "object") {
         return value && value.entity_id && value.state && value.attributes;
       }
       return false;
@@ -49,13 +54,24 @@ const props = defineProps({
   },
   attribute: {
     type: String,
-    default: 'state', // Use 'state' by default, or specify attribute name
+    default: "state", // Use 'state' by default, or specify attribute name
   },
   operator: {
     type: String,
     required: true,
     validator: (value) =>
-      ['=', '!=', '>', '<', '>=', '<=', 'contains', 'not_contains', 'in', 'not_in'].includes(value),
+      [
+        "=",
+        "!=",
+        ">",
+        "<",
+        ">=",
+        "<=",
+        "contains",
+        "not_contains",
+        "in",
+        "not_in",
+      ].includes(value),
   },
   value: {
     type: [String, Number, Boolean, Array],
@@ -71,7 +87,7 @@ const store = useHaStore();
 
 // Smart entity resolution
 const resolvedEntity = computed(() => {
-  if (typeof props.entity === 'string') {
+  if (typeof props.entity === "string") {
     const found = store.sensors.find((s) => s.entity_id === props.entity);
     if (!found) {
       console.warn(`Entity "${props.entity}" not found`);
@@ -87,7 +103,7 @@ const resolvedEntity = computed(() => {
 const currentValue = computed(() => {
   if (!resolvedEntity.value) return null;
 
-  if (props.attribute === 'state') {
+  if (props.attribute === "state") {
     return resolvedEntity.value.state;
   } else {
     return resolvedEntity.value.attributes[props.attribute] || null;
@@ -102,28 +118,28 @@ const shouldShowWarning = computed(() => {
   const expected = props.value;
 
   switch (props.operator) {
-    case '=':
+    case "=":
       return current == expected; // Loose equality for type coercion
-    case '!=':
+    case "!=":
       return current != expected;
-    case '>':
+    case ">":
       return Number(current) > Number(expected);
-    case '<':
+    case "<":
       return Number(current) < Number(expected);
-    case '>=':
+    case ">=":
       return Number(current) >= Number(expected);
-    case '<=':
+    case "<=":
       return Number(current) <= Number(expected);
-    case 'contains':
+    case "contains":
       return String(current).includes(String(expected));
-    case 'not_contains':
+    case "not_contains":
       return !String(current).includes(String(expected));
-    case 'in':
+    case "in":
       if (Array.isArray(expected)) {
         return expected.includes(current);
       }
       return String(expected).includes(String(current));
-    case 'not_in':
+    case "not_in":
       if (Array.isArray(expected)) {
         return !expected.includes(current);
       }

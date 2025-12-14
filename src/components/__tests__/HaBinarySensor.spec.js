@@ -1,22 +1,22 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
-import HaBinarySensor from '../HaBinarySensor.vue';
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { mount } from "@vue/test-utils";
+import { createPinia, setActivePinia } from "pinia";
+import HaBinarySensor from "../HaBinarySensor.vue";
 
-describe('HaBinarySensor.vue', () => {
+describe("HaBinarySensor.vue", () => {
   beforeEach(() => {
     const pinia = createPinia();
     setActivePinia(pinia);
     vi.clearAllMocks();
   });
 
-  describe('Rendering', () => {
-    it('should render a binary sensor card', () => {
+  describe("Rendering", () => {
+    it("should render a binary sensor card", () => {
       const entity = {
-        entity_id: 'binary_sensor.motion',
-        state: 'on',
+        entity_id: "binary_sensor.motion",
+        state: "on",
         attributes: {
-          friendly_name: 'Motion Sensor',
+          friendly_name: "Motion Sensor",
         },
       };
 
@@ -32,16 +32,16 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.find('.card').exists()).toBe(true);
-      expect(wrapper.find('.card-display').exists()).toBe(true);
+      expect(wrapper.find(".card").exists()).toBe(true);
+      expect(wrapper.find(".card-display").exists()).toBe(true);
     });
 
-    it('should display entity name', () => {
+    it("should display entity name", () => {
       const entity = {
-        entity_id: 'binary_sensor.door',
-        state: 'off',
+        entity_id: "binary_sensor.door",
+        state: "off",
         attributes: {
-          friendly_name: 'Front Door',
+          friendly_name: "Front Door",
         },
       };
 
@@ -57,13 +57,13 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Front Door');
+      expect(wrapper.text()).toContain("Front Door");
     });
 
-    it('should show error when entity not found', () => {
+    it("should show error when entity not found", () => {
       const wrapper = mount(HaBinarySensor, {
         props: {
-          entity: 'binary_sensor.nonexistent',
+          entity: "binary_sensor.nonexistent",
         },
         global: {
           stubs: {
@@ -73,17 +73,17 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('not found');
+      expect(wrapper.text()).toContain("not found");
     });
   });
 
-  describe('State Display', () => {
-    it('should show on state with check icon', () => {
+  describe("State Display", () => {
+    it("should show on state with check icon", () => {
       const entity = {
-        entity_id: 'binary_sensor.motion',
-        state: 'on',
+        entity_id: "binary_sensor.motion",
+        state: "on",
         attributes: {
-          friendly_name: 'Motion Detected',
+          friendly_name: "Motion Detected",
         },
       };
 
@@ -99,17 +99,17 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      const indicator = wrapper.find('.binary-state-indicator');
-      expect(indicator.classes()).toContain('state-on');
-      expect(wrapper.find('i.mdi-check-circle').exists()).toBe(true);
+      const indicator = wrapper.find(".binary-state-indicator");
+      expect(indicator.classes()).toContain("state-on");
+      expect(wrapper.find("i.mdi-check-circle").exists()).toBe(true);
     });
 
-    it('should show off state with circle icon', () => {
+    it("should show off state with circle icon", () => {
       const entity = {
-        entity_id: 'binary_sensor.motion',
-        state: 'off',
+        entity_id: "binary_sensor.motion",
+        state: "off",
         attributes: {
-          friendly_name: 'No Motion',
+          friendly_name: "No Motion",
         },
       };
 
@@ -125,17 +125,17 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      const indicator = wrapper.find('.binary-state-indicator');
-      expect(indicator.classes()).toContain('state-off');
-      expect(wrapper.find('i.mdi-circle-outline').exists()).toBe(true);
+      const indicator = wrapper.find(".binary-state-indicator");
+      expect(indicator.classes()).toContain("state-off");
+      expect(wrapper.find("i.mdi-circle-outline").exists()).toBe(true);
     });
 
-    it('should handle true state like on', () => {
+    it("should handle true state like on", () => {
       const entity = {
-        entity_id: 'binary_sensor.test',
-        state: 'true',
+        entity_id: "binary_sensor.test",
+        state: "true",
         attributes: {
-          friendly_name: 'Test',
+          friendly_name: "Test",
         },
       };
 
@@ -151,16 +151,16 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      const indicator = wrapper.find('.binary-state-indicator');
-      expect(indicator.classes()).toContain('state-on');
+      const indicator = wrapper.find(".binary-state-indicator");
+      expect(indicator.classes()).toContain("state-on");
     });
 
-    it('should handle false state like off', () => {
+    it("should handle false state like off", () => {
       const entity = {
-        entity_id: 'binary_sensor.test',
-        state: 'false',
+        entity_id: "binary_sensor.test",
+        state: "false",
         attributes: {
-          friendly_name: 'Test',
+          friendly_name: "Test",
         },
       };
 
@@ -176,14 +176,14 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      const indicator = wrapper.find('.binary-state-indicator');
-      expect(indicator.classes()).toContain('state-off');
+      const indicator = wrapper.find(".binary-state-indicator");
+      expect(indicator.classes()).toContain("state-off");
     });
 
-    it('should show unavailable state with warning', () => {
+    it("should show unavailable state with warning", () => {
       const entity = {
-        entity_id: 'binary_sensor.test',
-        state: 'unavailable',
+        entity_id: "binary_sensor.test",
+        state: "unavailable",
         attributes: {},
       };
 
@@ -199,19 +199,207 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      const indicator = wrapper.find('.binary-state-indicator');
-      expect(indicator.classes()).toContain('state-unavailable');
-      expect(wrapper.find('i.mdi-help-circle-outline').exists()).toBe(true);
+      const indicator = wrapper.find(".binary-state-indicator");
+      expect(indicator.classes()).toContain("state-unavailable");
+      expect(wrapper.find("i.mdi-help-circle-outline").exists()).toBe(true);
+    });
+
+    it("should handle open state with door-open icon", () => {
+      const entity = {
+        entity_id: "binary_sensor.door",
+        state: "open",
+        attributes: {
+          friendly_name: "Door",
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      const indicator = wrapper.find(".binary-state-indicator");
+      expect(indicator.classes()).toContain("state-on");
+      expect(wrapper.find("i.mdi-door-open").exists()).toBe(true);
+      expect(indicator.attributes("title")).toBe("Open");
+    });
+
+    it("should handle closed state with door-closed icon", () => {
+      const entity = {
+        entity_id: "binary_sensor.door",
+        state: "closed",
+        attributes: {
+          friendly_name: "Door",
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      const indicator = wrapper.find(".binary-state-indicator");
+      expect(indicator.classes()).toContain("state-off");
+      expect(wrapper.find("i.mdi-door-closed").exists()).toBe(true);
+      expect(indicator.attributes("title")).toBe("Closed");
+    });
+
+    it("should handle locked state with lock icon", () => {
+      const entity = {
+        entity_id: "binary_sensor.lock",
+        state: "locked",
+        attributes: {
+          friendly_name: "Lock",
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      const indicator = wrapper.find(".binary-state-indicator");
+      expect(indicator.classes()).toContain("state-on");
+      expect(wrapper.find("i.mdi-lock").exists()).toBe(true);
+      expect(indicator.attributes("title")).toBe("Locked");
+    });
+
+    it("should handle unlocked state with lock-open icon", () => {
+      const entity = {
+        entity_id: "binary_sensor.lock",
+        state: "unlocked",
+        attributes: {
+          friendly_name: "Lock",
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      const indicator = wrapper.find(".binary-state-indicator");
+      expect(indicator.classes()).toContain("state-on");
+      expect(wrapper.find("i.mdi-lock-open").exists()).toBe(true);
+      expect(indicator.attributes("title")).toBe("Unlocked");
+    });
+
+    it("should handle detected state", () => {
+      const entity = {
+        entity_id: "binary_sensor.motion",
+        state: "detected",
+        attributes: {
+          friendly_name: "Motion",
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      const indicator = wrapper.find(".binary-state-indicator");
+      expect(indicator.classes()).toContain("state-on");
+      expect(indicator.attributes("title")).toBe("Detected");
+    });
+
+    it("should handle armed state with shield icon", () => {
+      const entity = {
+        entity_id: "binary_sensor.alarm",
+        state: "armed",
+        attributes: {
+          friendly_name: "Alarm",
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      const indicator = wrapper.find(".binary-state-indicator");
+      expect(indicator.classes()).toContain("state-on");
+      expect(wrapper.find("i.mdi-shield-check").exists()).toBe(true);
+      expect(indicator.attributes("title")).toBe("Armed");
+    });
+
+    it("should handle triggered state with alert icon", () => {
+      const entity = {
+        entity_id: "binary_sensor.alarm",
+        state: "triggered",
+        attributes: {
+          friendly_name: "Alarm",
+        },
+      };
+
+      const wrapper = mount(HaBinarySensor, {
+        props: {
+          entity,
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      const indicator = wrapper.find(".binary-state-indicator");
+      expect(indicator.classes()).toContain("state-on");
+      expect(wrapper.find("i.mdi-alert-circle").exists()).toBe(true);
+      expect(indicator.attributes("title")).toBe("Triggered");
     });
   });
 
-  describe('Card Styling', () => {
-    it('should have success border when on', () => {
+  describe("Card Styling", () => {
+    it("should have success border when on", () => {
       const entity = {
-        entity_id: 'binary_sensor.active',
-        state: 'on',
+        entity_id: "binary_sensor.active",
+        state: "on",
         attributes: {
-          friendly_name: 'Active',
+          friendly_name: "Active",
         },
       };
 
@@ -227,15 +415,15 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.find('.border-success').exists()).toBe(true);
+      expect(wrapper.find(".border-success").exists()).toBe(true);
     });
 
-    it('should have secondary border when off', () => {
+    it("should have secondary border when off", () => {
       const entity = {
-        entity_id: 'binary_sensor.inactive',
-        state: 'off',
+        entity_id: "binary_sensor.inactive",
+        state: "off",
         attributes: {
-          friendly_name: 'Inactive',
+          friendly_name: "Inactive",
         },
       };
 
@@ -251,15 +439,15 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.find('.border-secondary').exists()).toBe(true);
+      expect(wrapper.find(".border-secondary").exists()).toBe(true);
     });
 
-    it('should have warning border when unavailable', () => {
+    it("should have warning border when unavailable", () => {
       const entity = {
-        entity_id: 'binary_sensor.unavail',
-        state: 'unavailable',
+        entity_id: "binary_sensor.unavail",
+        state: "unavailable",
         attributes: {
-          friendly_name: 'Unavailable',
+          friendly_name: "Unavailable",
         },
       };
 
@@ -275,13 +463,13 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.find('.border-warning').exists()).toBe(true);
+      expect(wrapper.find(".border-warning").exists()).toBe(true);
     });
 
-    it('should have responsive column class', () => {
+    it("should have responsive column class", () => {
       const entity = {
-        entity_id: 'binary_sensor.test',
-        state: 'on',
+        entity_id: "binary_sensor.test",
+        state: "on",
         attributes: {},
       };
 
@@ -297,13 +485,13 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.find('.col-md-4').exists()).toBe(true);
+      expect(wrapper.find(".col-md-4").exists()).toBe(true);
     });
 
-    it('should have rounded corners and shadow', () => {
+    it("should have rounded corners and shadow", () => {
       const entity = {
-        entity_id: 'binary_sensor.test',
-        state: 'on',
+        entity_id: "binary_sensor.test",
+        state: "on",
         attributes: {},
       };
 
@@ -319,16 +507,16 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.find('.rounded-4').exists()).toBe(true);
-      expect(wrapper.find('.shadow-lg').exists()).toBe(true);
+      expect(wrapper.find(".rounded-4").exists()).toBe(true);
+      expect(wrapper.find(".shadow-lg").exists()).toBe(true);
     });
   });
 
-  describe('Display State Label', () => {
+  describe("Display State Label", () => {
     it('should show "Active" when on', () => {
       const entity = {
-        entity_id: 'binary_sensor.test',
-        state: 'on',
+        entity_id: "binary_sensor.test",
+        state: "on",
         attributes: {},
       };
 
@@ -344,14 +532,14 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      const indicator = wrapper.find('.binary-state-indicator');
-      expect(indicator.attributes('title')).toBe('Active');
+      const indicator = wrapper.find(".binary-state-indicator");
+      expect(indicator.attributes("title")).toBe("Active");
     });
 
     it('should show "Inactive" when off', () => {
       const entity = {
-        entity_id: 'binary_sensor.test',
-        state: 'off',
+        entity_id: "binary_sensor.test",
+        state: "off",
         attributes: {},
       };
 
@@ -367,14 +555,14 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      const indicator = wrapper.find('.binary-state-indicator');
-      expect(indicator.attributes('title')).toBe('Inactive');
+      const indicator = wrapper.find(".binary-state-indicator");
+      expect(indicator.attributes("title")).toBe("Inactive");
     });
 
     it('should show "Unavailable" when unavailable', () => {
       const entity = {
-        entity_id: 'binary_sensor.test',
-        state: 'unavailable',
+        entity_id: "binary_sensor.test",
+        state: "unavailable",
         attributes: {},
       };
 
@@ -390,16 +578,16 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      const indicator = wrapper.find('.binary-state-indicator');
-      expect(indicator.attributes('title')).toBe('Unavailable');
+      const indicator = wrapper.find(".binary-state-indicator");
+      expect(indicator.attributes("title")).toBe("Unavailable");
     });
   });
 
-  describe('Props Validation', () => {
-    it('should accept string entity_id', () => {
+  describe("Props Validation", () => {
+    it("should accept string entity_id", () => {
       const wrapper = mount(HaBinarySensor, {
         props: {
-          entity: 'binary_sensor.valid',
+          entity: "binary_sensor.valid",
         },
         global: {
           stubs: {
@@ -412,10 +600,10 @@ describe('HaBinarySensor.vue', () => {
       expect(wrapper.exists()).toBe(true);
     });
 
-    it('should accept object entity', () => {
+    it("should accept object entity", () => {
       const entity = {
-        entity_id: 'binary_sensor.test',
-        state: 'on',
+        entity_id: "binary_sensor.test",
+        state: "on",
         attributes: {},
       };
 
@@ -435,16 +623,14 @@ describe('HaBinarySensor.vue', () => {
     });
   });
 
-
-
-  describe('Breadth Coverage', () => {
-    it('should render complete structure for on state', () => {
+  describe("Breadth Coverage", () => {
+    it("should render complete structure for on state", () => {
       const entity = {
-        entity_id: 'binary_sensor.door',
-        state: 'on',
+        entity_id: "binary_sensor.door",
+        state: "on",
         attributes: {
-          friendly_name: 'Door Open',
-          device_id: 'device_123',
+          friendly_name: "Door Open",
+          device_id: "device_123",
         },
       };
 
@@ -460,22 +646,31 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.find('.col-md-4').exists()).toBe(true);
-      expect(wrapper.find('.card').exists()).toBe(true);
-      expect(wrapper.find('.card-body').exists()).toBe(true);
-      expect(wrapper.find('.ha-entity-name').exists()).toBe(true);
-      expect(wrapper.find('.binary-state-indicator').exists()).toBe(true);
+      expect(wrapper.find(".col-md-4").exists()).toBe(true);
+      expect(wrapper.find(".card").exists()).toBe(true);
+      expect(wrapper.find(".card-body").exists()).toBe(true);
+      expect(wrapper.find(".ha-entity-name").exists()).toBe(true);
+      expect(wrapper.find(".binary-state-indicator").exists()).toBe(true);
     });
 
-    it('should handle case-insensitive states', () => {
-      const states = ['ON', 'On', 'TRUE', 'True', 'OFF', 'Off', 'FALSE', 'False'];
-      
+    it("should handle case-insensitive states", () => {
+      const states = [
+        "ON",
+        "On",
+        "TRUE",
+        "True",
+        "OFF",
+        "Off",
+        "FALSE",
+        "False",
+      ];
+
       states.forEach((state) => {
         const entity = {
-          entity_id: 'binary_sensor.test',
+          entity_id: "binary_sensor.test",
           state,
           attributes: {
-            friendly_name: 'Test',
+            friendly_name: "Test",
           },
         };
 
@@ -491,19 +686,19 @@ describe('HaBinarySensor.vue', () => {
           },
         });
 
-        const indicator = wrapper.find('.binary-state-indicator');
-        if (['ON', 'On', 'TRUE', 'True'].includes(state)) {
-          expect(indicator.classes()).toContain('state-on');
+        const indicator = wrapper.find(".binary-state-indicator");
+        if (["ON", "On", "TRUE", "True"].includes(state)) {
+          expect(indicator.classes()).toContain("state-on");
         } else {
-          expect(indicator.classes()).toContain('state-off');
+          expect(indicator.classes()).toContain("state-off");
         }
       });
     });
 
-    it('should use entity_id as fallback when friendly_name missing', () => {
+    it("should use entity_id as fallback when friendly_name missing", () => {
       const entity = {
-        entity_id: 'binary_sensor.bedroom_motion',
-        state: 'on',
+        entity_id: "binary_sensor.bedroom_motion",
+        state: "on",
         attributes: {},
       };
 
@@ -519,18 +714,18 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('binary_sensor.bedroom_motion');
+      expect(wrapper.text()).toContain("binary_sensor.bedroom_motion");
     });
   });
 
-  describe('Attributes Display', () => {
-    it('should not display attributes when not provided', () => {
+  describe("Attributes Display", () => {
+    it("should not display attributes when not provided", () => {
       const entity = {
-        entity_id: 'binary_sensor.motion',
-        state: 'on',
+        entity_id: "binary_sensor.motion",
+        state: "on",
         attributes: {
-          friendly_name: 'Motion Sensor',
-          last_triggered: '2024-12-07T10:30:00',
+          friendly_name: "Motion Sensor",
+          last_triggered: "2024-12-07T10:30:00",
         },
       };
 
@@ -546,24 +741,24 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.text()).not.toContain('Last Triggered');
+      expect(wrapper.text()).not.toContain("Last Triggered");
     });
 
-    it('should display requested attributes', () => {
+    it("should display requested attributes", () => {
       const entity = {
-        entity_id: 'binary_sensor.motion',
-        state: 'on',
+        entity_id: "binary_sensor.motion",
+        state: "on",
         attributes: {
-          friendly_name: 'Motion Sensor',
-          last_triggered: '2024-12-07T10:30:00',
-          device_class: 'motion',
+          friendly_name: "Motion Sensor",
+          last_triggered: "2024-12-07T10:30:00",
+          device_class: "motion",
         },
       };
 
       const wrapper = mount(HaBinarySensor, {
         props: {
           entity,
-          attributes: ['last_triggered', 'device_class'],
+          attributes: ["last_triggered", "device_class"],
         },
         global: {
           stubs: {
@@ -573,26 +768,26 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Last Triggered');
-      expect(wrapper.text()).toContain('Device Class');
-      expect(wrapper.text()).toContain('2024-12-07T10:30:00');
-      expect(wrapper.text()).toContain('motion');
+      expect(wrapper.text()).toContain("Last Triggered");
+      expect(wrapper.text()).toContain("Device Class");
+      expect(wrapper.text()).toContain("2024-12-07T10:30:00");
+      expect(wrapper.text()).toContain("motion");
     });
 
-    it('should skip attributes that do not exist', () => {
+    it("should skip attributes that do not exist", () => {
       const entity = {
-        entity_id: 'binary_sensor.motion',
-        state: 'on',
+        entity_id: "binary_sensor.motion",
+        state: "on",
         attributes: {
-          friendly_name: 'Motion Sensor',
-          device_class: 'motion',
+          friendly_name: "Motion Sensor",
+          device_class: "motion",
         },
       };
 
       const wrapper = mount(HaBinarySensor, {
         props: {
           entity,
-          attributes: ['device_class', 'nonexistent'],
+          attributes: ["device_class", "nonexistent"],
         },
         global: {
           stubs: {
@@ -602,25 +797,25 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Device Class');
-      expect(wrapper.text()).toContain('motion');
-      expect(wrapper.text()).not.toContain('Nonexistent');
+      expect(wrapper.text()).toContain("Device Class");
+      expect(wrapper.text()).toContain("motion");
+      expect(wrapper.text()).not.toContain("Nonexistent");
     });
 
-    it('should format attribute keys with underscores', () => {
+    it("should format attribute keys with underscores", () => {
       const entity = {
-        entity_id: 'binary_sensor.door',
-        state: 'on',
+        entity_id: "binary_sensor.door",
+        state: "on",
         attributes: {
-          friendly_name: 'Front Door',
-          last_triggered: '2024-12-07',
+          friendly_name: "Front Door",
+          last_triggered: "2024-12-07",
         },
       };
 
       const wrapper = mount(HaBinarySensor, {
         props: {
           entity,
-          attributes: ['last_triggered'],
+          attributes: ["last_triggered"],
         },
         global: {
           stubs: {
@@ -630,15 +825,15 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Last Triggered');
+      expect(wrapper.text()).toContain("Last Triggered");
     });
 
-    it('should handle array attribute values', () => {
+    it("should handle array attribute values", () => {
       const entity = {
-        entity_id: 'binary_sensor.sensor',
-        state: 'on',
+        entity_id: "binary_sensor.sensor",
+        state: "on",
         attributes: {
-          friendly_name: 'Sensor',
+          friendly_name: "Sensor",
           supported_features: [1, 2, 3],
         },
       };
@@ -646,7 +841,7 @@ describe('HaBinarySensor.vue', () => {
       const wrapper = mount(HaBinarySensor, {
         props: {
           entity,
-          attributes: ['supported_features'],
+          attributes: ["supported_features"],
         },
         global: {
           stubs: {
@@ -656,24 +851,24 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Supported Features');
-      expect(wrapper.text()).toContain('1, 2, 3');
+      expect(wrapper.text()).toContain("Supported Features");
+      expect(wrapper.text()).toContain("1, 2, 3");
     });
 
-    it('should handle object attribute values', () => {
+    it("should handle object attribute values", () => {
       const entity = {
-        entity_id: 'binary_sensor.sensor',
-        state: 'on',
+        entity_id: "binary_sensor.sensor",
+        state: "on",
         attributes: {
-          friendly_name: 'Sensor',
-          extra_state_attributes: { key: 'value' },
+          friendly_name: "Sensor",
+          extra_state_attributes: { key: "value" },
         },
       };
 
       const wrapper = mount(HaBinarySensor, {
         props: {
           entity,
-          attributes: ['extra_state_attributes'],
+          attributes: ["extra_state_attributes"],
         },
         global: {
           stubs: {
@@ -683,16 +878,16 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Extra State Attributes');
+      expect(wrapper.text()).toContain("Extra State Attributes");
       expect(wrapper.text()).toContain('{"key":"value"}');
     });
 
-    it('should handle null attribute values', () => {
+    it("should handle null attribute values", () => {
       const entity = {
-        entity_id: 'binary_sensor.sensor',
-        state: 'on',
+        entity_id: "binary_sensor.sensor",
+        state: "on",
         attributes: {
-          friendly_name: 'Sensor',
+          friendly_name: "Sensor",
           null_attr: null,
         },
       };
@@ -700,7 +895,7 @@ describe('HaBinarySensor.vue', () => {
       const wrapper = mount(HaBinarySensor, {
         props: {
           entity,
-          attributes: ['null_attr'],
+          attributes: ["null_attr"],
         },
         global: {
           stubs: {
@@ -710,8 +905,8 @@ describe('HaBinarySensor.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Null Attr');
-      expect(wrapper.text()).toContain('-');
+      expect(wrapper.text()).toContain("Null Attr");
+      expect(wrapper.text()).toContain("-");
     });
   });
 });

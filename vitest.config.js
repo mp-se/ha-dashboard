@@ -1,21 +1,16 @@
-import { defineConfig } from 'vitest/config';
-import vue from '@vitejs/plugin-vue';
-import path from 'path';
+import { defineConfig } from "vitest/config";
+import vue from "@vitejs/plugin-vue";
+import path from "path";
 
 export default defineConfig({
   plugins: [vue()],
   test: {
     globals: true,
-    environment: 'happy-dom',
+    environment: "happy-dom",
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      exclude: [
-        'node_modules/',
-        'dist/',
-        '**/*.spec.js',
-        '**/__tests__/**',
-      ],
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      exclude: ["node_modules/", "dist/", "**/*.spec.js", "**/__tests__/**"],
       lines: 90,
       functions: 90,
       branches: 90,
@@ -24,7 +19,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 });

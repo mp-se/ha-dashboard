@@ -496,7 +496,10 @@
       "manufacturer": "Aqara",
       "sw_version": "1.4.6",
       "hw_version": "1.0",
-      "entities": ["sensor.living_room_temperature", "sensor.living_room_humidity"]
+      "entities": [
+        "sensor.living_room_temperature",
+        "sensor.living_room_humidity"
+      ]
     },
     {
       "id": "device_004",
@@ -514,7 +517,13 @@
       "manufacturer": "HP",
       "sw_version": "20250101",
       "hw_version": "1.0",
-      "entities": ["printer.office", "sensor.printer_black_toner", "sensor.printer_cyan_toner", "sensor.printer_magenta_toner", "sensor.printer_yellow_toner"]
+      "entities": [
+        "printer.office",
+        "sensor.printer_black_toner",
+        "sensor.printer_cyan_toner",
+        "sensor.printer_magenta_toner",
+        "sensor.printer_yellow_toner"
+      ]
     }
   ],
   "timestamp": "2025-11-29T14:32:00.000000+00:00",

@@ -9,12 +9,18 @@
   </div>
 
   <div v-else class="col-lg-4 col-md-6">
-    <div class="card card-display h-100 rounded-4 shadow-lg" :style="{ borderColor: beerColor, borderWidth: '2px' }">
+    <div
+      class="card card-display h-100 rounded-4 shadow-lg"
+      :style="{ borderColor: beerColor, borderWidth: '2px' }"
+    >
       <div class="card-body d-flex align-items-start gap-3">
         <!-- Beer icon with color circle -->
         <div class="ha-icon-circle-wrapper flex-shrink-0">
           <div class="ha-icon-circle" :style="{ backgroundColor: beerColor }">
-            <i :class="isEmpty ? 'mdi mdi-beer-off' : 'mdi mdi-beer'" class="ha-icon-overlay"></i>
+            <i
+              :class="isEmpty ? 'mdi mdi-beer-off' : 'mdi mdi-beer'"
+              class="ha-icon-overlay"
+            ></i>
           </div>
         </div>
 
@@ -25,13 +31,28 @@
             <!-- Display beer attributes -->
             <div class="mt-1">
               <div class="small d-flex gap-2 mb-0">
-                <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">ABV: <span class="fw-bold">{{ abv }}%</span></div>
+                <div
+                  class="text-muted"
+                  style="font-size: 0.75rem; min-width: 70px"
+                >
+                  ABV: <span class="fw-bold">{{ abv }}%</span>
+                </div>
               </div>
               <div class="small d-flex gap-2 mb-0">
-                <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">EBC: <span class="fw-bold">{{ ebc }}</span></div>
+                <div
+                  class="text-muted"
+                  style="font-size: 0.75rem; min-width: 70px"
+                >
+                  EBC: <span class="fw-bold">{{ ebc }}</span>
+                </div>
               </div>
               <div class="small d-flex gap-2 mb-0">
-                <div class="text-muted" style="font-size: 0.75rem; min-width: 70px;">IBU: <span class="fw-bold">{{ ibu }}</span></div>
+                <div
+                  class="text-muted"
+                  style="font-size: 0.75rem; min-width: 70px"
+                >
+                  IBU: <span class="fw-bold">{{ ibu }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -47,7 +68,7 @@
 
       <!-- Volume Progress Bar -->
       <div class="px-3 pb-3">
-        <div class="progress" style="height: 8px; background-color: #e9ecef;">
+        <div class="progress" style="height: 8px; background-color: #e9ecef">
           <div
             class="ha-progress-bar"
             role="progressbar"
@@ -63,8 +84,8 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { useHaStore } from '@/stores/haStore';
+import { computed } from "vue";
+import { useHaStore } from "@/stores/haStore";
 
 const props = defineProps({
   entity: {
@@ -73,16 +94,16 @@ const props = defineProps({
     validator: (value) => {
       if (Array.isArray(value)) {
         return value.every((ent) => {
-          if (typeof ent === 'string') {
+          if (typeof ent === "string") {
             return /^[\w]+\.[\w_-]+$/.test(ent);
-          } else if (typeof ent === 'object') {
+          } else if (typeof ent === "object") {
             return ent && ent.entity_id;
           }
           return false;
         });
-      } else if (typeof value === 'string') {
+      } else if (typeof value === "string") {
         return /^[\w]+\.[\w_-]+$/.test(value);
-      } else if (typeof value === 'object') {
+      } else if (typeof value === "object") {
         return value && value.entity_id;
       }
       return false;
@@ -104,9 +125,11 @@ const entityArray = computed(() => {
 const entityList = computed(() => {
   try {
     if (!props.entity) return [];
-    return entityArray.value.map((ent) => (typeof ent === 'string' ? ent : ent.entity_id));
+    return entityArray.value.map((ent) =>
+      typeof ent === "string" ? ent : ent.entity_id,
+    );
   } catch (error) {
-    console.error('Error in entityList:', error);
+    console.error("Error in entityList:", error);
     return [];
   }
 });
@@ -115,7 +138,7 @@ const entityList = computed(() => {
 const resolvedEntities = computed(() => {
   try {
     if (!store || !store.sensors) {
-      console.warn('Store or sensors not yet loaded');
+      console.warn("Store or sensors not yet loaded");
       return [];
     }
     if (!entityList.value || entityList.value.length === 0) {
@@ -128,7 +151,7 @@ const resolvedEntities = computed(() => {
       })
       .filter((e) => e !== null);
   } catch (error) {
-    console.error('Error in resolvedEntities:', error);
+    console.error("Error in resolvedEntities:", error);
     return [];
   }
 });
@@ -140,24 +163,26 @@ const detectedEntities = computed(() => {
       return { volumeEntity: null, beerEntity: null };
     }
 
-    const volumeEnt = resolvedEntities.value.find(
-      (e) =>
-        e &&
-        (e.attributes?.device_class === 'volume' ||
-          e.attributes?.unit_of_measurement === 'L' ||
-          e.entity_id?.includes('volume'))
-    ) || null;
+    const volumeEnt =
+      resolvedEntities.value.find(
+        (e) =>
+          e &&
+          (e.attributes?.device_class === "volume" ||
+            e.attributes?.unit_of_measurement === "L" ||
+            e.entity_id?.includes("volume")),
+      ) || null;
 
-    const beerEnt = resolvedEntities.value.find(
-      (e) =>
-        e &&
-        e.entity_id?.includes('beer') &&
-        (!volumeEnt || e.entity_id !== volumeEnt.entity_id)
-    ) || null;
+    const beerEnt =
+      resolvedEntities.value.find(
+        (e) =>
+          e &&
+          e.entity_id?.includes("beer") &&
+          (!volumeEnt || e.entity_id !== volumeEnt.entity_id),
+      ) || null;
 
     return { volumeEntity: volumeEnt, beerEntity: beerEnt };
   } catch (error) {
-    console.error('Error in detectedEntities:', error);
+    console.error("Error in detectedEntities:", error);
     return { volumeEntity: null, beerEntity: null };
   }
 });
@@ -174,12 +199,12 @@ const beerEntity = computed(() => {
 // Volume data
 const volume = computed(() => {
   try {
-    if (!volumeEntity.value || !volumeEntity.value.state) return '0';
+    if (!volumeEntity.value || !volumeEntity.value.state) return "0";
     const val = parseFloat(volumeEntity.value.state);
-    return isNaN(val) ? '0' : val.toFixed(2);
+    return isNaN(val) ? "0" : val.toFixed(2);
   } catch (error) {
-    console.error('Error in volume:', error);
-    return '0';
+    console.error("Error in volume:", error);
+    return "0";
   }
 });
 
@@ -191,7 +216,7 @@ const percentage = computed(() => {
     if (isNaN(vol)) return 0;
     return Math.min(100, Math.round((vol / kegVol) * 100));
   } catch (error) {
-    console.error('Error in percentage:', error);
+    console.error("Error in percentage:", error);
     return 0;
   }
 });
@@ -199,42 +224,42 @@ const percentage = computed(() => {
 // Beer data
 const beerName = computed(() => {
   try {
-    if (!beerEntity.value || !beerEntity.value.state) return 'No Beer';
-    return beerEntity.value.state || 'Unknown';
+    if (!beerEntity.value || !beerEntity.value.state) return "No Beer";
+    return beerEntity.value.state || "Unknown";
   } catch (error) {
-    console.error('Error in beerName:', error);
-    return 'No Beer';
+    console.error("Error in beerName:", error);
+    return "No Beer";
   }
 });
 
 const abv = computed(() => {
   try {
-    if (!beerEntity.value || !beerEntity.value.attributes) return '-';
+    if (!beerEntity.value || !beerEntity.value.attributes) return "-";
     const val = beerEntity.value.attributes?.abv;
-    return val ? val.toFixed(1) : '-';
+    return val ? val.toFixed(1) : "-";
   } catch (error) {
-    console.error('Error in abv:', error);
-    return '-';
+    console.error("Error in abv:", error);
+    return "-";
   }
 });
 
 const ibu = computed(() => {
   try {
-    if (!beerEntity.value || !beerEntity.value.attributes) return '-';
-    return beerEntity.value.attributes?.ibu || '-';
+    if (!beerEntity.value || !beerEntity.value.attributes) return "-";
+    return beerEntity.value.attributes?.ibu || "-";
   } catch (error) {
-    console.error('Error in ibu:', error);
-    return '-';
+    console.error("Error in ibu:", error);
+    return "-";
   }
 });
 
 const ebc = computed(() => {
   try {
-    if (!beerEntity.value || !beerEntity.value.attributes) return '-';
-    return beerEntity.value.attributes?.ebc || '-';
+    if (!beerEntity.value || !beerEntity.value.attributes) return "-";
+    return beerEntity.value.attributes?.ebc || "-";
   } catch (error) {
-    console.error('Error in ebc:', error);
-    return '-';
+    console.error("Error in ebc:", error);
+    return "-";
   }
 });
 
@@ -242,9 +267,11 @@ const ebc = computed(() => {
 const isEmpty = computed(() => {
   try {
     if (!volumeEntity.value || !beerEntity.value) return true;
-    return parseFloat(volume.value) === 0 || beerEntity.value.state === 'unknown';
+    return (
+      parseFloat(volume.value) === 0 || beerEntity.value.state === "unknown"
+    );
   } catch (error) {
-    console.error('Error in isEmpty:', error);
+    console.error("Error in isEmpty:", error);
     return true;
   }
 });
@@ -252,21 +279,21 @@ const isEmpty = computed(() => {
 // Beer color based on EBC value (European Brewery Convention color scale)
 const beerColor = computed(() => {
   try {
-    if (isEmpty.value) return '#C0C0C0'; // Gray for empty
+    if (isEmpty.value) return "#C0C0C0"; // Gray for empty
 
     const ebcValue = parseFloat(ebc.value);
-    if (isNaN(ebcValue)) return '#D4A574'; // Default beer color
+    if (isNaN(ebcValue)) return "#D4A574"; // Default beer color
 
     // EBC color scale approximation
-    if (ebcValue < 10) return '#F4D03F'; // Very light (Pilsner)
-    if (ebcValue < 20) return '#F9E79F'; // Light
-    if (ebcValue < 30) return '#F5B041'; // Amber
-    if (ebcValue < 50) return '#DC7633'; // Brown
-    if (ebcValue < 100) return '#8B4513'; // Dark brown
-    return '#3D2817'; // Very dark (Stout)
+    if (ebcValue < 10) return "#F4D03F"; // Very light (Pilsner)
+    if (ebcValue < 20) return "#F9E79F"; // Light
+    if (ebcValue < 30) return "#F5B041"; // Amber
+    if (ebcValue < 50) return "#DC7633"; // Brown
+    if (ebcValue < 100) return "#8B4513"; // Dark brown
+    return "#3D2817"; // Very dark (Stout)
   } catch (error) {
-    console.error('Error in beerColor:', error);
-    return '#D4A574'; // Default beer color on error
+    console.error("Error in beerColor:", error);
+    return "#D4A574"; // Default beer color on error
   }
 });
 </script>
@@ -276,7 +303,9 @@ const beerColor = computed(() => {
   background-color: #ffffff;
   border-radius: 1rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .card:hover {

@@ -8,22 +8,24 @@
       <div class="card-body text-center text-warning">
         <i class="mdi mdi-alert-circle mdi-24px mb-2"></i>
         <div>No energy consumption sensors found</div>
-        <small class="text-muted d-block mt-2">Configure energy sensors in Home Assistant</small>
+        <small class="text-muted d-block mt-2"
+          >Configure energy sensors in Home Assistant</small
+        >
       </div>
     </div>
 
     <!-- Main energy card -->
-    <div
-      v-else
-      class="card card-display h-100 rounded-4 shadow-lg border-info"
-    >
+    <div v-else class="card card-display h-100 rounded-4 shadow-lg border-info">
       <!-- Header: Icon + Name + Period Button -->
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h6 class="card-title mb-0">{{ cardTitle }}</h6>
           <div class="d-flex align-items-center gap-2">
             <small class="text-muted">{{ unit }}</small>
-            <button class="btn btn-sm btn-outline-secondary" @click="cyclePeriod">
+            <button
+              class="btn btn-sm btn-outline-secondary"
+              @click="cyclePeriod"
+            >
               {{ currentPeriodLabel }}
             </button>
           </div>
@@ -60,13 +62,33 @@
           >
             <!-- Y-axis scale labels -->
             <g class="chart-axis">
-              <text x="25" y="20" font-size="12" text-anchor="end" class="text-muted">
+              <text
+                x="25"
+                y="20"
+                font-size="12"
+                text-anchor="end"
+                class="text-muted"
+              >
                 {{ formatYAxisLabel(maxValue) }}
               </text>
-              <text x="25" y="100" font-size="12" text-anchor="end" class="text-muted">
+              <text
+                x="25"
+                y="100"
+                font-size="12"
+                text-anchor="end"
+                class="text-muted"
+              >
                 {{ formatYAxisLabel(maxValue / 2) }}
               </text>
-              <text x="25" y="180" font-size="12" text-anchor="end" class="text-muted">0</text>
+              <text
+                x="25"
+                y="180"
+                font-size="12"
+                text-anchor="end"
+                class="text-muted"
+              >
+                0
+              </text>
             </g>
 
             <!-- Bars -->
@@ -75,8 +97,12 @@
                 v-for="(point, idx) in chartData"
                 :key="idx"
                 :x="25 + (idx * (chartWidth - 30)) / chartData.length"
-                :y="chartHeight - 20 - (point.value / maxValue) * (chartHeight - 40)"
-                :width="(chartWidth - 30) / chartData.length * 0.95"
+                :y="
+                  chartHeight -
+                  20 -
+                  (point.value / maxValue) * (chartHeight - 40)
+                "
+                :width="((chartWidth - 30) / chartData.length) * 0.95"
                 :height="(point.value / maxValue) * (chartHeight - 40)"
                 class="bar"
                 fill="#007bff"
@@ -89,9 +115,16 @@
             <!-- X-axis labels (every nth label to avoid crowding) -->
             <g class="chart-axis">
               <text
-                v-for="(point, idx) in labelStep === 1 ? chartData : chartData.filter((_, i) => i % labelStep === 0)"
+                v-for="(point, idx) in labelStep === 1
+                  ? chartData
+                  : chartData.filter((_, i) => i % labelStep === 0)"
                 :key="`label-${idx}`"
-                :x="25 + (chartData.indexOf(point) * (chartWidth - 30)) / chartData.length + (chartWidth - 30) / (chartData.length * 2)"
+                :x="
+                  25 +
+                  (chartData.indexOf(point) * (chartWidth - 30)) /
+                    chartData.length +
+                  (chartWidth - 30) / (chartData.length * 2)
+                "
                 :y="chartHeight - 2"
                 font-size="11"
                 text-anchor="middle"
@@ -108,21 +141,38 @@
           <div class="d-flex justify-content-between align-items-center mb-2">
             <div>
               <span class="text-muted">Peak:</span>
-              <span class="fw-bold ms-1">{{ formatValue(stats.max) }} {{ unit }}</span>
+              <span class="fw-bold ms-1"
+                >{{ formatValue(stats.max) }} {{ unit }}</span
+              >
             </div>
             <div class="text-center">
               <span class="text-muted">Average:</span>
-              <span class="fw-bold ms-1">{{ formatValue(stats.avg) }} {{ unit }}</span>
+              <span class="fw-bold ms-1"
+                >{{ formatValue(stats.avg) }} {{ unit }}</span
+              >
             </div>
             <div class="text-end">
               <span class="text-muted">Total:</span>
-              <span class="fw-bold ms-1">{{ formatValue(stats.total) }} {{ unit === 'W' ? 'kWh' : unit }}</span>
+              <span class="fw-bold ms-1"
+                >{{ formatValue(stats.total) }}
+                {{ unit === "W" ? "kWh" : unit }}</span
+              >
             </div>
           </div>
           <div v-if="stats.comparison !== null">
-            <i :class="['mdi', stats.comparison >= 0 ? 'mdi-trending-up text-danger' : 'mdi-trending-down text-success']"></i>
-            <span :class="stats.comparison >= 0 ? 'text-danger' : 'text-success'">
-              {{ Math.abs(stats.comparison) }}% vs previous {{ selectedPeriod }}d
+            <i
+              :class="[
+                'mdi',
+                stats.comparison >= 0
+                  ? 'mdi-trending-up text-danger'
+                  : 'mdi-trending-down text-success',
+              ]"
+            ></i>
+            <span
+              :class="stats.comparison >= 0 ? 'text-danger' : 'text-success'"
+            >
+              {{ Math.abs(stats.comparison) }}% vs previous
+              {{ selectedPeriod }}d
             </span>
           </div>
         </div>
@@ -132,14 +182,14 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, watch } from 'vue';
-import { useHaStore } from '@/stores/haStore';
+import { computed, ref, onMounted, watch } from "vue";
+import { useHaStore } from "@/stores/haStore";
 
 const store = useHaStore();
 
 // Period definitions
 const periods = [1, 3, 7, 14];
-const periodLabels = ['1d', '3d', '7d', '14d'];
+const periodLabels = ["1d", "3d", "7d", "14d"];
 
 // Component state
 const selectedPeriodIndex = ref(0);
@@ -151,7 +201,9 @@ const isFetching = ref(false);
 
 // Current period and label
 const selectedPeriod = computed(() => periods[selectedPeriodIndex.value]);
-const currentPeriodLabel = computed(() => periodLabels[selectedPeriodIndex.value]);
+const currentPeriodLabel = computed(
+  () => periodLabels[selectedPeriodIndex.value],
+);
 
 /**
  * Cycle through available periods
@@ -159,7 +211,7 @@ const currentPeriodLabel = computed(() => periodLabels[selectedPeriodIndex.value
 function cyclePeriod() {
   // Prevent cycling while a fetch is in progress
   if (isFetching.value) return;
-  
+
   selectedPeriodIndex.value = (selectedPeriodIndex.value + 1) % periods.length;
 }
 
@@ -171,7 +223,7 @@ const chartHeight = 200;
 const energySensor = computed(() => {
   const energySensors = store.getEnergyConsumptionSensors();
   const powerSensors = store.getPowerConsumptionSensors();
-  
+
   // Prefer energy sensor (accumulated consumption)
   if (energySensors.length > 0) {
     return energySensors[0];
@@ -185,14 +237,14 @@ const energySensor = computed(() => {
 
 // Unit of measurement
 const unit = computed(() => {
-  if (!energySensor.value) return '';
-  return energySensor.value.attributes?.unit_of_measurement || '';
+  if (!energySensor.value) return "";
+  return energySensor.value.attributes?.unit_of_measurement || "";
 });
 
 // Card title
 const cardTitle = computed(() => {
-  if (!energySensor.value) return 'Energy';
-  return energySensor.value.attributes?.friendly_name || 'Energy Consumption';
+  if (!energySensor.value) return "Energy";
+  return energySensor.value.attributes?.friendly_name || "Energy Consumption";
 });
 
 // Calculate statistics from chart data
@@ -234,11 +286,14 @@ const labelStep = computed(() => {
 // Tooltip positioning
 const tooltipStyle = computed(() => {
   if (hoveredIndex.value < 0) return {};
-  
+
   const barWidth = (chartWidth - 30) / chartData.value.length;
-  const barX = 25 + (hoveredIndex.value * (chartWidth - 30)) / chartData.value.length + barWidth * 0.5;
+  const barX =
+    25 +
+    (hoveredIndex.value * (chartWidth - 30)) / chartData.value.length +
+    barWidth * 0.5;
   const percentage = (barX / chartWidth) * 100;
-  
+
   return {
     left: `${percentage}%`,
   };
@@ -259,24 +314,27 @@ onMounted(async () => {
  */
 async function fetchEnergyData() {
   if (!energySensor.value) return;
-  
+
   // Prevent concurrent requests
   if (isFetching.value) return;
-  
+
   isFetching.value = true;
   isLoading.value = true;
   error.value = null;
 
   try {
-    const data = await store.fetchEnergyHistory(energySensor.value.entity_id, selectedPeriod.value);
+    const data = await store.fetchEnergyHistory(
+      energySensor.value.entity_id,
+      selectedPeriod.value,
+    );
     chartData.value = data;
 
     if (data.length === 0) {
-      error.value = 'No data available for this period';
+      error.value = "No data available for this period";
     }
   } catch (e) {
     error.value = `Failed to load data: ${e.message}`;
-    console.error('Energy history error:', e);
+    console.error("Energy history error:", e);
   } finally {
     isLoading.value = false;
     isFetching.value = false;

@@ -24,6 +24,7 @@ bash ./generate-certs.sh
 ```
 
 This interactively generates new certificates. You'll be prompted for:
+
 - Country code (C)
 - State (ST)
 - City (L)
