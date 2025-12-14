@@ -13,22 +13,21 @@ A Vue.js dashboard app built with Vite that displays real-time sensor data from 
 
 ## Examples
 
-| Light Control | Switch Control | Sensor Display |
-|---|---|---|
+| Light Control                     | Switch Control                      | Sensor Display                          |
+| --------------------------------- | ----------------------------------- | --------------------------------------- |
 | ![Light](./images/halight-on.png) | ![Switch](./images/haswitch-on.png) | ![Sensor](./images/hasensor-single.png) |
 
-| Binary Sensor | Gauge | Weather |
-|---|---|---|
+| Binary Sensor                                    | Gauge                                 | Weather                            |
+| ------------------------------------------------ | ------------------------------------- | ---------------------------------- |
 | ![Binary Sensor](./images/habinarysensor-on.png) | ![Gauge](./images/hagauge-medium.png) | ![Weather](./images/haweather.png) |
 
-| Energy Chart | Sun Info | Person Location |
-|---|---|---|
+| Energy Chart                     | Sun Info                   | Person Location                       |
+| -------------------------------- | -------------------------- | ------------------------------------- |
 | ![Energy](./images/haenergy.png) | ![Sun](./images/hasun.png) | ![Person](./images/haperson-home.png) |
 
 This whole project has been an experiment to see what i could create using Github Copilot and let that do most of the coding and documenation.
 
 Demo is available here: https://mp-se.github.io/ha-dashboard/
-
 
 ## ✨ Features
 

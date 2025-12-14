@@ -1,1 +1,67 @@
-if(!self.define){let e,i={};const s=(s,n)=>(s=new URL(s+".js",n).href,i[s]||new Promise(i=>{if("document"in self){const e=document.createElement("script");e.src=s,e.onload=i,document.head.appendChild(e)}else e=s,importScripts(s),i()}).then(()=>{let e=i[s];if(!e)throw new Error(`Module ${s} didn’t register its module`);return e}));self.define=(n,o)=>{const r=e||("document"in self?document.currentScript.src:"")||location.href;if(i[r])return;let c={};const f=e=>s(e,r),d={module:{uri:r},exports:c,require:f};i[r]=Promise.all(n.map(e=>d[e]||f(e))).then(e=>(o(...e),c))}}define(["./workbox-8c29f6e4"],function(e){"use strict";self.skipWaiting(),e.clientsClaim(),e.precacheAndRoute([{url:"masked-icon.svg",revision:"c71b864e75fe75bf4594f31b63847ded"},{url:"index.html",revision:"b290d13d6f85d7eb7d6bf122aae28429"},{url:"ha-icon.svg",revision:"9f8f3c298abaac9fe555c3d7a312dfbd"},{url:"favicon.ico",revision:"6287f539429e8e3a8b02908fad9bae2a"},{url:"apple-touch-icon.svg",revision:"cb30034c1ba9ada073c4c0de04681477"},{url:"assets/workbox-window.prod.es5-BIl4cyR9.js",revision:null},{url:"assets/index-CHJlWhuT.css",revision:null},{url:"assets/index-BrCzEke8.js",revision:null},{url:"favicon.ico",revision:"6287f539429e8e3a8b02908fad9bae2a"},{url:"ha-icon.svg",revision:"9f8f3c298abaac9fe555c3d7a312dfbd"},{url:"masked-icon.svg",revision:"c71b864e75fe75bf4594f31b63847ded"},{url:"manifest.webmanifest",revision:"2c50c6cfff086546c43ae15123855219"}],{}),e.cleanupOutdatedCaches(),e.registerRoute(new e.NavigationRoute(e.createHandlerBoundToURL("index.html")))});
+if (!self.define) {
+  let e,
+    i = {};
+  const s = (s, n) => (
+    (s = new URL(s + ".js", n).href),
+    i[s] ||
+      new Promise((i) => {
+        if ("document" in self) {
+          const e = document.createElement("script");
+          ((e.src = s), (e.onload = i), document.head.appendChild(e));
+        } else ((e = s), importScripts(s), i());
+      }).then(() => {
+        let e = i[s];
+        if (!e) throw new Error(`Module ${s} didn’t register its module`);
+        return e;
+      })
+  );
+  self.define = (n, o) => {
+    const r =
+      e ||
+      ("document" in self ? document.currentScript.src : "") ||
+      location.href;
+    if (i[r]) return;
+    let c = {};
+    const f = (e) => s(e, r),
+      d = { module: { uri: r }, exports: c, require: f };
+    i[r] = Promise.all(n.map((e) => d[e] || f(e))).then((e) => (o(...e), c));
+  };
+}
+define(["./workbox-8c29f6e4"], function (e) {
+  "use strict";
+  (self.skipWaiting(),
+    e.clientsClaim(),
+    e.precacheAndRoute(
+      [
+        {
+          url: "masked-icon.svg",
+          revision: "c71b864e75fe75bf4594f31b63847ded",
+        },
+        { url: "index.html", revision: "b290d13d6f85d7eb7d6bf122aae28429" },
+        { url: "ha-icon.svg", revision: "9f8f3c298abaac9fe555c3d7a312dfbd" },
+        { url: "favicon.ico", revision: "6287f539429e8e3a8b02908fad9bae2a" },
+        {
+          url: "apple-touch-icon.svg",
+          revision: "cb30034c1ba9ada073c4c0de04681477",
+        },
+        { url: "assets/workbox-window.prod.es5-BIl4cyR9.js", revision: null },
+        { url: "assets/index-CHJlWhuT.css", revision: null },
+        { url: "assets/index-BrCzEke8.js", revision: null },
+        { url: "favicon.ico", revision: "6287f539429e8e3a8b02908fad9bae2a" },
+        { url: "ha-icon.svg", revision: "9f8f3c298abaac9fe555c3d7a312dfbd" },
+        {
+          url: "masked-icon.svg",
+          revision: "c71b864e75fe75bf4594f31b63847ded",
+        },
+        {
+          url: "manifest.webmanifest",
+          revision: "2c50c6cfff086546c43ae15123855219",
+        },
+      ],
+      {},
+    ),
+    e.cleanupOutdatedCaches(),
+    e.registerRoute(
+      new e.NavigationRoute(e.createHandlerBoundToURL("index.html")),
+    ));
+});

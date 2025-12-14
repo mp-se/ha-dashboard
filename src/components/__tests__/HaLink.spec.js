@@ -1,15 +1,15 @@
-import { describe, it, expect } from 'vitest';
-import { mount } from '@vue/test-utils';
-import HaLink from '../HaLink.vue';
+import { describe, it, expect } from "vitest";
+import { mount } from "@vue/test-utils";
+import HaLink from "../HaLink.vue";
 
-describe('HaLink.vue', () => {
-  describe('Rendering', () => {
-    it('should render a link card', () => {
+describe("HaLink.vue", () => {
+  describe("Rendering", () => {
+    it("should render a link card", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Example Link',
-          header: 'External Link',
+          url: "https://example.com",
+          name: "Example Link",
+          header: "External Link",
         },
         global: {
           stubs: {
@@ -19,16 +19,16 @@ describe('HaLink.vue', () => {
         },
       });
 
-      expect(wrapper.find('.card').exists()).toBe(true);
-      expect(wrapper.find('.card-display').exists()).toBe(true);
+      expect(wrapper.find(".card").exists()).toBe(true);
+      expect(wrapper.find(".card-display").exists()).toBe(true);
     });
 
-    it('should display header text', () => {
+    it("should display header text", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Example Link',
-          header: 'My Header',
+          url: "https://example.com",
+          name: "Example Link",
+          header: "My Header",
         },
         global: {
           stubs: {
@@ -38,15 +38,15 @@ describe('HaLink.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('My Header');
+      expect(wrapper.text()).toContain("My Header");
     });
 
-    it('should display link name', () => {
+    it("should display link name", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Click Here',
-          header: 'Link',
+          url: "https://example.com",
+          name: "Click Here",
+          header: "Link",
         },
         global: {
           stubs: {
@@ -56,15 +56,15 @@ describe('HaLink.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Click Here');
+      expect(wrapper.text()).toContain("Click Here");
     });
 
-    it('should render an anchor element', () => {
+    it("should render an anchor element", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Link',
-          header: 'Header',
+          url: "https://example.com",
+          name: "Link",
+          header: "Header",
         },
         global: {
           stubs: {
@@ -74,18 +74,18 @@ describe('HaLink.vue', () => {
         },
       });
 
-      expect(wrapper.find('a').exists()).toBe(true);
+      expect(wrapper.find("a").exists()).toBe(true);
     });
   });
 
-  describe('Link Attributes', () => {
-    it('should set correct href', () => {
-      const url = 'https://example.com/page';
+  describe("Link Attributes", () => {
+    it("should set correct href", () => {
+      const url = "https://example.com/page";
       const wrapper = mount(HaLink, {
         props: {
           url,
-          name: 'Link',
-          header: 'Header',
+          name: "Link",
+          header: "Header",
         },
         global: {
           stubs: {
@@ -95,16 +95,16 @@ describe('HaLink.vue', () => {
         },
       });
 
-      const link = wrapper.find('a');
-      expect(link.attributes('href')).toBe(url);
+      const link = wrapper.find("a");
+      expect(link.attributes("href")).toBe(url);
     });
 
-    it('should open link in new tab', () => {
+    it("should open link in new tab", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Link',
-          header: 'Header',
+          url: "https://example.com",
+          name: "Link",
+          header: "Header",
         },
         global: {
           stubs: {
@@ -114,16 +114,16 @@ describe('HaLink.vue', () => {
         },
       });
 
-      const link = wrapper.find('a');
-      expect(link.attributes('target')).toBe('_blank');
+      const link = wrapper.find("a");
+      expect(link.attributes("target")).toBe("_blank");
     });
 
-    it('should have security attributes', () => {
+    it("should have security attributes", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Link',
-          header: 'Header',
+          url: "https://example.com",
+          name: "Link",
+          header: "Header",
         },
         global: {
           stubs: {
@@ -133,24 +133,24 @@ describe('HaLink.vue', () => {
         },
       });
 
-      const link = wrapper.find('a');
-      expect(link.attributes('rel')).toBe('noopener noreferrer');
+      const link = wrapper.find("a");
+      expect(link.attributes("rel")).toBe("noopener noreferrer");
     });
 
-    it('should handle various URL formats', () => {
+    it("should handle various URL formats", () => {
       const urls = [
-        'https://example.com',
-        'http://localhost:8123',
-        'https://example.com/path/to/page',
-        'https://example.com?param=value',
+        "https://example.com",
+        "http://localhost:8123",
+        "https://example.com/path/to/page",
+        "https://example.com?param=value",
       ];
 
       urls.forEach((url) => {
         const wrapper = mount(HaLink, {
           props: {
             url,
-            name: 'Link',
-            header: 'Header',
+            name: "Link",
+            header: "Header",
           },
           global: {
             stubs: {
@@ -160,19 +160,19 @@ describe('HaLink.vue', () => {
           },
         });
 
-        const link = wrapper.find('a');
-        expect(link.attributes('href')).toBe(url);
+        const link = wrapper.find("a");
+        expect(link.attributes("href")).toBe(url);
       });
     });
   });
 
-  describe('Styling', () => {
-    it('should have responsive column classes', () => {
+  describe("Styling", () => {
+    it("should have responsive column classes", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Link',
-          header: 'Header',
+          url: "https://example.com",
+          name: "Link",
+          header: "Header",
         },
         global: {
           stubs: {
@@ -182,16 +182,16 @@ describe('HaLink.vue', () => {
         },
       });
 
-      expect(wrapper.find('.col-lg-4').exists()).toBe(true);
-      expect(wrapper.find('.col-md-6').exists()).toBe(true);
+      expect(wrapper.find(".col-lg-4").exists()).toBe(true);
+      expect(wrapper.find(".col-md-6").exists()).toBe(true);
     });
 
-    it('should have card styling classes', () => {
+    it("should have card styling classes", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Link',
-          header: 'Header',
+          url: "https://example.com",
+          name: "Link",
+          header: "Header",
         },
         global: {
           stubs: {
@@ -201,19 +201,19 @@ describe('HaLink.vue', () => {
         },
       });
 
-      const card = wrapper.find('.card');
-      expect(card.classes()).toContain('card-display');
-      expect(card.classes()).toContain('h-100');
-      expect(card.classes()).toContain('rounded-4');
-      expect(card.classes()).toContain('shadow-lg');
+      const card = wrapper.find(".card");
+      expect(card.classes()).toContain("card-display");
+      expect(card.classes()).toContain("h-100");
+      expect(card.classes()).toContain("rounded-4");
+      expect(card.classes()).toContain("shadow-lg");
     });
 
-    it('should have card body with flex layout', () => {
+    it("should have card body with flex layout", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Link',
-          header: 'Header',
+          url: "https://example.com",
+          name: "Link",
+          header: "Header",
         },
         global: {
           stubs: {
@@ -223,17 +223,17 @@ describe('HaLink.vue', () => {
         },
       });
 
-      const body = wrapper.find('.card-body');
-      expect(body.classes()).toContain('d-flex');
-      expect(body.classes()).toContain('align-items-center');
+      const body = wrapper.find(".card-body");
+      expect(body.classes()).toContain("d-flex");
+      expect(body.classes()).toContain("align-items-center");
     });
 
-    it('should have link text without underline decoration', () => {
+    it("should have link text without underline decoration", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Link',
-          header: 'Header',
+          url: "https://example.com",
+          name: "Link",
+          header: "Header",
         },
         global: {
           stubs: {
@@ -243,18 +243,18 @@ describe('HaLink.vue', () => {
         },
       });
 
-      const link = wrapper.find('a');
-      expect(link.classes()).toContain('text-decoration-none');
+      const link = wrapper.find("a");
+      expect(link.classes()).toContain("text-decoration-none");
     });
   });
 
-  describe('Icon', () => {
-    it('should display open-in-new icon', () => {
+  describe("Icon", () => {
+    it("should display open-in-new icon", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Link',
-          header: 'Header',
+          url: "https://example.com",
+          name: "Link",
+          header: "Header",
         },
         global: {
           stubs: {
@@ -264,16 +264,16 @@ describe('HaLink.vue', () => {
         },
       });
 
-      const icon = wrapper.find('i.mdi-open-in-new');
+      const icon = wrapper.find("i.mdi-open-in-new");
       expect(icon.exists()).toBe(true);
     });
 
-    it('should have icon with proper styling', () => {
+    it("should have icon with proper styling", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Link',
-          header: 'Header',
+          url: "https://example.com",
+          name: "Link",
+          header: "Header",
         },
         global: {
           stubs: {
@@ -283,19 +283,19 @@ describe('HaLink.vue', () => {
         },
       });
 
-      const icon = wrapper.find('i');
-      expect(icon.attributes('style')).toContain('font-size: 1.5rem');
-      expect(icon.attributes('style')).toContain('color: #6c757d');
+      const icon = wrapper.find("i");
+      expect(icon.attributes("style")).toContain("font-size: 1.5rem");
+      expect(icon.attributes("style")).toContain("color: #6c757d");
     });
   });
 
-  describe('Props Validation', () => {
-    it('should require url prop', () => {
+  describe("Props Validation", () => {
+    it("should require url prop", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Link',
-          header: 'Header',
+          url: "https://example.com",
+          name: "Link",
+          header: "Header",
         },
         global: {
           stubs: {
@@ -308,12 +308,12 @@ describe('HaLink.vue', () => {
       expect(wrapper.exists()).toBe(true);
     });
 
-    it('should require name prop', () => {
+    it("should require name prop", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Link Name',
-          header: 'Header',
+          url: "https://example.com",
+          name: "Link Name",
+          header: "Header",
         },
         global: {
           stubs: {
@@ -326,12 +326,12 @@ describe('HaLink.vue', () => {
       expect(wrapper.exists()).toBe(true);
     });
 
-    it('should require header prop', () => {
+    it("should require header prop", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Link',
-          header: 'Header Text',
+          url: "https://example.com",
+          name: "Link",
+          header: "Header Text",
         },
         global: {
           stubs: {
@@ -344,13 +344,13 @@ describe('HaLink.vue', () => {
       expect(wrapper.exists()).toBe(true);
     });
 
-    it('should accept optional entity prop', () => {
+    it("should accept optional entity prop", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Link',
-          header: 'Header',
-          entity: 'sensor.test',
+          url: "https://example.com",
+          name: "Link",
+          header: "Header",
+          entity: "sensor.test",
         },
         global: {
           stubs: {
@@ -363,13 +363,13 @@ describe('HaLink.vue', () => {
       expect(wrapper.exists()).toBe(true);
     });
 
-    it('should accept optional attributes prop', () => {
+    it("should accept optional attributes prop", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Link',
-          header: 'Header',
-          attributes: ['attr1', 'attr2'],
+          url: "https://example.com",
+          name: "Link",
+          header: "Header",
+          attributes: ["attr1", "attr2"],
         },
         global: {
           stubs: {
@@ -383,13 +383,13 @@ describe('HaLink.vue', () => {
     });
   });
 
-  describe('Layout', () => {
-    it('should have title on left, icon on right', () => {
+  describe("Layout", () => {
+    it("should have title on left, icon on right", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Link',
-          header: 'Header',
+          url: "https://example.com",
+          name: "Link",
+          header: "Header",
         },
         global: {
           stubs: {
@@ -399,19 +399,19 @@ describe('HaLink.vue', () => {
         },
       });
 
-      const leftDiv = wrapper.find('.text-start');
-      const rightDiv = wrapper.findAll('.d-flex')[1]; // Second flex (icon container)
+      const leftDiv = wrapper.find(".text-start");
+      const rightDiv = wrapper.findAll(".d-flex")[1]; // Second flex (icon container)
 
       expect(leftDiv.exists()).toBe(true);
       expect(rightDiv.exists()).toBe(true);
     });
 
-    it('should have full structure', () => {
+    it("should have full structure", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Link',
-          header: 'Header',
+          url: "https://example.com",
+          name: "Link",
+          header: "Header",
         },
         global: {
           stubs: {
@@ -421,20 +421,20 @@ describe('HaLink.vue', () => {
         },
       });
 
-      expect(wrapper.find('.col-lg-4').exists()).toBe(true);
-      expect(wrapper.find('.card').exists()).toBe(true);
-      expect(wrapper.find('.card-body').exists()).toBe(true);
-      expect(wrapper.find('.card-title').exists()).toBe(true);
-      expect(wrapper.find('a').exists()).toBe(true);
-      expect(wrapper.find('i').exists()).toBe(true);
+      expect(wrapper.find(".col-lg-4").exists()).toBe(true);
+      expect(wrapper.find(".card").exists()).toBe(true);
+      expect(wrapper.find(".card-body").exists()).toBe(true);
+      expect(wrapper.find(".card-title").exists()).toBe(true);
+      expect(wrapper.find("a").exists()).toBe(true);
+      expect(wrapper.find("i").exists()).toBe(true);
     });
 
-    it('should have flex-grow-1 on left section', () => {
+    it("should have flex-grow-1 on left section", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Link',
-          header: 'Header',
+          url: "https://example.com",
+          name: "Link",
+          header: "Header",
         },
         global: {
           stubs: {
@@ -444,18 +444,18 @@ describe('HaLink.vue', () => {
         },
       });
 
-      const leftDiv = wrapper.find('.flex-grow-1');
+      const leftDiv = wrapper.find(".flex-grow-1");
       expect(leftDiv.exists()).toBe(true);
     });
   });
 
-  describe('Text Content', () => {
-    it('should display header with proper structure', () => {
+  describe("Text Content", () => {
+    it("should display header with proper structure", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Click Me',
-          header: 'Visit Website',
+          url: "https://example.com",
+          name: "Click Me",
+          header: "Visit Website",
         },
         global: {
           stubs: {
@@ -465,16 +465,16 @@ describe('HaLink.vue', () => {
         },
       });
 
-      const title = wrapper.find('.card-title');
-      expect(title.text()).toBe('Visit Website');
+      const title = wrapper.find(".card-title");
+      expect(title.text()).toBe("Visit Website");
     });
 
-    it('should display link name correctly', () => {
+    it("should display link name correctly", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'Go to Example',
-          header: 'External',
+          url: "https://example.com",
+          name: "Go to Example",
+          header: "External",
         },
         global: {
           stubs: {
@@ -484,16 +484,16 @@ describe('HaLink.vue', () => {
         },
       });
 
-      const link = wrapper.find('a');
-      expect(link.text()).toBe('Go to Example');
+      const link = wrapper.find("a");
+      expect(link.text()).toBe("Go to Example");
     });
 
-    it('should handle special characters in text', () => {
+    it("should handle special characters in text", () => {
       const wrapper = mount(HaLink, {
         props: {
-          url: 'https://example.com',
-          name: 'John\'s Dashboard & Settings',
-          header: 'Home Assistant',
+          url: "https://example.com",
+          name: "John's Dashboard & Settings",
+          header: "Home Assistant",
         },
         global: {
           stubs: {
@@ -504,7 +504,7 @@ describe('HaLink.vue', () => {
       });
 
       expect(wrapper.text()).toContain("John's Dashboard & Settings");
-      expect(wrapper.text()).toContain('Home Assistant');
+      expect(wrapper.text()).toContain("Home Assistant");
     });
   });
 });

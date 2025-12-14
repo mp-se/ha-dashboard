@@ -13,7 +13,11 @@
               aria-label="Filter devices by area"
             >
               <option value="">All Areas</option>
-              <option v-for="area in areas" :key="area.area_id" :value="area.area_id">
+              <option
+                v-for="area in areas"
+                :key="area.area_id"
+                :value="area.area_id"
+              >
                 {{ area.name }}
               </option>
               <option value="unassigned">Unassigned</option>
@@ -44,7 +48,11 @@
     </div>
 
     <div class="row g-3">
-      <div v-for="device in filteredDevices" :key="device.id" class="col-lg-4 col-md-6">
+      <div
+        v-for="device in filteredDevices"
+        :key="device.id"
+        class="col-lg-4 col-md-6"
+      >
         <div class="card h-100 rounded-4">
           <div class="card-body text-start position-relative">
             <button
@@ -55,7 +63,7 @@
             >
               <i class="mdi mdi-content-copy"></i>
             </button>
-            <h6 class="card-title">{{ device.name || 'Unnamed Device' }}</h6>
+            <h6 class="card-title">{{ device.name || "Unnamed Device" }}</h6>
             <small class="text-muted">ID: {{ device.id }}</small>
             <p v-if="getAreaName(device.area_id)" class="mt-2 mb-1">
               <strong>Area:</strong> {{ getAreaName(device.area_id) }}
@@ -67,10 +75,14 @@
             <div v-if="device.entities?.length" class="mb-2">
               <small class="text-muted">Entity IDs:</small>
               <ul class="list-unstyled small">
-                <li v-for="entity in device.entities" :key="entity">{{ entity }}</li>
+                <li v-for="entity in device.entities" :key="entity">
+                  {{ entity }}
+                </li>
               </ul>
             </div>
-            <p v-if="device.model" class="mb-1"><strong>Model:</strong> {{ device.model }}</p>
+            <p v-if="device.model" class="mb-1">
+              <strong>Model:</strong> {{ device.model }}
+            </p>
             <p v-if="device.manufacturer" class="mb-1">
               <strong>Manufacturer:</strong> {{ device.manufacturer }}
             </p>
@@ -92,14 +104,17 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
-import { useHaStore } from '@/stores/haStore';
-import useDebouncedRef from '@/composables/useDebouncedRef';
+import { computed, ref } from "vue";
+import { useHaStore } from "@/stores/haStore";
+import useDebouncedRef from "@/composables/useDebouncedRef";
 
 const store = useHaStore();
 
-const selectedArea = ref('');
-const { input: searchText, debounced: debouncedSearch } = useDebouncedRef('', 300);
+const selectedArea = ref("");
+const { input: searchText, debounced: debouncedSearch } = useDebouncedRef(
+  "",
+  300,
+);
 
 const areas = computed(() => {
   return store.areas || [];
@@ -115,16 +130,16 @@ const filteredDevices = computed(() => {
   let filtered = store.devices || [];
 
   // Filter by area
-  if (selectedArea.value === 'unassigned') {
+  if (selectedArea.value === "unassigned") {
     filtered = filtered.filter((d) => !d.area_id);
   } else if (selectedArea.value) {
     filtered = filtered.filter((d) => d.area_id === selectedArea.value);
   }
 
   // Filter by search text
-  const q = (debouncedSearch.value || '').trim().toLowerCase();
+  const q = (debouncedSearch.value || "").trim().toLowerCase();
   if (q) {
-    filtered = filtered.filter((d) => (d.name || '').toLowerCase().includes(q));
+    filtered = filtered.filter((d) => (d.name || "").toLowerCase().includes(q));
   }
 
   return filtered;
@@ -135,40 +150,53 @@ const copyDeviceToClipboard = async (device) => {
     // Create enriched device data with full entity information
     const enrichedDevice = {
       ...device,
-      areaName: getAreaName(device.area_id) || 'Unassigned',
-      entities: device.entities?.map(entityId => {
-        // Find the full entity data from the store
-        return store.sensors.find(sensor => sensor.entity_id === entityId);
-      }).filter(Boolean) || [] // Filter out any undefined entities
+      areaName: getAreaName(device.area_id) || "Unassigned",
+      entities:
+        device.entities
+          ?.map((entityId) => {
+            // Find the full entity data from the store
+            return store.sensors.find(
+              (sensor) => sensor.entity_id === entityId,
+            );
+          })
+          .filter(Boolean) || [], // Filter out any undefined entities
     };
 
     const jsonString = JSON.stringify(enrichedDevice, null, 2);
     await navigator.clipboard.writeText(jsonString);
     // Could add a toast notification here if desired
-    console.log('Device JSON with entities copied to clipboard:', device.id);
+    console.log("Device JSON with entities copied to clipboard:", device.id);
   } catch (error) {
-    console.error('Failed to copy device to clipboard:', error);
+    console.error("Failed to copy device to clipboard:", error);
     // Fallback for older browsers
     try {
       // Create enriched device data with full entity information
       const enrichedDevice = {
         ...device,
-        areaName: getAreaName(device.area_id) || 'Unassigned',
-        entities: device.entities?.map(entityId => {
-          // Find the full entity data from the store
-          return store.sensors.find(sensor => sensor.entity_id === entityId);
-        }).filter(Boolean) || [] // Filter out any undefined entities
+        areaName: getAreaName(device.area_id) || "Unassigned",
+        entities:
+          device.entities
+            ?.map((entityId) => {
+              // Find the full entity data from the store
+              return store.sensors.find(
+                (sensor) => sensor.entity_id === entityId,
+              );
+            })
+            .filter(Boolean) || [], // Filter out any undefined entities
       };
 
-      const textArea = document.createElement('textarea');
+      const textArea = document.createElement("textarea");
       textArea.value = JSON.stringify(enrichedDevice, null, 2);
       document.body.appendChild(textArea);
       textArea.select();
-      document.execCommand('copy');
+      document.execCommand("copy");
       document.body.removeChild(textArea);
-      console.log('Device JSON with entities copied to clipboard (fallback):', device.id);
+      console.log(
+        "Device JSON with entities copied to clipboard (fallback):",
+        device.id,
+      );
     } catch (fallbackError) {
-      console.error('Fallback copy also failed:', fallbackError);
+      console.error("Fallback copy also failed:", fallbackError);
     }
   }
 };

@@ -1,15 +1,15 @@
-import { chromium } from '@playwright/test';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-import http from 'http';
+import { chromium } from "@playwright/test";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+import http from "http";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * NOTE: This script serves card-showcase.html using a simple Node.js HTTP server.
  * Do NOT use 'npm run dev' (Vite dev console) as it will serve the Vue app instead.
- * 
+ *
  * To use this script:
  * 1. Start the server: node capture-card-variations.js
  * 2. The server will automatically start on port 8888
@@ -18,136 +18,116 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Card variations to capture - format: {cardId, cardName, variations: [{variantClass, filename}]}
 const cardVariations = [
-  { 
-    cardId: 'card-halight', 
-    cardName: 'halight',
+  {
+    cardId: "card-halight",
+    cardName: "halight",
     variations: [
-      { variant: '.light-card.on', filename: 'halight-on' },
-      { variant: '.light-card:not(.on)', filename: 'halight-off' }
-    ]
+      { variant: ".light-card.on", filename: "halight-on" },
+      { variant: ".light-card:not(.on)", filename: "halight-off" },
+    ],
   },
-  { 
-    cardId: 'card-hasensor', 
-    cardName: 'hasensor',
+  {
+    cardId: "card-hasensor",
+    cardName: "hasensor",
     variations: [
-      { variant: '.card:nth-child(1)', filename: 'hasensor-single' },
+      { variant: ".card:nth-child(1)", filename: "hasensor-single" },
       // For multi-sensor, capture the multi-sensor card
-      { variant: '#hasensor-multi-card', filename: 'hasensor-multiple' }
-    ]
+      { variant: "#hasensor-multi-card", filename: "hasensor-multiple" },
+    ],
   },
-  { 
-    cardId: 'card-haweather', 
-    cardName: 'haweather',
-    variations: [
-      { variant: '.card:nth-child(1)', filename: 'haweather' }
-    ]
+  {
+    cardId: "card-haweather",
+    cardName: "haweather",
+    variations: [{ variant: ".card:nth-child(1)", filename: "haweather" }],
   },
-  { 
-    cardId: 'card-habinarysensor', 
-    cardName: 'habinarysensor',
+  {
+    cardId: "card-habinarysensor",
+    cardName: "habinarysensor",
     variations: [
-      { variant: '.card:nth-child(1)', filename: 'habinarysensor-on' },
-      { variant: '.card:nth-child(2)', filename: 'habinarysensor-off' }
-    ]
+      { variant: ".card:nth-child(1)", filename: "habinarysensor-on" },
+      { variant: ".card:nth-child(2)", filename: "habinarysensor-off" },
+    ],
   },
-  { 
-    cardId: 'card-hagauge', 
-    cardName: 'hagauge',
+  {
+    cardId: "card-hagauge",
+    cardName: "hagauge",
     variations: [
-      { variant: '.card:nth-child(1)', filename: 'hagauge-high' },
-      { variant: '.card:nth-child(2)', filename: 'hagauge-medium' }
-    ]
+      { variant: ".card:nth-child(1)", filename: "hagauge-high" },
+      { variant: ".card:nth-child(2)", filename: "hagauge-medium" },
+    ],
   },
-  { 
-    cardId: 'card-habutton', 
-    cardName: 'habutton',
-    variations: [
-      { variant: '.card:nth-child(1)', filename: 'habutton' }
-    ]
+  {
+    cardId: "card-habutton",
+    cardName: "habutton",
+    variations: [{ variant: ".card:nth-child(1)", filename: "habutton" }],
   },
-  { 
-    cardId: 'card-haselect', 
-    cardName: 'haselect',
-    variations: [
-      { variant: '.card', filename: 'haselect' }
-    ]
+  {
+    cardId: "card-haselect",
+    cardName: "haselect",
+    variations: [{ variant: ".card", filename: "haselect" }],
   },
-  { 
-    cardId: 'card-hasun', 
-    cardName: 'hasun',
-    variations: [
-      { variant: '.card', filename: 'hasun' }
-    ]
+  {
+    cardId: "card-hasun",
+    cardName: "hasun",
+    variations: [{ variant: ".card", filename: "hasun" }],
   },
-  { 
-    cardId: 'card-haperson', 
-    cardName: 'haperson',
+  {
+    cardId: "card-haperson",
+    cardName: "haperson",
     variations: [
-      { variant: '.card:nth-child(1)', filename: 'haperson-home' },
-      { variant: '.card:nth-child(2)', filename: 'haperson-away' }
-    ]
+      { variant: ".card:nth-child(1)", filename: "haperson-home" },
+      { variant: ".card:nth-child(2)", filename: "haperson-away" },
+    ],
   },
-  { 
-    cardId: 'card-haimage', 
-    cardName: 'haimage',
-    variations: [
-      { variant: '.card', filename: 'haimage' }
-    ]
+  {
+    cardId: "card-haimage",
+    cardName: "haimage",
+    variations: [{ variant: ".card", filename: "haimage" }],
   },
-  { 
-    cardId: 'card-halink', 
-    cardName: 'halink',
-    variations: [
-      { variant: '.card', filename: 'halink' }
-    ]
+  {
+    cardId: "card-halink",
+    cardName: "halink",
+    variations: [{ variant: ".card", filename: "halink" }],
   },
-  { 
-    cardId: 'card-haroom', 
-    cardName: 'haroom',
-    variations: [
-      { variant: '.card', filename: 'haroom' }
-    ]
+  {
+    cardId: "card-haroom",
+    cardName: "haroom",
+    variations: [{ variant: ".card", filename: "haroom" }],
   },
-  { 
-    cardId: 'card-haprinter', 
-    cardName: 'haprinter',
-    variations: [
-      { variant: '.card', filename: 'haprinter' }
-    ]
+  {
+    cardId: "card-haprinter",
+    cardName: "haprinter",
+    variations: [{ variant: ".card", filename: "haprinter" }],
   },
-  { 
-    cardId: 'card-hasensorgraph', 
-    cardName: 'hasensorgraph',
-    variations: [
-      { variant: '.card', filename: 'hasensorgraph' }
-    ]
+  {
+    cardId: "card-hasensorgraph",
+    cardName: "hasensorgraph",
+    variations: [{ variant: ".card", filename: "hasensorgraph" }],
   },
-  { 
-    cardId: 'card-haenergy', 
-    cardName: 'haenergy',
-    variations: [
-      { variant: '.card', filename: 'haenergy' }
-    ]
+  {
+    cardId: "card-haenergy",
+    cardName: "haenergy",
+    variations: [{ variant: ".card", filename: "haenergy" }],
   },
-  { 
-    cardId: 'card-haswitch', 
-    cardName: 'haswitch',
+  {
+    cardId: "card-haswitch",
+    cardName: "haswitch",
     variations: [
-      { variant: '.card:nth-child(1)', filename: 'haswitch-on' },
-      { variant: '.card:nth-child(2)', filename: 'haswitch-off' }
-    ]
+      { variant: ".card:nth-child(1)", filename: "haswitch-on" },
+      { variant: ".card:nth-child(2)", filename: "haswitch-off" },
+    ],
   },
-  { 
-    cardId: 'card-hawarning-haerror', 
-    cardName: 'hawarning-haerror',
+  {
+    cardId: "card-hawarning-haerror",
+    cardName: "hawarning-haerror",
     variations: [
-      { variant: '#hawarning-card', filename: 'hawarning' },
-      { variant: '#haerror-card', filename: 'haerror' }
-    ]
-  }
+      { variant: "#hawarning-card", filename: "hawarning" },
+      { variant: "#haerror-card", filename: "haerror" },
+    ],
+  },
 ];
 
-const imagesDir = path.join(__dirname, 'images');
+const imagesDir = path.join(__dirname, "images");
 
 // Ensure images directory exists
 if (!fs.existsSync(imagesDir)) {
@@ -157,45 +137,52 @@ if (!fs.existsSync(imagesDir)) {
 async function captureCardVariations() {
   // Start a simple HTTP server to serve the showcase
   const server = http.createServer((req, res) => {
-    let filePath = path.join(__dirname, req.url === '/' ? 'card-showcase.html' : req.url);
-    
+    let filePath = path.join(
+      __dirname,
+      req.url === "/" ? "card-showcase.html" : req.url,
+    );
+
     // Security: prevent directory traversal
     if (!filePath.startsWith(__dirname)) {
       res.writeHead(403);
-      res.end('Forbidden');
+      res.end("Forbidden");
       return;
     }
-    
+
     // Check if file exists
     if (!fs.existsSync(filePath)) {
       res.writeHead(404);
-      res.end('Not Found');
+      res.end("Not Found");
       return;
     }
-    
+
     // Serve the file
     const ext = path.extname(filePath);
     const contentTypes = {
-      '.html': 'text/html',
-      '.css': 'text/css',
-      '.js': 'text/javascript',
-      '.json': 'application/json',
-      '.png': 'image/png',
-      '.jpg': 'image/jpeg',
-      '.gif': 'image/gif',
-      '.svg': 'image/svg+xml',
-      '.woff': 'font/woff',
-      '.woff2': 'font/woff2',
+      ".html": "text/html",
+      ".css": "text/css",
+      ".js": "text/javascript",
+      ".json": "application/json",
+      ".png": "image/png",
+      ".jpg": "image/jpeg",
+      ".gif": "image/gif",
+      ".svg": "image/svg+xml",
+      ".woff": "font/woff",
+      ".woff2": "font/woff2",
     };
-    
-    res.writeHead(200, { 'Content-Type': contentTypes[ext] || 'application/octet-stream' });
+
+    res.writeHead(200, {
+      "Content-Type": contentTypes[ext] || "application/octet-stream",
+    });
     res.end(fs.readFileSync(filePath));
   });
 
   const PORT = 8888;
   const serverPromise = new Promise((resolve) => {
     server.listen(PORT, () => {
-      console.log(`📡 Server started on http://localhost:${PORT}/card-showcase.html`);
+      console.log(
+        `📡 Server started on http://localhost:${PORT}/card-showcase.html`,
+      );
       resolve();
     });
   });
@@ -209,19 +196,21 @@ async function captureCardVariations() {
   // Set viewport to match card display width
   await page.setViewportSize({ width: 600, height: 900 });
 
-  const baseUrl = process.env.BASE_URL || 'http://localhost:8888';
-  const url = baseUrl.replace(/\/$/, '') + '/card-showcase.html';
+  const baseUrl = process.env.BASE_URL || "http://localhost:8888";
+  const url = baseUrl.replace(/\/$/, "") + "/card-showcase.html";
   // Try a few times in case the server is still starting
   const maxRetries = 8;
   let lastErr = null;
   for (let i = 0; i < maxRetries; i++) {
     try {
-      await page.goto(url, { waitUntil: 'load' });
+      await page.goto(url, { waitUntil: "load" });
       lastErr = null;
       break;
     } catch (err) {
       lastErr = err;
-      console.log(`Waiting for server at ${url} (attempt ${i + 1}/${maxRetries}) ...`);
+      console.log(
+        `Waiting for server at ${url} (attempt ${i + 1}/${maxRetries}) ...`,
+      );
       await page.waitForTimeout(500);
     }
   }
@@ -230,7 +219,7 @@ async function captureCardVariations() {
   // Allow filtering of which cards to capture via CARDS env var
   let wanted = null;
   if (process.env.CARDS) {
-    wanted = new Set(process.env.CARDS.split(',').map((s) => s.trim()));
+    wanted = new Set(process.env.CARDS.split(",").map((s) => s.trim()));
   }
   for (const cardConfig of cardVariations) {
     if (wanted && !wanted.has(cardConfig.cardName)) continue;
@@ -240,7 +229,7 @@ async function captureCardVariations() {
 
       // Scroll to the element to bring it into viewport
       await page.locator(`#${cardConfig.cardId}`).scrollIntoViewIfNeeded();
-      
+
       // Wait a bit for the element to settle
       await page.waitForTimeout(300);
 
@@ -248,7 +237,7 @@ async function captureCardVariations() {
         try {
           let selector;
           // Check if variant starts with # (ID selector)
-          if (variation.variant && variation.variant.startsWith('#')) {
+          if (variation.variant && variation.variant.startsWith("#")) {
             selector = variation.variant;
           } else if (variation.variant) {
             // For specific card variants
@@ -259,10 +248,10 @@ async function captureCardVariations() {
           }
 
           const element = await page.$(selector);
-          
+
           if (element) {
             const boundingBox = await element.boundingBox();
-            
+
             if (boundingBox) {
               const screenshotOptions = {
                 path: path.join(imagesDir, `${variation.filename}.png`),
@@ -279,17 +268,23 @@ async function captureCardVariations() {
             }
           }
         } catch (error) {
-          console.error(`✗ Failed to capture ${variation.filename}:`, error.message);
+          console.error(
+            `✗ Failed to capture ${variation.filename}:`,
+            error.message,
+          );
         }
       }
     } catch (error) {
-      console.error(`✗ Failed to process card ${cardConfig.cardId}:`, error.message);
+      console.error(
+        `✗ Failed to process card ${cardConfig.cardId}:`,
+        error.message,
+      );
     }
   }
 
   await browser.close();
   server.close();
-  console.log('✅ Done! Screenshots saved to /images directory');
+  console.log("✅ Done! Screenshots saved to /images directory");
 }
 
 captureCardVariations().catch(console.error);

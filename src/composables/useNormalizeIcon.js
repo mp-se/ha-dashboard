@@ -5,12 +5,12 @@
  */
 export const useNormalizeIcon = () => {
   const normalizeIcon = (icon) => {
-    if (!icon || typeof icon !== 'string') {
+    if (!icon || typeof icon !== "string") {
       return icon;
     }
 
     // Handle empty string - return as is (falsy check would filter it out)
-    if (icon === '') {
+    if (icon === "") {
       return icon;
     }
 
@@ -20,12 +20,12 @@ export const useNormalizeIcon = () => {
     }
 
     // If in "mdi:icon" format (from Home Assistant), convert
-    if (icon.startsWith('mdi:')) {
-      return `mdi mdi-${icon.split(':')[1]}`;
+    if (icon.startsWith("mdi:")) {
+      return `mdi mdi-${icon.split(":")[1]}`;
     }
 
     // If just "mdi-icon" format, add "mdi " prefix
-    if (icon.startsWith('mdi-')) {
+    if (icon.startsWith("mdi-")) {
       return `mdi ${icon}`;
     }
 

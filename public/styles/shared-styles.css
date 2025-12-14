@@ -29,7 +29,7 @@
 }
 
 /* Explicit dark mode styling for nav icons - fixes iOS dark mode issue */
-[data-bs-theme='dark'] .nav-icon {
+[data-bs-theme="dark"] .nav-icon {
   color: rgba(255, 255, 255, 0.8) !important;
 }
 
@@ -60,9 +60,9 @@ button:active {
 }
 
 /* Specifically for outline buttons in dark mode */
-[data-bs-theme='dark'] .btn-outline-light:focus,
-[data-bs-theme='dark'] .btn-outline-light:focus-visible,
-[data-bs-theme='dark'] .btn-outline-light:active {
+[data-bs-theme="dark"] .btn-outline-light:focus,
+[data-bs-theme="dark"] .btn-outline-light:focus-visible,
+[data-bs-theme="dark"] .btn-outline-light:active {
   color: rgba(255, 255, 255, 0.8) !important;
   background-color: transparent !important;
   border-color: rgba(255, 255, 255, 0.5) !important;
@@ -70,9 +70,9 @@ button:active {
   box-shadow: none !important;
 }
 
-[data-bs-theme='dark'] .btn-outline-dark:focus,
-[data-bs-theme='dark'] .btn-outline-dark:focus-visible,
-[data-bs-theme='dark'] .btn-outline-dark:active {
+[data-bs-theme="dark"] .btn-outline-dark:focus,
+[data-bs-theme="dark"] .btn-outline-dark:focus-visible,
+[data-bs-theme="dark"] .btn-outline-dark:active {
   color: rgba(33, 37, 41, 0.8) !important;
   background-color: transparent !important;
   border-color: rgba(33, 37, 41, 0.5) !important;
@@ -86,7 +86,7 @@ button:active {
   .btn {
     -webkit-tap-highlight-color: transparent !important;
   }
-  
+
   button:focus,
   button:focus-visible,
   button:active,
@@ -343,38 +343,38 @@ button:active {
 }
 
 /* Dark mode variants */
-[data-bs-theme='dark'] .card-control {
+[data-bs-theme="dark"] .card-control {
   border-color: rgba(0, 123, 255, 0.4) !important;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.3),
     0 4px 12px rgba(0, 123, 255, 0.15) !important;
 }
 
-[data-bs-theme='dark'] .card-control:hover {
+[data-bs-theme="dark"] .card-control:hover {
   border-color: rgba(0, 123, 255, 0.7) !important;
   box-shadow:
     0 4px 12px rgba(0, 0, 0, 0.4),
     0 6px 16px rgba(0, 123, 255, 0.2) !important;
 }
 
-[data-bs-theme='dark'] .card-control.card-active {
+[data-bs-theme="dark"] .card-control.card-active {
   border-color: #28a745 !important;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.3),
     0 4px 12px rgba(40, 167, 69, 0.15) !important;
 }
 
-[data-bs-theme='dark'] .card-display {
+[data-bs-theme="dark"] .card-display {
   border-color: rgba(73, 80, 87, 0.3) !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
 }
 
-[data-bs-theme='dark'] .card-display:hover {
+[data-bs-theme="dark"] .card-display:hover {
   border-color: rgba(73, 80, 87, 0.5) !important;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
 }
 
-[data-bs-theme='dark'] .card-status {
+[data-bs-theme="dark"] .card-status {
   border-color: rgba(255, 193, 7, 0.5) !important;
   background: linear-gradient(
     135deg,
@@ -383,7 +383,7 @@ button:active {
   ) !important;
 }
 
-[data-bs-theme='dark'] .card-status.error {
+[data-bs-theme="dark"] .card-status.error {
   border-color: rgba(220, 53, 69, 0.5) !important;
   background: linear-gradient(
     135deg,
@@ -392,38 +392,38 @@ button:active {
   ) !important;
 }
 
-[data-bs-theme='dark'] .card.border-warning {
+[data-bs-theme="dark"] .card.border-warning {
   border-color: rgba(255, 193, 7, 0.3) !important;
 }
 
-[data-bs-theme='dark'] .ha-icon-circle {
+[data-bs-theme="dark"] .ha-icon-circle {
   background-color: rgba(33, 37, 41, 0.8);
 }
 
-[data-bs-theme='dark'] .ha-sensor-unit {
+[data-bs-theme="dark"] .ha-sensor-unit {
   color: #ccc;
 }
 
-[data-bs-theme='dark'] .ha-entity-unit {
+[data-bs-theme="dark"] .ha-entity-unit {
   color: #ccc;
 }
 
-[data-bs-theme='dark'] .ha-entity-name {
+[data-bs-theme="dark"] .ha-entity-name {
   color: #adb5bd;
 }
 
-[data-bs-theme='dark'] .ha-attribute-key {
+[data-bs-theme="dark"] .ha-attribute-key {
   color: #ccc;
 }
 
 /* iOS dark mode fixes - ensure icons and text are visible */
-[data-bs-theme='dark'] .nav-link,
-[data-bs-theme='dark'] .nav-link i {
+[data-bs-theme="dark"] .nav-link,
+[data-bs-theme="dark"] .nav-link i {
   color: rgba(255, 255, 255, 0.8) !important;
 }
 
-[data-bs-theme='dark'] .nav-link:hover,
-[data-bs-theme='dark'] .nav-link:hover i {
+[data-bs-theme="dark"] .nav-link:hover,
+[data-bs-theme="dark"] .nav-link:hover i {
   color: rgba(255, 255, 255, 1) !important;
 }
 
@@ -438,7 +438,7 @@ button:active {
     box-shadow: none;
     background-color: transparent !important;
   }
-  
+
   /* Specific button type fixes */
   .btn-outline-secondary:focus,
   .btn-outline-secondary:focus-visible {
@@ -446,51 +446,51 @@ button:active {
     color: rgba(108, 117, 125, 0.8) !important;
     border-color: rgba(108, 117, 125, 0.5) !important;
   }
-  
+
   .btn-outline-light:focus,
   .btn-outline-light:focus-visible {
     background-color: transparent !important;
     color: rgba(255, 255, 255, 0.8) !important;
     border-color: rgba(255, 255, 255, 0.5) !important;
   }
-  
+
   .btn-outline-dark:focus,
   .btn-outline-dark:focus-visible {
     background-color: transparent !important;
     color: rgba(33, 37, 41, 0.8) !important;
     border-color: rgba(33, 37, 41, 0.5) !important;
   }
-  
-  [data-bs-theme='dark'] .btn-outline-secondary:focus,
-  [data-bs-theme='dark'] .btn-outline-secondary:focus-visible {
+
+  [data-bs-theme="dark"] .btn-outline-secondary:focus,
+  [data-bs-theme="dark"] .btn-outline-secondary:focus-visible {
     background-color: transparent !important;
     color: rgba(255, 255, 255, 0.8) !important;
   }
-  
-  [data-bs-theme='dark'] .btn-outline-light:focus,
-  [data-bs-theme='dark'] .btn-outline-light:focus-visible {
+
+  [data-bs-theme="dark"] .btn-outline-light:focus,
+  [data-bs-theme="dark"] .btn-outline-light:focus-visible {
     background-color: transparent !important;
     color: rgba(255, 255, 255, 0.8) !important;
   }
 }
 
-[data-bs-theme='dark'] .nav-link.active,
-[data-bs-theme='dark'] .nav-link.active i {
+[data-bs-theme="dark"] .nav-link.active,
+[data-bs-theme="dark"] .nav-link.active i {
   color: rgba(255, 255, 255, 1) !important;
 }
 
 /* Ensure button text and icons are visible in dark mode */
-[data-bs-theme='dark'] .btn {
+[data-bs-theme="dark"] .btn {
   color: rgba(255, 255, 255, 0.8);
 }
 
-[data-bs-theme='dark'] .btn-outline-secondary {
+[data-bs-theme="dark"] .btn-outline-secondary {
   color: rgba(255, 255, 255, 0.8) !important;
   border-color: rgba(255, 255, 255, 0.3) !important;
 }
 
-[data-bs-theme='dark'] .btn-outline-secondary:hover,
-[data-bs-theme='dark'] .btn-outline-secondary:focus {
+[data-bs-theme="dark"] .btn-outline-secondary:hover,
+[data-bs-theme="dark"] .btn-outline-secondary:focus {
   color: #fff !important;
   background-color: rgba(255, 255, 255, 0.1) !important;
   border-color: rgba(255, 255, 255, 0.5) !important;

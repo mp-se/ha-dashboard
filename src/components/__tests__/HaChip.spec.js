@@ -1,22 +1,22 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
-import HaChip from '../HaChip.vue';
+import { describe, it, expect, beforeEach } from "vitest";
+import { mount } from "@vue/test-utils";
+import { createPinia, setActivePinia } from "pinia";
+import HaChip from "../HaChip.vue";
 
-describe('HaChip.vue', () => {
+describe("HaChip.vue", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
   });
 
-  describe('Component Rendering', () => {
-    it('should render chip with valid entity', () => {
+  describe("Component Rendering", () => {
+    it("should render chip with valid entity", () => {
       const entity = {
-        entity_id: 'sensor.temperature',
-        state: '23.5',
+        entity_id: "sensor.temperature",
+        state: "23.5",
         attributes: {
-          friendly_name: 'Temperature',
-          unit_of_measurement: '°C',
-          icon: 'mdi:thermometer',
+          friendly_name: "Temperature",
+          unit_of_measurement: "°C",
+          icon: "mdi:thermometer",
         },
       };
 
@@ -32,13 +32,13 @@ describe('HaChip.vue', () => {
         },
       });
 
-      expect(wrapper.find('.card-display').exists()).toBe(true);
+      expect(wrapper.find(".card-display").exists()).toBe(true);
     });
 
-    it('should render alert when entity not found', () => {
+    it("should render alert when entity not found", () => {
       const wrapper = mount(HaChip, {
         props: {
-          entity: 'sensor.nonexistent',
+          entity: "sensor.nonexistent",
         },
         global: {
           stubs: {
@@ -48,16 +48,16 @@ describe('HaChip.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Entity not found');
+      expect(wrapper.text()).toContain("Entity not found");
     });
 
-    it('should display entity value', () => {
+    it("should display entity value", () => {
       const entity = {
-        entity_id: 'sensor.humidity',
-        state: '65',
+        entity_id: "sensor.humidity",
+        state: "65",
         attributes: {
-          unit_of_measurement: '%',
-          icon: 'mdi:water',
+          unit_of_measurement: "%",
+          icon: "mdi:water",
         },
       };
 
@@ -74,16 +74,16 @@ describe('HaChip.vue', () => {
       });
 
       // The value should be formatted
-      expect(wrapper.text()).toContain('65');
+      expect(wrapper.text()).toContain("65");
     });
 
-    it('should display unit of measurement', () => {
+    it("should display unit of measurement", () => {
       const entity = {
-        entity_id: 'sensor.temperature',
-        state: '23.5',
+        entity_id: "sensor.temperature",
+        state: "23.5",
         attributes: {
-          unit_of_measurement: '°C',
-          icon: 'mdi:thermometer',
+          unit_of_measurement: "°C",
+          icon: "mdi:thermometer",
         },
       };
 
@@ -99,18 +99,18 @@ describe('HaChip.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('°C');
+      expect(wrapper.text()).toContain("°C");
     });
   });
 
-  describe('Value Formatting', () => {
-    it('should format numeric values with one decimal for temperature', () => {
+  describe("Value Formatting", () => {
+    it("should format numeric values with one decimal for temperature", () => {
       const entity = {
-        entity_id: 'sensor.temp',
-        state: '23.456',
+        entity_id: "sensor.temp",
+        state: "23.456",
         attributes: {
-          unit_of_measurement: '°C',
-          icon: 'mdi:thermometer',
+          unit_of_measurement: "°C",
+          icon: "mdi:thermometer",
         },
       };
 
@@ -126,16 +126,16 @@ describe('HaChip.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('23.5');
+      expect(wrapper.text()).toContain("23.5");
     });
 
-    it('should format numeric values with one decimal for percentage', () => {
+    it("should format numeric values with one decimal for percentage", () => {
       const entity = {
-        entity_id: 'sensor.battery',
-        state: '87.456',
+        entity_id: "sensor.battery",
+        state: "87.456",
         attributes: {
-          unit_of_measurement: '%',
-          icon: 'mdi:battery',
+          unit_of_measurement: "%",
+          icon: "mdi:battery",
         },
       };
 
@@ -151,16 +151,16 @@ describe('HaChip.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('87.5');
+      expect(wrapper.text()).toContain("87.5");
     });
 
-    it('should format large numbers with no decimals', () => {
+    it("should format large numbers with no decimals", () => {
       const entity = {
-        entity_id: 'sensor.power',
-        state: '1234.567',
+        entity_id: "sensor.power",
+        state: "1234.567",
         attributes: {
-          unit_of_measurement: 'W',
-          icon: 'mdi:lightning-bolt',
+          unit_of_measurement: "W",
+          icon: "mdi:lightning-bolt",
         },
       };
 
@@ -176,15 +176,15 @@ describe('HaChip.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('1235');
+      expect(wrapper.text()).toContain("1235");
     });
 
-    it('should display unknown state', () => {
+    it("should display unknown state", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: 'unknown',
+        entity_id: "sensor.test",
+        state: "unknown",
         attributes: {
-          icon: 'mdi:help',
+          icon: "mdi:help",
         },
       };
 
@@ -200,15 +200,15 @@ describe('HaChip.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('unknown');
+      expect(wrapper.text()).toContain("unknown");
     });
 
-    it('should display unavailable state', () => {
+    it("should display unavailable state", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: 'unavailable',
+        entity_id: "sensor.test",
+        state: "unavailable",
         attributes: {
-          icon: 'mdi:help',
+          icon: "mdi:help",
         },
       };
 
@@ -224,15 +224,15 @@ describe('HaChip.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('unavailable');
+      expect(wrapper.text()).toContain("unavailable");
     });
 
-    it('should display string values as-is', () => {
+    it("should display string values as-is", () => {
       const entity = {
-        entity_id: 'sensor.mode',
-        state: 'heat',
+        entity_id: "sensor.mode",
+        state: "heat",
         attributes: {
-          icon: 'mdi:heat-wave',
+          icon: "mdi:heat-wave",
         },
       };
 
@@ -248,17 +248,17 @@ describe('HaChip.vue', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('heat');
+      expect(wrapper.text()).toContain("heat");
     });
   });
 
-  describe('Icon Handling', () => {
-    it('should display icon from entity attributes', () => {
+  describe("Icon Handling", () => {
+    it("should display icon from entity attributes", () => {
       const entity = {
-        entity_id: 'sensor.temperature',
-        state: '23',
+        entity_id: "sensor.temperature",
+        state: "23",
         attributes: {
-          icon: 'mdi:thermometer',
+          icon: "mdi:thermometer",
         },
       };
 
@@ -274,13 +274,13 @@ describe('HaChip.vue', () => {
         },
       });
 
-      expect(wrapper.html()).toContain('mdi-thermometer');
+      expect(wrapper.html()).toContain("mdi-thermometer");
     });
 
-    it('should not display icon when not present', () => {
+    it("should not display icon when not present", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: '23',
+        entity_id: "sensor.test",
+        state: "23",
         attributes: {},
       };
 
@@ -297,15 +297,15 @@ describe('HaChip.vue', () => {
       });
 
       // Should render but without icon overlay
-      expect(wrapper.find('.card-display').exists()).toBe(true);
+      expect(wrapper.find(".card-display").exists()).toBe(true);
     });
 
-    it('should handle non-mdi icons', () => {
+    it("should handle non-mdi icons", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: '23',
+        entity_id: "sensor.test",
+        state: "23",
         attributes: {
-          icon: 'hass:thermometer',
+          icon: "hass:thermometer",
         },
       };
 
@@ -322,15 +322,15 @@ describe('HaChip.vue', () => {
       });
 
       // Non-mdi icons should not be displayed
-      expect(wrapper.html()).not.toContain('icon-overlay');
+      expect(wrapper.html()).not.toContain("icon-overlay");
     });
   });
 
-  describe('Card Styling', () => {
-    it('should have warning border when entity not found', () => {
+  describe("Card Styling", () => {
+    it("should have warning border when entity not found", () => {
       const wrapper = mount(HaChip, {
         props: {
-          entity: 'sensor.nonexistent',
+          entity: "sensor.nonexistent",
         },
         global: {
           stubs: {
@@ -340,15 +340,15 @@ describe('HaChip.vue', () => {
         },
       });
 
-      expect(wrapper.find('.border-warning').exists()).toBe(true);
+      expect(wrapper.find(".border-warning").exists()).toBe(true);
     });
 
-    it('should have info border when entity found', () => {
+    it("should have info border when entity found", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: '23',
+        entity_id: "sensor.test",
+        state: "23",
         attributes: {
-          icon: 'mdi:thermometer',
+          icon: "mdi:thermometer",
         },
       };
 
@@ -364,15 +364,15 @@ describe('HaChip.vue', () => {
         },
       });
 
-      expect(wrapper.find('.border-info').exists()).toBe(true);
+      expect(wrapper.find(".border-info").exists()).toBe(true);
     });
 
-    it('should have responsive column classes', () => {
+    it("should have responsive column classes", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: '23',
+        entity_id: "sensor.test",
+        state: "23",
         attributes: {
-          icon: 'mdi:thermometer',
+          icon: "mdi:thermometer",
         },
       };
 
@@ -388,19 +388,19 @@ describe('HaChip.vue', () => {
         },
       });
 
-      expect(wrapper.find('.col-6').exists()).toBe(true);
-      expect(wrapper.find('.col-sm-4').exists()).toBe(true);
-      expect(wrapper.find('.col-md-2').exists()).toBe(true);
+      expect(wrapper.find(".col-6").exists()).toBe(true);
+      expect(wrapper.find(".col-sm-4").exists()).toBe(true);
+      expect(wrapper.find(".col-md-2").exists()).toBe(true);
     });
   });
 
-  describe('Icon Circle Color', () => {
-    it('should render svg circle for icon background', () => {
+  describe("Icon Circle Color", () => {
+    it("should render svg circle for icon background", () => {
       const entity = {
-        entity_id: 'sensor.temperature',
-        state: '23',
+        entity_id: "sensor.temperature",
+        state: "23",
         attributes: {
-          icon: 'mdi:thermometer',
+          icon: "mdi:thermometer",
         },
       };
 
@@ -415,15 +415,15 @@ describe('HaChip.vue', () => {
         },
       });
 
-      expect(wrapper.find('svg').exists()).toBe(true);
+      expect(wrapper.find("svg").exists()).toBe(true);
     });
 
-    it('should have icon circle wrapper', () => {
+    it("should have icon circle wrapper", () => {
       const entity = {
-        entity_id: 'sensor.temperature',
-        state: '23',
+        entity_id: "sensor.temperature",
+        state: "23",
         attributes: {
-          icon: 'mdi:thermometer',
+          icon: "mdi:thermometer",
         },
       };
 
@@ -439,18 +439,18 @@ describe('HaChip.vue', () => {
         },
       });
 
-      expect(wrapper.find('.ha-icon-circle-wrapper').exists()).toBe(true);
+      expect(wrapper.find(".ha-icon-circle-wrapper").exists()).toBe(true);
     });
   });
 
-  describe('Entity with Object Prop', () => {
-    it('should accept entity as object', () => {
+  describe("Entity with Object Prop", () => {
+    it("should accept entity as object", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: '42',
+        entity_id: "sensor.test",
+        state: "42",
         attributes: {
-          unit_of_measurement: 'W',
-          icon: 'mdi:lightning-bolt',
+          unit_of_measurement: "W",
+          icon: "mdi:lightning-bolt",
         },
       };
 
@@ -467,13 +467,13 @@ describe('HaChip.vue', () => {
       });
 
       expect(wrapper.exists()).toBe(true);
-      expect(wrapper.text()).toContain('42');
+      expect(wrapper.text()).toContain("42");
     });
 
-    it('should accept entity as string', () => {
+    it("should accept entity as string", () => {
       const wrapper = mount(HaChip, {
         props: {
-          entity: 'sensor.temperature',
+          entity: "sensor.temperature",
         },
         global: {
           stubs: {
@@ -487,13 +487,13 @@ describe('HaChip.vue', () => {
     });
   });
 
-  describe('Responsive Layout', () => {
-    it('should have proper mobile layout', () => {
+  describe("Responsive Layout", () => {
+    it("should have proper mobile layout", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: '23',
+        entity_id: "sensor.test",
+        state: "23",
         attributes: {
-          icon: 'mdi:thermometer',
+          icon: "mdi:thermometer",
         },
       };
 
@@ -510,15 +510,15 @@ describe('HaChip.vue', () => {
       });
 
       const container = wrapper.find('[class*="col"]');
-      expect(container.classes()).toContain('col-6');
+      expect(container.classes()).toContain("col-6");
     });
 
-    it('should have proper tablet layout', () => {
+    it("should have proper tablet layout", () => {
       const entity = {
-        entity_id: 'sensor.test',
-        state: '23',
+        entity_id: "sensor.test",
+        state: "23",
         attributes: {
-          icon: 'mdi:thermometer',
+          icon: "mdi:thermometer",
         },
       };
 
@@ -535,7 +535,7 @@ describe('HaChip.vue', () => {
       });
 
       const container = wrapper.find('[class*="col"]');
-      expect(container.classes()).toContain('col-sm-4');
+      expect(container.classes()).toContain("col-sm-4");
     });
   });
 });
