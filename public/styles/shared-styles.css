@@ -59,6 +59,14 @@ button:active {
   background-image: none !important;
 }
 
+/* Exception: Primary buttons should keep their blue background when focused/active */
+.btn-primary:focus,
+.btn-primary:focus-visible,
+.btn-primary:active {
+  background-color: #0078d4 !important;
+  border-color: #0078d4 !important;
+}
+
 /* Specifically for outline buttons in dark mode */
 [data-bs-theme="dark"] .btn-outline-light:focus,
 [data-bs-theme="dark"] .btn-outline-light:focus-visible,
@@ -98,6 +106,14 @@ button:active {
     -webkit-box-shadow: none !important;
     background-color: transparent !important;
     background-image: none !important;
+  }
+
+  /* Exception: Primary buttons should keep their blue background when focused/active */
+  .btn-primary:focus,
+  .btn-primary:focus-visible,
+  .btn-primary:active {
+    background-color: #0078d4 !important;
+    border-color: #0078d4 !important;
   }
 }
 
@@ -217,6 +233,25 @@ button:active {
 
 .ha-icon-circle-large .ha-icon-circle-wrapper {
   --ha-icon-circle-size: var(--ha-icon-circle-large-size);
+}
+
+/* Icon Background Styles - used in entity cards */
+.icon-bg-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon-bg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 /* Card Title Styles */

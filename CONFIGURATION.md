@@ -706,6 +706,8 @@ Basic sun display:
 
 ### HaMediaPlayer
 
+![HaMediaPlayer Card](./images/hamediaplayer.png)
+
 Controls media playback (play/pause, volume, track info).
 
 **Use for**: Audio/video players, media integrations

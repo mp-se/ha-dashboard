@@ -100,6 +100,11 @@ const cardVariations = [
     variations: [{ variant: ".card", filename: "haprinter" }],
   },
   {
+    cardId: "card-hamediaplayer",
+    cardName: "hamediaplayer",
+    variations: [{ variant: ".media-card", filename: "hamediaplayer" }],
+  },
+  {
     cardId: "card-hasensorgraph",
     cardName: "hasensorgraph",
     variations: [{ variant: ".card", filename: "hasensorgraph" }],
