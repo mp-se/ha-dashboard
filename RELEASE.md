@@ -2,6 +2,9 @@
 
 ## December 2025 - v0.3.1
 
+- HaMediaPlayer redesigned with compact three-row layout and Bootstrap buttons
+- Media progress tracking now uses timestamp-based estimation for devices with incomplete position attributes (e.g., Sonos)
+- Updated card-showcase.html to reflect new design
 - HaRoom card expanded to support up to 6 control entities (previously limited to 3) with 2-column grid layout that fills right column first
 - HaRoom temperature and humidity sensor detection now includes fallback search from provided entity list (not just area.entities)
 - HaRoom temperature/humidity sensors automatically excluded from control objects when included in entity list

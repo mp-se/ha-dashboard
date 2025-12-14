@@ -1371,65 +1371,115 @@
       </div>
 
       <!-- Media Player Section -->
-      <div class="card-section">
+      <div class="card-section" id="card-hamediaplayer">
         <h2>🎵 Media Player Card (HaMediaPlayer)</h2>
         <div class="showcase-grid">
           <div class="card media-card">
             <div class="card-body">
-              <div
-                class="d-flex align-items-center justify-content-between mb-3"
-              >
-                <h6 class="card-title mb-0">Living Room Speaker</h6>
-                <i class="mdi mdi-speaker" style="font-size: 1.5rem"></i>
-              </div>
-              <div class="media-info mb-2 text-start">
-                <div class="fw-bold small">Now Playing</div>
-                <div style="font-size: 0.875rem; color: #666">
-                  Spotify - Top 50 Global
+              <!-- Header: Entity Icon | Title/Subtitle -->
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <!-- Entity Icon -->
+                <div class="icon-bg-wrapper">
+                  <div
+                    class="icon-bg"
+                    style="background-color: rgba(0, 120, 212, 0.2)"
+                  >
+                    <i
+                      class="mdi mdi-speaker"
+                      style="font-size: 1.5rem; color: #0078d4"
+                    ></i>
+                  </div>
+                </div>
+
+                <!-- Title and Subtitle -->
+                <div style="flex: 1; min-width: 0" class="text-start">
+                  <h6 class="card-title mb-1">Sonos Högtalare</h6>
+                  <p
+                    class="text-muted mb-0"
+                    style="font-size: 0.875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"
+                  >
+                    Getting Ready to Get Down - Josh Ritter
+                  </p>
                 </div>
               </div>
-              <div
-                class="d-flex justify-content-between align-items-center mb-3"
-              >
-                <div style="font-size: 0.875rem; color: #999">
-                  Volume: <span class="fw-bold">75%</span>
+
+              <!-- Middle Row: Volume + Playback Controls + Power -->
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <!-- Volume Control (Left) -->
+                <div class="d-flex align-items-center gap-2" style="flex: 1">
+                  <i
+                    class="mdi mdi-volume-high"
+                    style="font-size: 1.2rem; color: #666; flex-shrink: 0"
+                  ></i>
+                  <input
+                    type="range"
+                    class="form-range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value="0.45"
+                    style="flex: 1"
+                  />
                 </div>
-                <div style="font-size: 0.875rem; color: #999">
-                  Source: <span class="fw-bold">Spotify</span>
+
+                <!-- Playback Controls (Center) -->
+                <div class="d-flex align-items-center gap-2" style="flex-shrink: 0">
+                  <!-- Skip Previous -->
+                  <button class="btn btn-outline-secondary btn-sm">
+                    <i class="mdi mdi-skip-previous"></i>
+                  </button>
+
+                  <!-- Play/Pause -->
+                  <button class="btn btn-primary btn-sm">
+                    <i class="mdi mdi-pause" style="color: white"></i>
+                  </button>
+
+                  <!-- Skip Next -->
+                  <button class="btn btn-outline-secondary btn-sm">
+                    <i class="mdi mdi-skip-next"></i>
+                  </button>
+
+                  <!-- Power Button -->
+                  <button class="btn btn-outline-secondary btn-sm">
+                    <i class="mdi mdi-power"></i>
+                  </button>
                 </div>
               </div>
+
+              <!-- Bottom: Progress Bar -->
               <div
                 style="
-                  display: flex;
-                  flex-wrap: wrap;
-                  gap: 0.5rem;
-                  margin-bottom: 1rem;
+                  background-color: #e9ecef;
+                  height: 8px;
+                  border-radius: 4px;
+                  overflow: hidden;
+                  position: relative;
+                  cursor: pointer;
+                  margin-top: 0.5rem;
                 "
               >
-                <button class="btn btn-sm btn-outline-success" title="Power">
-                  <i class="mdi mdi-power"></i>
-                </button>
-                <button
-                  class="btn btn-sm btn-outline-secondary"
-                  title="Previous"
-                >
-                  <i class="mdi mdi-skip-previous"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-primary" title="Play">
-                  <i class="mdi mdi-play"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-secondary" title="Next">
-                  <i class="mdi mdi-skip-next"></i>
-                </button>
-              </div>
-              <div>
-                <input
-                  type="range"
-                  class="form-range"
-                  min="0"
-                  max="100"
-                  value="75"
-                />
+                <div
+                  style="
+                    background-color: #0078d4;
+                    height: 100%;
+                    width: 58%;
+                    transition: width 0.1s linear;
+                  "
+                ></div>
+                <!-- Draggable handle -->
+                <div
+                  style="
+                    position: absolute;
+                    top: 50%;
+                    left: 58%;
+                    transform: translate(-50%, -50%);
+                    width: 16px;
+                    height: 16px;
+                    background-color: #0078d4;
+                    border-radius: 50%;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                  "
+                ></div>
               </div>
             </div>
           </div>
