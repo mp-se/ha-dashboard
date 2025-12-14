@@ -46,7 +46,12 @@
               <h6 class="card-title mb-1">{{ name }}</h6>
               <p
                 class="text-muted mb-0"
-                style="font-size: 0.875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"
+                style="
+                  font-size: 0.875rem;
+                  white-space: nowrap;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                "
               >
                 {{ mediaSubtitle }}
               </p>
@@ -74,10 +79,7 @@
             </div>
 
             <!-- Playback Controls (Center) -->
-            <div
-              class="d-flex align-items-center gap-2"
-              style="flex-shrink: 0"
-            >
+            <div class="d-flex align-items-center gap-2" style="flex-shrink: 0">
               <!-- Skip Previous -->
               <button
                 class="btn btn-outline-secondary btn-sm"
@@ -96,9 +98,7 @@
                 @click="callService('media_play_pause')"
               >
                 <i
-                  :class="[
-                    isPlaying ? 'mdi mdi-pause' : 'mdi mdi-play'
-                  ]"
+                  :class="[isPlaying ? 'mdi mdi-pause' : 'mdi mdi-play']"
                   style="color: white"
                 ></i>
               </button>
@@ -126,9 +126,15 @@
           </div>
 
           <!-- Bottom: Progress Bar -->
-          <div v-if="mediaPosition !== undefined && mediaDuration" class="progress-container">
+          <div
+            v-if="mediaPosition !== undefined && mediaDuration"
+            class="progress-container"
+          >
             <div
-              :class="{ 'progress-indeterminate': isPlaying && mediaPosition === 0 && mediaDuration > 0 }"
+              :class="{
+                'progress-indeterminate':
+                  isPlaying && mediaPosition === 0 && mediaDuration > 0,
+              }"
               style="
                 background-color: #e9ecef;
                 height: 8px;
@@ -258,18 +264,28 @@ const mediaPositionUpdatedAt = computed(() => {
 
 // Calculate estimated position using timestamp + elapsed time
 const estimatedPosition = computed(() => {
-  if (!isPlaying.value || mediaPosition.value === undefined || !mediaPositionUpdatedAt.value) {
+  if (
+    !isPlaying.value ||
+    mediaPosition.value === undefined ||
+    !mediaPositionUpdatedAt.value
+  ) {
     return mediaPosition.value || 0;
   }
-  
-  const elapsedSeconds = (currentTime.value - mediaPositionUpdatedAt.value) / 1000;
+
+  const elapsedSeconds =
+    (currentTime.value - mediaPositionUpdatedAt.value) / 1000;
   const estimated = mediaPosition.value + elapsedSeconds;
   return Math.min(estimated, mediaDuration.value || estimated);
 });
 
 const progressPercentage = computed(() => {
   // If playing but position is 0 and no timestamp, show indeterminate progress (50%)
-  if (isPlaying.value && mediaPosition.value === 0 && mediaDuration.value > 0 && !mediaPositionUpdatedAt.value) {
+  if (
+    isPlaying.value &&
+    mediaPosition.value === 0 &&
+    mediaDuration.value > 0 &&
+    !mediaPositionUpdatedAt.value
+  ) {
     return 50;
   }
   // Check if we have the required attributes
@@ -319,7 +335,8 @@ const setVolume = (volume) => {
 }
 
 @keyframes pulse-progress {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.6;
   }
   50% {

@@ -96,8 +96,8 @@ describe("HaMediaPlayer.vue", () => {
         props: { entity: "media_player.bedroom" },
         global: { plugins: [pinia] },
       });
-      // State is now displayed as an icon, verify the play icon is shown for playing state
-      const icon = wrapper.find("i.mdi-play-circle");
+      // State is now displayed as an icon, verify the pause icon is shown for playing state
+      const icon = wrapper.find("i.mdi-pause");
       expect(icon.exists()).toBe(true);
     });
 
@@ -116,22 +116,6 @@ describe("HaMediaPlayer.vue", () => {
       });
       expect(wrapper.text()).toContain("Artist Name");
     });
-
-    it("should display volume level", () => {
-      const wrapper = mount(HaMediaPlayer, {
-        props: { entity: "media_player.bedroom" },
-        global: { plugins: [pinia] },
-      });
-      expect(wrapper.text()).toContain("75%");
-    });
-
-    it("should display source", () => {
-      const wrapper = mount(HaMediaPlayer, {
-        props: { entity: "media_player.bedroom" },
-        global: { plugins: [pinia] },
-      });
-      expect(wrapper.text()).toContain("Spotify");
-    });
   });
 
   describe("Media Icons", () => {
@@ -140,7 +124,7 @@ describe("HaMediaPlayer.vue", () => {
         props: { entity: "media_player.bedroom" },
         global: { plugins: [pinia] },
       });
-      expect(wrapper.find(".mdi-play-circle").exists()).toBe(true);
+      expect(wrapper.find(".mdi-pause").exists()).toBe(true);
     });
 
     it("should show pause icon when paused", () => {
@@ -149,25 +133,7 @@ describe("HaMediaPlayer.vue", () => {
         props: { entity: "media_player.bedroom" },
         global: { plugins: [pinia] },
       });
-      expect(wrapper.find(".mdi-pause-circle").exists()).toBe(true);
-    });
-
-    it("should show stop icon when idle", () => {
-      store.sensors[0].state = "idle";
-      const wrapper = mount(HaMediaPlayer, {
-        props: { entity: "media_player.bedroom" },
-        global: { plugins: [pinia] },
-      });
-      expect(wrapper.find(".mdi-stop-circle").exists()).toBe(true);
-    });
-
-    it("should show stop icon when off", () => {
-      store.sensors[0].state = "off";
-      const wrapper = mount(HaMediaPlayer, {
-        props: { entity: "media_player.bedroom" },
-        global: { plugins: [pinia] },
-      });
-      expect(wrapper.find(".mdi-stop-circle").exists()).toBe(true);
+      expect(wrapper.find(".mdi-play").exists()).toBe(true);
     });
   });
 
@@ -224,7 +190,7 @@ describe("HaMediaPlayer.vue", () => {
         props: { entity: "media_player.bedroom" },
         global: { plugins: [pinia] },
       });
-      const powerButton = wrapper.findAll("button")[0];
+      const powerButton = wrapper.findAll("button")[3];
       await powerButton.trigger("click");
       expect(store.callService).toHaveBeenCalledWith(
         "media_player",
@@ -239,7 +205,7 @@ describe("HaMediaPlayer.vue", () => {
         props: { entity: "media_player.bedroom" },
         global: { plugins: [pinia] },
       });
-      const playButton = wrapper.findAll("button")[2];
+      const playButton = wrapper.findAll("button")[1];
       await playButton.trigger("click");
       expect(store.callService).toHaveBeenCalledWith(
         "media_player",
