@@ -555,6 +555,7 @@ Interactive switch control with on/off toggle.
 **Properties**:
 
 - `entity` (string|object, required): Switch entity ID or object
+- `attributes` (array, optional, default: []): Attribute keys to display below the entity name
 - `mock` (boolean, optional, default: false): Enable mock toggle for testing without HA
 
 **Examples**:
@@ -565,6 +566,16 @@ Basic switch:
 {
   "type": "HaSwitch",
   "entity": "switch.kitchen_outlet"
+}
+```
+
+Switch with attributes displayed:
+
+```json
+{
+  "type": "HaSwitch",
+  "entity": "switch.power_outlet",
+  "attributes": ["power", "current", "voltage"]
 }
 ```
 

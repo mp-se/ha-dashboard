@@ -1,5 +1,15 @@
 # Release Notes
 
+## Unreleased
+
+- Consolidated attribute formatting logic into shared utilities and composables to eliminate code duplication across components
+- Created `useAttributeResolver` composable to centralize attribute and sensor reference resolution
+- Attribute system now supports sensor references in addition to direct entity attributes (e.g., `"attributes": ["brightness", "sensor.power"]`)
+- Sensor references automatically display the sensor's friendly_name as label and include unit_of_measurement when available
+- Updated HaSensor, HaBinarySensor, and HaSwitch components to use the new attribute resolver composable
+- Removed duplicate `formatAttributeValue` implementations from RawEntityView and individual components
+- Removed green background gradient from active switch card for consistent border-only state feedback across all cards
+
 ## December 2025 - v0.4.0
 
 - Updated dependecies and fixed security issues
@@ -96,4 +106,3 @@
 - Created mock server for local testing
 - Dashboard config examples and documentation
 - 1200+ initial tests for core components
-
