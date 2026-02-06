@@ -529,4 +529,221 @@ describe("HaSwitch.vue", () => {
       ).toBe(false);
     });
   });
+
+  describe("Attributes Display", () => {
+    it("should display requested attributes when provided", () => {
+      const entity = {
+        entity_id: "switch.power_outlet",
+        state: "on",
+        attributes: {
+          friendly_name: "Smart Outlet",
+          power: "18.5",
+          current: "0.08",
+          voltage: "230",
+        },
+      };
+
+      const wrapper = mount(HaSwitch, {
+        props: {
+          entity,
+          attributes: ["power", "current", "voltage"],
+        },
+        global: {
+          stubs: {
+            i: true,
+          },
+        },
+      });
+
+      const attributeText = wrapper.text();
+      expect(attributeText).toContain("Power");
+      expect(attributeText).toContain("18.5");
+      expect(attributeText).toContain("Current");
+      expect(attributeText).toContain("0.08");
+      expect(attributeText).toContain("Voltage");
+      expect(attributeText).toContain("230");
+    });
+
+    it("should not display attributes section when attributes prop is empty", () => {
+      const entity = {
+        entity_id: "switch.light",
+        state: "on",
+        attributes: {
+          friendly_name: "Light",
+          power: "15.0",
+        },
+      };
+
+      const wrapper = mount(HaSwitch, {
+        props: {
+          entity,
+          attributes: [],
+        },
+        global: {
+          stubs: {
+            i: true,
+          },
+        },
+      });
+
+      expect(wrapper.text()).not.toContain("Power");
+    });
+
+    it("should handle missing attribute gracefully", () => {
+      const entity = {
+        entity_id: "switch.outlet",
+        state: "on",
+        attributes: {
+          friendly_name: "Outlet",
+          power: "10.0",
+        },
+      };
+
+      const wrapper = mount(HaSwitch, {
+        props: {
+          entity,
+          attributes: ["power", "nonexistent_attr"],
+        },
+        global: {
+          stubs: {
+            i: true,
+          },
+        },
+      });
+
+      const attributeText = wrapper.text();
+      expect(attributeText).toContain("Power");
+      expect(attributeText).toContain("10.0");
+      expect(attributeText).not.toContain("Nonexistent");
+    });
+
+    it("should format attribute keys from snake_case to Title Case", () => {
+      const entity = {
+        entity_id: "switch.outlet",
+        state: "on",
+        attributes: {
+          friendly_name: "Outlet",
+          last_power_update: "2024-01-15",
+        },
+      };
+
+      const wrapper = mount(HaSwitch, {
+        props: {
+          entity,
+          attributes: ["last_power_update"],
+        },
+        global: {
+          stubs: {
+            i: true,
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain("Last Power Update");
+      expect(wrapper.text()).toContain("2024-01-15");
+    });
+
+    it("should format array attribute values as comma-separated", () => {
+      const entity = {
+        entity_id: "switch.outlet",
+        state: "on",
+        attributes: {
+          friendly_name: "Outlet",
+          supported_features: ["power", "energy", "voltage"],
+        },
+      };
+
+      const wrapper = mount(HaSwitch, {
+        props: {
+          entity,
+          attributes: ["supported_features"],
+        },
+        global: {
+          stubs: {
+            i: true,
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain("Supported Features");
+      expect(wrapper.text()).toContain("power, energy, voltage");
+    });
+
+    it("should handle null attribute value", () => {
+      const entity = {
+        entity_id: "switch.outlet",
+        state: "on",
+        attributes: {
+          friendly_name: "Outlet",
+          last_update: null,
+        },
+      };
+
+      const wrapper = mount(HaSwitch, {
+        props: {
+          entity,
+          attributes: ["last_update"],
+        },
+        global: {
+          stubs: {
+            i: true,
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain("Last Update");
+      expect(wrapper.text()).toContain("-");
+    });
+
+    it("should align to start when attributes are present", () => {
+      const entity = {
+        entity_id: "switch.outlet",
+        state: "on",
+        attributes: {
+          friendly_name: "Outlet",
+          power: "10.0",
+        },
+      };
+
+      const wrapper = mount(HaSwitch, {
+        props: {
+          entity,
+          attributes: ["power"],
+        },
+        global: {
+          stubs: {
+            i: true,
+          },
+        },
+      });
+
+      const flexContainer = wrapper.find("div.d-flex.justify-content-between");
+      expect(flexContainer.classes()).toContain("align-items-start");
+    });
+
+    it("should center align when no attributes are present", () => {
+      const entity = {
+        entity_id: "switch.outlet",
+        state: "on",
+        attributes: {
+          friendly_name: "Outlet",
+        },
+      };
+
+      const wrapper = mount(HaSwitch, {
+        props: {
+          entity,
+          attributes: [],
+        },
+        global: {
+          stubs: {
+            i: true,
+          },
+        },
+      });
+
+      const flexContainer = wrapper.find("div.d-flex.justify-content-between");
+      expect(flexContainer.classes()).toContain("align-items-center");
+    });
+  });
 });

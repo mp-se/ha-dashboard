@@ -1,4 +1,0 @@
-        {
-          "type": "HaRoom",
-          "entity": ["area.bedroom", "light.group_livingroom_floor", "media_player.vardagsrum", "fan.aircleaner"]
-        },

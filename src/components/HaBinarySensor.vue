@@ -32,15 +32,13 @@
           <!-- Display requested attributes if provided -->
           <div v-if="requestedAttributes.length > 0" class="mt-1">
             <div
-              v-for="[key, value] in requestedAttributes"
-              :key="key"
+              v-for="[label, value] in requestedAttributes"
+              :key="label"
               class="small d-flex gap-2 mb-0"
             >
               <div class="ha-attribute-key">
-                {{ formatKey(key) }}:
-                <span class="ha-attribute-value">{{
-                  formatAttributeValue(value)
-                }}</span>
+                {{ label }}:
+                <span class="ha-attribute-value">{{ value }}</span>
               </div>
             </div>
           </div>
@@ -66,6 +64,7 @@
 <script setup>
 import { computed } from "vue";
 import { useEntityResolver } from "@/composables/useEntityResolver";
+import { useAttributeResolver } from "@/composables/useAttributeResolver";
 
 const props = defineProps({
   entity: {
@@ -176,42 +175,11 @@ const cardBorderClass = computed(() => {
   return getActiveState() ? "border-success" : "border-secondary";
 });
 
-// Return requested attributes as [key, value] pairs
-const requestedAttributes = computed(() => {
-  if (!props.attributes || props.attributes.length === 0) return [];
-  if (!resolvedEntity.value) return [];
-
-  const attrs = resolvedEntity.value.attributes || {};
-  const result = [];
-
-  for (const key of props.attributes) {
-    if (key in attrs) {
-      result.push([key, attrs[key]]);
-    }
-  }
-
-  return result;
-});
-
-const formatKey = (key) => {
-  return key
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-};
-
-const formatAttributeValue = (value) => {
-  if (value === null || value === undefined) return "-";
-  if (Array.isArray(value)) return value.join(", ");
-  if (typeof value === "object") {
-    try {
-      return JSON.stringify(value);
-    } catch {
-      return String(value);
-    }
-  }
-  return String(value);
-};
+// Use attribute resolver composable to get formatted attributes
+const { requestedAttributes } = useAttributeResolver(
+  props.entity,
+  props.attributes,
+);
 </script>
 
 <style scoped>
