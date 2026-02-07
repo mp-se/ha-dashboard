@@ -9,6 +9,9 @@
 - Updated HaSensor, HaBinarySensor, and HaSwitch components to use the new attribute resolver composable
 - Removed duplicate `formatAttributeValue` implementations from RawEntityView and individual components
 - Removed green background gradient from active switch card for consistent border-only state feedback across all cards
+- Enhanced CONTRIBUTION.md with comprehensive architecture guide and AI-friendly patterns for assisted development
+- Enhanced CONFIGURATION.md with detailed Attribute System Configuration documentation including sensor reference support and unit handling
+- Updated contribution requirements to mandate CONFIGURATION.md updates when changes impact user setup or configuration
 
 ## December 2025 - v0.4.0
 
