@@ -197,7 +197,7 @@ The `attributes` property allows you to display additional entity information be
 The following components support the `attributes` property:
 
 - `HaSensor` — Numeric sensor display
-- `HaBinarySensor` — Binary state display  
+- `HaBinarySensor` — Binary state display
 - `HaSwitch` — Toggle control
 - `HaGauge` — Gauge visualization
 
@@ -217,11 +217,13 @@ Reference attributes directly from the entity's attributes object:
 ```
 
 This displays:
+
 - `aqi` value from entity.attributes.aqi
 - `pm25` value from entity.attributes.pm25
 - `last_updated` value from entity.attributes.last_updated
 
 Labels are automatically formatted from snake_case to Title Case:
+
 - `battery_level` displays as "Battery Level"
 - `signal_strength` displays as "Signal Strength"
 - `last_triggered` displays as "Last Triggered"
@@ -233,11 +235,16 @@ Reference values from related sensor entities by entity ID:
 ```json
 {
   "entity": "switch.kitchen_outlet",
-  "attributes": ["power_consumption", "sensor.kitchen_voltage", "sensor.kitchen_current"]
+  "attributes": [
+    "power_consumption",
+    "sensor.kitchen_voltage",
+    "sensor.kitchen_current"
+  ]
 }
 ```
 
 This displays:
+
 - `power_consumption` from the switch's entity.attributes
 - `sensor.kitchen_voltage` — looked up from Home Assistant (displays as its friendly_name with state)
 - `sensor.kitchen_current` — looked up from Home Assistant (displays as its friendly_name with state)
@@ -245,17 +252,20 @@ This displays:
 **Sensor references automatically include unit of measurement:**
 
 If the referenced sensor has a `unit_of_measurement` attribute, it's automatically appended to the displayed value:
+
 - `sensor.power` with state `150` and unit `"W"` displays as `"150 W"`
 - `sensor.temperature` with state `23.5` and unit `"°C"` displays as `"23.5 °C"`
 
 ### Label Formatting
 
 **Direct attribute keys** are formatted from snake_case to Title Case:
+
 - `battery` → "Battery"
 - `battery_level` → "Battery Level"
 - `signal_strength` → "Signal Strength"
 
 **Sensor entity references** use the sensor's `friendly_name` attribute as the label:
+
 - `sensor.kitchen_voltage` → displays as "Kitchen Voltage" (the friendly_name)
 - `sensor.living_room_power` → displays as "Living Room Power"
 
@@ -289,6 +299,7 @@ If the referenced sensor has a `unit_of_measurement` attribute, it's automatical
 ```
 
 Displays:
+
 - `activity` from switch.kitchen_outlet.attributes.activity
 - `Kitchen Power` from the state/unit of sensor.kitchen_power
 - `Kitchen Voltage` from the state/unit of sensor.kitchen_voltage
@@ -324,7 +335,11 @@ Multiple related sensors can be displayed together:
 ```json
 {
   "entity": "switch.outlet_1",
-  "attributes": ["sensor.outlet_1_power", "sensor.outlet_1_voltage", "sensor.outlet_1_current"]
+  "attributes": [
+    "sensor.outlet_1_power",
+    "sensor.outlet_1_voltage",
+    "sensor.outlet_1_current"
+  ]
 }
 ```
 
@@ -335,7 +350,11 @@ Primary sensor with related measurements:
 ```json
 {
   "entity": "sensor.living_room_temperature",
-  "attributes": ["humidity", "sensor.living_room_dew_point", "sensor.living_room_air_quality"]
+  "attributes": [
+    "humidity",
+    "sensor.living_room_dew_point",
+    "sensor.living_room_air_quality"
+  ]
 }
 ```
 

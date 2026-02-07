@@ -6,14 +6,15 @@ You are welcome to make contributions to this project but for a change to be acc
 
 1. **Unit Tests**: All changes must have unit tests covering the functionality (minimum 70% coverage for files under `src/`)
 2. **Linting**: All code must pass linter without errors (`npm run lint`)
-3. **UI Changes**: Any change that impacts UI appearance or interaction must update [card-showcase.html](card-showcase.html) first to clearly demonstrate the intended design before code changes
-4. **Design Principles**:
+3. **Code Formatting**: All code must comply with formatting standards (`npm run format`)
+4. **UI Changes**: Any change that impacts UI appearance or interaction must update [card-showcase.html](card-showcase.html) first to clearly demonstrate the intended design before code changes
+5. **Design Principles**:
    - Minimalistic approach - don't ask for configuration that can be detected
    - Keep card usage as easy as possible - auto-detect whenever possible
    - Consistency across all components and cards
-5. **Documentation**: Update [RELEASE.md](RELEASE.md) with a concise summary of changes
-6. **Configuration Documentation**: If changes impact how users configure the dashboard, update [CONFIGURATION.md](CONFIGURATION.md) with clear examples and setup instructions
-7. **Build**: All changes must build successfully without errors or warnings
+6. **Documentation**: Update [RELEASE.md](RELEASE.md) with a concise summary of changes
+7. **Configuration Documentation**: If changes impact how users configure the dashboard, update [CONFIGURATION.md](CONFIGURATION.md) with clear examples and setup instructions
+8. **Build**: All changes must build successfully without errors or warnings
 
 ## Project Architecture
 
@@ -39,6 +40,7 @@ public/
 ### Component Patterns
 
 **Card Components** (`src/components/HaX.vue`):
+
 - Accept `entity` prop (string ID, object, or array)
 - Optional `attributes` prop for displaying custom entity attributes
 - Use `useEntityResolver` composable to get entity data
@@ -47,6 +49,7 @@ public/
 - Export default Vue component with TypeScript prop validation
 
 **Composables** (`src/composables/useX.js`):
+
 - Pure functions that return computed properties and methods
 - Use `computed()` for reactive values
 - Accept entity or configuration as parameters
@@ -54,6 +57,7 @@ public/
 - Include JSDoc comments with parameter and return types
 
 **Utilities** (`src/utils/X.js`):
+
 - Pure functions without side effects
 - Export named functions (not default)
 - Include comprehensive JSDoc documentation
@@ -81,6 +85,7 @@ const props = defineProps({
 ### Attribute System
 
 The new `useAttributeResolver` composable centralizes attribute resolution:
+
 - Supports direct entity attributes (e.g., `"brightness"`)
 - Supports sensor references (e.g., `"sensor.power"`)
 - Automatically includes unit of measurement in displayed values
@@ -88,20 +93,26 @@ The new `useAttributeResolver` composable centralizes attribute resolution:
 - Full test coverage with 22 comprehensive tests covering all scenarios
 
 Example usage:
+
 ```javascript
-const { requestedAttributes } = useAttributeResolver(props.entity, props.attributes);
+const { requestedAttributes } = useAttributeResolver(
+  props.entity,
+  props.attributes,
+);
 // requestedAttributes is a computed property returning [[label, value], ...]
 ```
 
 ### Formatting Functions
 
 **`formatAttributeValue(value)`** - Located in `src/utils/attributeFormatters.js`
+
 - Handles null, arrays, objects, primitives
 - Returns "-" for null/undefined values
 - Joins arrays with ", "
 - Stringifies objects to JSON
 
 **`formatKey(key)`** - Located in `src/utils/attributeFormatters.js`
+
 - Converts snake_case to Title Case (e.g., "last_triggered" → "Last Triggered")
 - Used for attribute label display
 
@@ -138,18 +149,21 @@ const { requestedAttributes } = useAttributeResolver(props.entity, props.attribu
 ### State Management
 
 The `haStore` (Pinia store) manages:
+
 - All entity data (`sensors` array)
 - Home Assistant connection state
 - Credentials and configuration
 - Device and area information
 
 **Access pattern**:
+
 ```javascript
 const store = useHaStore();
-const entity = store.sensors.find(s => s.entity_id === 'sensor.name');
+const entity = store.sensors.find((s) => s.entity_id === "sensor.name");
 ```
 
 **Entity object structure**:
+
 ```javascript
 {
   entity_id: "sensor.temperature",
@@ -165,6 +179,7 @@ const entity = store.sensors.find(s => s.entity_id === 'sensor.name');
 ### Icon Handling
 
 Icons are handled consistently through utilities:
+
 - **MDI Format**: `mdi:power` (from Home Assistant) → converted to `mdi mdi-power` (CSS class)
 - **Use `useNormalizeIcon()`**: Standardizes icon formats
 - **Use `useIconClass()`**: Gets appropriate icon for entity (domain-based fallbacks included)
@@ -206,6 +221,7 @@ describe('ComponentName.vue', () => {
 ### Dashboard Config Structure
 
 Config files are JSON documents with structure:
+
 ```json
 {
   "app": { "title": "...", "developerMode": false, "localMode": false },
@@ -217,6 +233,7 @@ Config files are JSON documents with structure:
 ### Config Validation
 
 Use `configValidator.js` utilities:
+
 - `validateConfig(configObj)` - Returns validation result with errors
 - Individual validators for components, properties, icon formats
 - Always validate user-provided configuration before use
@@ -246,6 +263,7 @@ Use `configValidator.js` utilities:
 ### Dark Mode Support
 
 All components must support dark mode via `[data-bs-theme="dark"]` selector:
+
 ```css
 .my-class {
   color: #333; /* light mode */
@@ -283,16 +301,19 @@ The [card-showcase.html](card-showcase.html) file is a static HTML reference tha
 After updating `card-showcase.html`, regenerate the PNG images used in `CONFIGURATION.md` documentation to keep them in sync:
 
 **Full Image Regeneration**:
+
 ```bash
 node capture-card-variations.js
 ```
 
 **Regenerate Specific Cards** (comma-separated list):
+
 ```bash
 CARDS=haswitch,hasensor,halight node capture-card-variations.js
 ```
 
 **Important Notes**:
+
 - The script uses Playwright to capture screenshots from the showcase
 - It automatically starts a local HTTP server on port 8888
 - PNG images are saved to the `/images` directory
@@ -300,6 +321,7 @@ CARDS=haswitch,hasensor,halight node capture-card-variations.js
 - All 30+ card images should be regenerated if making UI-wide styling changes
 
 **Output**:
+
 ```
 ✓ Saved: haswitch-on.png
 ✓ Saved: hasensor-single.png
@@ -308,6 +330,7 @@ CARDS=haswitch,hasensor,halight node capture-card-variations.js
 ```
 
 **When to Regenerate**:
+
 - After updating card-showcase.html (required)
 - After CSS changes that affect card appearance (recommended)
 - Before submitting a PR with UI changes (required)
@@ -320,7 +343,7 @@ CARDS=haswitch,hasensor,halight node capture-card-variations.js
 <div class="example-section">
   <h3>HaAwesome Card</h3>
   <p>Display awesome entity data with new styling</p>
-  
+
   <div class="row g-3">
     <!-- Normal state -->
     <div class="col-lg-4 col-md-6">
@@ -331,7 +354,7 @@ CARDS=haswitch,hasensor,halight node capture-card-variations.js
         </div>
       </div>
     </div>
-    
+
     <!-- Active/On state -->
     <div class="col-lg-4 col-md-6">
       <div class="card card-control card-active h-100 rounded-4 shadow-lg">
@@ -361,8 +384,8 @@ CARDS=haswitch,hasensor,halight node capture-card-variations.js
 ```javascript
 const { resolvedEntity } = useEntityResolver(props.entity);
 const state = computed(() => resolvedEntity.value?.state ?? "unknown");
-const friendlyName = computed(() => 
-  resolvedEntity.value?.attributes?.friendly_name || "Unknown"
+const friendlyName = computed(
+  () => resolvedEntity.value?.attributes?.friendly_name || "Unknown",
 );
 ```
 
@@ -377,8 +400,8 @@ await callService("light", "turn_on", { entity_id: entityId });
 
 ```javascript
 const isActive = computed(() => resolvedEntity.value?.state === "on");
-const borderClass = computed(() => 
-  isActive.value ? "border-success" : "border-secondary"
+const borderClass = computed(() =>
+  isActive.value ? "border-success" : "border-secondary",
 );
 ```
 
@@ -419,6 +442,7 @@ Before submitting a PR:
 - [ ] Unit tests written with >70% coverage
 - [ ] All tests passing (`npm run test`)
 - [ ] Linting passes (`npm run lint`)
+- [ ] Code formatting passes (`npm run format`)
 - [ ] Build succeeds (`npm run build`)
 - [ ] Dark mode tested
 - [ ] Responsive on mobile/tablet/desktop
