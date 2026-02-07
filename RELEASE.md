@@ -16,6 +16,7 @@
 - Updated card-showcase.html to demonstrate new HaSwitch active state styling (green border only, no background gradient) and sensor reference usage patterns
 - Regenerated all 30 PNG card images from updated showcase for visual documentation consistency
 - Added image generation instructions to CONTRIBUTION.md with commands for full and selective regeneration using capture-card-variations.js script
+- Added code formatting requirement to contribution guidelines: `npm run format` must pass for all PRs
 
 ## December 2025 - v0.4.0
 

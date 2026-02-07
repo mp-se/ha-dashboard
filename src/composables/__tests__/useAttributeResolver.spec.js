@@ -70,10 +70,10 @@ describe("useAttributeResolver.js", () => {
 
   describe("Direct Attributes", () => {
     it("should resolve direct entity attributes", async () => {
-      const { requestedAttributes } = useAttributeResolver(
-        mockResolvedEntity,
-        ["unit_of_measurement", "last_updated"]
-      );
+      const { requestedAttributes } = useAttributeResolver(mockResolvedEntity, [
+        "unit_of_measurement",
+        "last_updated",
+      ]);
 
       const result = requestedAttributes.value;
       expect(result).toHaveLength(2);
@@ -82,20 +82,19 @@ describe("useAttributeResolver.js", () => {
     });
 
     it("should format attribute keys from snake_case to Title Case", () => {
-      const { requestedAttributes } = useAttributeResolver(
-        mockResolvedEntity,
-        ["last_updated"]
-      );
+      const { requestedAttributes } = useAttributeResolver(mockResolvedEntity, [
+        "last_updated",
+      ]);
 
       const result = requestedAttributes.value;
       expect(result[0][0]).toBe("Last Updated");
     });
 
     it("should handle missing attributes gracefully", () => {
-      const { requestedAttributes } = useAttributeResolver(
-        mockResolvedEntity,
-        ["nonexistent_attr", "unit_of_measurement"]
-      );
+      const { requestedAttributes } = useAttributeResolver(mockResolvedEntity, [
+        "nonexistent_attr",
+        "unit_of_measurement",
+      ]);
 
       const result = requestedAttributes.value;
       expect(result).toHaveLength(1);
@@ -105,7 +104,7 @@ describe("useAttributeResolver.js", () => {
     it("should return empty array when no attributes requested", () => {
       const { requestedAttributes } = useAttributeResolver(
         mockResolvedEntity,
-        []
+        [],
       );
 
       expect(requestedAttributes.value).toEqual([]);
@@ -152,10 +151,9 @@ describe("useAttributeResolver.js", () => {
 
   describe("Sensor References", () => {
     it("should resolve sensor references by entity_id", () => {
-      const { requestedAttributes } = useAttributeResolver(
-        mockResolvedEntity,
-        ["sensor.power"]
-      );
+      const { requestedAttributes } = useAttributeResolver(mockResolvedEntity, [
+        "sensor.power",
+      ]);
 
       const result = requestedAttributes.value;
       expect(result).toHaveLength(1);
@@ -163,30 +161,27 @@ describe("useAttributeResolver.js", () => {
     });
 
     it("should include unit_of_measurement from referenced sensor", () => {
-      const { requestedAttributes } = useAttributeResolver(
-        mockResolvedEntity,
-        ["sensor.humidity"]
-      );
+      const { requestedAttributes } = useAttributeResolver(mockResolvedEntity, [
+        "sensor.humidity",
+      ]);
 
       const result = requestedAttributes.value;
       expect(result[0]).toEqual(["Humidity", "60 %"]);
     });
 
     it("should handle referenced sensor without unit_of_measurement", () => {
-      const { requestedAttributes } = useAttributeResolver(
-        mockResolvedEntity,
-        ["sensor.no_unit"]
-      );
+      const { requestedAttributes } = useAttributeResolver(mockResolvedEntity, [
+        "sensor.no_unit",
+      ]);
 
       const result = requestedAttributes.value;
       expect(result[0]).toEqual(["No Unit Sensor", "42"]);
     });
 
     it("should show unavailable state for unavailable sensors", () => {
-      const { requestedAttributes } = useAttributeResolver(
-        mockResolvedEntity,
-        ["sensor.unavailable"]
-      );
+      const { requestedAttributes } = useAttributeResolver(mockResolvedEntity, [
+        "sensor.unavailable",
+      ]);
 
       const result = requestedAttributes.value;
       expect(result).toHaveLength(1);
@@ -194,10 +189,10 @@ describe("useAttributeResolver.js", () => {
     });
 
     it("should skip non-existent sensor references", () => {
-      const { requestedAttributes } = useAttributeResolver(
-        mockResolvedEntity,
-        ["sensor.nonexistent", "sensor.power"]
-      );
+      const { requestedAttributes } = useAttributeResolver(mockResolvedEntity, [
+        "sensor.nonexistent",
+        "sensor.power",
+      ]);
 
       const result = requestedAttributes.value;
       expect(result).toHaveLength(1);
@@ -207,10 +202,9 @@ describe("useAttributeResolver.js", () => {
     it("should use entity_id as fallback label for referenced sensor", () => {
       mockStore.sensors[0].attributes = {}; // Remove friendly_name
 
-      const { requestedAttributes } = useAttributeResolver(
-        mockResolvedEntity,
-        ["sensor.power"]
-      );
+      const { requestedAttributes } = useAttributeResolver(mockResolvedEntity, [
+        "sensor.power",
+      ]);
 
       const result = requestedAttributes.value;
       expect(result[0][0]).toBe("sensor.power");
@@ -219,10 +213,11 @@ describe("useAttributeResolver.js", () => {
 
   describe("Mixed Attributes and References", () => {
     it("should resolve both direct attributes and sensor references", () => {
-      const { requestedAttributes } = useAttributeResolver(
-        mockResolvedEntity,
-        ["unit_of_measurement", "sensor.power", "sensor.humidity"]
-      );
+      const { requestedAttributes } = useAttributeResolver(mockResolvedEntity, [
+        "unit_of_measurement",
+        "sensor.power",
+        "sensor.humidity",
+      ]);
 
       const result = requestedAttributes.value;
       expect(result).toHaveLength(3);
@@ -232,10 +227,11 @@ describe("useAttributeResolver.js", () => {
     });
 
     it("should maintain order of attributes and references", () => {
-      const { requestedAttributes } = useAttributeResolver(
-        mockResolvedEntity,
-        ["sensor.power", "unit_of_measurement", "sensor.humidity"]
-      );
+      const { requestedAttributes } = useAttributeResolver(mockResolvedEntity, [
+        "sensor.power",
+        "unit_of_measurement",
+        "sensor.humidity",
+      ]);
 
       const result = requestedAttributes.value;
       expect(result[0][0]).toBe("Power Consumption");
@@ -244,10 +240,12 @@ describe("useAttributeResolver.js", () => {
     });
 
     it("should skip missing attributes but include valid references", () => {
-      const { requestedAttributes } = useAttributeResolver(
-        mockResolvedEntity,
-        ["missing_attr", "sensor.power", "another_missing", "sensor.humidity"]
-      );
+      const { requestedAttributes } = useAttributeResolver(mockResolvedEntity, [
+        "missing_attr",
+        "sensor.power",
+        "another_missing",
+        "sensor.humidity",
+      ]);
 
       const result = requestedAttributes.value;
       expect(result).toHaveLength(2);
@@ -258,10 +256,9 @@ describe("useAttributeResolver.js", () => {
 
   describe("Validation and Edge Cases", () => {
     it("should handle empty string in attributes array", () => {
-      const { requestedAttributes } = useAttributeResolver(
-        mockResolvedEntity,
-        [""]
-      );
+      const { requestedAttributes } = useAttributeResolver(mockResolvedEntity, [
+        "",
+      ]);
 
       expect(requestedAttributes.value).toHaveLength(0);
     });
@@ -278,7 +275,7 @@ describe("useAttributeResolver.js", () => {
       useEntityResolver.mockReturnValue({ resolvedEntity: { value: entity } });
 
       const { requestedAttributes } = useAttributeResolver(entity, [
-        "sensor" // This is a direct attribute, not a reference
+        "sensor", // This is a direct attribute, not a reference
       ]);
 
       const result = requestedAttributes.value;
@@ -286,10 +283,9 @@ describe("useAttributeResolver.js", () => {
     });
 
     it("should handle sensor reference that starts with sensor. correctly", () => {
-      const { requestedAttributes } = useAttributeResolver(
-        mockResolvedEntity,
-        ["sensor.power"]
-      );
+      const { requestedAttributes } = useAttributeResolver(mockResolvedEntity, [
+        "sensor.power",
+      ]);
 
       const result = requestedAttributes.value;
       // Should be treated as reference, not direct attribute
@@ -300,10 +296,9 @@ describe("useAttributeResolver.js", () => {
 
   describe("Reactivity", () => {
     it("should return computed property based on entity attributes", () => {
-      const { requestedAttributes } = useAttributeResolver(
-        mockResolvedEntity,
-        ["unit_of_measurement"]
-      );
+      const { requestedAttributes } = useAttributeResolver(mockResolvedEntity, [
+        "unit_of_measurement",
+      ]);
 
       const result = requestedAttributes.value;
       expect(result).toHaveLength(1);
@@ -311,10 +306,9 @@ describe("useAttributeResolver.js", () => {
     });
 
     it("should be a computed property (reactive)", () => {
-      const { requestedAttributes } = useAttributeResolver(
-        mockResolvedEntity,
-        ["unit_of_measurement"]
-      );
+      const { requestedAttributes } = useAttributeResolver(mockResolvedEntity, [
+        "unit_of_measurement",
+      ]);
 
       // The requestedAttributes should be a computed property
       expect(requestedAttributes).toHaveProperty("value");
