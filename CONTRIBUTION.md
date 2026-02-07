@@ -85,6 +85,7 @@ The new `useAttributeResolver` composable centralizes attribute resolution:
 - Supports sensor references (e.g., `"sensor.power"`)
 - Automatically includes unit of measurement in displayed values
 - Returns `[label, value]` tuples ready for display
+- Full test coverage with 22 comprehensive tests covering all scenarios
 
 Example usage:
 ```javascript
@@ -277,6 +278,41 @@ The [card-showcase.html](card-showcase.html) file is a static HTML reference tha
 - Keep HTML clean and semantic
 - Add comments above component examples explaining what they show
 
+### Regenerating Card Documentation Images
+
+After updating `card-showcase.html`, regenerate the PNG images used in `CONFIGURATION.md` documentation to keep them in sync:
+
+**Full Image Regeneration**:
+```bash
+node capture-card-variations.js
+```
+
+**Regenerate Specific Cards** (comma-separated list):
+```bash
+CARDS=haswitch,hasensor,halight node capture-card-variations.js
+```
+
+**Important Notes**:
+- The script uses Playwright to capture screenshots from the showcase
+- It automatically starts a local HTTP server on port 8888
+- PNG images are saved to the `/images` directory
+- Regenerate images whenever you update card-showcase.html styling or add new card variations
+- All 30+ card images should be regenerated if making UI-wide styling changes
+
+**Output**:
+```
+✓ Saved: haswitch-on.png
+✓ Saved: hasensor-single.png
+...
+✅ Done! Screenshots saved to /images directory
+```
+
+**When to Regenerate**:
+- After updating card-showcase.html (required)
+- After CSS changes that affect card appearance (recommended)
+- Before submitting a PR with UI changes (required)
+- When adding new card type documentation (required)
+
 ### Example Showcase Entry
 
 ```html
@@ -379,6 +415,7 @@ This document serves as context for AI-assisted development. When working with C
 Before submitting a PR:
 
 - [ ] **UI Changes**: card-showcase.html updated first to demonstrate intended design (for any UI-impacting changes)
+- [ ] **Images Regenerated**: Card images regenerated from showcase (`node capture-card-variations.js` if UI changes made)
 - [ ] Unit tests written with >70% coverage
 - [ ] All tests passing (`npm run test`)
 - [ ] Linting passes (`npm run lint`)
