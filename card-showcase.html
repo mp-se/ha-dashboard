@@ -621,13 +621,16 @@
       <!-- Switch Card Section -->
       <div class="card-section" id="card-haswitch">
         <h2>🔌 Switch Control Card (HaSwitch)</h2>
+        <p style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">
+          Switch cards use <code>.card-control</code> with green border on active state (no background)
+        </p>
         <div class="showcase-grid">
-          <!-- Switch ON -->
-          <div class="card switch-card on">
+          <!-- Switch ON (Active State) -->
+          <div class="card card-control card-active h-100 rounded-4 shadow-lg">
             <div class="card-body">
               <div class="d-flex align-items-center justify-content-between">
                 <div class="text-start flex-grow-1">
-                  <h6 class="card-title">Coffee Maker</h6>
+                  <h6 class="ha-entity-name">Coffee Maker</h6>
                 </div>
                 <button class="control-button">
                   <div class="control-circle-wrapper">
@@ -646,12 +649,12 @@
             </div>
           </div>
 
-          <!-- Switch OFF -->
-          <div class="card switch-card">
+          <!-- Switch OFF (Inactive State) -->
+          <div class="card card-control h-100 rounded-4 shadow-lg">
             <div class="card-body">
               <div class="d-flex align-items-center justify-content-between">
                 <div class="text-start flex-grow-1">
-                  <h6 class="card-title">Wall Fan</h6>
+                  <h6 class="ha-entity-name">Wall Fan</h6>
                 </div>
                 <button class="control-button">
                   <div class="control-circle-wrapper">
@@ -670,12 +673,12 @@
             </div>
           </div>
 
-          <!-- Switch Unavailable -->
-          <div class="card switch-card" style="opacity: 0.5">
+          <!-- Switch Unavailable State -->
+          <div class="card card-control h-100 rounded-4 shadow-lg" style="opacity: 0.5">
             <div class="card-body">
               <div class="d-flex align-items-center justify-content-between">
                 <div class="text-start flex-grow-1">
-                  <h6 class="card-title">Office Outlet</h6>
+                  <h6 class="ha-entity-name">Office Outlet</h6>
                 </div>
                 <button class="control-button" disabled>
                   <div class="control-circle-wrapper">
@@ -697,28 +700,25 @@
             </div>
           </div>
 
-          <!-- Switch WITH ATTRIBUTES -->
-          <div class="card switch-card on">
+          <!-- Switch WITH ATTRIBUTES (showing sensor reference) -->
+          <div class="card card-control card-active h-100 rounded-4 shadow-lg">
             <div class="card-body">
               <div class="d-flex align-items-start justify-content-between">
                 <div class="text-start flex-grow-1">
-                  <h6 class="card-title">Smart Power Outlet</h6>
-                  <!-- Attributes Section -->
-                  <div class="mt-1">
-                    <div class="small d-flex gap-2 mb-0">
-                      <div class="ha-attribute-key">
-                        Power: <span class="ha-attribute-value">18.5 W</span>
-                      </div>
+                  <h6 class="ha-entity-name">Smart Power Outlet</h6>
+                  <!-- Attributes: Mix of direct attributes and sensor reference -->
+                  <div class="mt-2">
+                    <div class="small d-flex justify-content-between gap-2 mb-1">
+                      <span class="ha-attribute-key">Power:</span>
+                      <span class="ha-attribute-value">18.5 W</span>
                     </div>
-                    <div class="small d-flex gap-2 mb-0">
-                      <div class="ha-attribute-key">
-                        Current: <span class="ha-attribute-value">0.08 A</span>
-                      </div>
+                    <div class="small d-flex justify-content-between gap-2 mb-1">
+                      <span class="ha-attribute-key">Current:</span>
+                      <span class="ha-attribute-value">0.08 A</span>
                     </div>
-                    <div class="small d-flex gap-2 mb-0">
-                      <div class="ha-attribute-key">
-                        Voltage: <span class="ha-attribute-value">230 V</span>
-                      </div>
+                    <div class="small d-flex justify-content-between gap-2 mb-1">
+                      <span class="ha-attribute-key">Voltage:</span>
+                      <span class="ha-attribute-value">230 V</span>
                     </div>
                   </div>
                 </div>
@@ -738,6 +738,10 @@
               </div>
             </div>
           </div>
+        </div>
+        <div style="margin-top: 1rem; padding: 0.75rem; background: #f0f7ff; border-left: 3px solid #0078d4; font-size: 0.85rem;">
+          <strong>Configuration Example:</strong> Switch with sensor references
+          <pre style="margin-top: 0.5rem; background: white; padding: 0.5rem; overflow-x: auto;">{"type": "HaSwitch", "entity": "switch.outlet", "attributes": ["sensor.power", "sensor.current", "sensor.voltage"]}</pre>
         </div>
       </div>
 

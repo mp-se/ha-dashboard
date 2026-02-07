@@ -12,6 +12,10 @@
 - Enhanced CONTRIBUTION.md with comprehensive architecture guide and AI-friendly patterns for assisted development
 - Enhanced CONFIGURATION.md with detailed Attribute System Configuration documentation including sensor reference support and unit handling
 - Updated contribution requirements to mandate CONFIGURATION.md updates when changes impact user setup or configuration
+- Added comprehensive test suite for useAttributeResolver composable (22 tests covering direct attributes, sensor references, mixed attributes, reactivity, and edge cases)
+- Updated card-showcase.html to demonstrate new HaSwitch active state styling (green border only, no background gradient) and sensor reference usage patterns
+- Regenerated all 30 PNG card images from updated showcase for visual documentation consistency
+- Added image generation instructions to CONTRIBUTION.md with commands for full and selective regeneration using capture-card-variations.js script
 
 ## December 2025 - v0.4.0
 
