@@ -270,4 +270,77 @@ describe("HaMediaPlayer.vue", () => {
       expect(wrapper.exists()).toBe(true);
     });
   });
+
+  describe("Media Progress and Logic", () => {
+    it("should calculate mediaSubtitle correctly when both title and artist exist", () => {
+      const wrapper = mount(HaMediaPlayer, {
+        props: { entity: "media_player.bedroom" },
+        global: { plugins: [pinia] },
+      });
+      expect(wrapper.text()).toContain("Song Name - Artist Name");
+    });
+
+    it("should calculate mediaSubtitle correctly when only title exists", () => {
+      store.sensors[0].attributes.media_artist = null;
+      const wrapper = mount(HaMediaPlayer, {
+        props: { entity: "media_player.bedroom" },
+        global: { plugins: [pinia] },
+      });
+      const p = wrapper.find("p.text-muted");
+      expect(p.text()).toBe("Song Name");
+    });
+
+    it("should calculate mediaSubtitle correctly when only artist exists", () => {
+      store.sensors[0].attributes.media_title = null;
+      const wrapper = mount(HaMediaPlayer, {
+        props: { entity: "media_player.bedroom" },
+        global: { plugins: [pinia] },
+      });
+      const p = wrapper.find("p.text-muted");
+      expect(p.text()).toBe("Artist Name");
+    });
+
+    it("should display progress bar when media_position and media_duration exist", () => {
+      store.sensors[0].attributes.media_position = 10;
+      store.sensors[0].attributes.media_duration = 100;
+      const wrapper = mount(HaMediaPlayer, {
+        props: { entity: "media_player.bedroom" },
+        global: { plugins: [pinia] },
+      });
+      expect(wrapper.find(".progress-container").exists()).toBe(true);
+      // 10%
+      expect(wrapper.find(".progress-container > div > div").element.style.width).toBe("10%");
+    });
+
+    it("should call volume_set when slider is changed", async () => {
+      store.callService = vi.fn();
+      const wrapper = mount(HaMediaPlayer, {
+        props: { entity: "media_player.bedroom" },
+        global: { plugins: [pinia] },
+      });
+      const input = wrapper.find('input[type="range"]');
+      await input.setValue("0.5");
+      expect(store.callService).toHaveBeenCalledWith(
+        "media_player",
+        "volume_set",
+        expect.objectContaining({ volume_level: 0.5 }),
+      );
+    });
+
+    it("should show indeterminate progress pulse when position is 0 but playing and has duration", () => {
+      store.sensors[0].state = "playing";
+      store.sensors[0].attributes.media_position = 0;
+      store.sensors[0].attributes.media_duration = 100;
+      store.sensors[0].attributes.media_position_updated_at = null;
+      
+      const wrapper = mount(HaMediaPlayer, {
+        props: { entity: "media_player.bedroom" },
+        global: { plugins: [pinia] },
+      });
+      
+      expect(wrapper.find(".progress-indeterminate").exists()).toBe(true);
+      // indeterminate logic sets it to 50%
+      expect(wrapper.find(".progress-container > div > div").element.style.width).toBe("50%");
+    });
+  });
 });

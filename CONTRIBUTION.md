@@ -1,10 +1,13 @@
 # Contribution Guidelines
 
-You are welcome to make contributions to this project but for a change to be accepted it needs to follow these rules.
+You are welcome to make contributions to this project but for a change to be accepted it needs to follow the rules defined in our developer standards.
+
+> [!TIP]
+> This project uses automated instructions for GitHub Copilot. The core rules are defined in [.github/copilot-instructions.md](.github/copilot-instructions.md).
 
 ## Core Requirements
 
-1. **Unit Tests**: All changes must have unit tests covering the functionality (minimum 70% coverage for files under `src/`)
+1. **Unit Tests**: All changes must have unit tests covering the functionality (minimum 80% coverage for files under `src/`, with specific exceptions noted in developer instructions)
 2. **Linting**: All code must pass linter without errors (`npm run lint`)
 3. **Code Formatting**: All code must comply with formatting standards (`npm run format`)
 4. **UI Changes**: Any change that impacts UI appearance or interaction must update [card-showcase.html](card-showcase.html) first to clearly demonstrate the intended design before code changes
@@ -211,7 +214,7 @@ describe('ComponentName.vue', () => {
 
 ### Coverage Requirements
 
-- **Target**: >70% for all files under `src/`
+- **Target**: >80% for all files under `src/` (with specific exceptions)
 - **Coverage types**: Statements, lines, branches, functions
 - **Check coverage**: `npm run test:coverage`
 - **Focus on**: Critical paths, error handling, edge cases
@@ -414,32 +417,13 @@ const displayValue = formatAttributeValue(entityValue);
 const displayLabel = formatKey("battery_level"); // "Battery Level"
 ```
 
-## For AI/Copilot Users
-
-This document serves as context for AI-assisted development. When working with Copilot:
-
-1. **Reference This Guide**: Include section names when asking for code generation
-2. **Be Specific**: Mention component patterns, naming conventions, testing requirements
-3. **Validate Output**: AI-generated code should follow architecture patterns above
-4. **Test Thoroughly**: Ensure AI-generated tests meet coverage requirements (>70%)
-5. **Review Standards**: Check generated code against all conventions listed
-6. **Ask for Context**: Provide examples of similar components/composables in codebase
-
-### Example Prompts for Copilot
-
-- "Create a new card component following the HaSensor pattern that displays..."
-- "Create a composable using the useEntityResolver pattern that..."
-- "Add unit tests following the test structure in HaBinarySensor.spec.js for..."
-- "Add CSS styling using shared classes in shared-styles.css for..."
-- "Create a utility function in src/utils/ that formats... following formatAttributeValue pattern"
-
 ## Review Checklist for Contributors
 
 Before submitting a PR:
 
 - [ ] **UI Changes**: card-showcase.html updated first to demonstrate intended design (for any UI-impacting changes)
 - [ ] **Images Regenerated**: Card images regenerated from showcase (`node capture-card-variations.js` if UI changes made)
-- [ ] Unit tests written with >70% coverage
+- [ ] Unit tests written with >80% coverage
 - [ ] All tests passing (`npm run test`)
 - [ ] Linting passes (`npm run lint`)
 - [ ] Code formatting passes (`npm run format`)
