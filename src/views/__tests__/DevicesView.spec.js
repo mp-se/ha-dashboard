@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import DevicesView from "../DevicesView.vue";
 import { createPinia, setActivePinia } from "pinia";
@@ -696,6 +696,72 @@ describe("DevicesView.vue", () => {
       const cards = wrapper.findAll(".card");
       // Whitespace-only search should not filter anything
       expect(cards.length).toBe(1);
+    });
+  });
+
+  describe("Clipboard Functionality", () => {
+    it("copies device JSON to clipboard when copy button is clicked", async () => {
+      // Mock clipboard API
+      const writeTextMock = vi.fn().mockResolvedValue(undefined);
+      
+      const originalNavigator = global.navigator;
+      vi.stubGlobal("navigator", {
+        clipboard: {
+          writeText: writeTextMock,
+        },
+      });
+
+      const store = useHaStore();
+      store.devices = [
+        {
+          id: "device1",
+          name: "Test Device",
+          entities: ["sensor.test"],
+          area_id: "living_room",
+        },
+      ];
+      store.areas = [{ area_id: "living_room", name: "Living Room" }];
+      store.sensors = [
+        { entity_id: "sensor.test", state: "on", attributes: {} },
+      ];
+
+      const wrapper = mount(DevicesView);
+      const copyBtn = wrapper.find('button[title="Copy device JSON to clipboard"]');
+      expect(copyBtn.exists()).toBe(true);
+
+      await copyBtn.trigger("click");
+
+      expect(writeTextMock).toHaveBeenCalled();
+      const copiedJson = JSON.parse(writeTextMock.mock.calls[0][0]);
+      expect(copiedJson.id).toBe("device1");
+      expect(copiedJson.areaName).toBe("Living Room");
+      expect(copiedJson.entities[0].entity_id).toBe("sensor.test");
+      
+      vi.stubGlobal("navigator", originalNavigator);
+    });
+
+    it("handles copy failure gracefully", async () => {
+      // Mock clipboard API to fail
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      
+      const originalNavigator = global.navigator;
+      vi.stubGlobal("navigator", {
+        clipboard: {
+          writeText: vi.fn().mockRejectedValue(new Error("Clipboard error")),
+        },
+      });
+
+      const store = useHaStore();
+      store.devices = [{ id: "device1", name: "Test Device", entities: [] }];
+
+      const wrapper = mount(DevicesView);
+      const copyBtn = wrapper.find('button[title="Copy device JSON to clipboard"]');
+      
+      await copyBtn.trigger("click");
+
+      expect(consoleSpy).toHaveBeenCalledWith("Failed to copy device to clipboard:", expect.any(Error));
+      consoleSpy.mockRestore();
+      vi.stubGlobal("navigator", originalNavigator);
     });
   });
 });

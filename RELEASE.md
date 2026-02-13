@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Updated code coverage requirement to 80% with explicit exceptions for specific files
+- Added automated instructions for GitHub Copilot in `.github/copilot-instructions.md` to ensure project standards are followed
+- Improved test coverage for `DevicesView.vue`, `HaMediaPlayer.vue`, `HaBeerTap.vue`, and `useDefaultComponentType.js`, bringing them all above the 80% threshold
+- Substantially increased coverage for `PwaInstallModal.vue` to 72%
+- Fixed a bug in `useDefaultComponentType.js` regarding case-sensitive getter matching for alarm panels
+- Aligned `CONTRIBUTION.md` with new automated development standards
 - Consolidated attribute formatting logic into shared utilities and composables to eliminate code duplication across components
 - Created `useAttributeResolver` composable to centralize attribute and sensor reference resolution
 - Attribute system now supports sensor references in addition to direct entity attributes (e.g., `"attributes": ["brightness", "sensor.power"]`)

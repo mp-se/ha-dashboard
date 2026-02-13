@@ -60,7 +60,7 @@ export function getDefaultComponentType(entityId, getterName = "") {
   if (getter.includes("select")) return "HaSelect";
   if (getter.includes("fan")) return "HaSwitch";
   if (getter.includes("mediaplayer")) return "HaMediaPlayer";
-  if (getter.includes("alarmPanel")) return "HaAlarmPanel";
+  if (getter.includes("alarmpanel")) return "HaAlarmPanel";
   if (getter.includes("binary")) return "HaBinarySensor";
 
   // Entity ID-based type detection

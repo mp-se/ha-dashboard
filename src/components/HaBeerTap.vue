@@ -1,5 +1,8 @@
 <template>
-  <div v-if="entityList.length === 0" class="col-lg-4 col-md-6">
+  <div
+    v-if="entityList.length === 0 || !hasValidEntities"
+    class="col-lg-4 col-md-6"
+  >
     <div class="card card-display h-100 rounded-4 shadow-lg border-warning">
       <div class="card-body text-center text-warning">
         <i class="mdi mdi-alert-circle mdi-24px mb-2"></i>
@@ -92,19 +95,21 @@ const props = defineProps({
     type: [Object, String, Array],
     required: true,
     validator: (value) => {
+      if (!value) return false;
       if (Array.isArray(value)) {
         return value.every((ent) => {
+          if (!ent) return false;
           if (typeof ent === "string") {
             return /^[\w]+\.[\w_-]+$/.test(ent);
           } else if (typeof ent === "object") {
-            return ent && ent.entity_id;
+            return !!ent.entity_id;
           }
           return false;
         });
       } else if (typeof value === "string") {
         return /^[\w]+\.[\w_-]+$/.test(value);
       } else if (typeof value === "object") {
-        return value && value.entity_id;
+        return !!value.entity_id;
       }
       return false;
     },
@@ -194,6 +199,10 @@ const volumeEntity = computed(() => {
 
 const beerEntity = computed(() => {
   return detectedEntities.value.beerEntity;
+});
+
+const hasValidEntities = computed(() => {
+  return volumeEntity.value !== null || beerEntity.value !== null;
 });
 
 // Volume data
