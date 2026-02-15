@@ -490,7 +490,9 @@ describe("HaBeerTap.vue", () => {
         props: { entity: ["sensor.beer", "sensor.volume"] },
         global: { stubs: { i: true, svg: true } },
       });
-      expect(wrapper.get(".ha-icon-circle").element.style.backgroundColor).toBe(expected);
+      expect(wrapper.get(".ha-icon-circle").element.style.backgroundColor).toBe(
+        expected,
+      );
     });
   });
 
@@ -538,7 +540,9 @@ describe("HaBeerTap.vue", () => {
 
     expect(wrapper.find(".mdi-beer-off").exists()).toBe(true);
     // Color should be gray #C0C0C0
-    expect(wrapper.get(".ha-icon-circle").element.style.backgroundColor).toBe("#C0C0C0");
+    expect(wrapper.get(".ha-icon-circle").element.style.backgroundColor).toBe(
+      "#C0C0C0",
+    );
   });
 
   it("handles missing store sensors gracefully", () => {

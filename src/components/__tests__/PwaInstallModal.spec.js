@@ -355,10 +355,10 @@ describe("PwaInstallModal.vue", () => {
       });
 
       expect(wrapper.find(".modal").exists()).toBe(false);
-      
+
       wrapper.vm.showModal();
       await wrapper.vm.$nextTick();
-      
+
       expect(wrapper.find(".modal").exists()).toBe(true);
     });
 
@@ -372,7 +372,7 @@ describe("PwaInstallModal.vue", () => {
       wrapper.vm.deferredPrompt = { prompt: vi.fn() };
       wrapper.vm.showModal();
       await wrapper.vm.$nextTick();
-      
+
       expect(wrapper.vm.showInstallButton).toBe(true);
     });
   });
@@ -387,9 +387,9 @@ describe("PwaInstallModal.vue", () => {
 
       const event = new Event("beforeinstallprompt");
       event.preventDefault = vi.fn();
-      
+
       window.dispatchEvent(event);
-      
+
       expect(wrapper.vm.deferredPrompt).toBeDefined();
       expect(wrapper.vm.showInstallButton).toBe(true);
     });
@@ -402,10 +402,10 @@ describe("PwaInstallModal.vue", () => {
       });
 
       wrapper.vm.showInstallButton = true;
-      
+
       const event = new Event("appinstalled");
       window.dispatchEvent(event);
-      
+
       expect(wrapper.vm.isInstalled).toBe(true);
       expect(wrapper.vm.showInstallButton).toBe(false);
     });

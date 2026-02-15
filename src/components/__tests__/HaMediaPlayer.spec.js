@@ -309,7 +309,9 @@ describe("HaMediaPlayer.vue", () => {
       });
       expect(wrapper.find(".progress-container").exists()).toBe(true);
       // 10%
-      expect(wrapper.find(".progress-container > div > div").element.style.width).toBe("10%");
+      expect(
+        wrapper.find(".progress-container > div > div").element.style.width,
+      ).toBe("10%");
     });
 
     it("should call volume_set when slider is changed", async () => {
@@ -332,15 +334,17 @@ describe("HaMediaPlayer.vue", () => {
       store.sensors[0].attributes.media_position = 0;
       store.sensors[0].attributes.media_duration = 100;
       store.sensors[0].attributes.media_position_updated_at = null;
-      
+
       const wrapper = mount(HaMediaPlayer, {
         props: { entity: "media_player.bedroom" },
         global: { plugins: [pinia] },
       });
-      
+
       expect(wrapper.find(".progress-indeterminate").exists()).toBe(true);
       // indeterminate logic sets it to 50%
-      expect(wrapper.find(".progress-container > div > div").element.style.width).toBe("50%");
+      expect(
+        wrapper.find(".progress-container > div > div").element.style.width,
+      ).toBe("50%");
     });
   });
 });
