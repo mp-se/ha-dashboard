@@ -703,7 +703,7 @@ describe("DevicesView.vue", () => {
     it("copies device JSON to clipboard when copy button is clicked", async () => {
       // Mock clipboard API
       const writeTextMock = vi.fn().mockResolvedValue(undefined);
-      
+
       const originalNavigator = global.navigator;
       vi.stubGlobal("navigator", {
         clipboard: {
@@ -726,7 +726,9 @@ describe("DevicesView.vue", () => {
       ];
 
       const wrapper = mount(DevicesView);
-      const copyBtn = wrapper.find('button[title="Copy device JSON to clipboard"]');
+      const copyBtn = wrapper.find(
+        'button[title="Copy device JSON to clipboard"]',
+      );
       expect(copyBtn.exists()).toBe(true);
 
       await copyBtn.trigger("click");
@@ -736,14 +738,16 @@ describe("DevicesView.vue", () => {
       expect(copiedJson.id).toBe("device1");
       expect(copiedJson.areaName).toBe("Living Room");
       expect(copiedJson.entities[0].entity_id).toBe("sensor.test");
-      
+
       vi.stubGlobal("navigator", originalNavigator);
     });
 
     it("handles copy failure gracefully", async () => {
       // Mock clipboard API to fail
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-      
+      const consoleSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+
       const originalNavigator = global.navigator;
       vi.stubGlobal("navigator", {
         clipboard: {
@@ -755,11 +759,16 @@ describe("DevicesView.vue", () => {
       store.devices = [{ id: "device1", name: "Test Device", entities: [] }];
 
       const wrapper = mount(DevicesView);
-      const copyBtn = wrapper.find('button[title="Copy device JSON to clipboard"]');
-      
+      const copyBtn = wrapper.find(
+        'button[title="Copy device JSON to clipboard"]',
+      );
+
       await copyBtn.trigger("click");
 
-      expect(consoleSpy).toHaveBeenCalledWith("Failed to copy device to clipboard:", expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Failed to copy device to clipboard:",
+        expect.any(Error),
+      );
       consoleSpy.mockRestore();
       vi.stubGlobal("navigator", originalNavigator);
     });

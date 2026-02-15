@@ -1,7 +1,8 @@
 # Release Notes
 
-## Unreleased
+## February 2026 - v0.5.0
 
+- Updated the dashboard layout to keep the navigation menubar and status banners always visible at the top of the screen using sticky positioning
 - Updated code coverage requirement to 80% with explicit exceptions for specific files
 - Added automated instructions for GitHub Copilot in `.github/copilot-instructions.md` to ensure project standards are followed
 - Improved test coverage for `DevicesView.vue`, `HaMediaPlayer.vue`, `HaBeerTap.vue`, and `useDefaultComponentType.js`, bringing them all above the 80% threshold

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { 
-  useDefaultComponentType, 
-  getDefaultTypeForEntityConfig 
+import {
+  useDefaultComponentType,
+  getDefaultTypeForEntityConfig,
 } from "../useDefaultComponentType";
 
 describe("useDefaultComponentType", () => {
@@ -112,9 +112,13 @@ describe("useDefaultComponentType", () => {
       expect(useDefaultComponentType("", "getButtonPress")).toBe("HaButton");
       expect(useDefaultComponentType("", "getSelectOption")).toBe("HaSelect");
       expect(useDefaultComponentType("", "getFanSpeed")).toBe("HaSwitch");
-      expect(useDefaultComponentType("", "getMediaPlayer")).toBe("HaMediaPlayer");
+      expect(useDefaultComponentType("", "getMediaPlayer")).toBe(
+        "HaMediaPlayer",
+      );
       expect(useDefaultComponentType("", "getAlarmPanel")).toBe("HaAlarmPanel");
-      expect(useDefaultComponentType("", "getBinaryState")).toBe("HaBinarySensor");
+      expect(useDefaultComponentType("", "getBinaryState")).toBe(
+        "HaBinarySensor",
+      );
       expect(useDefaultComponentType("", "getWifiStrength")).toBe("HaSensor");
       expect(useDefaultComponentType("", "unknownGetter")).toBe("HaSensor");
     });
@@ -122,7 +126,9 @@ describe("useDefaultComponentType", () => {
 
   describe("Array handling", () => {
     it("should use first element of array for type detection", () => {
-      expect(useDefaultComponentType(["light.bedroom", "switch.outlet"])).toBe("HaLight");
+      expect(useDefaultComponentType(["light.bedroom", "switch.outlet"])).toBe(
+        "HaLight",
+      );
     });
 
     it("should return HaSensor for non-string array elements", () => {
@@ -132,21 +138,31 @@ describe("useDefaultComponentType", () => {
 
   describe("getDefaultTypeForEntityConfig", () => {
     it("should use getter if provided", () => {
-      expect(getDefaultTypeForEntityConfig({ getter: "getLightStatus" })).toBe("HaLight");
+      expect(getDefaultTypeForEntityConfig({ getter: "getLightStatus" })).toBe(
+        "HaLight",
+      );
     });
 
     it("should use entity if provided", () => {
-      expect(getDefaultTypeForEntityConfig({ entity: "switch.outlet" })).toBe("HaSwitch");
+      expect(getDefaultTypeForEntityConfig({ entity: "switch.outlet" })).toBe(
+        "HaSwitch",
+      );
     });
 
     it("should handle array of entities in config", () => {
-      expect(getDefaultTypeForEntityConfig({ entity: ["light.living_room"] })).toBe("HaLight");
+      expect(
+        getDefaultTypeForEntityConfig({ entity: ["light.living_room"] }),
+      ).toBe("HaLight");
     });
 
     it("should return type if it is a special type", () => {
       expect(getDefaultTypeForEntityConfig({ type: "HaLink" })).toBe("HaLink");
-      expect(getDefaultTypeForEntityConfig({ type: "HaSpacer" })).toBe("HaSpacer");
-      expect(getDefaultTypeForEntityConfig({ type: "HaRowSpacer" })).toBe("HaRowSpacer");
+      expect(getDefaultTypeForEntityConfig({ type: "HaSpacer" })).toBe(
+        "HaSpacer",
+      );
+      expect(getDefaultTypeForEntityConfig({ type: "HaRowSpacer" })).toBe(
+        "HaRowSpacer",
+      );
     });
 
     it("should return HaSensor if nothing else matches", () => {
