@@ -1,5 +1,30 @@
 # Release Notes
 
+## February 2026 - v0.5.0
+
+- Updated the dashboard layout to keep the navigation menubar and status banners always visible at the top of the screen using sticky positioning
+- Updated code coverage requirement to 80% with explicit exceptions for specific files
+- Added automated instructions for GitHub Copilot in `.github/copilot-instructions.md` to ensure project standards are followed
+- Improved test coverage for `DevicesView.vue`, `HaMediaPlayer.vue`, `HaBeerTap.vue`, and `useDefaultComponentType.js`, bringing them all above the 80% threshold
+- Substantially increased coverage for `PwaInstallModal.vue` to 72%
+- Fixed a bug in `useDefaultComponentType.js` regarding case-sensitive getter matching for alarm panels
+- Aligned `CONTRIBUTION.md` with new automated development standards
+- Consolidated attribute formatting logic into shared utilities and composables to eliminate code duplication across components
+- Created `useAttributeResolver` composable to centralize attribute and sensor reference resolution
+- Attribute system now supports sensor references in addition to direct entity attributes (e.g., `"attributes": ["brightness", "sensor.power"]`)
+- Sensor references automatically display the sensor's friendly_name as label and include unit_of_measurement when available
+- Updated HaSensor, HaBinarySensor, and HaSwitch components to use the new attribute resolver composable
+- Removed duplicate `formatAttributeValue` implementations from RawEntityView and individual components
+- Removed green background gradient from active switch card for consistent border-only state feedback across all cards
+- Enhanced CONTRIBUTION.md with comprehensive architecture guide and AI-friendly patterns for assisted development
+- Enhanced CONFIGURATION.md with detailed Attribute System Configuration documentation including sensor reference support and unit handling
+- Updated contribution requirements to mandate CONFIGURATION.md updates when changes impact user setup or configuration
+- Added comprehensive test suite for useAttributeResolver composable (22 tests covering direct attributes, sensor references, mixed attributes, reactivity, and edge cases)
+- Updated card-showcase.html to demonstrate new HaSwitch active state styling (green border only, no background gradient) and sensor reference usage patterns
+- Regenerated all 30 PNG card images from updated showcase for visual documentation consistency
+- Added image generation instructions to CONTRIBUTION.md with commands for full and selective regeneration using capture-card-variations.js script
+- Added code formatting requirement to contribution guidelines: `npm run format` must pass for all PRs
+
 ## December 2025 - v0.4.0
 
 - Updated dependecies and fixed security issues
@@ -96,4 +121,3 @@
 - Created mock server for local testing
 - Dashboard config examples and documentation
 - 1200+ initial tests for core components
-

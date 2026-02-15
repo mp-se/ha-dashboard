@@ -388,4 +388,220 @@ describe("HaBeerTap.vue", () => {
     expect(wrapper.text()).toContain("ABV: 6.5");
     expect(wrapper.text()).toContain("IBU: 65");
   });
+
+  it("handles non-numeric volume state", () => {
+    const store = useHaStore();
+    store.sensors = [
+      {
+        entity_id: "sensor.tap_tap_volume1",
+        state: "unavailable",
+        attributes: {
+          keg_volume: 19,
+          unit_of_measurement: "L",
+        },
+      },
+      {
+        entity_id: "sensor.tap_tap_beer1",
+        state: "Test Beer",
+        attributes: {},
+      },
+    ];
+
+    const wrapper = mount(HaBeerTap, {
+      props: {
+        entity: ["sensor.tap_tap_volume1", "sensor.tap_tap_beer1"],
+      },
+      global: {
+        stubs: {
+          i: true,
+          svg: true,
+        },
+      },
+    });
+
+    expect(wrapper.text()).toContain("0L"); // volume defaults to 0
+    expect(wrapper.find(".ha-progress-bar").element.style.width).toBe("0%");
+  });
+
+  it("handles missing beer attributes (ABV, IBU, EBC)", () => {
+    const store = useHaStore();
+    store.sensors = [
+      {
+        entity_id: "sensor.tap_tap_volume1",
+        state: "5",
+        attributes: {
+          keg_volume: 20,
+        },
+      },
+      {
+        entity_id: "sensor.tap_tap_beer1",
+        state: "Simple Beer",
+        attributes: {
+          // No ABV, IBU, or EBC
+        },
+      },
+    ];
+
+    const wrapper = mount(HaBeerTap, {
+      props: {
+        entity: ["sensor.tap_tap_volume1", "sensor.tap_tap_beer1"],
+      },
+      global: {
+        stubs: {
+          i: true,
+          svg: true,
+        },
+      },
+    });
+
+    expect(wrapper.text()).toContain("ABV: -%");
+    expect(wrapper.text()).toContain("EBC: -");
+    expect(wrapper.text()).toContain("IBU: -");
+    // Default beer color
+    expect(wrapper.get(".ha-icon-circle").element.style.backgroundColor).toBe(
+      "#D4A574",
+    );
+  });
+
+  it("returns correct colors for different EBC values", () => {
+    const store = useHaStore();
+    const testCases = [
+      { ebc: 5, expected: "#F4D03F" },
+      { ebc: 15, expected: "#F9E79F" },
+      { ebc: 25, expected: "#F5B041" },
+      { ebc: 45, expected: "#DC7633" },
+      { ebc: 80, expected: "#8B4513" },
+    ];
+
+    testCases.forEach(({ ebc, expected }) => {
+      store.sensors = [
+        {
+          entity_id: "sensor.beer",
+          state: "Test",
+          attributes: { ebc },
+        },
+        {
+          entity_id: "sensor.volume",
+          state: "10",
+          attributes: { unit_of_measurement: "L" },
+        },
+      ];
+      const wrapper = mount(HaBeerTap, {
+        props: { entity: ["sensor.beer", "sensor.volume"] },
+        global: { stubs: { i: true, svg: true } },
+      });
+      expect(wrapper.get(".ha-icon-circle").element.style.backgroundColor).toBe(
+        expected,
+      );
+    });
+  });
+
+  it("auto-detects beer entity by name and volume by device_class", () => {
+    const store = useHaStore();
+    store.sensors = [
+      {
+        entity_id: "sensor.test_vol",
+        state: "10",
+        attributes: { device_class: "volume", keg_volume: 20 },
+      },
+      {
+        entity_id: "sensor.test_beer",
+        state: "Detect Me",
+        attributes: { abv: 4.5 },
+      },
+    ];
+
+    const wrapper = mount(HaBeerTap, {
+      props: { entity: ["sensor.test_vol", "sensor.test_beer"] },
+    });
+
+    expect(wrapper.text()).toContain("Detect Me");
+    expect(wrapper.text()).toContain("10.00");
+  });
+
+  it("handles beer state as unknown", () => {
+    const store = useHaStore();
+    store.sensors = [
+      {
+        entity_id: "sensor.vol",
+        state: "10",
+        attributes: { unit_of_measurement: "L" },
+      },
+      {
+        entity_id: "sensor.beer",
+        state: "unknown",
+        attributes: {},
+      },
+    ];
+
+    const wrapper = mount(HaBeerTap, {
+      props: { entity: ["sensor.vol", "sensor.beer"] },
+    });
+
+    expect(wrapper.find(".mdi-beer-off").exists()).toBe(true);
+    // Color should be gray #C0C0C0
+    expect(wrapper.get(".ha-icon-circle").element.style.backgroundColor).toBe(
+      "#C0C0C0",
+    );
+  });
+
+  it("handles missing store sensors gracefully", () => {
+    const store = useHaStore();
+    store.sensors = null;
+
+    const wrapper = mount(HaBeerTap, {
+      props: { entity: "sensor.any" },
+    });
+
+    expect(wrapper.text()).toContain("No beer tap entities found");
+  });
+
+  describe("Prop Validation", () => {
+    const validator = HaBeerTap.props.entity.validator;
+
+    it("validates array of strings", () => {
+      expect(validator(["sensor.one", "sensor.two"])).toBe(true);
+    });
+
+    it("validates array of objects", () => {
+      expect(validator([{ entity_id: "sensor.one" }])).toBe(true);
+    });
+
+    it("validates mixed array", () => {
+      expect(validator(["sensor.one", { entity_id: "sensor.two" }])).toBe(true);
+    });
+
+    it("rejects invalid array items", () => {
+      expect(validator(["sensor.one", 123])).toBe(false);
+    });
+
+    it("rejects invalid string format", () => {
+      expect(validator("invalid-format")).toBe(false);
+    });
+
+    it("rejects invalid types", () => {
+      expect(validator(123)).toBe(false);
+      expect(validator(null)).toBe(false);
+    });
+  });
+
+  it("handles single entity object as prop", () => {
+    const store = useHaStore();
+    store.sensors = [
+      {
+        entity_id: "sensor.beer_volume",
+        state: "12",
+        attributes: { keg_volume: 24 },
+      },
+    ];
+
+    const wrapper = mount(HaBeerTap, {
+      props: {
+        entity: { entity_id: "sensor.beer_volume" },
+      },
+    });
+
+    expect(wrapper.text()).toContain("12.00");
+    expect(wrapper.find(".ha-progress-bar").element.style.width).toBe("50%");
+  });
 });

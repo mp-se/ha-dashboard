@@ -226,6 +226,7 @@
 import { computed, ref } from "vue";
 import { useHaStore } from "../stores/haStore";
 import { DEFAULT_DOMAIN_MAP } from "@/composables/useDefaultComponentType";
+import { formatAttributeValue } from "@/utils/attributeFormatters";
 import useDebouncedRef from "@/composables/useDebouncedRef";
 
 defineProps({
@@ -319,19 +320,6 @@ const displayAttributes = (entity) => {
     .filter(([k]) => !blacklist.has(k))
     .slice(0, 12);
   return entries;
-};
-
-const formatAttributeValue = (v) => {
-  if (v === null || v === undefined) return "";
-  if (Array.isArray(v)) return v.join(", ");
-  if (typeof v === "object") {
-    try {
-      return JSON.stringify(v);
-    } catch (e) {
-      return String(v);
-    }
-  }
-  return String(v);
 };
 
 const getIconClass = (icon) => {

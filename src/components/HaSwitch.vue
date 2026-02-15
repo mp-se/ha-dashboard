@@ -27,7 +27,16 @@
         </div>
 
         <template v-else>
-          <div class="d-flex align-items-center justify-content-between mb-3">
+          <div
+            :class="[
+              'd-flex',
+              requestedAttributes.length > 0
+                ? 'align-items-start'
+                : 'align-items-center',
+              'justify-content-between',
+              'mb-3',
+            ]"
+          >
             <div class="text-start flex-grow-1">
               <h6 class="ha-entity-name mb-0">
                 {{
@@ -35,6 +44,19 @@
                   resolvedEntity.entity_id
                 }}
               </h6>
+              <!-- Display requested attributes if provided -->
+              <div v-if="requestedAttributes.length > 0" class="mt-1">
+                <div
+                  v-for="[label, value] in requestedAttributes"
+                  :key="label"
+                  class="small d-flex gap-2 mb-0"
+                >
+                  <div class="ha-attribute-key">
+                    {{ label }}:
+                    <span class="ha-attribute-value">{{ value }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
             <button
               class="ha-control-button"
@@ -69,6 +91,7 @@
 <script setup>
 import { computed, ref } from "vue";
 import { useEntityResolver } from "@/composables/useEntityResolver";
+import { useAttributeResolver } from "@/composables/useAttributeResolver";
 import { useServiceCall } from "@/composables/useServiceCall";
 import { useNormalizeIcon } from "@/composables/useNormalizeIcon";
 
@@ -84,6 +107,10 @@ const props = defineProps({
       }
       return false;
     },
+  },
+  attributes: {
+    type: Array,
+    default: () => [],
   },
   mock: { type: Boolean, required: false, default: false },
 });
@@ -170,4 +197,10 @@ const cardBorderClass = computed(() => {
   if (["unavailable", "unknown"].includes(state)) return "border-warning";
   return "border-info";
 });
+
+// Use attribute resolver composable to get formatted attributes
+const { requestedAttributes } = useAttributeResolver(
+  props.entity,
+  props.attributes,
+);
 </script>

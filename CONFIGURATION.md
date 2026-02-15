@@ -10,11 +10,12 @@ All available card types are documented in the [Card Components](#card-component
 
 1. [Configuration File Structure](#configuration-file-structure)
 2. [Entity Specification Methods](#entity-specification-methods)
-3. [App Configuration](#app-configuration)
-4. [View Configuration](#view-configuration)
-5. [Card Components](#card-components)
-6. [Configuration Examples](#configuration-examples)
-7. [Validation & Error Handling](#validation--error-handling)
+3. [Attribute System Configuration](#attribute-system-configuration)
+4. [App Configuration](#app-configuration)
+5. [View Configuration](#view-configuration)
+6. [Card Components](#card-components)
+7. [Configuration Examples](#configuration-examples)
+8. [Validation & Error Handling](#validation--error-handling)
 
 ## Configuration File Structure
 
@@ -186,6 +187,187 @@ Getter functions return arrays of entities. The following getters are available:
 - Filter by area in the **Entity Dashboard** view using the area dropdown
 - Virtual area entities can be displayed like any other entity
 - Device view supports filtering by area
+
+## Attribute System Configuration
+
+The `attributes` property allows you to display additional entity information below the main state. The system supports both direct entity attributes and references to related sensor entities.
+
+### Supported Components
+
+The following components support the `attributes` property:
+
+- `HaSensor` — Numeric sensor display
+- `HaBinarySensor` — Binary state display
+- `HaSwitch` — Toggle control
+- `HaGauge` — Gauge visualization
+
+### Attribute Types
+
+The `attributes` array can contain two types of entries:
+
+#### 1. Direct Attribute Keys
+
+Reference attributes directly from the entity's attributes object:
+
+```json
+{
+  "entity": "sensor.air_quality",
+  "attributes": ["aqi", "pm25", "last_updated"]
+}
+```
+
+This displays:
+
+- `aqi` value from entity.attributes.aqi
+- `pm25` value from entity.attributes.pm25
+- `last_updated` value from entity.attributes.last_updated
+
+Labels are automatically formatted from snake_case to Title Case:
+
+- `battery_level` displays as "Battery Level"
+- `signal_strength` displays as "Signal Strength"
+- `last_triggered` displays as "Last Triggered"
+
+#### 2. Sensor Entity References
+
+Reference values from related sensor entities by entity ID:
+
+```json
+{
+  "entity": "switch.kitchen_outlet",
+  "attributes": [
+    "power_consumption",
+    "sensor.kitchen_voltage",
+    "sensor.kitchen_current"
+  ]
+}
+```
+
+This displays:
+
+- `power_consumption` from the switch's entity.attributes
+- `sensor.kitchen_voltage` — looked up from Home Assistant (displays as its friendly_name with state)
+- `sensor.kitchen_current` — looked up from Home Assistant (displays as its friendly_name with state)
+
+**Sensor references automatically include unit of measurement:**
+
+If the referenced sensor has a `unit_of_measurement` attribute, it's automatically appended to the displayed value:
+
+- `sensor.power` with state `150` and unit `"W"` displays as `"150 W"`
+- `sensor.temperature` with state `23.5` and unit `"°C"` displays as `"23.5 °C"`
+
+### Label Formatting
+
+**Direct attribute keys** are formatted from snake_case to Title Case:
+
+- `battery` → "Battery"
+- `battery_level` → "Battery Level"
+- `signal_strength` → "Signal Strength"
+
+**Sensor entity references** use the sensor's `friendly_name` attribute as the label:
+
+- `sensor.kitchen_voltage` → displays as "Kitchen Voltage" (the friendly_name)
+- `sensor.living_room_power` → displays as "Living Room Power"
+
+### Handling Missing or Unavailable Data
+
+- **Missing attributes**: Silently skipped (not displayed)
+- **Non-existent sensor references**: Silently skipped
+- **Unavailable sensor states**: Displayed as "unavailable"
+- **No unit of measurement**: Value displayed alone without unit
+
+### Configuration Examples
+
+**Sensor with direct attributes:**
+
+```json
+{
+  "type": "HaSensor",
+  "entity": "sensor.air_quality",
+  "attributes": ["aqi", "pm25", "last_updated"]
+}
+```
+
+**Switch with mixed attributes and sensor references:**
+
+```json
+{
+  "type": "HaSwitch",
+  "entity": "switch.kitchen_outlet",
+  "attributes": ["activity", "sensor.kitchen_power", "sensor.kitchen_voltage"]
+}
+```
+
+Displays:
+
+- `activity` from switch.kitchen_outlet.attributes.activity
+- `Kitchen Power` from the state/unit of sensor.kitchen_power
+- `Kitchen Voltage` from the state/unit of sensor.kitchen_voltage
+
+**Sensor with related measurements:**
+
+```json
+{
+  "type": "HaSensor",
+  "entity": "sensor.living_room_power",
+  "attributes": ["sensor.living_room_voltage", "sensor.living_room_current"]
+}
+```
+
+Displays the main sensor value along with related voltage and current measurements from separate sensors.
+
+**Binary sensor with attributes:**
+
+```json
+{
+  "type": "HaBinarySensor",
+  "entity": "binary_sensor.motion_sensor",
+  "attributes": ["battery_level", "signal_strength", "sensor.battery_voltage"]
+}
+```
+
+### Common Patterns
+
+**Power Monitoring Setup:**
+
+Multiple related sensors can be displayed together:
+
+```json
+{
+  "entity": "switch.outlet_1",
+  "attributes": [
+    "sensor.outlet_1_power",
+    "sensor.outlet_1_voltage",
+    "sensor.outlet_1_current"
+  ]
+}
+```
+
+**Environmental Monitoring:**
+
+Primary sensor with related measurements:
+
+```json
+{
+  "entity": "sensor.living_room_temperature",
+  "attributes": [
+    "humidity",
+    "sensor.living_room_dew_point",
+    "sensor.living_room_air_quality"
+  ]
+}
+```
+
+**Device Status:**
+
+Entity with battery and signal info:
+
+```json
+{
+  "entity": "binary_sensor.door_sensor",
+  "attributes": ["device_class", "sensor.battery_voltage", "signal_strength"]
+}
+```
 
 ## App Configuration
 
@@ -555,6 +737,7 @@ Interactive switch control with on/off toggle.
 **Properties**:
 
 - `entity` (string|object, required): Switch entity ID or object
+- `attributes` (array, optional, default: []): Attribute keys to display below the entity name
 - `mock` (boolean, optional, default: false): Enable mock toggle for testing without HA
 
 **Examples**:
@@ -565,6 +748,16 @@ Basic switch:
 {
   "type": "HaSwitch",
   "entity": "switch.kitchen_outlet"
+}
+```
+
+Switch with attributes displayed:
+
+```json
+{
+  "type": "HaSwitch",
+  "entity": "switch.power_outlet",
+  "attributes": ["power", "current", "voltage"]
 }
 ```
 

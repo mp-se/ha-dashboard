@@ -345,4 +345,69 @@ describe("PwaInstallModal.vue", () => {
     const buttons = wrapper.findAll("button");
     expect(buttons.length).toBeGreaterThan(0);
   });
+
+  describe("Programmatic API", () => {
+    it("should show modal when showModal is called", async () => {
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      expect(wrapper.find(".modal").exists()).toBe(false);
+
+      wrapper.vm.showModal();
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.find(".modal").exists()).toBe(true);
+    });
+
+    it("should handle deferredPrompt in showModal", async () => {
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      wrapper.vm.deferredPrompt = { prompt: vi.fn() };
+      wrapper.vm.showModal();
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.showInstallButton).toBe(true);
+    });
+  });
+
+  describe("Event Listeners", () => {
+    it("should handle beforeinstallprompt event", async () => {
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      const event = new Event("beforeinstallprompt");
+      event.preventDefault = vi.fn();
+
+      window.dispatchEvent(event);
+
+      expect(wrapper.vm.deferredPrompt).toBeDefined();
+      expect(wrapper.vm.showInstallButton).toBe(true);
+    });
+
+    it("should handle appinstalled event", async () => {
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      wrapper.vm.showInstallButton = true;
+
+      const event = new Event("appinstalled");
+      window.dispatchEvent(event);
+
+      expect(wrapper.vm.isInstalled).toBe(true);
+      expect(wrapper.vm.showInstallButton).toBe(false);
+    });
+  });
 });

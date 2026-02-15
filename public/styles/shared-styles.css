@@ -142,11 +142,6 @@ button:active {
 
 .card-control.card-active {
   border-color: #28a745 !important;
-  background: linear-gradient(
-    135deg,
-    rgba(200, 255, 200, 0.15) 0%,
-    rgba(200, 255, 200, 0.05) 100%
-  ) !important;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.08),
     0 4px 12px rgba(40, 167, 69, 0.15) !important;
