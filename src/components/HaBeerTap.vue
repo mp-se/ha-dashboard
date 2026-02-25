@@ -151,7 +151,7 @@ const resolvedEntities = computed(() => {
     }
     return entityList.value
       .map((entityId) => {
-        const entity = store.sensors.find((s) => s.entity_id === entityId);
+        const entity = store.entityMap.get(entityId);
         return entity !== undefined ? entity : null;
       })
       .filter((e) => e !== null);

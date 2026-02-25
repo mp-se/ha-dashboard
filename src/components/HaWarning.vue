@@ -88,7 +88,7 @@ const store = useHaStore();
 // Smart entity resolution
 const resolvedEntity = computed(() => {
   if (typeof props.entity === "string") {
-    const found = store.sensors.find((s) => s.entity_id === props.entity);
+    const found = store.entityMap.get(props.entity);
     if (!found) {
       console.warn(`Entity "${props.entity}" not found`);
       return null;
