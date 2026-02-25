@@ -174,7 +174,7 @@ const entityList = computed(() => {
 const resolvedEntities = computed(() => {
   return entityList.value.map((ent) => {
     if (typeof ent === "string") {
-      const found = store.sensors.find((s) => s.entity_id === ent);
+      const found = store.entityMap.get(ent);
       if (!found) {
         console.warn(`Entity "${ent}" not found`);
         return null;
@@ -236,7 +236,7 @@ const maxDisplay = computed(() => formatValue(maxVal.value));
 // Helper to get entity label for legend
 const getEntityLabel = (ent) => {
   if (typeof ent === "string") {
-    const resolved = store.sensors.find((s) => s.entity_id === ent);
+    const resolved = store.entityMap.get(ent);
     return resolved?.attributes?.friendly_name || ent;
   }
   return ent?.attributes?.friendly_name || ent?.entity_id || "Unknown";

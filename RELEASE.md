@@ -1,5 +1,14 @@
 # Release Notes
 
+## Unreleased
+
+- Refactored monolithic `haStore.js` into modular domain stores: `authStore.js`, `entitiesStore.js`, and `configStore.js`.
+- Split the store test suite into individual files for better isolation and maintainability.
+- Introduced modular UI sub-components: `HaIconCircle.vue` and `HaEntityAttributeList.vue` to improve DRYY and simplify card components.
+- Reorganized project structure by moving utility scripts to a dedicated `scripts/` directory.
+- Added missing unit tests for `attributeFormatters.js`.
+- Implemented `entityMap` for $O(1)$ entity lookups, significantly improving performance for complex dashboards.
+
 ## February 2026 - v0.5.0
 
 - Updated the dashboard layout to keep the navigation menubar and status banners always visible at the top of the screen using sticky positioning

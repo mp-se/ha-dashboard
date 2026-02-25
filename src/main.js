@@ -31,12 +31,16 @@ import HaGlance from "./components/HaGlance.vue";
 import HaImage from "./components/HaImage.vue";
 import HaRoom from "./components/HaRoom.vue";
 import HaBeerTap from "./components/HaBeerTap.vue";
+import HaIconCircle from "./components/HaIconCircle.vue";
+import HaEntityAttributeList from "./components/HaEntityAttributeList.vue";
 import { registerSW } from "virtual:pwa-register";
 
 const app = createApp(App);
 app.use(createPinia());
 
 // Register HA components globally
+app.component("HaIconCircle", HaIconCircle);
+app.component("HaEntityAttributeList", HaEntityAttributeList);
 app.component("HaSwitch", HaSwitch);
 app.component("HaBinarySensor", HaBinarySensor);
 app.component("HaSensor", HaSensor);

@@ -95,7 +95,7 @@ const displayedEntities = computed(() => {
         }
 
         // Try to find entity in sensors array
-        let entity = store.sensors.find((s) => s.entity_id === item.entityId);
+        let entity = store.entityMap.get(item.entityId);
 
         // Create fallback entity if not found
         if (!entity) {

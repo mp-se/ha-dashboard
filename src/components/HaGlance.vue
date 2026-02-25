@@ -85,9 +85,7 @@ const getEntityId = (ent) => {
 // Get resolved entity from store
 const getResolved = (ent) => {
   if (typeof ent === "string") {
-    return (
-      store.sensors.find((s) => s.entity_id === ent) || store.entities[ent]
-    );
+    return store.entityMap.get(ent);
   }
   return ent;
 };

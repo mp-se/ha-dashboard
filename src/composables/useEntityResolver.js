@@ -17,7 +17,11 @@ export const useEntityResolver = (entity) => {
     const entityValue = unref(entity);
 
     if (typeof entityValue === "string") {
-      const found = store.sensors.find((s) => s.entity_id === entityValue);
+      // Use entityMap for O(1) lookup if available, fallback to sensors.find for backward compatibility/tests
+      const found =
+        store.entityMap?.get?.(entityValue) ||
+        store.sensors?.find?.((s) => s.entity_id === entityValue);
+
       if (!found) {
         console.warn(`Entity "${entityValue}" not found in store`);
         return null;

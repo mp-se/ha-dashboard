@@ -30,18 +30,7 @@
         <div v-if="resolvedEntity" class="text-start flex-grow-1">
           <h6 class="ha-entity-name mb-0">{{ name }}</h6>
           <!-- Display requested attributes if provided -->
-          <div v-if="requestedAttributes.length > 0" class="mt-1">
-            <div
-              v-for="[label, value] in requestedAttributes"
-              :key="label"
-              class="small d-flex gap-2 mb-0"
-            >
-              <div class="ha-attribute-key">
-                {{ label }}:
-                <span class="ha-attribute-value">{{ value }}</span>
-              </div>
-            </div>
-          </div>
+          <HaEntityAttributeList :attributes="requestedAttributes" />
         </div>
         <div v-if="resolvedEntity" class="d-flex align-items-center ms-2">
           <div

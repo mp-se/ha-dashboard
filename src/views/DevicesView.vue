@@ -155,9 +155,7 @@ const copyDeviceToClipboard = async (device) => {
         device.entities
           ?.map((entityId) => {
             // Find the full entity data from the store
-            return store.sensors.find(
-              (sensor) => sensor.entity_id === entityId,
-            );
+            return store.entityMap.get(entityId);
           })
           .filter(Boolean) || [], // Filter out any undefined entities
     };
@@ -178,9 +176,7 @@ const copyDeviceToClipboard = async (device) => {
           device.entities
             ?.map((entityId) => {
               // Find the full entity data from the store
-              return store.sensors.find(
-                (sensor) => sensor.entity_id === entityId,
-              );
+              return store.entityMap.get(entityId);
             })
             .filter(Boolean) || [], // Filter out any undefined entities
       };
