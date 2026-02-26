@@ -487,7 +487,7 @@ describe("DevicesView.vue", () => {
       const store = useHaStore();
       store.devices = [{ id: "device1", name: "Test Device", entities: [] }];
       store.areas = [];
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(DevicesView);
       const copyBtn = wrapper.find('button[title*="Copy device JSON"]');
@@ -721,7 +721,7 @@ describe("DevicesView.vue", () => {
         },
       ];
       store.areas = [{ area_id: "living_room", name: "Living Room" }];
-      store.sensors = [
+      store.entities = [
         { entity_id: "sensor.test", state: "on", attributes: {} },
       ];
 

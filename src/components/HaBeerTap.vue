@@ -142,7 +142,7 @@ const entityList = computed(() => {
 // Get resolved entities from store
 const resolvedEntities = computed(() => {
   try {
-    if (!store || !store.sensors) {
+    if (!store || !store.entities) {
       console.warn("Store or sensors not yet loaded");
       return [];
     }

@@ -13,7 +13,7 @@ describe("HaMediaPlayer.vue", () => {
     setActivePinia(pinia);
     store = useHaStore();
     store.devices = [];
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "media_player.bedroom",
         state: "playing",
@@ -54,7 +54,7 @@ describe("HaMediaPlayer.vue", () => {
     });
 
     it("should handle missing entity gracefully", () => {
-      store.sensors = [];
+      store.entities = [];
       const wrapper = mount(HaMediaPlayer, {
         props: { entity: "media_player.nonexistent" },
         global: { plugins: [pinia] },
@@ -69,7 +69,7 @@ describe("HaMediaPlayer.vue", () => {
         global: { plugins: [pinia] },
       });
 
-      store.sensors.push({
+      store.entities.push({
         entity_id: "media_player.living_room",
         state: "paused",
         attributes: {
@@ -128,7 +128,7 @@ describe("HaMediaPlayer.vue", () => {
     });
 
     it("should show pause icon when paused", () => {
-      store.sensors[0].state = "paused";
+      store.entities[0].state = "paused";
       const wrapper = mount(HaMediaPlayer, {
         props: { entity: "media_player.bedroom" },
         global: { plugins: [pinia] },
@@ -155,7 +155,7 @@ describe("HaMediaPlayer.vue", () => {
     });
 
     it("should show play icon when paused", () => {
-      store.sensors[0].state = "paused";
+      store.entities[0].state = "paused";
       const wrapper = mount(HaMediaPlayer, {
         props: { entity: "media_player.bedroom" },
         global: { plugins: [pinia] },
@@ -164,7 +164,7 @@ describe("HaMediaPlayer.vue", () => {
     });
 
     it("should disable track controls when off", () => {
-      store.sensors[0].state = "off";
+      store.entities[0].state = "off";
       const wrapper = mount(HaMediaPlayer, {
         props: { entity: "media_player.bedroom" },
         global: { plugins: [pinia] },
@@ -232,7 +232,7 @@ describe("HaMediaPlayer.vue", () => {
 
   describe("Card Styling", () => {
     it("should have warning border when unavailable", () => {
-      store.sensors[0].state = "unavailable";
+      store.entities[0].state = "unavailable";
       const wrapper = mount(HaMediaPlayer, {
         props: { entity: "media_player.bedroom" },
         global: { plugins: [pinia] },
@@ -281,7 +281,7 @@ describe("HaMediaPlayer.vue", () => {
     });
 
     it("should calculate mediaSubtitle correctly when only title exists", () => {
-      store.sensors[0].attributes.media_artist = null;
+      store.entities[0].attributes.media_artist = null;
       const wrapper = mount(HaMediaPlayer, {
         props: { entity: "media_player.bedroom" },
         global: { plugins: [pinia] },
@@ -291,7 +291,7 @@ describe("HaMediaPlayer.vue", () => {
     });
 
     it("should calculate mediaSubtitle correctly when only artist exists", () => {
-      store.sensors[0].attributes.media_title = null;
+      store.entities[0].attributes.media_title = null;
       const wrapper = mount(HaMediaPlayer, {
         props: { entity: "media_player.bedroom" },
         global: { plugins: [pinia] },
@@ -301,8 +301,8 @@ describe("HaMediaPlayer.vue", () => {
     });
 
     it("should display progress bar when media_position and media_duration exist", () => {
-      store.sensors[0].attributes.media_position = 10;
-      store.sensors[0].attributes.media_duration = 100;
+      store.entities[0].attributes.media_position = 10;
+      store.entities[0].attributes.media_duration = 100;
       const wrapper = mount(HaMediaPlayer, {
         props: { entity: "media_player.bedroom" },
         global: { plugins: [pinia] },
@@ -330,10 +330,10 @@ describe("HaMediaPlayer.vue", () => {
     });
 
     it("should show indeterminate progress pulse when position is 0 but playing and has duration", () => {
-      store.sensors[0].state = "playing";
-      store.sensors[0].attributes.media_position = 0;
-      store.sensors[0].attributes.media_duration = 100;
-      store.sensors[0].attributes.media_position_updated_at = null;
+      store.entities[0].state = "playing";
+      store.entities[0].attributes.media_position = 0;
+      store.entities[0].attributes.media_duration = 100;
+      store.entities[0].attributes.media_position_updated_at = null;
 
       const wrapper = mount(HaMediaPlayer, {
         props: { entity: "media_player.bedroom" },

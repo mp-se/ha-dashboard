@@ -70,7 +70,7 @@
             <HaIconCircle
               size="small"
               :entity-id="typeof ent === 'string' ? ent : ent.entity_id"
-              :resolved-entity="typeof ent === 'string' ? null : ent"
+              :resolved-entity="getResolved(ent)"
             />
             <div class="flex-grow-1 text-start">
               <h6 class="ha-entity-name">{{ getName(ent) }}</h6>

@@ -12,7 +12,7 @@ describe("HaGlance.vue", () => {
     pinia = createPinia();
     setActivePinia(pinia);
     store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.temperature",
         state: "22.5",
@@ -33,7 +33,6 @@ describe("HaGlance.vue", () => {
       },
     ];
     store.devices = [];
-    store.entities = {};
   });
 
   describe("Component Rendering", () => {
@@ -150,7 +149,7 @@ describe("HaGlance.vue", () => {
     });
 
     it("should resolve object entities", () => {
-      const entity = store.sensors[0];
+      const entity = store.entities[0];
       const wrapper = mount(HaGlance, {
         props: { entity: [entity] },
         global: { plugins: [pinia] },
@@ -168,7 +167,7 @@ describe("HaGlance.vue", () => {
     });
 
     it("should mix string and object entities", () => {
-      const entity = store.sensors[0];
+      const entity = store.entities[0];
       const wrapper = mount(HaGlance, {
         props: { entity: [entity, "sensor.humidity"] },
         global: { plugins: [pinia] },
@@ -187,7 +186,7 @@ describe("HaGlance.vue", () => {
     });
 
     it("should accept array of object entities", () => {
-      const entities = [store.sensors[0], store.sensors[1]];
+      const entities = [store.entities[0], store.entities[1]];
       const wrapper = mount(HaGlance, {
         props: { entity: entities },
         global: { plugins: [pinia] },
@@ -224,7 +223,7 @@ describe("HaGlance.vue", () => {
     });
 
     it("should use 3 columns for three entities", () => {
-      store.sensors.push({
+      store.entities.push({
         entity_id: "sensor.pressure",
         state: "1013",
         attributes: {
@@ -244,7 +243,7 @@ describe("HaGlance.vue", () => {
     });
 
     it("should use 4 columns for four entities", () => {
-      store.sensors.push({
+      store.entities.push({
         entity_id: "sensor.pressure",
         state: "1013",
         attributes: {
@@ -253,7 +252,7 @@ describe("HaGlance.vue", () => {
           icon: "mdi:speedometer",
         },
       });
-      store.sensors.push({
+      store.entities.push({
         entity_id: "sensor.wind",
         state: "5.2",
         attributes: {
@@ -278,7 +277,7 @@ describe("HaGlance.vue", () => {
     });
 
     it("should use 4 columns for more than four entities", () => {
-      store.sensors.push({
+      store.entities.push({
         entity_id: "sensor.pressure",
         state: "1013",
         attributes: {
@@ -287,7 +286,7 @@ describe("HaGlance.vue", () => {
           icon: "mdi:speedometer",
         },
       });
-      store.sensors.push({
+      store.entities.push({
         entity_id: "sensor.wind",
         state: "5.2",
         attributes: {
@@ -296,7 +295,7 @@ describe("HaGlance.vue", () => {
           icon: "mdi:wind-power",
         },
       });
-      store.sensors.push({
+      store.entities.push({
         entity_id: "sensor.rain",
         state: "2.5",
         attributes: {
@@ -333,7 +332,7 @@ describe("HaGlance.vue", () => {
       });
       expect(wrapper.vm.gridColumns).toBe(2);
 
-      store.sensors.push({
+      store.entities.push({
         entity_id: "sensor.pressure",
         state: "1013",
         attributes: {

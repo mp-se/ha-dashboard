@@ -249,7 +249,7 @@ const { input: searchText, debounced: debouncedSearch } = useDebouncedRef(
 
 const uniqueTypes = computed(() => {
   const types = new Set(
-    store.sensors.map((entity) => entity.entity_id.split(".")[0]),
+    store.entities.map((entity) => entity.entity_id.split(".")[0]),
   );
   // Remove 'area' since it's already a hardcoded option
   types.delete("area");
@@ -257,7 +257,7 @@ const uniqueTypes = computed(() => {
 });
 
 const filteredEntities = computed(() => {
-  let entities = store.sensors;
+  let entities = store.entities;
 
   // Filter by type if selected (but not if "areas" is selected)
   if (selectedType.value && selectedType.value !== "areas") {
@@ -389,7 +389,7 @@ const copyAreaToClipboard = async (area) => {
 
 const generateConfigJson = async () => {
   // Filter to only supported entities (those in DEFAULT_DOMAIN_MAP)
-  const supportedEntities = store.sensors.filter((entity) => {
+  const supportedEntities = store.entities.filter((entity) => {
     const domain = entity.entity_id.split(".")[0];
     return (
       DEFAULT_DOMAIN_MAP[domain] &&

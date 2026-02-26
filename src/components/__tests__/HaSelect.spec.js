@@ -13,7 +13,7 @@ describe("HaSelect.vue", () => {
     setActivePinia(pinia);
     store = useHaStore();
     store.devices = [];
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "select.mode",
         state: "auto",
@@ -36,7 +36,7 @@ describe("HaSelect.vue", () => {
     });
 
     it("should render select card with entity object", () => {
-      const entity = store.sensors[0];
+      const entity = store.entities[0];
       const wrapper = mount(HaSelect, {
         props: { entity },
         global: { plugins: [pinia] },
@@ -53,7 +53,7 @@ describe("HaSelect.vue", () => {
     });
 
     it("should display entity_id as fallback for name", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "select.test",
           state: "option1",
@@ -113,7 +113,7 @@ describe("HaSelect.vue", () => {
     });
 
     it("should handle entity without options gracefully", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "select.empty",
           state: "unknown",
@@ -130,7 +130,7 @@ describe("HaSelect.vue", () => {
 
   describe("Select States", () => {
     it("should disable select when state is unavailable", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "select.mode",
           state: "unavailable",
@@ -149,7 +149,7 @@ describe("HaSelect.vue", () => {
     });
 
     it("should disable select when state is unknown", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "select.mode",
           state: "unknown",
@@ -179,7 +179,7 @@ describe("HaSelect.vue", () => {
 
   describe("Card Border Styling", () => {
     it("should have warning border when unavailable", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "select.mode",
           state: "unavailable",
@@ -207,7 +207,7 @@ describe("HaSelect.vue", () => {
     });
 
     it("should have success border when in success state", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "select.mode",
           state: "active",
@@ -234,7 +234,7 @@ describe("HaSelect.vue", () => {
           name: "Living Room Device",
         },
       ];
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "select.mode",
           state: "auto",
@@ -263,7 +263,7 @@ describe("HaSelect.vue", () => {
     });
 
     it("should show device ID fallback when name not available", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "select.mode",
           state: "auto",
@@ -325,7 +325,7 @@ describe("HaSelect.vue", () => {
 
     it("should use correct service domain", async () => {
       store.callService = vi.fn();
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "input_select.choice",
           state: "option1",
@@ -351,7 +351,7 @@ describe("HaSelect.vue", () => {
 
     it("should not call service when entity not resolved", async () => {
       store.callService = vi.fn();
-      store.sensors = [];
+      store.entities = [];
       const wrapper = mount(HaSelect, {
         props: { entity: "select.nonexistent" },
         global: { plugins: [pinia] },
@@ -371,7 +371,7 @@ describe("HaSelect.vue", () => {
     });
 
     it("should accept valid object entity", () => {
-      const entity = store.sensors[0];
+      const entity = store.entities[0];
       const wrapper = mount(HaSelect, {
         props: { entity },
         global: { plugins: [pinia] },

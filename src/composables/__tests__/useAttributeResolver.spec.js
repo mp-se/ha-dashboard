@@ -23,7 +23,7 @@ describe("useAttributeResolver.js", () => {
     };
 
     mockStore = {
-      sensors: [
+      entities: [
         {
           entity_id: "sensor.power",
           state: "150.3",
@@ -200,7 +200,7 @@ describe("useAttributeResolver.js", () => {
     });
 
     it("should use entity_id as fallback label for referenced sensor", () => {
-      mockStore.sensors[0].attributes = {}; // Remove friendly_name
+      mockStore.entities[0].attributes = {}; // Remove friendly_name
 
       const { requestedAttributes } = useAttributeResolver(mockResolvedEntity, [
         "sensor.power",

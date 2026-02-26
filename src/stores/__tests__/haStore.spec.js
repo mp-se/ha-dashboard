@@ -24,7 +24,7 @@ const mockAuth = {
 };
 
 const mockEntities = {
-  sensors: [],
+  entities: [],
   devices: [],
   areas: [],
   entityMap: new Map(),
@@ -83,7 +83,7 @@ describe("useHaStore (Bridge)", () => {
 
     // Verify properties are exposed through the bridge
     expect(bridge.isLoading).toBe(auth.isLoading);
-    expect(bridge.sensors).toEqual(entities.sensors);
+    expect(bridge.entities).toEqual(entities.entities);
     expect(bridge.dashboardConfig).toBe(config.dashboardConfig);
   });
 

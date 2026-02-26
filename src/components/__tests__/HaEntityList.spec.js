@@ -12,7 +12,7 @@ describe("HaEntityList.vue", () => {
     pinia = createPinia();
     setActivePinia(pinia);
     store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.temp",
         state: "20",
@@ -483,7 +483,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should filter out entities with null or undefined attributes", () => {
-      store.sensors.push({
+      store.entities.push({
         entity_id: "sensor.broken",
         state: "on",
         attributes: null,
@@ -572,7 +572,7 @@ describe("HaEntityList.vue", () => {
       expect(wrapper.vm.displayedEntities).toHaveLength(2);
     });
 
-    it("should reactively update when store.sensors changes", async () => {
+    it("should reactively update when store.entities changes", async () => {
       const wrapper = mount(HaEntityList, {
         props: { entities: [{ entityId: "sensor.newentity" }] },
         global: { plugins: [pinia], stubs: { HaSpacer: true, HaSensor: true } },
@@ -582,7 +582,7 @@ describe("HaEntityList.vue", () => {
       expect(wrapper.vm.displayedEntities[0].entity.state).toBe("unknown");
 
       // Add to store
-      store.sensors.push({
+      store.entities.push({
         entity_id: "sensor.newentity",
         state: "active",
         attributes: { friendly_name: "New Entity" },

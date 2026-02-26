@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Refactored `main.js` to auto-register all `Ha*` components via `import.meta.glob` — new components matching `src/components/Ha*.vue` are registered automatically without manual edits.
+- Renamed the `sensors` array in `entitiesStore` (and its public API through `haStore`) to `entities`, reflecting that it holds all HA entities, not just sensors. All consumers, composables, and tests updated.
+- Split 624-line `App.vue` into `App.vue` (orchestration shell, ~190 lines) and the new `AppNavbar.vue` component which owns the header, nav tabs, connection status, toolbar buttons, config-reload/update banners, and dark-mode toggle.
+- Fixed pre-existing shadowing bug in `entitiesStore.fetchStates`: the `subscribeEntities` callback parameter was named `entities`, shadowing the outer store ref after the rename.
+- Fixed pre-existing test bugs in `HaGlance.spec.js`, `HaWeather.spec.js`, and `HaSun.spec.js` where `store.entities = {}` in `beforeEach` was incorrectly overwriting the initialized entity array.
 - Fixed weather forecast not displaying in `HaWeather.vue` due to Home Assistant (2024.3+) removing `forecast` from entity attributes. The component now subscribes to `weather/subscribe_forecast` via WebSocket on mount, with a fallback to `attributes.forecast` for local mode and older HA versions.
 - Refactored monolithic `haStore.js` into modular domain stores: `authStore.js`, `entitiesStore.js`, and `configStore.js`.
 - Split the store test suite into individual files for better isolation and maintainability.
@@ -9,6 +14,10 @@
 - Reorganized project structure by moving utility scripts to a dedicated `scripts/` directory.
 - Added missing unit tests for `attributeFormatters.js`.
 - Implemented `entityMap` for $O(1)$ entity lookups, significantly improving performance for complex dashboards.
+- Reduced nav icon size: mobile `1.5rem → 1.1rem`, desktop `1.1rem → 1rem`.
+- Fixed icons missing from multi-row `HaSensor` cards — string entity IDs now resolve via `store.entityMap` before being passed to `HaIconCircle`, instead of passing `null`.
+- Added missing `icon-bg-small` and `icon-overlay-small` CSS classes used by `HaIconCircle` in `size="small"` mode (32×32px circle, 1rem icon).
+- Fixed single-row sensor card icon not vertically centred — `.ha-icon-circle-wrapper` was constraining layout to 40px while the inner `.icon-bg` circle is 50px, causing a misalignment. The wrapper now sizes naturally around its content.
 
 ## February 2026 - v0.5.0
 

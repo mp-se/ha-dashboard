@@ -29,7 +29,7 @@ export const useAttributeResolver = (entity, attributes) => {
         // Use optimized entityMap if available, fallback to find for tests/stability
         const referencedSensor = haStore.entityMap?.get
           ? haStore.entityMap.get(key)
-          : haStore.sensors?.find((s) => s.entity_id === key);
+          : haStore.entities?.find((s) => s.entity_id === key);
 
         if (referencedSensor) {
           if (referencedSensor.state === "unavailable") {

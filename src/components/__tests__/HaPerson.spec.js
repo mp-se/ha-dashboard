@@ -13,7 +13,7 @@ describe("HaPerson.vue", () => {
     setActivePinia(pinia);
     store = useHaStore();
     store.devices = [];
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "person.john",
         state: "home",
@@ -62,7 +62,7 @@ describe("HaPerson.vue", () => {
     });
 
     it("should display entity_id as fallback", () => {
-      store.sensors[0].attributes.friendly_name = undefined;
+      store.entities[0].attributes.friendly_name = undefined;
       const wrapper = mount(HaPerson, {
         props: { entity: "person.john" },
         global: { plugins: [pinia] },
@@ -79,7 +79,7 @@ describe("HaPerson.vue", () => {
     });
 
     it("should display location as away", () => {
-      store.sensors[0].state = "not_home";
+      store.entities[0].state = "not_home";
       const wrapper = mount(HaPerson, {
         props: { entity: "person.john" },
         global: { plugins: [pinia] },
@@ -88,7 +88,7 @@ describe("HaPerson.vue", () => {
     });
 
     it("should format custom location", () => {
-      store.sensors[0].state = "work";
+      store.entities[0].state = "work";
       const wrapper = mount(HaPerson, {
         props: { entity: "person.john" },
         global: { plugins: [pinia] },
@@ -114,7 +114,7 @@ describe("HaPerson.vue", () => {
     });
 
     it("should not display last seen when not available", () => {
-      store.sensors[0].attributes.last_seen = undefined;
+      store.entities[0].attributes.last_seen = undefined;
       const wrapper = mount(HaPerson, {
         props: { entity: "person.john" },
         global: { plugins: [pinia] },
@@ -133,7 +133,7 @@ describe("HaPerson.vue", () => {
     });
 
     it("should parse mdi: prefix in icon attribute", () => {
-      store.sensors[0].attributes.icon = "mdi:account-circle";
+      store.entities[0].attributes.icon = "mdi:account-circle";
       const wrapper = mount(HaPerson, {
         props: { entity: "person.john" },
         global: { plugins: [pinia] },
@@ -142,7 +142,7 @@ describe("HaPerson.vue", () => {
     });
 
     it("should use default person icon when icon not set", () => {
-      store.sensors[0].attributes.icon = undefined;
+      store.entities[0].attributes.icon = undefined;
       const wrapper = mount(HaPerson, {
         props: { entity: "person.john" },
         global: { plugins: [pinia] },
@@ -171,7 +171,7 @@ describe("HaPerson.vue", () => {
     });
 
     it("should have info border when away", () => {
-      store.sensors[0].state = "not_home";
+      store.entities[0].state = "not_home";
       const wrapper = mount(HaPerson, {
         props: { entity: "person.john" },
         global: { plugins: [pinia] },
@@ -181,7 +181,7 @@ describe("HaPerson.vue", () => {
     });
 
     it("should have warning border when unavailable", () => {
-      store.sensors[0].state = "unavailable";
+      store.entities[0].state = "unavailable";
       const wrapper = mount(HaPerson, {
         props: { entity: "person.john" },
         global: { plugins: [pinia] },
@@ -191,7 +191,7 @@ describe("HaPerson.vue", () => {
     });
 
     it("should have warning border when unknown", () => {
-      store.sensors[0].state = "unknown";
+      store.entities[0].state = "unknown";
       const wrapper = mount(HaPerson, {
         props: { entity: "person.john" },
         global: { plugins: [pinia] },
@@ -203,7 +203,7 @@ describe("HaPerson.vue", () => {
 
   describe("Missing Entity Handling", () => {
     it("should handle missing entity gracefully", () => {
-      store.sensors = [];
+      store.entities = [];
       const wrapper = mount(HaPerson, {
         props: { entity: "person.nonexistent" },
         global: { plugins: [pinia] },
@@ -212,7 +212,7 @@ describe("HaPerson.vue", () => {
     });
 
     it("should display alert icon when entity not found", () => {
-      store.sensors = [];
+      store.entities = [];
       const wrapper = mount(HaPerson, {
         props: { entity: "person.nonexistent" },
         global: { plugins: [pinia] },
@@ -221,7 +221,7 @@ describe("HaPerson.vue", () => {
     });
 
     it("should display error message with entity ID", () => {
-      store.sensors = [];
+      store.entities = [];
       const wrapper = mount(HaPerson, {
         props: { entity: "person.nonexistent" },
         global: { plugins: [pinia] },
@@ -231,7 +231,7 @@ describe("HaPerson.vue", () => {
     });
 
     it("should have warning border when entity not found", () => {
-      store.sensors = [];
+      store.entities = [];
       const wrapper = mount(HaPerson, {
         props: { entity: "person.nonexistent" },
         global: { plugins: [pinia] },
@@ -249,7 +249,7 @@ describe("HaPerson.vue", () => {
           name: "Mobile Device",
         },
       ];
-      store.sensors[0].attributes.device_id = "device123";
+      store.entities[0].attributes.device_id = "device123";
       const wrapper = mount(HaPerson, {
         props: { entity: "person.john" },
         global: { plugins: [pinia] },
@@ -301,7 +301,7 @@ describe("HaPerson.vue", () => {
     });
 
     it("should have text-center layout when entity not found", () => {
-      store.sensors = [];
+      store.entities = [];
       const wrapper = mount(HaPerson, {
         props: { entity: "person.nonexistent" },
         global: { plugins: [pinia] },
@@ -321,7 +321,7 @@ describe("HaPerson.vue", () => {
     });
 
     it("should accept valid object entity", () => {
-      const entity = store.sensors[0];
+      const entity = store.entities[0];
       const wrapper = mount(HaPerson, {
         props: { entity },
         global: { plugins: [pinia] },
