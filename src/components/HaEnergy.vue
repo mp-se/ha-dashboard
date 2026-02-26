@@ -196,6 +196,7 @@ const selectedPeriodIndex = ref(0);
 const isLoading = ref(false);
 const error = ref(null);
 const chartData = ref([]);
+const prevChartData = ref([]);
 const hoveredIndex = ref(-1);
 const isFetching = ref(false);
 
@@ -259,12 +260,21 @@ const stats = computed(() => {
   const avg = values.reduce((a, b) => a + b, 0) / values.length;
   const total = values.reduce((a, b) => a + b, 0);
 
+  // Calculate comparison vs previous period
+  let comparison = null;
+  if (prevChartData.value.length > 0) {
+    const prevTotal = prevChartData.value.reduce((a, b) => a + b.value, 0);
+    if (prevTotal > 0) {
+      comparison = Math.round(((total - prevTotal) / prevTotal) * 1000) / 10;
+    }
+  }
+
   return {
     max: Math.round(max * 100) / 100,
     min: Math.round(min * 100) / 100,
     avg: Math.round(avg * 100) / 100,
     total: Math.round(total * 100) / 100,
-    comparison: null, // TODO: Calculate vs previous period
+    comparison,
   };
 });
 
@@ -323,11 +333,19 @@ async function fetchEnergyData() {
   error.value = null;
 
   try {
-    const data = await store.fetchEnergyHistory(
-      energySensor.value.entity_id,
-      selectedPeriod.value,
-    );
+    const [data, prevData] = await Promise.all([
+      store.fetchEnergyHistory(
+        energySensor.value.entity_id,
+        selectedPeriod.value,
+      ),
+      store.fetchEnergyHistory(
+        energySensor.value.entity_id,
+        selectedPeriod.value,
+        selectedPeriod.value,
+      ),
+    ]);
     chartData.value = data;
+    prevChartData.value = prevData;
 
     if (data.length === 0) {
       error.value = "No data available for this period";

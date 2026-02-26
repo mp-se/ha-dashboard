@@ -76,7 +76,7 @@ export const useAuthStore = defineStore("auth", () => {
       haUrl.value = savedUrl.trim();
       accessToken.value = savedToken.trim();
       credentialsFromConfig.value = false;
-      console.log("✓ Using credentials from localStorage (override)");
+      if (import.meta.env.DEV) console.log("✓ Using credentials from localStorage (override)");
       return true;
     }
 
@@ -87,7 +87,7 @@ export const useAuthStore = defineStore("auth", () => {
       haUrl.value = configHa.haUrl.trim();
       accessToken.value = configHa.accessToken.trim();
       credentialsFromConfig.value = true;
-      console.log("✓ Using credentials from dashboard config");
+      if (import.meta.env.DEV) console.log("✓ Using credentials from dashboard config");
       return true;
     }
 
@@ -98,7 +98,7 @@ export const useAuthStore = defineStore("auth", () => {
       haUrl.value = envUrl.trim();
       accessToken.value = envToken.trim();
       credentialsFromConfig.value = true;
-      console.log("✓ Using credentials from environment variables");
+      if (import.meta.env.DEV) console.log("✓ Using credentials from environment variables");
       return true;
     }
 
@@ -129,28 +129,28 @@ export const useAuthStore = defineStore("auth", () => {
     }
 
     if (isConnected.value && connection) {
-      console.log("WebSocket already connected");
+      if (import.meta.env.DEV) console.log("WebSocket already connected");
       return connection;
     }
 
     try {
-      console.log("Connecting to Home Assistant at:", haUrl.value);
+      if (import.meta.env.DEV) console.log("Connecting to Home Assistant at:", haUrl.value);
       const auth = createLongLivedTokenAuth(haUrl.value, accessToken.value);
-      console.log("Creating connection to Home Assistant...");
+      if (import.meta.env.DEV) console.log("Creating connection to Home Assistant...");
       connection = await createConnection({ auth });
 
-      console.log("✓ WebSocket connection established successfully");
+      if (import.meta.env.DEV) console.log("✓ WebSocket connection established successfully");
       isConnected.value = true;
       clearError();
 
       connection.addEventListener("ready", () => {
-        console.log("WebSocket ready (reconnected)");
+        if (import.meta.env.DEV) console.log("WebSocket ready (reconnected)");
         isConnected.value = true;
         clearError();
       });
 
       connection.addEventListener("disconnected", () => {
-        console.log("WebSocket disconnected");
+        if (import.meta.env.DEV) console.log("WebSocket disconnected");
         isConnected.value = false;
         setError("Disconnected from Home Assistant");
       });
@@ -186,7 +186,7 @@ export const useAuthStore = defineStore("auth", () => {
 
   const callService = async (domain, service, data) => {
     if (isLocalMode.value) {
-      console.warn("Service calls are disabled in local mode");
+      if (import.meta.env.DEV) console.warn("Service calls are disabled in local mode");
       return;
     }
     if (!haUrl.value || !accessToken.value) return;

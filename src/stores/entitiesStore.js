@@ -341,17 +341,22 @@ export const useEntitiesStore = defineStore("entities", () => {
     return date.toLocaleDateString("en-US", { weekday: "short" });
   };
 
-  async function fetchEnergyHistory(entityId, days = 1) {
+  /**
+   * @param {string} entityId
+   * @param {number} days - Number of days of history to fetch
+   * @param {number} offsetDays - Shift the window back by this many days (0 = current period)
+   */
+  async function fetchEnergyHistory(entityId, days = 1, offsetDays = 0) {
     if (authStore.isLocalMode || !authStore.haUrl || !authStore.accessToken)
       return [];
-    const cacheKey = `energy:${entityId}:${days}`;
+    const cacheKey = `energy:${entityId}:${days}:${offsetDays}`;
     const cached = historyRequestCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < HISTORY_CACHE_TTL)
       return cached.promise;
 
     const promise = (async () => {
       try {
-        const now = new Date();
+        const now = new Date(Date.now() - offsetDays * 24 * 60 * 60 * 1000);
         const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
         const startIso = startDate.toISOString();
         const endIso = now.toISOString();

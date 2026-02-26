@@ -2,14 +2,13 @@
 
 ## Unreleased
 
-- Improved test coverage for `HaLight.vue` (78%/68% → 91%/80%) and `haStore.js` (67%/47% → 100%/91%) with new tests covering color presets, brightness, all `init()` error paths, `retryConnection`, `reloadConfig`, and `autoFetchWeatherForecasts`.
-- Fixed coverage threshold enforcement in `vitest.config.js` — thresholds now enforced by vitest v4 (stmts ≥ 88%, branch ≥ 83%, funcs ≥ 90%, lines ≥ 89%).
-- Refactored `haStore.js` into modular domain stores (`authStore`, `entitiesStore`, `configStore`) and split `App.vue` into `App.vue` + `AppNavbar.vue`.
-- Auto-register all `Ha*` components via `import.meta.glob` in `main.js` — no manual registration needed for new components.
-- Renamed `sensors` → `entities` throughout the store and public API.
-- Introduced `HaIconCircle.vue` and `HaEntityAttributeList.vue` sub-components; implemented `entityMap` for O(1) entity lookups.
-- Fixed weather forecast display for HA 2024.3+ (now subscribes via `weather/subscribe_forecast`).
-- Fixed several bugs: `fetchStates` variable shadowing, test `beforeEach` entity overwrites, missing small icon CSS classes, misaligned sensor card icon.
+- Guarded diagnostic `console.log`/`console.warn` in `haStore.js`, `authStore.js`, and `configStore.js` behind `import.meta.env.DEV`; promoted init error to `console.error`.
+- `HaEnergy.vue`: implemented comparison vs previous period — fetches preceding window in parallel using new `offsetDays` param on `fetchEnergyHistory`, shows trending indicator with percentage. Added 5 tests.
+- Improved coverage for `HaLight.vue` (→91%/80%) and `haStore.js` (→100%/91%); fixed coverage thresholds in `vitest.config.js` for vitest v4.
+- Refactored `haStore.js` into `authStore`, `entitiesStore`, `configStore`; split `App.vue` → `App.vue` + `AppNavbar.vue`.
+- Auto-register `Ha*` components via `import.meta.glob`; renamed `sensors` → `entities` in store API.
+- Added `HaIconCircle.vue`, `HaEntityAttributeList.vue`; added `entityMap` for O(1) lookups.
+- Fixed: weather forecast for HA 2024.3+, `fetchStates` variable shadowing, missing icon CSS classes, misaligned sensor card icon.
 
 ## February 2026 - v0.5.0
 

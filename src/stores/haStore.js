@@ -15,14 +15,14 @@ export const useHaStore = defineStore("ha", () => {
   const config = useConfigStore();
 
   const init = async () => {
-    console.log("=== Starting initialization ===");
+    if (import.meta.env.DEV) console.log("=== Starting initialization ===");
     auth.isLoading = true;
     auth.needsCredentials = false;
     auth.clearError();
 
     try {
       // Step 1: Load dashboard configuration
-      console.log("Step 1: Loading dashboard configuration...");
+      if (import.meta.env.DEV) console.log("Step 1: Loading dashboard configuration...");
       await config.loadDashboardConfig();
 
       // Sync developerMode/localMode from config to auth
@@ -45,11 +45,12 @@ export const useHaStore = defineStore("ha", () => {
 
       // Step 2: Check for credentials
       const hasCredentials = await auth.loadCredentials();
-      console.log("Credentials loaded:", {
-        url: auth.haUrl ? "(set)" : "(missing)",
-        token: auth.accessToken ? "(set)" : "(missing)",
-        localMode: auth.isLocalMode,
-      });
+      if (import.meta.env.DEV)
+        console.log("Credentials loaded:", {
+          url: auth.haUrl ? "(set)" : "(missing)",
+          token: auth.accessToken ? "(set)" : "(missing)",
+          localMode: auth.isLocalMode,
+        });
 
       if (!hasCredentials && !auth.isLocalMode) {
         auth.needsCredentials = true;
@@ -59,15 +60,15 @@ export const useHaStore = defineStore("ha", () => {
 
       // Step 3: Load data
       if (auth.isLocalMode) {
-        console.log("Step 3: Loading local data...");
+        if (import.meta.env.DEV) console.log("Step 3: Loading local data...");
         await entities.loadLocalData();
       } else {
-        console.log("Step 3: Connecting to WebSocket...");
+        if (import.meta.env.DEV) console.log("Step 3: Connecting to WebSocket...");
         const conn = await auth.connectWebSocket();
         if (!conn)
           throw new Error("Connection failed: connection object is null");
 
-        console.log("Step 4: Fetching states and registries...");
+        if (import.meta.env.DEV) console.log("Step 4: Fetching states and registries...");
         await entities.fetchStates();
         await entities.fetchEntityRegistry();
         await entities.fetchAreaRegistry();
@@ -75,11 +76,11 @@ export const useHaStore = defineStore("ha", () => {
         entities.mapEntitiesToDevices();
       }
 
-      console.log("=== Initialization complete ===");
+      if (import.meta.env.DEV) console.log("=== Initialization complete ===");
       auth.isInitialized = true;
       auth.isLoading = false;
     } catch (error) {
-      console.log("=== Initialization error ===", error);
+      console.error("=== Initialization error ===", error);
       auth.isLoading = false;
       auth.isInitialized = false;
 
