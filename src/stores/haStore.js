@@ -3,6 +3,7 @@ import { toRef } from "vue";
 import { useAuthStore } from "./authStore";
 import { useEntitiesStore } from "./entitiesStore";
 import { useConfigStore } from "./configStore";
+import { useForecastStore } from "./forecastStore";
 
 /**
  * Bridge store that maintains the original useHaStore API
@@ -13,6 +14,7 @@ export const useHaStore = defineStore("ha", () => {
   const auth = useAuthStore();
   const entities = useEntitiesStore();
   const config = useConfigStore();
+  const forecast = useForecastStore();
 
   const init = async () => {
     if (import.meta.env.DEV) console.log("=== Starting initialization ===");
@@ -129,11 +131,11 @@ export const useHaStore = defineStore("ha", () => {
     entityMap: toRef(entities, "entityMap"),
     devices: toRef(entities, "devices"),
     areas: toRef(entities, "areas"),
-    forecasts: toRef(entities, "forecasts"),
-    forecastSubscriptions: toRef(entities, "forecastSubscriptions"),
-    forecastSupport: toRef(entities, "forecastSupport"),
-    forecastErrors: toRef(entities, "forecastErrors"),
-    forecastLoading: toRef(entities, "forecastLoading"),
+    forecasts: toRef(forecast, "forecasts"),
+    forecastSubscriptions: toRef(forecast, "forecastSubscriptions"),
+    forecastSupport: toRef(forecast, "forecastSupport"),
+    forecastErrors: toRef(forecast, "forecastErrors"),
+    forecastLoading: toRef(forecast, "forecastLoading"),
 
     // Linked State from Config Store
     dashboardConfig: toRef(config, "dashboardConfig"),
@@ -157,7 +159,7 @@ export const useHaStore = defineStore("ha", () => {
     fetchAreaRegistry: entities.fetchAreaRegistry,
     mapEntitiesToDevices: entities.mapEntitiesToDevices,
     fetchDevicesAfterAuth: entities.fetchDevicesAfterAuth,
-    subscribeToWeatherForecast: entities.subscribeToWeatherForecast,
+    subscribeToWeatherForecast: forecast.subscribeToWeatherForecast,
     fetchHistory: entities.fetchHistory,
     fetchEnergyHistory: entities.fetchEnergyHistory,
     getBatterySensors: entities.getBatterySensors,
@@ -197,7 +199,7 @@ export const useHaStore = defineStore("ha", () => {
         if (feat & 1) type = "daily";
         else if (feat & 2) type = "hourly";
         else if (feat & 4) type = "twice_daily";
-        entities.subscribeToWeatherForecast(e.entity_id, type);
+        forecast.subscribeToWeatherForecast(e.entity_id, type);
       });
     },
   };

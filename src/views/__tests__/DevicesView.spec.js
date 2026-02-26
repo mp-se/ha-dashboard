@@ -754,6 +754,8 @@ describe("DevicesView.vue", () => {
           writeText: vi.fn().mockRejectedValue(new Error("Clipboard error")),
         },
       });
+      // happy-dom has no document.execCommand, so the useClipboard fallback
+      // naturally fails and returns false, causing DevicesView to log the error
 
       const store = useHaStore();
       store.devices = [{ id: "device1", name: "Test Device", entities: [] }];

@@ -1,4 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
+import { defineComponent } from "vue";
+import { mount } from "@vue/test-utils";
 import useDebouncedRef from "../useDebouncedRef";
 
 describe("useDebouncedRef", () => {
@@ -101,6 +103,30 @@ describe("useDebouncedRef", () => {
     // The watch with immediate: true will create a timer
     // Clearing happens on unmount in onBeforeUnmount hook
     expect(clearTimeoutSpy).not.toHaveBeenCalled();
+    clearTimeoutSpy.mockRestore();
+  });
+
+  it("clears pending timer and stops watcher on component unmount", async () => {
+    const clearTimeoutSpy = vi.spyOn(global, "clearTimeout");
+    let exposedRefs;
+
+    const TestComponent = defineComponent({
+      setup() {
+        const refs = useDebouncedRef("initial", 500);
+        exposedRefs = refs;
+        return refs;
+      },
+      template: "<div></div>",
+    });
+
+    const wrapper = mount(TestComponent);
+    // Trigger a change to ensure timer is active
+    exposedRefs.input.value = "changed";
+
+    await wrapper.unmount();
+
+    // onBeforeUnmount: timer should have been cleared
+    expect(clearTimeoutSpy).toHaveBeenCalled();
     clearTimeoutSpy.mockRestore();
   });
 

@@ -310,7 +310,7 @@ const menuItems = computed(() => {
 const openPwaDialog = () => {
   try {
     pwaInstallModal.value?.showModal();
-  } catch (e) {
+  } catch {
     // Ignore — showModal may not be available during SSR
   }
 };
@@ -330,7 +330,7 @@ const handleReloadConfig = async () => {
         configErrorBanner.value = false;
       }, 2000);
     }
-  } catch (error) {
+  } catch {
     configErrorBanner.value = true;
     if (configErrorBannerTimeout.value) clearTimeout(configErrorBannerTimeout.value);
   } finally {

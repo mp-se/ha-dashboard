@@ -15,12 +15,6 @@ export const useEntitiesStore = defineStore("entities", () => {
   const devices = ref([]);
   const areas = ref([]);
 
-  const forecasts = ref({});
-  const forecastSubscriptions = ref({});
-  const forecastSupport = ref({});
-  const forecastErrors = ref({});
-  const forecastLoading = ref({});
-
   let unsubscribeEntitiesFn = null;
 
   const fetchStates = async () => {
@@ -236,49 +230,10 @@ export const useEntitiesStore = defineStore("entities", () => {
     entityId,
     forecastType = "daily",
   ) => {
-    if (entityId in forecastSubscriptions.value) return;
-    const entity = entityMap.value.get(entityId);
-    if (!entity) {
-      forecastErrors.value[entityId] = "Entity not found";
-      return;
-    }
-    const connection = authStore.getConnection();
-    if (!connection) {
-      forecastErrors.value[entityId] = "WebSocket not connected";
-      return;
-    }
-    try {
-      forecastLoading.value[entityId] = true;
-      const unsubscribe = await connection.subscribeMessage(
-        (forecastData) => {
-          if (forecastData && forecastData.forecast) {
-            forecasts.value[entityId] = {
-              type: forecastData.type || forecastType,
-              data: forecastData.forecast,
-              timestamp: Date.now(),
-            };
-            const ent = entityMap.value.get(entityId);
-            if (ent) {
-              if (!ent.attributes) ent.attributes = {};
-              ent.attributes.forecast = forecastData.forecast;
-            }
-            forecastLoading.value[entityId] = false;
-            forecastErrors.value[entityId] = null;
-          }
-        },
-        {
-          type: "weather/subscribe_forecast",
-          entity_id: entityId,
-          forecast_type: forecastType,
-        },
-        { resubscribe: true },
-      );
-      forecastSubscriptions.value[entityId] = unsubscribe;
-    } catch (error) {
-      forecastLoading.value[entityId] = false;
-      forecastErrors.value[entityId] =
-        error.message || "Failed to subscribe to forecast";
-    }
+    // Delegate to forecastStore to keep this store focused on entity state
+    const { useForecastStore } = await import("./forecastStore");
+    const forecastStore = useForecastStore();
+    return forecastStore.subscribeToWeatherForecast(entityId, forecastType);
   };
 
   const historyRequestCache = new Map();
@@ -526,11 +481,6 @@ export const useEntitiesStore = defineStore("entities", () => {
     entityMap,
     devices,
     areas,
-    forecasts,
-    forecastSubscriptions,
-    forecastSupport,
-    forecastErrors,
-    forecastLoading,
     fetchStates,
     loadLocalData,
     saveLocalData,

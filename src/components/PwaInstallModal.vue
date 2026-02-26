@@ -159,7 +159,7 @@ const onAppInstalled = () => {
 onMounted(() => {
   try {
     dismissed.value = localStorage.getItem(LOCAL_STORAGE_KEY) === "true";
-  } catch (e) {
+  } catch {
     dismissed.value = false;
   }
 
