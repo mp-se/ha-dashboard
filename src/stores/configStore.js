@@ -93,7 +93,7 @@ export const useConfigStore = defineStore("config", () => {
 
   const reloadConfig = async (authStore, entitiesStore) => {
     try {
-      console.log("Reloading dashboard configuration...");
+      if (import.meta.env.DEV) console.log("Reloading dashboard configuration...");
       const currentUrl = authStore.haUrl;
       const currentToken = authStore.accessToken;
 
@@ -103,7 +103,7 @@ export const useConfigStore = defineStore("config", () => {
       if (currentToken) authStore.accessToken = currentToken;
 
       if (authStore.isLocalMode) {
-        console.log("Reloading local data...");
+        if (import.meta.env.DEV) console.log("Reloading local data...");
         await entitiesStore.loadLocalData();
       }
 
