@@ -2,22 +2,14 @@
 
 ## Unreleased
 
-- Refactored `main.js` to auto-register all `Ha*` components via `import.meta.glob` — new components matching `src/components/Ha*.vue` are registered automatically without manual edits.
-- Renamed the `sensors` array in `entitiesStore` (and its public API through `haStore`) to `entities`, reflecting that it holds all HA entities, not just sensors. All consumers, composables, and tests updated.
-- Split 624-line `App.vue` into `App.vue` (orchestration shell, ~190 lines) and the new `AppNavbar.vue` component which owns the header, nav tabs, connection status, toolbar buttons, config-reload/update banners, and dark-mode toggle.
-- Fixed pre-existing shadowing bug in `entitiesStore.fetchStates`: the `subscribeEntities` callback parameter was named `entities`, shadowing the outer store ref after the rename.
-- Fixed pre-existing test bugs in `HaGlance.spec.js`, `HaWeather.spec.js`, and `HaSun.spec.js` where `store.entities = {}` in `beforeEach` was incorrectly overwriting the initialized entity array.
-- Fixed weather forecast not displaying in `HaWeather.vue` due to Home Assistant (2024.3+) removing `forecast` from entity attributes. The component now subscribes to `weather/subscribe_forecast` via WebSocket on mount, with a fallback to `attributes.forecast` for local mode and older HA versions.
-- Refactored monolithic `haStore.js` into modular domain stores: `authStore.js`, `entitiesStore.js`, and `configStore.js`.
-- Split the store test suite into individual files for better isolation and maintainability.
-- Introduced modular UI sub-components: `HaIconCircle.vue` and `HaEntityAttributeList.vue` to improve DRYY and simplify card components.
-- Reorganized project structure by moving utility scripts to a dedicated `scripts/` directory.
-- Added missing unit tests for `attributeFormatters.js`.
-- Implemented `entityMap` for $O(1)$ entity lookups, significantly improving performance for complex dashboards.
-- Reduced nav icon size: mobile `1.5rem → 1.1rem`, desktop `1.1rem → 1rem`.
-- Fixed icons missing from multi-row `HaSensor` cards — string entity IDs now resolve via `store.entityMap` before being passed to `HaIconCircle`, instead of passing `null`.
-- Added missing `icon-bg-small` and `icon-overlay-small` CSS classes used by `HaIconCircle` in `size="small"` mode (32×32px circle, 1rem icon).
-- Fixed single-row sensor card icon not vertically centred — `.ha-icon-circle-wrapper` was constraining layout to 40px while the inner `.icon-bg` circle is 50px, causing a misalignment. The wrapper now sizes naturally around its content.
+- Improved test coverage for `HaLight.vue` (78%/68% → 91%/80%) and `haStore.js` (67%/47% → 100%/91%) with new tests covering color presets, brightness, all `init()` error paths, `retryConnection`, `reloadConfig`, and `autoFetchWeatherForecasts`.
+- Fixed coverage threshold enforcement in `vitest.config.js` — thresholds now enforced by vitest v4 (stmts ≥ 88%, branch ≥ 83%, funcs ≥ 90%, lines ≥ 89%).
+- Refactored `haStore.js` into modular domain stores (`authStore`, `entitiesStore`, `configStore`) and split `App.vue` into `App.vue` + `AppNavbar.vue`.
+- Auto-register all `Ha*` components via `import.meta.glob` in `main.js` — no manual registration needed for new components.
+- Renamed `sensors` → `entities` throughout the store and public API.
+- Introduced `HaIconCircle.vue` and `HaEntityAttributeList.vue` sub-components; implemented `entityMap` for O(1) entity lookups.
+- Fixed weather forecast display for HA 2024.3+ (now subscribes via `weather/subscribe_forecast`).
+- Fixed several bugs: `fetchStates` variable shadowing, test `beforeEach` entity overwrites, missing small icon CSS classes, misaligned sensor card icon.
 
 ## February 2026 - v0.5.0
 
