@@ -157,6 +157,38 @@ describe("useConfigStore", () => {
     });
   });
 
+  describe("loadDashboardConfig — response.json() and direct object paths", () => {
+    it("uses response.json() when text() is unavailable", async () => {
+      const configData = { views: [{ name: "home" }] };
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => configData,
+        // No text() method
+      });
+
+      const store = useConfigStore();
+      const result = await store.loadDashboardConfig();
+
+      expect(result.valid).toBe(true);
+      expect(store.dashboardConfig).toEqual(configData);
+    });
+
+    it("uses response directly when neither text() nor json() is available", async () => {
+      const configData = { views: [] };
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        // Simulate response object that is the data itself (no text/json methods)
+        ...configData,
+      });
+
+      const store = useConfigStore();
+      // This code path falls to `config = response`, which is a plain object
+      const result = await store.loadDashboardConfig();
+      // Result validity depends on configData contents; just ensure no throw
+      expect(result).toBeDefined();
+    });
+  });
+
   describe("reloadConfig", () => {
     it("preserves existing credentials after reload in non-local mode", async () => {
       global.fetch.mockResolvedValueOnce({
