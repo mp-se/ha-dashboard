@@ -190,5 +190,212 @@ describe("useAuthStore", () => {
       const response = await store.fetchWithTimeout("http://test.com");
       expect(response.ok).toBe(true);
     });
+
+    it("should throw a timeout error when fetch takes too long", async () => {
+      const store = useAuthStore();
+      global.fetch.mockRejectedValueOnce(
+        Object.assign(new Error("aborted"), { name: "AbortError" }),
+      );
+      await expect(store.fetchWithTimeout("http://test.com", {}, 1)).rejects.toThrow(
+        "Request timeout after 1ms",
+      );
+    });
+
+    it("should re-throw non-abort fetch errors", async () => {
+      const store = useAuthStore();
+      global.fetch.mockRejectedValueOnce(new Error("Network crash"));
+      await expect(store.fetchWithTimeout("http://test.com")).rejects.toThrow("Network crash");
+    });
+  });
+
+  describe("wrapLibraryError edge cases", () => {
+    it("wraps HTTPS + IP address connection failure with a certificate hint", () => {
+      const store = useAuthStore();
+      store.haUrl = "https://192.168.1.100:8123";
+      const msg = store.wrapLibraryError(1); // ERR_CANNOT_CONNECT
+      expect(msg).toContain("certificate");
+    });
+
+    it("wraps TypeError with 'Failed to fetch' as a CORS error", () => {
+      const store = useAuthStore();
+      store.haUrl = "http://ha:8123";
+      const typeErr = new TypeError("Failed to fetch");
+      const msg = store.wrapLibraryError(typeErr);
+      expect(msg).toContain("CORS");
+    });
+
+    it("returns the error message for generic Error objects", () => {
+      const store = useAuthStore();
+      const msg = store.wrapLibraryError(new Error("something weird"));
+      expect(msg).toBe("something weird");
+    });
+
+    it("returns generic fallback for unknown numeric codes", () => {
+      const store = useAuthStore();
+      const msg = store.wrapLibraryError(99);
+      expect(typeof msg).toBe("string");
+    });
+
+    it("wraps string 'invalid_auth' error code", () => {
+      const store = useAuthStore();
+      const msg = store.wrapLibraryError("invalid_auth");
+      expect(msg).toContain("Authentication failed");
+    });
+
+    it("wraps string 'cannot_connect' error code", () => {
+      const store = useAuthStore();
+      store.haUrl = "http://ha:8123";
+      const msg = store.wrapLibraryError("cannot_connect");
+      expect(msg).toContain("Failed to connect");
+    });
+  });
+
+  describe("connectWebSocket", () => {
+    it("returns early (undefined) in local mode", async () => {
+      const store = useAuthStore();
+      store.isLocalMode = true;
+      const result = await store.connectWebSocket();
+      expect(result).toBeUndefined();
+    });
+
+    it("throws when credentials are missing", async () => {
+      const store = useAuthStore();
+      store.isLocalMode = false;
+      store.haUrl = "";
+      store.accessToken = "";
+      await expect(store.connectWebSocket()).rejects.toThrow("Missing credentials");
+    });
+
+    it("establishes connection and sets isConnected = true", async () => {
+      const { createConnection } = await import("home-assistant-js-websocket");
+      const mockConn = {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        close: vi.fn(),
+      };
+      createConnection.mockResolvedValueOnce(mockConn);
+
+      const store = useAuthStore();
+      store.isLocalMode = false;
+      store.haUrl = "http://ha:8123";
+      store.accessToken = "tok";
+
+      const conn = await store.connectWebSocket();
+
+      expect(store.isConnected).toBe(true);
+      expect(conn).toBe(mockConn);
+      expect(store.getConnection()).toBe(mockConn);
+    });
+
+    it("returns existing connection when already connected", async () => {
+      const { createConnection } = await import("home-assistant-js-websocket");
+      const mockConn = { addEventListener: vi.fn(), close: vi.fn() };
+      createConnection.mockResolvedValue(mockConn);
+
+      const store = useAuthStore();
+      store.isLocalMode = false;
+      store.haUrl = "http://ha:8123";
+      store.accessToken = "tok";
+
+      await store.connectWebSocket();
+      const secondResult = await store.connectWebSocket();
+
+      expect(secondResult).toBe(mockConn);
+      expect(createConnection).toHaveBeenCalledTimes(1);
+    });
+
+    it("sets lastError and rethrows on connection failure", async () => {
+      const { createConnection } = await import("home-assistant-js-websocket");
+      createConnection.mockRejectedValueOnce(new Error("conn failed"));
+
+      const store = useAuthStore();
+      store.isLocalMode = false;
+      store.haUrl = "http://ha:8123";
+      store.accessToken = "tok";
+
+      await expect(store.connectWebSocket()).rejects.toThrow("conn failed");
+      expect(store.isConnected).toBe(false);
+      expect(store.lastError).toBeTruthy();
+    });
+
+    it("registers ready/disconnected event listeners", async () => {
+      const { createConnection } = await import("home-assistant-js-websocket");
+      const listeners = {};
+      const mockConn = {
+        addEventListener: vi.fn((event, handler) => { listeners[event] = handler; }),
+        close: vi.fn(),
+      };
+      createConnection.mockResolvedValueOnce(mockConn);
+
+      const store = useAuthStore();
+      store.isLocalMode = false;
+      store.haUrl = "http://ha:8123";
+      store.accessToken = "tok";
+      await store.connectWebSocket();
+
+      // Simulate reconnect event
+      listeners["ready"]?.();
+      expect(store.isConnected).toBe(true);
+
+      // Simulate disconnect event
+      listeners["disconnected"]?.();
+      expect(store.isConnected).toBe(false);
+      expect(store.lastError).toBeTruthy();
+    });
+  });
+
+  describe("callService extended", () => {
+    it("returns early in local mode", async () => {
+      const store = useAuthStore();
+      store.isLocalMode = true;
+      store.haUrl = "http://ha:8123";
+      store.accessToken = "tok";
+      await store.callService("light", "turn_on", {});
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    it("returns early when haUrl or accessToken is missing", async () => {
+      const store = useAuthStore();
+      store.isLocalMode = false;
+      store.haUrl = "";
+      store.accessToken = "";
+      await store.callService("light", "turn_on", {});
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    it("throws a 403 forbidden error with correct message", async () => {
+      const store = useAuthStore();
+      store.haUrl = "http://ha:8123";
+      store.accessToken = "tok";
+      global.fetch.mockResolvedValueOnce({ ok: false, status: 403, statusText: "Forbidden" });
+      await expect(store.callService("light", "turn_on", {})).rejects.toThrow("Access forbidden");
+    });
+
+    it("throws a 404 not found error with correct message", async () => {
+      const store = useAuthStore();
+      store.haUrl = "http://ha:8123";
+      store.accessToken = "tok";
+      global.fetch.mockResolvedValueOnce({ ok: false, status: 404, statusText: "Not Found" });
+      await expect(store.callService("light", "turn_on", {})).rejects.toThrow("Service not found");
+    });
+
+    it("throws a CORS error when fetch rejects with 'Failed to fetch'", async () => {
+      const store = useAuthStore();
+      store.haUrl = "http://ha:8123";
+      store.accessToken = "tok";
+      global.fetch.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+      await expect(store.callService("light", "turn_on", {})).rejects.toThrow("CORS error");
+    });
+  });
+
+  describe("loadCredentials", () => {
+    it("returns false when no credentials available", async () => {
+      const store = useAuthStore();
+      // localStorage is empty, no config, no env vars
+      const result = await store.loadCredentials();
+      expect(result).toBe(false);
+      expect(store.haUrl).toBe("");
+      expect(store.accessToken).toBe("");
+    });
   });
 });
