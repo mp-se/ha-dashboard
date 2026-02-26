@@ -34,6 +34,9 @@ const mockEntities = {
   fetchDevicesAfterAuth: vi.fn(async () => {}),
   mapEntitiesToDevices: vi.fn(),
   loadLocalData: vi.fn(async () => {}),
+  unsubscribeEntities: vi.fn(),
+  getWeatherEntities: vi.fn(() => []),
+  subscribeToWeatherForecast: vi.fn(),
 };
 
 const mockConfig = {
@@ -45,6 +48,7 @@ const mockConfig = {
     errors: [],
     errorCount: 0,
   })),
+  reloadConfig: vi.fn(async () => ({ valid: true })),
 };
 
 vi.mock("../authStore", () => ({
@@ -69,6 +73,9 @@ describe("useHaStore (Bridge)", () => {
     mockAuth.isInitialized = false;
     mockAuth.isLoading = true;
     mockAuth.needsCredentials = false;
+    mockAuth.lastError = null;
+    mockConfig.dashboardConfig = null;
+    mockConfig.configValidationError = null;
   });
 
   afterEach(() => {
@@ -136,6 +143,218 @@ describe("useHaStore (Bridge)", () => {
       expect(mockAuth.needsCredentials).toBe(true);
       expect(mockAuth.isLoading).toBe(false);
       expect(mockAuth.connectWebSocket).not.toHaveBeenCalled();
+    });
+
+    it("should throw and catch when connectWebSocket returns null", async () => {
+      const bridge = useHaStore();
+
+      mockAuth.isLocalMode = false;
+      mockAuth.loadCredentials.mockResolvedValue(true);
+      mockAuth.connectWebSocket.mockResolvedValue(null); // null → throws
+
+      await bridge.init();
+
+      expect(mockAuth.isLoading).toBe(false);
+      expect(mockAuth.isInitialized).toBe(false);
+      expect(mockAuth.setError).toHaveBeenCalledWith(
+        "Connection failed: connection object is null",
+      );
+    });
+
+    it("should set needsCredentials on websocket failure when not in local mode", async () => {
+      const bridge = useHaStore();
+
+      mockAuth.isLocalMode = false;
+      mockAuth.loadCredentials.mockResolvedValue(true);
+      mockAuth.connectWebSocket.mockRejectedValue(new Error("Connection refused"));
+
+      await bridge.init();
+
+      expect(mockAuth.needsCredentials).toBe(true);
+      expect(mockAuth.isLoading).toBe(false);
+      expect(mockAuth.setError).toHaveBeenCalledWith("Connection refused");
+    });
+
+    it("should not set needsCredentials when error occurs in local mode", async () => {
+      const bridge = useHaStore();
+
+      mockAuth.isLocalMode = true;
+      mockEntities.loadLocalData.mockRejectedValue(new Error("IO error"));
+
+      await bridge.init();
+
+      expect(mockAuth.needsCredentials).toBe(false);
+    });
+
+    it("should format error message when error is a number code", async () => {
+      const bridge = useHaStore();
+
+      mockAuth.isLocalMode = false;
+      mockAuth.loadCredentials.mockResolvedValue(true);
+      // Reject with a number (HA error code pattern)
+      mockAuth.connectWebSocket.mockRejectedValue(3); // typeof === 'number'
+
+      await bridge.init();
+
+      expect(mockAuth.setError).toHaveBeenCalledWith(
+        "Connection failed (code 3). Please check your URL and network.",
+      );
+    });
+
+    it("should not overwrite a pre-existing lastError", async () => {
+      const bridge = useHaStore();
+
+      mockAuth.isLocalMode = false;
+      mockAuth.lastError = "Pre-existing auth error";
+      mockAuth.loadCredentials.mockResolvedValue(true);
+      mockAuth.connectWebSocket.mockRejectedValue(new Error("New error"));
+
+      await bridge.init();
+
+      // setError should NOT be called since lastError is already set
+      expect(mockAuth.setError).not.toHaveBeenCalled();
+    });
+
+    it("should sync developerMode from dashboardConfig", async () => {
+      const bridge = useHaStore();
+
+      mockConfig.dashboardConfig = { app: { developerMode: true, localMode: false } };
+      mockConfig.loadDashboardConfig.mockImplementation(async () => {
+        // simulate setting dashboardConfig during load
+        return { valid: true };
+      });
+      mockAuth.isLocalMode = true; // skip WS path
+
+      await bridge.init();
+
+      // developerMode was synced from config during init()
+      expect(mockAuth.developerMode).toBe(true);
+    });
+
+    it("should stop early when config has a JSON validation error", async () => {
+      const bridge = useHaStore();
+
+      mockConfig.configValidationError = [{ message: "JSON syntax error line 5" }];
+      mockConfig.loadDashboardConfig.mockResolvedValue({ valid: false });
+
+      await bridge.init();
+
+      // Should stop before loading credentials
+      expect(mockAuth.loadCredentials).not.toHaveBeenCalled();
+      expect(mockAuth.isLoading).toBe(false);
+    });
+  });
+
+  describe("retryConnection()", () => {
+    it("should clear error, reset connection, unsubscribe and re-init", async () => {
+      const bridge = useHaStore();
+
+      mockAuth.loadCredentials.mockResolvedValue(true);
+      mockAuth.connectWebSocket.mockResolvedValue({ conn: true });
+
+      await bridge.retryConnection();
+
+      expect(mockAuth.clearError).toHaveBeenCalled();
+      expect(mockEntities.unsubscribeEntities).toHaveBeenCalled();
+      // init() runs successfully
+      expect(mockAuth.isInitialized).toBe(true);
+    });
+  });
+
+  describe("reloadConfig()", () => {
+    it("should delegate to configStore.reloadConfig with auth and entities", async () => {
+      const bridge = useHaStore();
+
+      await bridge.reloadConfig();
+
+      expect(mockConfig.reloadConfig).toHaveBeenCalledWith(mockAuth, mockEntities);
+    });
+  });
+
+  describe("autoFetchWeatherForecasts()", () => {
+    it("should subscribe to daily forecast when supported_features has bit 1", () => {
+      const bridge = useHaStore();
+
+      mockEntities.getWeatherEntities.mockReturnValue([
+        { entity_id: "weather.home", attributes: { supported_features: 1 } },
+      ]);
+
+      bridge.autoFetchWeatherForecasts();
+
+      expect(mockEntities.subscribeToWeatherForecast).toHaveBeenCalledWith(
+        "weather.home",
+        "daily",
+      );
+    });
+
+    it("should subscribe to hourly forecast when supported_features has bit 2", () => {
+      const bridge = useHaStore();
+
+      mockEntities.getWeatherEntities.mockReturnValue([
+        { entity_id: "weather.office", attributes: { supported_features: 2 } },
+      ]);
+
+      bridge.autoFetchWeatherForecasts();
+
+      expect(mockEntities.subscribeToWeatherForecast).toHaveBeenCalledWith(
+        "weather.office",
+        "hourly",
+      );
+    });
+
+    it("should subscribe to twice_daily forecast when supported_features has bit 4", () => {
+      const bridge = useHaStore();
+
+      mockEntities.getWeatherEntities.mockReturnValue([
+        { entity_id: "weather.garage", attributes: { supported_features: 4 } },
+      ]);
+
+      bridge.autoFetchWeatherForecasts();
+
+      expect(mockEntities.subscribeToWeatherForecast).toHaveBeenCalledWith(
+        "weather.garage",
+        "twice_daily",
+      );
+    });
+
+    it("should default to daily when supported_features is 0", () => {
+      const bridge = useHaStore();
+
+      mockEntities.getWeatherEntities.mockReturnValue([
+        { entity_id: "weather.fallback", attributes: { supported_features: 0 } },
+      ]);
+
+      bridge.autoFetchWeatherForecasts();
+
+      expect(mockEntities.subscribeToWeatherForecast).toHaveBeenCalledWith(
+        "weather.fallback",
+        "daily",
+      );
+    });
+
+    it("should handle weather entities with no supported_features attribute", () => {
+      const bridge = useHaStore();
+
+      mockEntities.getWeatherEntities.mockReturnValue([
+        { entity_id: "weather.bare", attributes: {} },
+      ]);
+
+      bridge.autoFetchWeatherForecasts();
+
+      expect(mockEntities.subscribeToWeatherForecast).toHaveBeenCalledWith(
+        "weather.bare",
+        "daily",
+      );
+    });
+
+    it("should do nothing when there are no weather entities", () => {
+      const bridge = useHaStore();
+
+      mockEntities.getWeatherEntities.mockReturnValue([]);
+
+      bridge.autoFetchWeatherForecasts();
+
+      expect(mockEntities.subscribeToWeatherForecast).not.toHaveBeenCalled();
     });
   });
 });
