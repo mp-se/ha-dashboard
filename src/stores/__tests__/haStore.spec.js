@@ -36,6 +36,14 @@ const mockEntities = {
   loadLocalData: vi.fn(async () => {}),
   unsubscribeEntities: vi.fn(),
   getWeatherEntities: vi.fn(() => []),
+};
+
+const mockForecast = {
+  forecasts: {},
+  forecastSubscriptions: {},
+  forecastSupport: {},
+  forecastErrors: {},
+  forecastLoading: {},
   subscribeToWeatherForecast: vi.fn(),
 };
 
@@ -57,6 +65,10 @@ vi.mock("../authStore", () => ({
 
 vi.mock("../entitiesStore", () => ({
   useEntitiesStore: vi.fn(() => mockEntities),
+}));
+
+vi.mock("../forecastStore", () => ({
+  useForecastStore: vi.fn(() => mockForecast),
 }));
 
 vi.mock("../configStore", () => ({
@@ -281,7 +293,7 @@ describe("useHaStore (Bridge)", () => {
 
       bridge.autoFetchWeatherForecasts();
 
-      expect(mockEntities.subscribeToWeatherForecast).toHaveBeenCalledWith(
+      expect(mockForecast.subscribeToWeatherForecast).toHaveBeenCalledWith(
         "weather.home",
         "daily",
       );
@@ -296,7 +308,7 @@ describe("useHaStore (Bridge)", () => {
 
       bridge.autoFetchWeatherForecasts();
 
-      expect(mockEntities.subscribeToWeatherForecast).toHaveBeenCalledWith(
+      expect(mockForecast.subscribeToWeatherForecast).toHaveBeenCalledWith(
         "weather.office",
         "hourly",
       );
@@ -311,7 +323,7 @@ describe("useHaStore (Bridge)", () => {
 
       bridge.autoFetchWeatherForecasts();
 
-      expect(mockEntities.subscribeToWeatherForecast).toHaveBeenCalledWith(
+      expect(mockForecast.subscribeToWeatherForecast).toHaveBeenCalledWith(
         "weather.garage",
         "twice_daily",
       );
@@ -326,7 +338,7 @@ describe("useHaStore (Bridge)", () => {
 
       bridge.autoFetchWeatherForecasts();
 
-      expect(mockEntities.subscribeToWeatherForecast).toHaveBeenCalledWith(
+      expect(mockForecast.subscribeToWeatherForecast).toHaveBeenCalledWith(
         "weather.fallback",
         "daily",
       );
@@ -341,7 +353,7 @@ describe("useHaStore (Bridge)", () => {
 
       bridge.autoFetchWeatherForecasts();
 
-      expect(mockEntities.subscribeToWeatherForecast).toHaveBeenCalledWith(
+      expect(mockForecast.subscribeToWeatherForecast).toHaveBeenCalledWith(
         "weather.bare",
         "daily",
       );
@@ -354,7 +366,7 @@ describe("useHaStore (Bridge)", () => {
 
       bridge.autoFetchWeatherForecasts();
 
-      expect(mockEntities.subscribeToWeatherForecast).not.toHaveBeenCalled();
+      expect(mockForecast.subscribeToWeatherForecast).not.toHaveBeenCalled();
     });
   });
 });

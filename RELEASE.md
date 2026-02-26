@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **P1 – `useClipboard` composable**: Extracted all clipboard-write logic into a new `src/composables/useClipboard.js` composable (navigator.clipboard API + `execCommand` fallback). Refactored `RawEntityView.vue` (4 functions) and `DevicesView.vue` (1 function) to use it; added 7 tests covering success, timeout-reset, fallback-success, and failure paths.
+- **P2 – Copyright year**: Updated copyright notice in `App.vue` from 2025 → 2026.
+- **P3 – Dead code removal**: Removed ~25 commented-out `.filter()` lines from `DevelopmentView.vue`.
+- **P4 – Coverage improvements**: Added `useClipboard.spec.js` (7 tests, 96%+ coverage); added unmount test to `useDebouncedRef.spec.js` covering the `onBeforeUnmount` cleanup path (lines now covered).
+- **P5 – `forecastStore` extraction**: Extracted forecast state and `subscribeToWeatherForecast` from `entitiesStore.js` into a dedicated `src/stores/forecastStore.js` (with lazy import to avoid circular deps). `haStore.js` now bridges from `forecastStore`. Added 7 tests in `forecastStore.spec.js`.
+- **P6 – O(1) entity lookup**: Removed the O(n) `entities.find()` fallback from `useEntityResolver.js`; all lookups now use the O(1) `entityMap.get()`. Updated all mock stores in `useEntityResolver.spec.js` to use `createMockStore` helper (both `entities` array and `entityMap`).
+- **P7 – ESLint v9 flat config**: Migrated from legacy `.eslintrc.cjs` (ESLint v8) to `eslint.config.js` (ESLint v9 flat config). Upgraded `eslint` ^9, `eslint-plugin-vue` ^9, added `@eslint/js` and `globals`. Browser globals set for `src/**`, Node globals added for test files. Deleted `.eslintrc.cjs`. Fixed pre-existing `no-unused-vars` catch-block bindings across `AppNavbar.vue`, `HaLight.vue`, `PwaInstallModal.vue`, `attributeFormatters.js`. Resolved `vue/no-dupe-keys` in `HaLight.vue` by renaming the internal `attributes` computed to `entityAttrs`.
 - Guarded diagnostic `console.log`/`console.warn` in `haStore.js`, `authStore.js`, and `configStore.js` behind `import.meta.env.DEV`; promoted init error to `console.error`.
 - `HaEnergy.vue`: implemented comparison vs previous period — fetches preceding window in parallel using new `offsetDays` param on `fetchEnergyHistory`, shows trending indicator with percentage. Added 5 tests.
 - Improved coverage for `HaLight.vue` (→91%/80%) and `haStore.js` (→100%/91%); fixed coverage thresholds in `vitest.config.js` for vitest v4.

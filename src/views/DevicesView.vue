@@ -107,6 +107,7 @@
 import { computed, ref } from "vue";
 import { useHaStore } from "@/stores/haStore";
 import useDebouncedRef from "@/composables/useDebouncedRef";
+import { useClipboard } from "@/composables/useClipboard";
 
 const store = useHaStore();
 
@@ -145,55 +146,23 @@ const filteredDevices = computed(() => {
   return filtered;
 });
 
+const { writeToClipboard, error: clipboardError } = useClipboard();
+
 const copyDeviceToClipboard = async (device) => {
-  try {
-    // Create enriched device data with full entity information
-    const enrichedDevice = {
-      ...device,
-      areaName: getAreaName(device.area_id) || "Unassigned",
-      entities:
-        device.entities
-          ?.map((entityId) => {
-            // Find the full entity data from the store
-            return store.entityMap.get(entityId);
-          })
-          .filter(Boolean) || [], // Filter out any undefined entities
-    };
-
-    const jsonString = JSON.stringify(enrichedDevice, null, 2);
-    await navigator.clipboard.writeText(jsonString);
-    // Could add a toast notification here if desired
-    console.log("Device JSON with entities copied to clipboard:", device.id);
-  } catch (error) {
-    console.error("Failed to copy device to clipboard:", error);
-    // Fallback for older browsers
-    try {
-      // Create enriched device data with full entity information
-      const enrichedDevice = {
-        ...device,
-        areaName: getAreaName(device.area_id) || "Unassigned",
-        entities:
-          device.entities
-            ?.map((entityId) => {
-              // Find the full entity data from the store
-              return store.entityMap.get(entityId);
-            })
-            .filter(Boolean) || [], // Filter out any undefined entities
-      };
-
-      const textArea = document.createElement("textarea");
-      textArea.value = JSON.stringify(enrichedDevice, null, 2);
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-      console.log(
-        "Device JSON with entities copied to clipboard (fallback):",
-        device.id,
-      );
-    } catch (fallbackError) {
-      console.error("Fallback copy also failed:", fallbackError);
-    }
+  const enrichedDevice = {
+    ...device,
+    areaName: getAreaName(device.area_id) || "Unassigned",
+    entities:
+      device.entities
+        ?.map((entityId) => store.entityMap.get(entityId))
+        .filter(Boolean) || [],
+  };
+  const success = await writeToClipboard(JSON.stringify(enrichedDevice, null, 2));
+  if (!success) {
+    console.error(
+      "Failed to copy device to clipboard:",
+      new Error(clipboardError.value || "Copy failed"),
+    );
   }
 };
 </script>

@@ -56,7 +56,7 @@
         dark_mode ? 'bg-dark' : 'bg-light',
       ]"
     >
-      <div class="small">(c) 2025 Magnus Persson, v{{ appVersion }}</div>
+      <div class="small">(c) 2026 Magnus Persson, v{{ appVersion }}</div>
     </footer>
   </div>
 </template>

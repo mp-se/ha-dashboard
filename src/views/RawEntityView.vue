@@ -228,6 +228,7 @@ import { useHaStore } from "../stores/haStore";
 import { DEFAULT_DOMAIN_MAP } from "@/composables/useDefaultComponentType";
 import { formatAttributeValue } from "@/utils/attributeFormatters";
 import useDebouncedRef from "@/composables/useDebouncedRef";
+import { useClipboard } from "@/composables/useClipboard";
 
 defineProps({
   viewName: {
@@ -246,6 +247,7 @@ const { input: searchText, debounced: debouncedSearch } = useDebouncedRef(
   "",
   300,
 );
+const { writeToClipboard } = useClipboard();
 
 const uniqueTypes = computed(() => {
   const types = new Set(
@@ -331,60 +333,18 @@ const getIconClass = (icon) => {
 };
 
 const copyEntityToClipboard = async (entity) => {
-  try {
-    const jsonString = JSON.stringify(entity, null, 2);
-    await navigator.clipboard.writeText(jsonString);
-    console.log("Entity JSON copied to clipboard:", entity.entity_id);
+  const ok = await writeToClipboard(JSON.stringify(entity, null, 2));
+  if (ok) {
     successBannerMessage.value = `Entity JSON for ${entity.entity_id} copied to clipboard.`;
     successBanner.value = true;
     setTimeout(() => {
       successBanner.value = false;
     }, 3000);
-  } catch (error) {
-    console.error("Failed to copy entity to clipboard:", error);
-    // Fallback for older browsers
-    try {
-      const textArea = document.createElement("textarea");
-      textArea.value = JSON.stringify(entity, null, 2);
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-      console.log(
-        "Entity JSON copied to clipboard (fallback):",
-        entity.entity_id,
-      );
-      successBannerMessage.value = `Entity JSON for ${entity.entity_id} copied to clipboard.`;
-      successBanner.value = true;
-      setTimeout(() => {
-        successBanner.value = false;
-      }, 3000);
-    } catch (fallbackError) {
-      console.error("Fallback copy also failed:", fallbackError);
-    }
   }
 };
 
 const copyAreaToClipboard = async (area) => {
-  try {
-    const jsonString = JSON.stringify(area, null, 2);
-    await navigator.clipboard.writeText(jsonString);
-    console.log("Area JSON copied to clipboard:", area.id);
-  } catch (error) {
-    console.error("Failed to copy area to clipboard:", error);
-    // Fallback for older browsers
-    try {
-      const textArea = document.createElement("textarea");
-      textArea.value = JSON.stringify(area, null, 2);
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-      console.log("Area JSON copied to clipboard (fallback):", area.id);
-    } catch (fallbackError) {
-      console.error("Fallback copy also failed:", fallbackError);
-    }
-  }
+  await writeToClipboard(JSON.stringify(area, null, 2));
 };
 
 const generateConfigJson = async () => {
@@ -452,42 +412,17 @@ const generateConfigJson = async () => {
   };
 
   // Copy to clipboard
-  try {
-    const jsonString = JSON.stringify(config, null, 2);
-    await navigator.clipboard.writeText(jsonString);
-    console.log("Configuration JSON copied to clipboard");
+  const ok = await writeToClipboard(JSON.stringify(config, null, 2));
+  if (ok) {
     successBannerMessage.value = `${supportedEntities.length} entities generated and copied to clipboard. Paste into your dashboard-config.json and customize as needed.`;
-    successBanner.value = true;
-
-    // Auto-dismiss after 5 seconds
-    setTimeout(() => {
-      successBanner.value = false;
-    }, 5000);
-  } catch (error) {
-    console.error("Failed to copy config to clipboard:", error);
-    // Fallback for older browsers
-    try {
-      const textArea = document.createElement("textarea");
-      textArea.value = JSON.stringify(config, null, 2);
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-      successBannerMessage.value = `${supportedEntities.length} entities generated and copied to clipboard. Paste into your dashboard-config.json and customize as needed.`;
-      successBanner.value = true;
-      setTimeout(() => {
-        successBanner.value = false;
-      }, 5000);
-    } catch (fallbackError) {
-      console.error("Fallback copy also failed:", fallbackError);
-      successBannerMessage.value =
-        "Failed to copy configuration to clipboard. Please try again.";
-      successBanner.value = true;
-      setTimeout(() => {
-        successBanner.value = false;
-      }, 5000);
-    }
+  } else {
+    successBannerMessage.value =
+      "Failed to copy configuration to clipboard. Please try again.";
   }
+  successBanner.value = true;
+  setTimeout(() => {
+    successBanner.value = false;
+  }, 5000);
 };
 
 const generateEntityConfigJson = async (entity) => {
@@ -542,38 +477,15 @@ const generateEntityConfigJson = async (entity) => {
   Object.assign(config, defaults);
 
   // Copy to clipboard
-  try {
-    const jsonString = JSON.stringify(config, null, 2);
-    await navigator.clipboard.writeText(jsonString);
-    console.log("Entity config JSON copied to clipboard:", entity.entity_id);
+  const ok = await writeToClipboard(JSON.stringify(config, null, 2));
+  if (ok) {
     successBannerMessage.value = `Config for ${entity.entity_id} copied to clipboard.`;
-    successBanner.value = true;
-    setTimeout(() => {
-      successBanner.value = false;
-    }, 3000);
-  } catch (error) {
-    console.error("Failed to copy config to clipboard:", error);
-    // Fallback
-    try {
-      const textArea = document.createElement("textarea");
-      textArea.value = JSON.stringify(config, null, 2);
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-      successBannerMessage.value = `Config for ${entity.entity_id} copied to clipboard.`;
-      successBanner.value = true;
-      setTimeout(() => {
-        successBanner.value = false;
-      }, 3000);
-    } catch (fallbackError) {
-      console.error("Fallback copy also failed:", fallbackError);
-      successBannerMessage.value = "Failed to copy config to clipboard.";
-      successBanner.value = true;
-      setTimeout(() => {
-        successBanner.value = false;
-      }, 3000);
-    }
+  } else {
+    successBannerMessage.value = "Failed to copy config to clipboard.";
   }
+  successBanner.value = true;
+  setTimeout(() => {
+    successBanner.value = false;
+  }, 3000);
 };
 </script>

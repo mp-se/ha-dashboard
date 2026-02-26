@@ -168,7 +168,7 @@ const { callService, isLoading } = useServiceCall();
 const { resolvedEntity } = useEntityResolver(computed(() => props.entity));
 
 const state = computed(() => resolvedEntity.value?.state ?? "unknown");
-const attributes = computed(() => resolvedEntity.value?.attributes || {});
+const entityAttrs = computed(() => resolvedEntity.value?.attributes || {});
 
 const isDisabled = computed(() =>
   ["unavailable", "unknown"].includes(state.value),
@@ -190,7 +190,7 @@ const isOn = computed({
 
 // Brightness in Home Assistant is 0-255; convert to percent if present
 const brightnessPct = computed(() => {
-  const b = attributes.value.brightness;
+  const b = entityAttrs.value.brightness;
   if (b === undefined || b === null) return null;
   const pct = Math.round((Number(b) / 255) * 100);
   return Number.isNaN(pct) ? null : pct;
@@ -199,7 +199,7 @@ const brightnessPct = computed(() => {
 // Check if light supports brightness control
 const supportsBrightness = computed(() => {
   // Check if brightness is supported via color modes OR if the light has brightness attribute
-  const colorModes = attributes.value.supported_color_modes;
+  const colorModes = entityAttrs.value.supported_color_modes;
   const hasBrightnessMode =
     colorModes &&
     (Array.isArray(colorModes)
@@ -218,7 +218,7 @@ const supportsBrightness = computed(() => {
 
 // Check if light supports color temperature
 const supportsColorTemp = computed(() => {
-  const colorModes = attributes.value.supported_color_modes;
+  const colorModes = entityAttrs.value.supported_color_modes;
   return (
     colorModes &&
     (Array.isArray(colorModes)
@@ -229,7 +229,7 @@ const supportsColorTemp = computed(() => {
 
 // Check if light supports color (HS/RGB modes)
 const supportsColor = computed(() => {
-  const colorModes = attributes.value.supported_color_modes;
+  const colorModes = entityAttrs.value.supported_color_modes;
   const hasColorMode =
     colorModes &&
     (Array.isArray(colorModes)
@@ -265,8 +265,8 @@ const colorTempPresets = [
 
 // Get supported presets based on light's capabilities
 const supportedPresets = computed(() => {
-  const minKelvin = attributes.value.min_color_temp_kelvin || 2200;
-  const maxKelvin = attributes.value.max_color_temp_kelvin || 6500;
+  const minKelvin = entityAttrs.value.min_color_temp_kelvin || 2200;
+  const maxKelvin = entityAttrs.value.max_color_temp_kelvin || 6500;
 
   return colorTempPresets.filter(
     (preset) => preset.kelvin >= minKelvin && preset.kelvin <= maxKelvin,
@@ -292,11 +292,11 @@ const getPresetColor = (kelvin) => {
 };
 
 // Color temperature ranges
-const minMireds = computed(() => attributes.value.min_mireds || 250);
+const minMireds = computed(() => entityAttrs.value.min_mireds || 250);
 
 // Current color temperature in mireds
 const colorTempMireds = computed(
-  () => attributes.value.color_temp || minMireds.value,
+  () => entityAttrs.value.color_temp || minMireds.value,
 );
 
 // Convert mireds to kelvin for display
@@ -331,7 +331,7 @@ const activePreset = computed(() => {
 
 // Find the closest matching color preset
 const activeColorPreset = computed(() => {
-  const currentHs = attributes.value.hs_color;
+  const currentHs = entityAttrs.value.hs_color;
   if (!currentHs || !Array.isArray(currentHs) || currentHs.length < 2)
     return null;
 
@@ -417,10 +417,10 @@ const controlCircleColor = computed(() => {
   if (!isOn.value) return "#e9ecef"; // Light gray for off
 
   // Show actual light color if supported
-  if (supportsColor.value && attributes.value.hs_color) {
-    const [hue, sat] = attributes.value.hs_color;
+  if (supportsColor.value && entityAttrs.value.hs_color) {
+    const [hue, sat] = entityAttrs.value.hs_color;
     // Convert HSV to RGB for display, using brightness for intensity
-    const brightness = attributes.value.brightness || 255;
+    const brightness = entityAttrs.value.brightness || 255;
     const v = (brightness / 255) * 0.8 + 0.2; // Scale 0.2-1.0
 
     const h = hue / 60;
@@ -448,9 +448,9 @@ const controlCircleColor = computed(() => {
   if (
     supportsColorTemp.value &&
     !supportsColor.value &&
-    attributes.value.color_temp
+    entityAttrs.value.color_temp
   ) {
-    const mireds = attributes.value.color_temp;
+    const mireds = entityAttrs.value.color_temp;
     const kelvin = mireds > 0 ? Math.round(1000000 / mireds) : 5000;
 
     // Match to the closest supported preset to get consistent colors
@@ -492,13 +492,13 @@ const iconColor = computed(() => {
   // Prefer color temperature when available: if the light is showing a cool white
   // (e.g. >= 4000K) then the icon should be dark for contrast.
   try {
-    if (supportsColorTemp.value && attributes.value.color_temp) {
-      const mireds = attributes.value.color_temp;
+    if (supportsColorTemp.value && entityAttrs.value.color_temp) {
+      const mireds = entityAttrs.value.color_temp;
       const kelvin = mireds > 0 ? Math.round(1000000 / mireds) : 0;
       const COOL_WHITE_KELVIN = 4000;
       if (kelvin >= COOL_WHITE_KELVIN) return "#333";
     }
-  } catch (err) {
+  } catch {
     // ignore and fall through to luminance check
     // console.warn('Error computing kelvin for iconColor:', err);
   }

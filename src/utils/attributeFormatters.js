@@ -15,7 +15,7 @@ export const formatAttributeValue = (v) => {
   if (typeof v === "object") {
     try {
       return JSON.stringify(v);
-    } catch (e) {
+    } catch {
       return String(v);
     }
   }
