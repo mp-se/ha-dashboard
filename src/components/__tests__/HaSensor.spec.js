@@ -8,7 +8,7 @@ describe("HaSensor.vue", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     const store = useHaStore();
-    store.sensors = [];
+    store.entities = [];
     store.devices = [];
   });
 
@@ -637,7 +637,7 @@ describe("HaSensor.vue", () => {
   describe("Multiple Entity Value Formatting", () => {
     it("should format temperature values for multiple entities", () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "sensor.temp1",
           state: "23.456",
@@ -674,7 +674,7 @@ describe("HaSensor.vue", () => {
 
     it("should format large numbers without decimals", () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "sensor.power",
           state: "1250.456",
@@ -702,7 +702,7 @@ describe("HaSensor.vue", () => {
 
     it("should show unknown state for multiple entities", () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "sensor.test",
           state: "unknown",
@@ -729,7 +729,7 @@ describe("HaSensor.vue", () => {
 
     it("should show unavailable state for multiple entities", () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "sensor.test",
           state: "unavailable",
@@ -756,7 +756,7 @@ describe("HaSensor.vue", () => {
 
     it("should show string state for non-numeric values", () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "sensor.mode",
           state: "heating",
@@ -785,7 +785,7 @@ describe("HaSensor.vue", () => {
   describe("Device Name Resolution", () => {
     it("should display device name for single entity", () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "sensor.temp",
           state: "23",
@@ -826,7 +826,7 @@ describe("HaSensor.vue", () => {
 
     it("should use fallback device name when not found", () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "sensor.temp",
           state: "23",
@@ -1053,7 +1053,7 @@ describe("HaSensor.vue", () => {
   describe("Multiple Entities List Display", () => {
     it("should render each entity with its own name and value", () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "sensor.temp1",
           state: "23",
@@ -1086,7 +1086,7 @@ describe("HaSensor.vue", () => {
 
     it("should use fallback entity_id when friendly_name missing", () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "sensor.test",
           state: "42",
@@ -1111,7 +1111,7 @@ describe("HaSensor.vue", () => {
 
     it("should handle missing entity in store", () => {
       const store = useHaStore();
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(HaSensor, {
         props: {
@@ -1131,7 +1131,7 @@ describe("HaSensor.vue", () => {
 
     it("should display device names for multiple entities", () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "sensor.temp1",
           state: "23",
@@ -1172,7 +1172,7 @@ describe("HaSensor.vue", () => {
 
     it("should apply info border for multiple entities", () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "sensor.temp1",
           state: "23",
@@ -1351,7 +1351,7 @@ describe("HaSensor.vue", () => {
   describe("Entity Resolution", () => {
     it("should resolve string entity to object", () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "sensor.temp",
           state: "23",
@@ -1408,7 +1408,7 @@ describe("HaSensor.vue", () => {
 
     it("should accept array of mixed string and object entities", () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "sensor.temp1",
           state: "23",
@@ -1573,7 +1573,7 @@ describe("HaSensor.vue", () => {
 
     it("should have small icon wrapper for multiple entities", () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "sensor.temp",
           state: "23",
@@ -1604,7 +1604,7 @@ describe("HaSensor.vue", () => {
   describe("Error Handling in Helper Functions", () => {
     it("should handle error in getName gracefully", () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         { entity_id: "sensor.test", state: "42", attributes: {} },
       ];
 
@@ -1626,7 +1626,7 @@ describe("HaSensor.vue", () => {
 
     it("should handle error in getFormattedValue gracefully", () => {
       const store = useHaStore();
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(HaSensor, {
         props: {

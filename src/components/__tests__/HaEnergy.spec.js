@@ -14,7 +14,7 @@ describe("HaEnergy.vue", () => {
     store = useHaStore();
 
     // Mock energy and power sensors
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.power_hemma",
         state: "1250",
@@ -55,7 +55,7 @@ describe("HaEnergy.vue", () => {
   });
 
   it("should render warning when no energy sensors found", () => {
-    store.sensors = [];
+    store.entities = [];
 
     const wrapper = mount(HaEnergy, {
       global: {
@@ -90,7 +90,7 @@ describe("HaEnergy.vue", () => {
   });
 
   it("should fallback to power sensor when energy sensor not available", async () => {
-    store.sensors = store.sensors.filter(
+    store.entities = store.entities.filter(
       (s) => s.attributes.device_class !== "energy",
     );
 

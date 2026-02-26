@@ -124,7 +124,7 @@ export const useHaStore = defineStore("ha", () => {
     isInitialized: toRef(auth, "isInitialized"),
 
     // Linked State from Entities Store
-    sensors: toRef(entities, "sensors"),
+    entities: toRef(entities, "entities"),
     entityMap: toRef(entities, "entityMap"),
     devices: toRef(entities, "devices"),
     areas: toRef(entities, "areas"),

@@ -19,7 +19,7 @@ describe("HaWeather.vue", () => {
       .spyOn(store, "subscribeToWeatherForecast")
       .mockResolvedValue(undefined);
 
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "weather.home",
         state: "sunny",
@@ -45,7 +45,6 @@ describe("HaWeather.vue", () => {
         },
       },
     ];
-    store.entities = {};
   });
 
   it("should render weather card", () => {
@@ -222,7 +221,7 @@ describe("HaWeather.vue", () => {
   });
 
   it("should show cloudy icon for cloudy condition", async () => {
-    store.sensors[0].state = "cloudy";
+    store.entities[0].state = "cloudy";
 
     const wrapper = mount(HaWeather, {
       props: {
@@ -238,7 +237,7 @@ describe("HaWeather.vue", () => {
   });
 
   it("should show rainy icon for rainy condition", async () => {
-    store.sensors[0].state = "rainy";
+    store.entities[0].state = "rainy";
 
     const wrapper = mount(HaWeather, {
       props: {
@@ -254,7 +253,7 @@ describe("HaWeather.vue", () => {
   });
 
   it("should show snowy icon for snowy condition", async () => {
-    store.sensors[0].state = "snowy";
+    store.entities[0].state = "snowy";
 
     const wrapper = mount(HaWeather, {
       props: {
@@ -329,7 +328,7 @@ describe("HaWeather.vue", () => {
       ],
     };
     // Remove attributes forecast to verify store data is preferred
-    delete store.sensors[0].attributes.forecast;
+    delete store.entities[0].attributes.forecast;
 
     const wrapper = mount(HaWeather, {
       props: { entity: "weather.home" },
@@ -399,7 +398,7 @@ describe("HaWeather.vue", () => {
   });
 
   it("should handle missing forecast gracefully", async () => {
-    delete store.sensors[0].attributes.forecast;
+    delete store.entities[0].attributes.forecast;
 
     const wrapper = mount(HaWeather, {
       props: {
@@ -426,7 +425,7 @@ describe("HaWeather.vue", () => {
 
     expect(wrapper.text()).toContain("Sunny");
 
-    store.sensors[0].state = "rainy";
+    store.entities[0].state = "rainy";
     await wrapper.vm.$nextTick();
 
     expect(wrapper.text()).toContain("Rainy");
@@ -444,7 +443,7 @@ describe("HaWeather.vue", () => {
 
     expect(wrapper.text()).toContain("22.5");
 
-    store.sensors[0].attributes.temperature = 25.0;
+    store.entities[0].attributes.temperature = 25.0;
     await wrapper.vm.$nextTick();
 
     expect(wrapper.text()).toContain("25");

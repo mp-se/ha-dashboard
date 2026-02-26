@@ -6,10 +6,10 @@ import { subscribeEntities } from "home-assistant-js-websocket";
 export const useEntitiesStore = defineStore("entities", () => {
   const authStore = useAuthStore();
 
-  const sensors = ref([]);
+  const entities = ref([]);
   const entityMap = computed(() => {
     const map = new Map();
-    sensors.value.forEach((s) => map.set(s.entity_id, s));
+    entities.value.forEach((s) => map.set(s.entity_id, s));
     return map;
   });
   const devices = ref([]);
@@ -34,8 +34,8 @@ export const useEntitiesStore = defineStore("entities", () => {
     return new Promise((resolve, reject) => {
       try {
         let firstUpdate = true;
-        unsubscribeEntitiesFn = subscribeEntities(connection, (entities) => {
-          const statesList = Object.values(entities).map((entity) => ({
+        unsubscribeEntitiesFn = subscribeEntities(connection, (haEntities) => {
+          const statesList = Object.values(haEntities).map((entity) => ({
             entity_id: entity.entity_id,
             state: entity.state,
             attributes: entity.attributes || {},
@@ -44,11 +44,11 @@ export const useEntitiesStore = defineStore("entities", () => {
           const newMap = new Map(statesList.map((s) => [s.entity_id, s]));
 
           // Remove non-existent non-virtual entities
-          let i = sensors.value.length;
+          let i = entities.value.length;
           while (i--) {
-            const entityId = sensors.value[i].entity_id;
+            const entityId = entities.value[i].entity_id;
             if (!newMap.has(entityId) && !entityId.startsWith("area.")) {
-              sensors.value.splice(i, 1);
+              entities.value.splice(i, 1);
             }
           }
 
@@ -59,7 +59,7 @@ export const useEntitiesStore = defineStore("entities", () => {
               oldEntity.state = newEntity.state;
               oldEntity.attributes = newEntity.attributes;
             } else {
-              sensors.value.push(newEntity);
+              entities.value.push(newEntity);
             }
           }
 
@@ -85,7 +85,7 @@ export const useEntitiesStore = defineStore("entities", () => {
       const response = await fetch(dataUrl);
       if (!response.ok) throw new Error("Local data file not found");
       const data = await response.json();
-      sensors.value = data.sensors || [];
+      entities.value = data.sensors || [];
       devices.value = data.devices || [];
       areas.value = data.areas || [];
     } catch (error) {
@@ -96,7 +96,7 @@ export const useEntitiesStore = defineStore("entities", () => {
 
   const clearAllSensors = () => {
     // Keep area entities (virtual) but clear the rest
-    sensors.value = sensors.value.filter((s) =>
+    entities.value = entities.value.filter((s) =>
       s.entity_id.startsWith("area."),
     );
   };
@@ -117,7 +117,7 @@ export const useEntitiesStore = defineStore("entities", () => {
           entityToDeviceMap.set(entity.entity_id, entity.device_id);
         }
       }
-      for (const sensor of sensors.value) {
+      for (const sensor of entities.value) {
         if (!sensor.attributes) sensor.attributes = {};
         if (
           !sensor.attributes.device_id &&
@@ -158,7 +158,7 @@ export const useEntitiesStore = defineStore("entities", () => {
             entities: area.entities || [],
           };
           if (!entityMap.value.has(areaEntity.entity_id)) {
-            sensors.value.push(areaEntity);
+            entities.value.push(areaEntity);
           }
         }
       }
@@ -178,7 +178,7 @@ export const useEntitiesStore = defineStore("entities", () => {
     const areasMap = new Map(areas.value.map((a) => [a.area_id, a]));
 
     // 1. Map entities to devices using attributes.device_id
-    for (const sensor of sensors.value) {
+    for (const sensor of entities.value) {
       const deviceId = sensor.attributes?.device_id;
       if (deviceId && deviceMap.has(deviceId)) {
         const device = deviceMap.get(deviceId);
@@ -431,7 +431,7 @@ export const useEntitiesStore = defineStore("entities", () => {
    */
   const saveLocalData = () => {
     const data = {
-      sensors: sensors.value,
+      sensors: entities.value,
       devices: devices.value,
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], {
@@ -449,7 +449,7 @@ export const useEntitiesStore = defineStore("entities", () => {
    * Helper methods for filtering and retrieving entities
    */
   const getBatterySensors = () =>
-    sensors.value.filter(
+    entities.value.filter(
       (s) =>
         s.entity_id.startsWith("sensor.") &&
         s.attributes?.device_class === "battery" &&
@@ -458,7 +458,7 @@ export const useEntitiesStore = defineStore("entities", () => {
     );
 
   const getWifiSensors = () =>
-    sensors.value.filter(
+    entities.value.filter(
       (s) =>
         s.entity_id.startsWith("sensor.") &&
         s.attributes?.icon?.startsWith("mdi:wifi") &&
@@ -469,35 +469,35 @@ export const useEntitiesStore = defineStore("entities", () => {
   const getEntitiesForDevice = (deviceId) => {
     const device = devices.value.find((d) => d.id === deviceId);
     if (!device || !device.entities) return [];
-    return sensors.value.filter((s) => device.entities.includes(s.entity_id));
+    return entities.value.filter((s) => device.entities.includes(s.entity_id));
   };
 
-  const getAll = () => sensors.value;
+  const getAll = () => entities.value;
 
   const getSuns = () =>
-    sensors.value.filter((s) => s.entity_id.startsWith("sun."));
+    entities.value.filter((s) => s.entity_id.startsWith("sun."));
   const getFans = () =>
-    sensors.value.filter((s) => s.entity_id.startsWith("fan."));
+    entities.value.filter((s) => s.entity_id.startsWith("fan."));
   const getSelects = () =>
-    sensors.value.filter((s) => s.entity_id.startsWith("select."));
+    entities.value.filter((s) => s.entity_id.startsWith("select."));
   const getButtons = () =>
-    sensors.value.filter((s) => s.entity_id.startsWith("button."));
+    entities.value.filter((s) => s.entity_id.startsWith("button."));
   const getSensors = () =>
-    sensors.value.filter((s) => s.entity_id.startsWith("sensor."));
+    entities.value.filter((s) => s.entity_id.startsWith("sensor."));
   const getLights = () =>
-    sensors.value.filter((s) => s.entity_id.startsWith("light."));
+    entities.value.filter((s) => s.entity_id.startsWith("light."));
   const getSwitches = () =>
-    sensors.value.filter((s) => s.entity_id.startsWith("switch."));
+    entities.value.filter((s) => s.entity_id.startsWith("switch."));
   const getAlarmPanels = () =>
-    sensors.value.filter((s) => s.entity_id.startsWith("alarm_control_panel."));
+    entities.value.filter((s) => s.entity_id.startsWith("alarm_control_panel."));
   const getDeviceTrackers = () =>
-    sensors.value.filter((s) => s.entity_id.startsWith("device_tracker."));
+    entities.value.filter((s) => s.entity_id.startsWith("device_tracker."));
   const getMediaPlayers = () =>
-    sensors.value.filter((s) => s.entity_id.startsWith("media_player."));
+    entities.value.filter((s) => s.entity_id.startsWith("media_player."));
   const getBinarySensors = () =>
-    sensors.value.filter((s) => s.entity_id.startsWith("binary_sensor."));
+    entities.value.filter((s) => s.entity_id.startsWith("binary_sensor."));
   const getEnergyConsumptionSensors = () =>
-    sensors.value.filter(
+    entities.value.filter(
       (s) =>
         s.entity_id.startsWith("sensor.") &&
         s.attributes?.device_class === "energy" &&
@@ -506,7 +506,7 @@ export const useEntitiesStore = defineStore("entities", () => {
         s.state !== "unknown",
     );
   const getPowerConsumptionSensors = () =>
-    sensors.value.filter(
+    entities.value.filter(
       (s) =>
         s.entity_id.startsWith("sensor.") &&
         s.attributes?.device_class === "power" &&
@@ -514,10 +514,10 @@ export const useEntitiesStore = defineStore("entities", () => {
         s.state !== "unknown",
     );
   const getWeatherEntities = () =>
-    sensors.value.filter((s) => s.entity_id.startsWith("weather."));
+    entities.value.filter((s) => s.entity_id.startsWith("weather."));
 
   return {
-    sensors,
+    entities,
     entityMap,
     devices,
     areas,

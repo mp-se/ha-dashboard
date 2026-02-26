@@ -21,7 +21,7 @@ describe("useEntityResolver", () => {
         attributes: { friendly_name: "Temperature" },
       };
       const mockStore = {
-        sensors: [mockEntity],
+        entities: [mockEntity],
       };
       useHaStore.mockReturnValue(mockStore);
 
@@ -31,7 +31,7 @@ describe("useEntityResolver", () => {
 
     it("should return null for unknown entity ID", () => {
       const mockStore = {
-        sensors: [
+        entities: [
           { entity_id: "sensor.temperature", state: "20", attributes: {} },
         ],
       };
@@ -42,7 +42,7 @@ describe("useEntityResolver", () => {
     });
 
     it("should return null for unknown entity ID", () => {
-      const mockStore = { sensors: [] };
+      const mockStore = { entities: [] };
       useHaStore.mockReturnValue(mockStore);
 
       const { resolvedEntity } = useEntityResolver("sensor.notfound");
@@ -52,7 +52,7 @@ describe("useEntityResolver", () => {
 
   describe("Object entity resolution", () => {
     it("should use object directly when passed as entity", () => {
-      const mockStore = { sensors: [] };
+      const mockStore = { entities: [] };
       useHaStore.mockReturnValue(mockStore);
       const mockEntity = {
         entity_id: "sensor.test",
@@ -65,8 +65,8 @@ describe("useEntityResolver", () => {
     });
 
     it("should not search store when object entity is provided", () => {
-      const mockStore = { sensors: [] };
-      const storeSpy = vi.spyOn(mockStore.sensors, "find");
+      const mockStore = { entities: [] };
+      const storeSpy = vi.spyOn(mockStore.entities, "find");
       useHaStore.mockReturnValue(mockStore);
       const mockEntity = {
         entity_id: "sensor.test",
@@ -83,7 +83,7 @@ describe("useEntityResolver", () => {
   describe("isAvailable computed", () => {
     it("should return true when entity is available", () => {
       const mockStore = {
-        sensors: [{ entity_id: "sensor.test", state: "on", attributes: {} }],
+        entities: [{ entity_id: "sensor.test", state: "on", attributes: {} }],
       };
       useHaStore.mockReturnValue(mockStore);
 
@@ -93,7 +93,7 @@ describe("useEntityResolver", () => {
 
     it("should return false when entity is unavailable", () => {
       const mockStore = {
-        sensors: [
+        entities: [
           { entity_id: "sensor.test", state: "unavailable", attributes: {} },
         ],
       };
@@ -105,7 +105,7 @@ describe("useEntityResolver", () => {
 
     it("should return false when entity is unknown", () => {
       const mockStore = {
-        sensors: [
+        entities: [
           { entity_id: "sensor.test", state: "unknown", attributes: {} },
         ],
       };
@@ -117,7 +117,7 @@ describe("useEntityResolver", () => {
 
     it("should return falsy when resolved entity is null", () => {
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-      const mockStore = { sensors: [] };
+      const mockStore = { entities: [] };
       useHaStore.mockReturnValue(mockStore);
 
       const { isAvailable } = useEntityResolver("sensor.unknown");
@@ -130,7 +130,7 @@ describe("useEntityResolver", () => {
   describe("friendlyName computed", () => {
     it("should return friendly_name from attributes", () => {
       const mockStore = {
-        sensors: [
+        entities: [
           {
             entity_id: "sensor.test",
             state: "42",
@@ -146,7 +146,7 @@ describe("useEntityResolver", () => {
 
     it("should fallback to entity_id if friendly_name not available", () => {
       const mockStore = {
-        sensors: [{ entity_id: "sensor.test", state: "42", attributes: {} }],
+        entities: [{ entity_id: "sensor.test", state: "42", attributes: {} }],
       };
       useHaStore.mockReturnValue(mockStore);
 
@@ -155,7 +155,7 @@ describe("useEntityResolver", () => {
     });
 
     it("should return Unknown Entity when entity is null", () => {
-      const mockStore = { sensors: [] };
+      const mockStore = { entities: [] };
       useHaStore.mockReturnValue(mockStore);
 
       const { friendlyName } = useEntityResolver("sensor.unknown");
@@ -164,7 +164,7 @@ describe("useEntityResolver", () => {
 
     it("should handle missing attributes gracefully", () => {
       const mockStore = {
-        sensors: [{ entity_id: "sensor.test", state: "42" }],
+        entities: [{ entity_id: "sensor.test", state: "42" }],
       };
       useHaStore.mockReturnValue(mockStore);
 
@@ -176,7 +176,7 @@ describe("useEntityResolver", () => {
   describe("entityId computed", () => {
     it("should return entity ID for string input", () => {
       const mockStore = {
-        sensors: [{ entity_id: "sensor.test", state: "42", attributes: {} }],
+        entities: [{ entity_id: "sensor.test", state: "42", attributes: {} }],
       };
       useHaStore.mockReturnValue(mockStore);
 
@@ -185,7 +185,7 @@ describe("useEntityResolver", () => {
     });
 
     it("should extract entity_id from object input", () => {
-      const mockStore = { sensors: [] };
+      const mockStore = { entities: [] };
       useHaStore.mockReturnValue(mockStore);
       const mockEntity = {
         entity_id: "sensor.object_test",
@@ -198,7 +198,7 @@ describe("useEntityResolver", () => {
     });
 
     it("should return undefined when entity object has no entity_id", () => {
-      const mockStore = { sensors: [] };
+      const mockStore = { entities: [] };
       useHaStore.mockReturnValue(mockStore);
       const mockEntity = { state: "42", attributes: {} };
 
@@ -208,7 +208,7 @@ describe("useEntityResolver", () => {
 
     it("should return undefined when resolved entity is null", () => {
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-      const mockStore = { sensors: [] };
+      const mockStore = { entities: [] };
       useHaStore.mockReturnValue(mockStore);
 
       // When entity is a string that doesn't exist, entityId still returns the original string
@@ -220,7 +220,7 @@ describe("useEntityResolver", () => {
 
   describe("Invalid entity input", () => {
     it("should handle null entity", () => {
-      const mockStore = { sensors: [] };
+      const mockStore = { entities: [] };
       useHaStore.mockReturnValue(mockStore);
 
       const { resolvedEntity } = useEntityResolver(null);
@@ -228,7 +228,7 @@ describe("useEntityResolver", () => {
     });
 
     it("should handle number entity type gracefully", () => {
-      const mockStore = { sensors: [] };
+      const mockStore = { entities: [] };
       useHaStore.mockReturnValue(mockStore);
 
       // Invalid type should resolve to null
@@ -240,7 +240,7 @@ describe("useEntityResolver", () => {
   describe("Return object structure", () => {
     it("should return all required properties", () => {
       const mockStore = {
-        sensors: [
+        entities: [
           {
             entity_id: "sensor.test",
             state: "42",
@@ -259,7 +259,7 @@ describe("useEntityResolver", () => {
 
     it("should return computed properties", () => {
       const mockStore = {
-        sensors: [{ entity_id: "sensor.test", state: "42", attributes: {} }],
+        entities: [{ entity_id: "sensor.test", state: "42", attributes: {} }],
       };
       useHaStore.mockReturnValue(mockStore);
 

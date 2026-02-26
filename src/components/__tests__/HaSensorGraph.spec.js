@@ -13,7 +13,7 @@ describe("HaSensorGraph.vue", () => {
     setActivePinia(pinia);
     store = useHaStore();
 
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.temperature",
         state: "22.5",
@@ -247,7 +247,7 @@ describe("HaSensorGraph.vue", () => {
   });
 
   it("should handle multiple entities (array)", async () => {
-    store.sensors.push({
+    store.entities.push({
       entity_id: "sensor.humidity",
       state: "65",
       attributes: {
@@ -273,7 +273,7 @@ describe("HaSensorGraph.vue", () => {
   });
 
   it("should display legend for dual graphs", async () => {
-    store.sensors.push({
+    store.entities.push({
       entity_id: "sensor.humidity",
       state: "65",
       attributes: {
@@ -311,7 +311,7 @@ describe("HaSensorGraph.vue", () => {
 
     const callCount = store.fetchHistory.mock.calls.length;
 
-    store.sensors[0].entity_id = "sensor.new_temperature";
+    store.entities[0].entity_id = "sensor.new_temperature";
     await wrapper.setProps({ entity: "sensor.new_temperature" });
 
     await wrapper.vm.$nextTick();
@@ -354,7 +354,7 @@ describe("HaSensorGraph.vue", () => {
   });
 
   it("should handle three entities (triple graph)", async () => {
-    store.sensors.push(
+    store.entities.push(
       {
         entity_id: "sensor.humidity",
         state: "65",

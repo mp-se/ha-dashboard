@@ -27,7 +27,7 @@ describe("DevelopmentView.vue", () => {
 
   it("renders HaEntityList component", () => {
     const store = useHaStore();
-    store.sensors = [{ entity_id: "sensor.temp", state: "25", attributes: {} }];
+    store.entities = [{ entity_id: "sensor.temp", state: "25", attributes: {} }];
 
     const wrapper = mount(DevelopmentView, {
       global: {
@@ -41,7 +41,7 @@ describe("DevelopmentView.vue", () => {
 
   it("passes entities to HaEntityList", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       { entity_id: "sensor.temp", state: "25", attributes: {} },
       { entity_id: "sensor.humidity", state: "60", attributes: {} },
     ];
@@ -60,7 +60,7 @@ describe("DevelopmentView.vue", () => {
 
   it("includes all entity types without filtering", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       { entity_id: "sensor.temp", state: "25", attributes: {} },
       { entity_id: "button.restart", state: "unknown", attributes: {} },
       { entity_id: "sensor.visonic_device", state: "on", attributes: {} },
@@ -124,7 +124,7 @@ describe("DevelopmentView.vue", () => {
 
   it("preserves entity order from store", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       { entity_id: "sensor.first", state: "1", attributes: {} },
       { entity_id: "sensor.second", state: "2", attributes: {} },
       { entity_id: "sensor.third", state: "3", attributes: {} },
@@ -148,7 +148,7 @@ describe("DevelopmentView.vue", () => {
 
   it("reacts to store changes", async () => {
     const store = useHaStore();
-    store.sensors = [{ entity_id: "sensor.temp", state: "25", attributes: {} }];
+    store.entities = [{ entity_id: "sensor.temp", state: "25", attributes: {} }];
 
     const wrapper = mount(DevelopmentView, {
       global: {
@@ -160,7 +160,7 @@ describe("DevelopmentView.vue", () => {
     expect(entityList.props("entities")).toHaveLength(1);
 
     // Add a new sensor
-    store.sensors = [
+    store.entities = [
       { entity_id: "sensor.temp", state: "25", attributes: {} },
       { entity_id: "sensor.humidity", state: "60", attributes: {} },
     ];
@@ -173,7 +173,7 @@ describe("DevelopmentView.vue", () => {
 
   it("handles empty entity list", () => {
     const store = useHaStore();
-    store.sensors = [];
+    store.entities = [];
 
     const wrapper = mount(DevelopmentView, {
       global: {

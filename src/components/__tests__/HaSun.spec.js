@@ -13,7 +13,7 @@ describe("HaSun.vue", () => {
     setActivePinia(pinia);
     store = useHaStore();
 
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sun.sun",
         state: "above_horizon",
@@ -30,7 +30,6 @@ describe("HaSun.vue", () => {
         },
       },
     ];
-    store.entities = {};
   });
 
   it("should render sun card", () => {
@@ -75,7 +74,7 @@ describe("HaSun.vue", () => {
   });
 
   it("should display below_horizon state", async () => {
-    store.sensors[0].state = "below_horizon";
+    store.entities[0].state = "below_horizon";
 
     const wrapper = mount(HaSun, {
       props: {
@@ -177,7 +176,7 @@ describe("HaSun.vue", () => {
   });
 
   it("should display moon icon when below horizon", async () => {
-    store.sensors[0].state = "below_horizon";
+    store.entities[0].state = "below_horizon";
 
     const wrapper = mount(HaSun, {
       props: {
@@ -193,7 +192,7 @@ describe("HaSun.vue", () => {
   });
 
   it("should display sunrise in future", async () => {
-    store.sensors[0].state = "below_horizon";
+    store.entities[0].state = "below_horizon";
 
     const wrapper = mount(HaSun, {
       props: {
@@ -241,7 +240,7 @@ describe("HaSun.vue", () => {
   });
 
   it("should handle missing elevation", async () => {
-    delete store.sensors[0].attributes.elevation;
+    delete store.entities[0].attributes.elevation;
 
     const wrapper = mount(HaSun, {
       props: {
@@ -257,7 +256,7 @@ describe("HaSun.vue", () => {
   });
 
   it("should handle missing azimuth", async () => {
-    delete store.sensors[0].attributes.azimuth;
+    delete store.entities[0].attributes.azimuth;
 
     const wrapper = mount(HaSun, {
       props: {
@@ -284,7 +283,7 @@ describe("HaSun.vue", () => {
 
     expect(wrapper.text()).toContain("Above Horizon");
 
-    store.sensors[0].state = "below_horizon";
+    store.entities[0].state = "below_horizon";
     await wrapper.vm.$nextTick();
 
     expect(wrapper.text()).toContain("Below Horizon");

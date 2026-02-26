@@ -17,14 +17,14 @@
 }
 
 .nav-icon {
-  font-size: 1.5rem; /* larger on small screens */
+  font-size: 1.1rem;
   line-height: 1;
   color: inherit; /* Ensure icon inherits text color from parent */
 }
 
 @media (min-width: 992px) {
   .nav-icon {
-    font-size: 1.1rem; /* slightly smaller on large screens to match label layout */
+    font-size: 1rem; /* match label text size on large screens */
   }
 }
 
@@ -197,9 +197,7 @@ button:active {
 /* Icon Circle Styles */
 .ha-icon-circle-wrapper {
   position: relative;
-  width: var(--ha-icon-circle-size);
-  height: var(--ha-icon-circle-size);
-  margin: 0 auto;
+  flex-shrink: 0;
 }
 
 .ha-icon-circle {
@@ -247,6 +245,24 @@ button:active {
   height: 50px;
   border-radius: 50%;
   flex-shrink: 0;
+}
+
+.icon-bg-small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.icon-overlay-small {
+  position: relative;
+  z-index: 1;
+  font-size: 1rem;
+  color: #fff;
+  font-weight: 400;
 }
 
 /* Card Title Styles */

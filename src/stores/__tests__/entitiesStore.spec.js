@@ -61,7 +61,7 @@ describe("useEntitiesStore", () => {
 
   it("should initialize with default values", () => {
     const store = useEntitiesStore();
-    expect(store.sensors).toEqual([]);
+    expect(store.entities).toEqual([]);
     expect(store.devices).toEqual([]);
     expect(store.areas).toEqual([]);
     expect(store.entityMap).toBeInstanceOf(Map);
@@ -84,25 +84,25 @@ describe("useEntitiesStore", () => {
         },
       ];
 
-      store.sensors = testSensors;
+      store.entities = testSensors;
 
-      expect(store.sensors).toEqual(testSensors);
-      expect(store.sensors.length).toBe(2);
+      expect(store.entities).toEqual(testSensors);
+      expect(store.entities.length).toBe(2);
       expect(store.entityMap.has("sensor.temp")).toBe(true);
       expect(store.entityMap.get("sensor.temp").state).toBe("23");
     });
 
     it("should clear all non-virtual sensors correctly", () => {
       const store = useEntitiesStore();
-      store.sensors = [
+      store.entities = [
         { entity_id: "sensor.temp", state: "23", attributes: {} },
         { entity_id: "area.living_room", state: "on", attributes: {} }, // virtual entity
       ];
 
       store.clearAllSensors();
 
-      expect(store.sensors.length).toBe(1);
-      expect(store.sensors[0].entity_id).toBe("area.living_room");
+      expect(store.entities.length).toBe(1);
+      expect(store.entities[0].entity_id).toBe("area.living_room");
     });
   });
 
@@ -151,7 +151,7 @@ describe("useEntitiesStore", () => {
       const store = useEntitiesStore();
       await store.loadLocalData();
 
-      expect(store.sensors).toEqual(localData.sensors);
+      expect(store.entities).toEqual(localData.sensors);
       expect(store.devices).toEqual(localData.devices);
       expect(store.areas).toEqual(localData.areas);
     });
@@ -172,7 +172,7 @@ describe("useEntitiesStore", () => {
   describe("Entity filtering and categorization", () => {
     beforeEach(() => {
       const store = useEntitiesStore();
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "sensor.temp_battery",
           state: "45",
@@ -237,7 +237,7 @@ describe("useEntitiesStore", () => {
       store.areas = [{ area_id: "area1", name: "Living Room", entities: [] }];
 
       // Setup sensors with device_id attributes
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "sensor.temp",
           state: "23",
@@ -261,10 +261,10 @@ describe("useEntitiesStore", () => {
 
     it("should return early when devices list is empty", () => {
       const store = useEntitiesStore();
-      store.sensors = [{ entity_id: "sensor.temp", state: "20", attributes: { device_id: "d1" } }];
+      store.entities = [{ entity_id: "sensor.temp", state: "20", attributes: { device_id: "d1" } }];
       store.devices = [];
       store.mapEntitiesToDevices(); // no-op, should not throw
-      expect(store.sensors[0].entity_id).toBe("sensor.temp");
+      expect(store.entities[0].entity_id).toBe("sensor.temp");
     });
   });
 
@@ -297,7 +297,7 @@ describe("useEntitiesStore", () => {
       await store.fetchStates();
 
       expect(subscribeEntities).toHaveBeenCalled();
-      expect(store.sensors.length).toBeGreaterThan(0);
+      expect(store.entities.length).toBeGreaterThan(0);
       expect(store.entityMap.has("sensor.test")).toBe(true);
     });
 
@@ -338,7 +338,7 @@ describe("useEntitiesStore", () => {
       });
 
       const store = useEntitiesStore();
-      store.sensors = [
+      store.entities = [
         { entity_id: "sensor.old", state: "3", attributes: {} },
         { entity_id: "area.living", state: "Living", attributes: {} }, // virtual — must stay
       ];
@@ -370,11 +370,11 @@ describe("useEntitiesStore", () => {
       ]);
 
       const store = useEntitiesStore();
-      store.sensors = [{ entity_id: "sensor.temp", state: "20", attributes: {} }];
+      store.entities = [{ entity_id: "sensor.temp", state: "20", attributes: {} }];
 
       await store.fetchEntityRegistry();
 
-      expect(store.sensors[0].attributes.device_id).toBe("device-abc");
+      expect(store.entities[0].attributes.device_id).toBe("device-abc");
     });
 
     it("handles sendMessagePromise returning result-wrapped array", async () => {
@@ -388,9 +388,9 @@ describe("useEntitiesStore", () => {
       });
 
       const store = useEntitiesStore();
-      store.sensors = [{ entity_id: "sensor.x", state: "1", attributes: {} }];
+      store.entities = [{ entity_id: "sensor.x", state: "1", attributes: {} }];
       await store.fetchEntityRegistry();
-      expect(store.sensors[0].attributes.device_id).toBe("dev-1");
+      expect(store.entities[0].attributes.device_id).toBe("dev-1");
     });
 
     it("handles errors gracefully", async () => {
@@ -446,10 +446,10 @@ describe("useEntitiesStore", () => {
 
       const store = useEntitiesStore();
       // Pre-populate virtual entity
-      store.sensors = [{ entity_id: "area.hall", state: "Hall", attributes: {} }];
+      store.entities = [{ entity_id: "area.hall", state: "Hall", attributes: {} }];
       await store.fetchAreaRegistry();
 
-      const areaEntities = store.sensors.filter((s) => s.entity_id === "area.hall");
+      const areaEntities = store.entities.filter((s) => s.entity_id === "area.hall");
       expect(areaEntities.length).toBe(1);
     });
 
@@ -517,7 +517,7 @@ describe("useEntitiesStore", () => {
       const auth = useAuthStore();
       vi.spyOn(auth, "getConnection").mockReturnValue(null);
       const store = useEntitiesStore();
-      store.sensors = [{ entity_id: "weather.home", state: "sunny", attributes: {} }];
+      store.entities = [{ entity_id: "weather.home", state: "sunny", attributes: {} }];
       await store.subscribeToWeatherForecast("weather.home");
       expect(store.forecastErrors["weather.home"]).toBe("WebSocket not connected");
     });
@@ -527,7 +527,7 @@ describe("useEntitiesStore", () => {
       const auth = useAuthStore();
       vi.spyOn(auth, "getConnection").mockReturnValue(conn);
       const store = useEntitiesStore();
-      store.sensors = [{ entity_id: "weather.home", state: "sunny", attributes: {} }];
+      store.entities = [{ entity_id: "weather.home", state: "sunny", attributes: {} }];
       store.forecastSubscriptions["weather.home"] = vi.fn();
 
       await store.subscribeToWeatherForecast("weather.home");
@@ -541,13 +541,13 @@ describe("useEntitiesStore", () => {
 
       let capturedCallback;
       const unsub = vi.fn();
-      conn.subscribeMessage.mockImplementation((cb, _msg, _opts) => {
+      conn.subscribeMessage.mockImplementation((cb) => {
         capturedCallback = cb;
         return Promise.resolve(unsub);
       });
 
       const store = useEntitiesStore();
-      store.sensors = [{ entity_id: "weather.home", state: "sunny", attributes: {} }];
+      store.entities = [{ entity_id: "weather.home", state: "sunny", attributes: {} }];
 
       await store.subscribeToWeatherForecast("weather.home", "daily");
 
@@ -570,7 +570,7 @@ describe("useEntitiesStore", () => {
       conn.subscribeMessage.mockRejectedValueOnce(new Error("subscribe failed"));
 
       const store = useEntitiesStore();
-      store.sensors = [{ entity_id: "weather.home", state: "sunny", attributes: {} }];
+      store.entities = [{ entity_id: "weather.home", state: "sunny", attributes: {} }];
       await store.subscribeToWeatherForecast("weather.home");
 
       expect(store.forecastErrors["weather.home"]).toBe("subscribe failed");
@@ -777,7 +777,7 @@ describe("useEntitiesStore", () => {
   describe("saveLocalData", () => {
     it("triggers a download of currently loaded data as JSON", () => {
       const store = useEntitiesStore();
-      store.sensors = [{ entity_id: "sensor.temp", state: "20", attributes: {} }];
+      store.entities = [{ entity_id: "sensor.temp", state: "20", attributes: {} }];
       store.devices = [{ id: "d1", name: "Device" }];
 
       const createObjectURL = vi.fn(() => "blob:url");
@@ -829,7 +829,7 @@ describe("useEntitiesStore", () => {
   describe("Extended entity filtering", () => {
     beforeEach(() => {
       const store = useEntitiesStore();
-      store.sensors = [
+      store.entities = [
         { entity_id: "sensor.wifi_signal", state: "75", attributes: { icon: "mdi:wifi", device_class: null } },
         { entity_id: "sensor.power_meter", state: "100", attributes: { device_class: "power" } },
         { entity_id: "sensor.energy_meter", state: "50", attributes: { device_class: "energy", state_class: "total" } },
@@ -895,7 +895,7 @@ describe("useEntitiesStore", () => {
 
     it("getAll returns the full sensor list", () => {
       const store = useEntitiesStore();
-      expect(store.getAll()).toBe(store.sensors);
+      expect(store.getAll()).toBe(store.entities);
     });
 
     it("getBatterySensors excludes unknown/unavailable states", () => {
@@ -915,7 +915,7 @@ describe("useEntitiesStore", () => {
     it("returns entity objects for known device", () => {
       const store = useEntitiesStore();
       store.devices = [{ id: "d1", entities: ["sensor.temp"] }];
-      store.sensors = [{ entity_id: "sensor.temp", state: "20", attributes: {} }];
+      store.entities = [{ entity_id: "sensor.temp", state: "20", attributes: {} }];
       const result = store.getEntitiesForDevice("d1");
       expect(result.length).toBe(1);
       expect(result[0].entity_id).toBe("sensor.temp");
