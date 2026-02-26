@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import HaWeather from "../HaWeather.vue";
 import { createPinia, setActivePinia } from "pinia";
@@ -7,11 +7,17 @@ import { useHaStore } from "@/stores/haStore";
 describe("HaWeather.vue", () => {
   let store;
   let pinia;
+  let subscribeToWeatherForecastSpy;
 
   beforeEach(() => {
     pinia = createPinia();
     setActivePinia(pinia);
     store = useHaStore();
+
+    // Prevent real WebSocket subscription attempts in tests
+    subscribeToWeatherForecastSpy = vi
+      .spyOn(store, "subscribeToWeatherForecast")
+      .mockResolvedValue(undefined);
 
     store.sensors = [
       {
@@ -275,6 +281,64 @@ describe("HaWeather.vue", () => {
 
     await wrapper.vm.$nextTick();
     expect(wrapper.vm.weatherIcon).toBeTruthy();
+  });
+
+  it("should call subscribeToWeatherForecast on mount for live mode", async () => {
+    store.isLocalMode = false;
+
+    mount(HaWeather, {
+      props: { entity: "weather.home" },
+      global: { plugins: [pinia] },
+    });
+
+    await new Promise((r) => setTimeout(r, 0));
+    expect(subscribeToWeatherForecastSpy).toHaveBeenCalledWith(
+      "weather.home",
+      "daily",
+    );
+  });
+
+  it("should NOT call subscribeToWeatherForecast in local mode", async () => {
+    store.isLocalMode = true;
+
+    mount(HaWeather, {
+      props: { entity: "weather.home" },
+      global: { plugins: [pinia] },
+    });
+
+    await new Promise((r) => setTimeout(r, 0));
+    expect(subscribeToWeatherForecastSpy).not.toHaveBeenCalled();
+  });
+
+  it("should read forecast from store forecasts when available", async () => {
+    store.forecasts["weather.home"] = {
+      type: "daily",
+      data: [
+        {
+          datetime: new Date().toISOString(),
+          condition: "cloudy",
+          temperature: 18,
+          templow: 10,
+        },
+        {
+          datetime: new Date(Date.now() + 86400000).toISOString(),
+          condition: "rainy",
+          temperature: 15,
+          templow: 8,
+        },
+      ],
+    };
+    // Remove attributes forecast to verify store data is preferred
+    delete store.sensors[0].attributes.forecast;
+
+    const wrapper = mount(HaWeather, {
+      props: { entity: "weather.home" },
+      global: { plugins: [pinia] },
+    });
+
+    await wrapper.vm.$nextTick();
+    expect(wrapper.vm.forecastData.length).toBe(2);
+    expect(wrapper.vm.forecastData[0].condition).toBe("cloudy");
   });
 
   it("should map temperature unit correctly", async () => {

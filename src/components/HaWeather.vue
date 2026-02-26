@@ -105,8 +105,9 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { useEntityResolver } from "@/composables/useEntityResolver";
+import { useHaStore } from "@/stores/haStore";
 
 const props = defineProps({
   entity: {
@@ -127,6 +128,19 @@ const props = defineProps({
 
 // Use composable for entity resolution
 const { resolvedEntity } = useEntityResolver(props.entity);
+const haStore = useHaStore();
+
+const entityId = computed(() =>
+  typeof props.entity === "string"
+    ? props.entity
+    : props.entity?.entity_id,
+);
+
+onMounted(() => {
+  if (props.forecast && entityId.value && !haStore.isLocalMode) {
+    haStore.subscribeToWeatherForecast(entityId.value, "daily");
+  }
+});
 
 const state = computed(() => resolvedEntity.value?.state ?? "unknown");
 
@@ -229,10 +243,14 @@ const windDirectionArrow = computed(() => {
   return directions[index];
 });
 
-// Forecast data
-const forecastData = computed(
-  () => resolvedEntity.value?.attributes?.forecast || [],
-);
+// Forecast data — prefer WebSocket subscription data (HA 2024.3+), fall back to attributes
+const forecastData = computed(() => {
+  const id = entityId.value;
+  if (id && haStore.forecasts?.[id]?.data) {
+    return haStore.forecasts[id].data;
+  }
+  return resolvedEntity.value?.attributes?.forecast || [];
+});
 
 const displayForecast = computed(() => {
   // Show 3 days forecast

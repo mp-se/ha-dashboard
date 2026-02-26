@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed weather forecast not displaying in `HaWeather.vue` due to Home Assistant (2024.3+) removing `forecast` from entity attributes. The component now subscribes to `weather/subscribe_forecast` via WebSocket on mount, with a fallback to `attributes.forecast` for local mode and older HA versions.
 - Refactored monolithic `haStore.js` into modular domain stores: `authStore.js`, `entitiesStore.js`, and `configStore.js`.
 - Split the store test suite into individual files for better isolation and maintainability.
 - Introduced modular UI sub-components: `HaIconCircle.vue` and `HaEntityAttributeList.vue` to improve DRYY and simplify card components.
