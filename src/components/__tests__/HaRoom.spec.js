@@ -1414,4 +1414,95 @@ describe("HaRoom.vue", () => {
       expect(controls).toHaveLength(6);
     });
   });
+
+  describe("toggleEntity — media_player domain", () => {
+    beforeEach(() => {
+      store.entities = [
+        {
+          entity_id: "area.lounge",
+          state: "Lounge",
+          attributes: { friendly_name: "Lounge", icon: "mdi:sofa" },
+          entities: [],
+        },
+        {
+          entity_id: "media_player.tv",
+          state: "playing",
+          attributes: { friendly_name: "TV" },
+        },
+        {
+          entity_id: "media_player.radio",
+          state: "idle",
+          attributes: { friendly_name: "Radio" },
+        },
+      ];
+    });
+
+    it("calls media_pause when media_player is playing", async () => {
+      wrapper = mount(HaRoom, {
+        props: { entity: ["area.lounge", "media_player.tv"] },
+        global: { plugins: [pinia] },
+      });
+      await wrapper.vm.$nextTick();
+
+      const controls = wrapper.findAll(".control-object");
+      expect(controls.length).toBeGreaterThan(0);
+      await controls[0].trigger("click");
+      await wrapper.vm.$nextTick();
+
+      expect(mockCallService).toHaveBeenCalledWith(
+        "media_player",
+        "media_pause",
+        { entity_id: "media_player.tv" },
+      );
+    });
+
+    it("calls media_play when media_player is not playing", async () => {
+      wrapper = mount(HaRoom, {
+        props: { entity: ["area.lounge", "media_player.radio"] },
+        global: { plugins: [pinia] },
+      });
+      await wrapper.vm.$nextTick();
+
+      const controls = wrapper.findAll(".control-object");
+      expect(controls.length).toBeGreaterThan(0);
+      await controls[0].trigger("click");
+      await wrapper.vm.$nextTick();
+
+      expect(mockCallService).toHaveBeenCalledWith(
+        "media_player",
+        "media_play",
+        { entity_id: "media_player.radio" },
+      );
+    });
+
+    it("handles callService throwing without crashing", async () => {
+      mockCallService.mockRejectedValueOnce(new Error("Service call failed"));
+      wrapper = mount(HaRoom, {
+        props: { entity: ["area.lounge", "media_player.tv"] },
+        global: { plugins: [pinia] },
+      });
+      await wrapper.vm.$nextTick();
+
+      const controls = wrapper.findAll(".control-object");
+      // Click and expect no unhandled rejection
+      await controls[0].trigger("click");
+      await new Promise((r) => setTimeout(r, 10));
+      expect(wrapper.exists()).toBe(true);
+    });
+
+    it("does not call service for an unavailable media_player", async () => {
+      store.entities[1].state = "unavailable";
+      wrapper = mount(HaRoom, {
+        props: { entity: ["area.lounge", "media_player.tv"] },
+        global: { plugins: [pinia] },
+      });
+      await wrapper.vm.$nextTick();
+
+      const controls = wrapper.findAll(".control-object");
+      await controls[0].trigger("click");
+      await wrapper.vm.$nextTick();
+
+      expect(mockCallService).not.toHaveBeenCalled();
+    });
+  });
 });

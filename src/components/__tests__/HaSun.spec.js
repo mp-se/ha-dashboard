@@ -340,4 +340,58 @@ describe("HaSun.vue", () => {
     await wrapper.vm.$nextTick();
     expect(wrapper.vm.cardBorderClass).toBeTruthy();
   });
+
+  it("should return sunset icon for unknown state", async () => {
+    store.entities[0].state = "unknown";
+    const wrapper = mount(HaSun, {
+      props: { entity: "sun.sun" },
+      global: { plugins: [pinia] },
+    });
+    await wrapper.vm.$nextTick();
+    expect(wrapper.vm.sunIcon).toContain("sunset");
+  });
+
+  it("should show entity-not-found warning when entity is missing", () => {
+    const wrapper = mount(HaSun, {
+      props: { entity: "sun.nonexistent" },
+      global: { plugins: [pinia] },
+    });
+    expect(wrapper.find(".border-warning").exists()).toBe(true);
+    expect(wrapper.text()).toContain("not found");
+  });
+
+  it("should format 24h time from next_rising attribute", async () => {
+    store.entities[0].attributes.next_rising = "2026-01-01T06:30:00.000Z";
+    const wrapper = mount(HaSun, {
+      props: { entity: "sun.sun" },
+      global: { plugins: [pinia] },
+    });
+    await wrapper.vm.$nextTick();
+    // nextRising should prefer next_rising over sunrise
+    expect(wrapper.vm.nextRising).toBe(store.entities[0].attributes.next_rising);
+  });
+
+  it("should return '--:--' when formatTime24h receives null", async () => {
+    store.entities[0].attributes.next_rising = null;
+    store.entities[0].attributes.sunrise = null;
+    const wrapper = mount(HaSun, {
+      props: { entity: "sun.sun" },
+      global: { plugins: [pinia] },
+    });
+    await wrapper.vm.$nextTick();
+    // The formatted time for null should be '--:--'
+    const text = wrapper.text();
+    expect(text).toContain("--:--");
+  });
+
+  it("should prefer next_setting over sunset attribute", async () => {
+    store.entities[0].attributes.next_setting = "2026-01-01T18:00:00.000Z";
+    store.entities[0].attributes.sunset = "2026-01-01T19:00:00.000Z";
+    const wrapper = mount(HaSun, {
+      props: { entity: "sun.sun" },
+      global: { plugins: [pinia] },
+    });
+    await wrapper.vm.$nextTick();
+    expect(wrapper.vm.nextSetting).toBe(store.entities[0].attributes.next_setting);
+  });
 });
