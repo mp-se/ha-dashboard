@@ -141,6 +141,12 @@
 import { computed, ref, watch } from "vue";
 import { useEntityResolver } from "@/composables/useEntityResolver";
 import { useServiceCall } from "@/composables/useServiceCall";
+import { useLightColor } from "@/composables/useLightColor";
+import {
+  useLightColorTemp,
+  getPresetColor,
+} from "@/composables/useLightColorTemp";
+import { useLightColorPresets } from "@/composables/useLightColorPresets";
 
 const props = defineProps({
   entity: {
@@ -263,103 +269,14 @@ const colorTempPresets = [
   { name: "Cold", kelvin: 6500 },
 ];
 
-// Get supported presets based on light's capabilities
-const supportedPresets = computed(() => {
-  const minKelvin = entityAttrs.value.min_color_temp_kelvin || 2200;
-  const maxKelvin = entityAttrs.value.max_color_temp_kelvin || 6500;
-
-  return colorTempPresets.filter(
-    (preset) => preset.kelvin >= minKelvin && preset.kelvin <= maxKelvin,
-  );
-});
-
-// Get color style for temperature presets
-const getPresetColor = (kelvin) => {
-  switch (kelvin) {
-    case 2700:
-      return { backgroundColor: "#FFB366" }; // Warm orange
-    case 3000:
-      return { backgroundColor: "#FFCC80" }; // Soft yellow
-    case 4000:
-      return { backgroundColor: "#E8F4FD" }; // Cool white
-    case 5000:
-      return { backgroundColor: "#F0F8FF" }; // Daylight white
-    case 6500:
-      return { backgroundColor: "#E3F2FD" }; // Cold blue-white
-    default:
-      return { backgroundColor: "#6c757d" }; // Gray fallback
-  }
-};
-
-// Color temperature ranges
-const minMireds = computed(() => entityAttrs.value.min_mireds || 250);
-
-// Current color temperature in mireds
-const colorTempMireds = computed(
-  () => entityAttrs.value.color_temp || minMireds.value,
+// Use color temperature composable
+const { supportedPresets, activePreset } = useLightColorTemp(
+  entityAttrs,
+  colorTempPresets,
 );
 
-// Convert mireds to kelvin for display
-const colorTempKelvin = computed(() => {
-  const mireds = colorTempMireds.value;
-  return mireds > 0 ? Math.round(1000000 / mireds) : 0;
-});
-
-// Current color temperature in kelvin (for preset matching)
-const currentColorTempKelvin = computed(() => colorTempKelvin.value);
-
-// Find the closest matching preset
-const activePreset = computed(() => {
-  const currentKelvin = currentColorTempKelvin.value;
-  if (!currentKelvin || currentKelvin === 0) return null;
-
-  // Find the preset with the smallest difference (only from supported presets)
-  let closestPreset = null;
-  let smallestDiff = Infinity;
-
-  for (const preset of supportedPresets.value) {
-    const diff = Math.abs(preset.kelvin - currentKelvin);
-    if (diff < smallestDiff) {
-      smallestDiff = diff;
-      closestPreset = preset;
-    }
-  }
-
-  // Only consider it a match if within 150K tolerance
-  return smallestDiff <= 150 ? closestPreset : null;
-});
-
-// Find the closest matching color preset
-const activeColorPreset = computed(() => {
-  const currentHs = entityAttrs.value.hs_color;
-  if (!currentHs || !Array.isArray(currentHs) || currentHs.length < 2)
-    return null;
-
-  const [currentHue, currentSat] = currentHs;
-
-  // Find the preset with the smallest difference
-  let closestPreset = null;
-  let smallestDiff = Infinity;
-
-  for (const preset of colorPresets) {
-    const [presetHue, presetSat] = preset.hs;
-    // Calculate hue difference (accounting for 360° wraparound)
-    let hueDiff = Math.abs(currentHue - presetHue);
-    hueDiff = Math.min(hueDiff, 360 - hueDiff);
-    // Calculate saturation difference
-    const satDiff = Math.abs(currentSat - presetSat);
-    // Combined difference (weighted)
-    const totalDiff = hueDiff + satDiff * 2;
-
-    if (totalDiff < smallestDiff) {
-      smallestDiff = totalDiff;
-      closestPreset = preset;
-    }
-  }
-
-  // Only consider it a match if within reasonable tolerance
-  return smallestDiff <= 50 ? closestPreset : null;
-});
+// Use color presets composable
+const { activeColorPreset } = useLightColorPresets(entityAttrs, colorPresets);
 
 // Set color preset
 const setColorPreset = async (preset) => {
@@ -411,233 +328,22 @@ const cardBorderClass = computed(() => {
   return "border-secondary";
 });
 
-// Control circle color based on light state
-const controlCircleColor = computed(() => {
-  if (isDisabled.value) return "#6c757d"; // Gray for unavailable
-  if (!isOn.value) return "#e9ecef"; // Light gray for off
-
-  // Show actual light color if supported
-  if (supportsColor.value && entityAttrs.value.hs_color) {
-    const [hue, sat] = entityAttrs.value.hs_color;
-    // Convert HSV to RGB for display, using brightness for intensity
-    const brightness = entityAttrs.value.brightness || 255;
-    const v = (brightness / 255) * 0.8 + 0.2; // Scale 0.2-1.0
-
-    const h = hue / 60;
-    const s = sat / 100;
-    const c = v * s;
-    const x = c * (1 - Math.abs((h % 2) - 1));
-    const m = v - c;
-    let r, g, b;
-
-    if (h >= 0 && h < 1) [r, g, b] = [c, x, 0];
-    else if (h >= 1 && h < 2) [r, g, b] = [x, c, 0];
-    else if (h >= 2 && h < 3) [r, g, b] = [0, c, x];
-    else if (h >= 3 && h < 4) [r, g, b] = [0, x, c];
-    else if (h >= 4 && h < 5) [r, g, b] = [x, 0, c];
-    else [r, g, b] = [c, 0, x];
-
-    const toHex = (v) =>
-      Math.round((v + m) * 255)
-        .toString(16)
-        .padStart(2, "0");
-    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-  }
-
-  // Show color temp as gradient if supported
-  if (
-    supportsColorTemp.value &&
-    !supportsColor.value &&
-    entityAttrs.value.color_temp
-  ) {
-    const mireds = entityAttrs.value.color_temp;
-    const kelvin = mireds > 0 ? Math.round(1000000 / mireds) : 5000;
-
-    // Match to the closest supported preset to get consistent colors
-    let closestPreset = null;
-    let smallestDiff = Infinity;
-
-    for (const preset of supportedPresets.value) {
-      const diff = Math.abs(preset.kelvin - kelvin);
-      if (diff < smallestDiff) {
-        smallestDiff = diff;
-        closestPreset = preset;
-      }
-    }
-
-    if (closestPreset) {
-      return getPresetColor(closestPreset.kelvin).backgroundColor;
-    }
-
-    // Fallback if no preset matches
-    if (kelvin <= 2700)
-      return "#FFB366"; // Warm orange
-    else if (kelvin <= 3000)
-      return "#FFCC80"; // Soft yellow
-    else if (kelvin <= 4000)
-      return "#E8F4FD"; // Cool white
-    else if (kelvin <= 5000)
-      return "#F0F8FF"; // Daylight white
-    else return "#E3F2FD"; // Cold blue-white
-  }
-
-  // Default yellow for simple on/off lights
-  return "#FFC107";
+// Friendly name for the card
+const name = computed(() => {
+  if (!resolvedEntity.value) return "Light";
+  return (
+    entityAttrs.value.friendly_name || resolvedEntity.value.entity_id || "Light"
+  );
 });
 
-// Icon color - black for light backgrounds, white for dark backgrounds
-const iconColor = computed(() => {
-  if (!isOn.value) return "white"; // White icon when off
-
-  // Prefer color temperature when available: if the light is showing a cool white
-  // (e.g. >= 4000K) then the icon should be dark for contrast.
-  try {
-    if (supportsColorTemp.value && entityAttrs.value.color_temp) {
-      const mireds = entityAttrs.value.color_temp;
-      const kelvin = mireds > 0 ? Math.round(1000000 / mireds) : 0;
-      const COOL_WHITE_KELVIN = 4000;
-      if (kelvin >= COOL_WHITE_KELVIN) return "#333";
-    }
-  } catch {
-    // ignore and fall through to luminance check
-    // console.warn('Error computing kelvin for iconColor:', err);
-  }
-
-  // If the control color is explicitly white (or close to it), prefer dark icon
-  const color = (controlCircleColor.value || "").toLowerCase();
-  if (color === "#ffffff" || color === "white") return "#333";
-
-  // Convert hex color to RGB and compute luminance. If it's a light color, use dark icon.
-  const hexToRgb = (h) => {
-    if (!h) return null;
-    let hex = h.trim();
-    if (hex.startsWith("#")) hex = hex.slice(1);
-    if (hex.length === 3)
-      hex = hex
-        .split("")
-        .map((c) => c + c)
-        .join("");
-    if (!/^[0-9a-f]{6}$/i.test(hex)) return null;
-    const r = parseInt(hex.slice(0, 2), 16);
-    const g = parseInt(hex.slice(2, 4), 16);
-    const b = parseInt(hex.slice(4, 6), 16);
-    return { r, g, b };
-  };
-
-  const rgb = hexToRgb(color);
-  if (!rgb) return "white";
-
-  const srgbToLinear = (v) => {
-    const s = v / 255;
-    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
-  };
-
-  const rLin = srgbToLinear(rgb.r);
-  const gLin = srgbToLinear(rgb.g);
-  const bLin = srgbToLinear(rgb.b);
-  const luminance = 0.2126 * rLin + 0.7152 * gLin + 0.0722 * bLin;
-
-  // Only very light backgrounds should get a dark icon; tune threshold high
-  const LUMINANCE_THRESHOLD = 0.9;
-
-  // Some common very pale colors that should definitely use a dark icon
-  const explicitLightColors = new Set([
-    "#ffffff",
-    "#fff",
-    "#f0f8ff",
-    "#e8f4fd",
-    "#e3f2fd",
-  ]);
-  if (explicitLightColors.has(color)) return "#333";
-
-  // threshold tuned high so only whites and very pale colors get dark icon
-  return luminance >= LUMINANCE_THRESHOLD ? "#333" : "white";
-});
-
-const name = computed(
-  () =>
-    resolvedEntity.value?.attributes?.friendly_name ||
-    resolvedEntity.value?.entity_id ||
-    "Unknown",
+// Use color calculation composable
+const { controlCircleColor, iconColor } = useLightColor(
+  entityAttrs,
+  isOn,
+  supportsColor,
+  supportsColorTemp,
+  isDisabled,
+  getPresetColor,
+  supportedPresets,
 );
 </script>
-
-<style scoped>
-.badge {
-  font-size: 0.95rem;
-  font-weight: 600;
-  padding: 0.35em 0.6em;
-}
-
-.form-check.form-switch {
-  padding: 0;
-}
-
-.preset-btn-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border: 2px solid transparent;
-  border-radius: 0.5rem;
-  font-size: 1.5rem;
-  color: #333;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background-color: inherit;
-}
-
-.preset-btn-icon:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.preset-btn-icon.active-preset {
-  border-color: #007bff;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-  color: #333;
-}
-
-.preset-btn-icon:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.color-preset-btn-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border: 2px solid transparent;
-  border-radius: 0.5rem;
-  font-size: 1.5rem;
-  color: #fff;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.color-preset-btn-icon.white-preset {
-  color: #333;
-  background-color: #ffffff !important;
-}
-
-.color-preset-btn-icon:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-}
-
-.color-preset-btn-icon.active-color {
-  border-color: #fff;
-  box-shadow:
-    0 0 0 3px rgba(255, 255, 255, 0.5),
-    0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.color-preset-btn-icon:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-</style>

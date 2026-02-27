@@ -56,3 +56,8 @@ Before finalizing any change, you must:
    - `npm test`
    - `npm run lint`
    - `npm run build`
+
+## 6. Architecture and Coding Principles
+
+- All CSS styles must be placed in the global shared-styles.css file.
+- Each source file should have its dedicated test file in the `__tests__` directory, following the same structure as the source files.
