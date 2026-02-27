@@ -2,6 +2,7 @@
   <div class="col-lg-4 col-md-6">
     <div
       :class="[
+        'ha-media-player',
         'card',
         'card-control',
         'h-100',
@@ -328,23 +329,3 @@ const setVolume = (volume) => {
   callService("volume_set", { volume_level: parseFloat(volume) });
 };
 </script>
-
-<style scoped>
-.progress-container {
-  margin-top: 0.5rem;
-}
-
-@keyframes pulse-progress {
-  0%,
-  100% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-.progress-indeterminate {
-  animation: pulse-progress 2s ease-in-out infinite;
-}
-</style>

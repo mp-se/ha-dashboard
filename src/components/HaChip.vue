@@ -117,10 +117,3 @@ const iconClass = computed(() => {
   return null;
 });
 </script>
-
-<style scoped>
-.badge {
-  font-size: 0.875rem;
-  padding: 0.25rem 0.5rem;
-}
-</style>

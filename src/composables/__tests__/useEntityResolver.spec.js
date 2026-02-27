@@ -86,7 +86,9 @@ describe("useEntityResolver", () => {
   describe("isAvailable computed", () => {
     it("should return true when entity is available", () => {
       useHaStore.mockReturnValue(
-        createMockStore([{ entity_id: "sensor.test", state: "on", attributes: {} }]),
+        createMockStore([
+          { entity_id: "sensor.test", state: "on", attributes: {} },
+        ]),
       );
 
       const { isAvailable } = useEntityResolver("sensor.test");
@@ -144,7 +146,9 @@ describe("useEntityResolver", () => {
 
     it("should fallback to entity_id if friendly_name not available", () => {
       useHaStore.mockReturnValue(
-        createMockStore([{ entity_id: "sensor.test", state: "42", attributes: {} }]),
+        createMockStore([
+          { entity_id: "sensor.test", state: "42", attributes: {} },
+        ]),
       );
 
       const { friendlyName } = useEntityResolver("sensor.test");
@@ -171,7 +175,9 @@ describe("useEntityResolver", () => {
   describe("entityId computed", () => {
     it("should return entity ID for string input", () => {
       useHaStore.mockReturnValue(
-        createMockStore([{ entity_id: "sensor.test", state: "42", attributes: {} }]),
+        createMockStore([
+          { entity_id: "sensor.test", state: "42", attributes: {} },
+        ]),
       );
 
       const { entityId } = useEntityResolver("sensor.test");
@@ -247,7 +253,9 @@ describe("useEntityResolver", () => {
 
     it("should return computed properties", () => {
       useHaStore.mockReturnValue(
-        createMockStore([{ entity_id: "sensor.test", state: "42", attributes: {} }]),
+        createMockStore([
+          { entity_id: "sensor.test", state: "42", attributes: {} },
+        ]),
       );
 
       const { resolvedEntity, isAvailable, friendlyName, entityId } =

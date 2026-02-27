@@ -132,7 +132,11 @@ const cardVariations = [
   },
 ];
 
-const imagesDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "images");
+const imagesDir = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "images",
+);
 
 // Ensure images directory exists
 if (!fs.existsSync(imagesDir)) {

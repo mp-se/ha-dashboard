@@ -27,12 +27,20 @@ describe("useLightColorPresets", () => {
 
       it("should find exact green match", () => {
         const result = findClosestColorPreset([120, 100], colorPresets);
-        expect(result).toEqual({ name: "Green", color: "#00FF00", hs: [120, 100] });
+        expect(result).toEqual({
+          name: "Green",
+          color: "#00FF00",
+          hs: [120, 100],
+        });
       });
 
       it("should find exact blue match", () => {
         const result = findClosestColorPreset([240, 100], colorPresets);
-        expect(result).toEqual({ name: "Blue", color: "#0000FF", hs: [240, 100] });
+        expect(result).toEqual({
+          name: "Blue",
+          color: "#0000FF",
+          hs: [240, 100],
+        });
       });
 
       it("should find closest preset when hue is in between", () => {
@@ -106,7 +114,11 @@ describe("useLightColorPresets", () => {
       it("should match exact color even with very low tolerance", () => {
         // [180, 100] is an exact match for Cyan, so even tolerance=1 should match
         const result = findClosestColorPreset([180, 100], colorPresets, 1);
-        expect(result).toEqual({ name: "Cyan", color: "#00FFFF", hs: [180, 100] });
+        expect(result).toEqual({
+          name: "Cyan",
+          color: "#00FFFF",
+          hs: [180, 100],
+        });
       });
 
       it("should find match with higher tolerance", () => {
@@ -120,7 +132,11 @@ describe("useLightColorPresets", () => {
       it("should match single preset if within tolerance", () => {
         const singlePreset = [{ name: "Only", color: "#FF0000", hs: [0, 100] }];
         const result = findClosestColorPreset([10, 100], singlePreset, 50);
-        expect(result).toEqual({ name: "Only", color: "#FF0000", hs: [0, 100] });
+        expect(result).toEqual({
+          name: "Only",
+          color: "#FF0000",
+          hs: [0, 100],
+        });
       });
 
       it("should not match single preset if outside tolerance", () => {

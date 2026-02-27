@@ -131,9 +131,7 @@ const { resolvedEntity } = useEntityResolver(props.entity);
 const haStore = useHaStore();
 
 const entityId = computed(() =>
-  typeof props.entity === "string"
-    ? props.entity
-    : props.entity?.entity_id,
+  typeof props.entity === "string" ? props.entity : props.entity?.entity_id,
 );
 
 onMounted(() => {
@@ -279,76 +277,3 @@ const formatDate = (isoDatetime) => {
   }
 };
 </script>
-
-<style scoped>
-.weather-condition {
-  font-size: 1rem;
-  color: var(--bs-primary);
-}
-
-.weather-icon {
-  font-size: 1.5rem;
-  color: var(--bs-primary);
-}
-
-.weather-details {
-  font-size: 0.85rem;
-}
-
-.forecast-container {
-  display: flex;
-  gap: 0.75rem;
-  padding: 0.5rem 0;
-  margin-left: -1.5rem;
-  margin-right: -1.5rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  padding-bottom: 0;
-  margin-bottom: -1rem;
-}
-
-.forecast-item {
-  flex: 1;
-  text-align: center;
-  border: none;
-  border-radius: 0.375rem;
-  padding: 0.5rem;
-  background: transparent;
-  font-size: 0.75rem;
-}
-
-.forecast-time {
-  font-weight: 600;
-  color: #666;
-  margin-bottom: 0.25rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.forecast-temp {
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: #333;
-  margin: 0.25rem 0;
-}
-
-.forecast-condition {
-  font-size: 0.7rem;
-  color: #555;
-  margin: 0.25rem 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.forecast-wind {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.15rem;
-  color: #0078d4;
-  margin-top: 0.25rem;
-  font-size: 0.65rem;
-}
-</style>

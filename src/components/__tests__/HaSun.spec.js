@@ -368,7 +368,9 @@ describe("HaSun.vue", () => {
     });
     await wrapper.vm.$nextTick();
     // nextRising should prefer next_rising over sunrise
-    expect(wrapper.vm.nextRising).toBe(store.entities[0].attributes.next_rising);
+    expect(wrapper.vm.nextRising).toBe(
+      store.entities[0].attributes.next_rising,
+    );
   });
 
   it("should return '--:--' when formatTime24h receives null", async () => {
@@ -392,6 +394,8 @@ describe("HaSun.vue", () => {
       global: { plugins: [pinia] },
     });
     await wrapper.vm.$nextTick();
-    expect(wrapper.vm.nextSetting).toBe(store.entities[0].attributes.next_setting);
+    expect(wrapper.vm.nextSetting).toBe(
+      store.entities[0].attributes.next_setting,
+    );
   });
 });

@@ -221,7 +221,9 @@ describe("useConfigStore", () => {
       const auth = useAuthStore();
       auth.isLocalMode = true;
 
-      const mockEntities = { loadLocalData: vi.fn().mockResolvedValue(undefined) };
+      const mockEntities = {
+        loadLocalData: vi.fn().mockResolvedValue(undefined),
+      };
       await store.reloadConfig(auth, mockEntities);
 
       expect(mockEntities.loadLocalData).toHaveBeenCalled();

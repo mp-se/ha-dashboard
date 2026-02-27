@@ -561,7 +561,9 @@ describe("HaWeather.vue", () => {
       });
       await wrapper.vm.$nextTick();
       // Access the internal formatDate by checking forecast rendering with no datetime
-      store.entities[0].attributes.forecast = [{ condition: "sunny", temperature: 20 }];
+      store.entities[0].attributes.forecast = [
+        { condition: "sunny", temperature: 20 },
+      ];
       await wrapper.vm.$nextTick();
       expect(wrapper.find(".card").exists()).toBe(true);
     });

@@ -27,7 +27,9 @@ describe("DevelopmentView.vue", () => {
 
   it("renders HaEntityList component", () => {
     const store = useHaStore();
-    store.entities = [{ entity_id: "sensor.temp", state: "25", attributes: {} }];
+    store.entities = [
+      { entity_id: "sensor.temp", state: "25", attributes: {} },
+    ];
 
     const wrapper = mount(DevelopmentView, {
       global: {
@@ -148,7 +150,9 @@ describe("DevelopmentView.vue", () => {
 
   it("reacts to store changes", async () => {
     const store = useHaStore();
-    store.entities = [{ entity_id: "sensor.temp", state: "25", attributes: {} }];
+    store.entities = [
+      { entity_id: "sensor.temp", state: "25", attributes: {} },
+    ];
 
     const wrapper = mount(DevelopmentView, {
       global: {

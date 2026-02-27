@@ -170,32 +170,3 @@ const { requestedAttributes } = useAttributeResolver(
   props.attributes,
 );
 </script>
-
-<style scoped>
-.binary-state-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  transition: all 0.2s ease;
-  cursor: default;
-}
-
-.binary-state-indicator.state-on {
-  color: #28a745;
-}
-
-.binary-state-indicator.state-off {
-  color: #6c757d;
-}
-
-.binary-state-indicator.state-unavailable {
-  color: #ffc107;
-}
-
-.state-icon {
-  font-size: 2rem;
-  display: block;
-}
-</style>

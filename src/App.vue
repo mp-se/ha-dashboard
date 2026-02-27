@@ -119,10 +119,13 @@ const handleSwipe = () => {
   if (currentIndex === -1) return;
 
   if (diff > 0) {
-    currentView.value = viewNames.value[(currentIndex + 1) % viewNames.value.length];
+    currentView.value =
+      viewNames.value[(currentIndex + 1) % viewNames.value.length];
   } else {
     currentView.value =
-      viewNames.value[(currentIndex - 1 + viewNames.value.length) % viewNames.value.length];
+      viewNames.value[
+        (currentIndex - 1 + viewNames.value.length) % viewNames.value.length
+      ];
   }
 };
 
@@ -172,7 +175,11 @@ onMounted(async () => {
 watch(
   () => store.needsCredentials,
   (needsCredentials) => {
-    if (needsCredentials && !store.isLoading && !store.configValidationError?.length) {
+    if (
+      needsCredentials &&
+      !store.isLoading &&
+      !store.configValidationError?.length
+    ) {
       setTimeout(() => credentialDialog.value?.showModal(), 0);
     }
   },

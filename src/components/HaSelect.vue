@@ -117,20 +117,3 @@ const selectIcon = computed(() => {
 // Select-specific attributes
 const options = computed(() => resolvedEntity.value?.attributes?.options || []);
 </script>
-
-<style scoped>
-.select-state {
-  font-size: 1.1rem;
-  color: var(--bs-primary);
-}
-
-.select-icon {
-  font-size: 1.5rem;
-  color: var(--bs-info);
-}
-
-.select-control {
-  max-width: 250px;
-  margin: 0 auto;
-}
-</style>

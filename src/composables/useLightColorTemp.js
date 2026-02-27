@@ -105,9 +105,7 @@ export function useLightColorTemp(entityAttrs, colorTempPresets) {
   /**
    * Get current color temperature in kelvin
    */
-  const colorTempKelvin = computed(() =>
-    miredsToKelvin(colorTempMireds.value),
-  );
+  const colorTempKelvin = computed(() => miredsToKelvin(colorTempMireds.value));
 
   /**
    * Find the active (closest matching) preset

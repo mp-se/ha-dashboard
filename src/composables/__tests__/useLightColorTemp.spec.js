@@ -202,7 +202,9 @@ describe("useLightColorTemp", () => {
       expect(supportedPresets.value).toHaveLength(4);
       expect(supportedPresets.value[0].kelvin).toBe(2700);
       expect(supportedPresets.value[3].kelvin).toBe(5000);
-      expect(supportedPresets.value.find((p) => p.kelvin === 6500)).toBeUndefined();
+      expect(
+        supportedPresets.value.find((p) => p.kelvin === 6500),
+      ).toBeUndefined();
     });
 
     it("should return all presets when no min/max specified", () => {
