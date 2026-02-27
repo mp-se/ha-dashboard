@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useAuthStore } from "./authStore";
+import { useEntitiesStore } from "./entitiesStore";
 
 /**
  * Store responsible for managing weather forecast subscriptions and their state.
@@ -27,10 +28,7 @@ export const useForecastStore = defineStore("forecast", () => {
     // Avoid duplicate subscriptions
     if (entityId in forecastSubscriptions.value) return;
 
-    // Lazy import to avoid circular dependency with entitiesStore
-    const { useEntitiesStore } = await import("./entitiesStore");
     const entitiesStore = useEntitiesStore();
-
     const entity = entitiesStore.entityMap.get(entityId);
     if (!entity) {
       forecastErrors.value[entityId] = "Entity not found";
