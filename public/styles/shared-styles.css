@@ -198,6 +198,8 @@ button:active {
 .ha-icon-circle-wrapper {
   position: relative;
   flex-shrink: 0;
+  width: var(--ha-icon-circle-size);
+  height: var(--ha-icon-circle-size);
 }
 
 .ha-icon-circle {
@@ -214,6 +216,7 @@ button:active {
   top: 0;
   left: 0;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  aspect-ratio: 1 / 1;
 }
 
 .ha-icon-overlay {
@@ -234,27 +237,33 @@ button:active {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 50px;
+  height: 50px;
   flex-shrink: 0;
 }
 
 .icon-bg {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 50px;
   height: 50px;
   border-radius: 50%;
   flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  aspect-ratio: 1 / 1;
 }
 
 .icon-bg-small {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
   border-radius: 50%;
   flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  aspect-ratio: 1 / 1;
 }
 
 .icon-overlay-small {
@@ -317,6 +326,7 @@ button:active {
   border-radius: 50%;
   filter: drop-shadow(var(--ha-shadow));
   transition: var(--ha-transition);
+  aspect-ratio: 1 / 1;
 }
 
 .ha-control-button:hover .ha-control-circle {
@@ -729,45 +739,15 @@ button:active {
   font-weight: 400;
 }
 
-/* HaSensor Component */
-.icon-bg-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 50px;
-  height: 50px;
-  flex-shrink: 0;
-}
-
-.icon-bg {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-
+/* HaSensor Component - using consolidated icon-bg styles above */
 .icon-bg-wrapper-small {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
-}
-
-.icon-bg-small {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .icon-overlay-small {
@@ -1152,6 +1132,7 @@ button:active {
   height: 100%;
   border-radius: 50%;
   transition: all 0.2s ease;
+  aspect-ratio: 1 / 1;
 }
 
 .glance-icon-overlay {

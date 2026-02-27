@@ -65,7 +65,11 @@
       ]"
     >
       <div class="card-body">
-        <div v-for="ent in entityList" :key="ent" class="mb-2">
+        <div
+          v-for="ent in entityList"
+          :key="typeof ent === 'string' ? ent : ent.entity_id"
+          class="mb-2"
+        >
           <div class="d-flex align-items-center gap-2">
             <HaIconCircle
               size="small"

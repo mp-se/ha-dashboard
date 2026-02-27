@@ -1,6 +1,20 @@
 /**
  * Composable to calculate icon circle background color based on entity type and value
  * Returns color for battery, temperature, humidity, WiFi, power, air quality, and more
+ * 
+ * Supports dynamic color calculation for:
+ * - Battery levels (device_class: battery)
+ * - Voltage sensors (AC and DC ranges)
+ * - Temperature sensors (device_class: temperature)
+ * - Humidity sensors (device_class: humidity)
+ * - WiFi signal strength
+ * - Power consumption
+ * - Air quality (CO2, PM2.5, etc.)
+ * - Binary sensors (on/off states)
+ * 
+ * @param {object|null} entity - The entity object with state and attributes
+ * @param {string} entityId - The entity ID string for domain extraction
+ * @returns {string} Hex color code (e.g., '#28a745' for green, '#dc3545' for red)
  */
 
 export const useIconCircleColor = (entity, entityId) => {
