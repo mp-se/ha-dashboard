@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { createLogger } from "@/utils/logger";
 import { useAuthStore } from "./authStore";
+import { useForecastStore } from "./forecastStore";
 import { subscribeEntities } from "home-assistant-js-websocket";
 
 export const useEntitiesStore = defineStore("entities", () => {
@@ -233,7 +234,6 @@ export const useEntitiesStore = defineStore("entities", () => {
     forecastType = "daily",
   ) => {
     // Delegate to forecastStore to keep this store focused on entity state
-    const { useForecastStore } = await import("./forecastStore");
     const forecastStore = useForecastStore();
     return forecastStore.subscribeToWeatherForecast(entityId, forecastType);
   };

@@ -129,14 +129,14 @@ const props = defineProps({
     type: [Object, String, Array],
     required: true,
     validator: (value) => {
+      const logger = createLogger("HaSensorGraph");
       // Handle array: up to 3 entities
       if (Array.isArray(value)) {
         if (value.length === 0 || value.length > 3) {
-          if (import.meta.env.DEV)
-            console.warn(
-              "HaSensorGraph: entity array must contain 1-3 items, got",
-              value.length,
-            );
+          logger.warn(
+            "entity array must contain 1-3 items, got",
+            value.length,
+          );
           return false;
         }
         return value.every((ent) => {

@@ -44,8 +44,8 @@ button:focus,
 button:focus-visible,
 button:active {
   outline: none !important;
-  box-shadow: none !important;
   -webkit-box-shadow: none !important;
+  box-shadow: none !important;
 }
 
 /* Nuclear option: override ALL Bootstrap button focus states */
@@ -53,8 +53,8 @@ button:active {
 .btn:focus-visible,
 .btn:active {
   outline: none !important;
-  box-shadow: none !important;
   -webkit-box-shadow: none !important;
+  box-shadow: none !important;
   background-color: transparent !important;
   background-image: none !important;
 }
@@ -102,8 +102,8 @@ button:active {
   .btn:focus-visible,
   .btn:active {
     outline: none !important;
-    box-shadow: none !important;
     -webkit-box-shadow: none !important;
+    box-shadow: none !important;
     background-color: transparent !important;
     background-image: none !important;
   }
