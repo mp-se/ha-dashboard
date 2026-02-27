@@ -425,13 +425,17 @@ describe("HaSensorGraph.vue", () => {
         attributes: { unit_of_measurement: "°C" },
       },
     ];
-    expect(HaSensorGraph.props.entity.validator(validArrayWithObject)).toBe(true);
+    expect(HaSensorGraph.props.entity.validator(validArrayWithObject)).toBe(
+      true,
+    );
 
     // Invalid object in array (missing state)
     const invalidArrayWithObject = [
       { entity_id: "sensor.temperature", attributes: {} },
     ];
-    expect(HaSensorGraph.props.entity.validator(invalidArrayWithObject)).toBe(false);
+    expect(HaSensorGraph.props.entity.validator(invalidArrayWithObject)).toBe(
+      false,
+    );
   });
 
   it("should throw error when no valid entities provided", async () => {

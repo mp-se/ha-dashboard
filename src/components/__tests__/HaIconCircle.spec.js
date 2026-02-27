@@ -50,7 +50,9 @@ describe("HaIconCircle.vue", () => {
       const wrapper = mount(HaIconCircle, {
         props: { entityId: "light.bedroom", resolvedEntity: lightEntity },
       });
-      expect(wrapper.find(".icon-bg").attributes("style")).toContain("background-color");
+      expect(wrapper.find(".icon-bg").attributes("style")).toContain(
+        "background-color",
+      );
     });
 
     it("renders icon element with mdi class", () => {
@@ -78,35 +80,57 @@ describe("HaIconCircle.vue", () => {
 
     it("applies icon-bg-small for small size", () => {
       const wrapper = mount(HaIconCircle, {
-        props: { entityId: "light.bedroom", resolvedEntity: lightEntity, size: "small" },
+        props: {
+          entityId: "light.bedroom",
+          resolvedEntity: lightEntity,
+          size: "small",
+        },
       });
       expect(wrapper.find(".icon-bg-small").exists()).toBe(true);
     });
 
     it("applies icon-overlay-small for small size", () => {
       const wrapper = mount(HaIconCircle, {
-        props: { entityId: "light.bedroom", resolvedEntity: lightEntity, size: "small" },
+        props: {
+          entityId: "light.bedroom",
+          resolvedEntity: lightEntity,
+          size: "small",
+        },
       });
       expect(wrapper.find(".icon-overlay-small").exists()).toBe(true);
     });
 
     it("applies ha-icon-overlay for medium size", () => {
       const wrapper = mount(HaIconCircle, {
-        props: { entityId: "light.bedroom", resolvedEntity: lightEntity, size: "medium" },
+        props: {
+          entityId: "light.bedroom",
+          resolvedEntity: lightEntity,
+          size: "medium",
+        },
       });
       expect(wrapper.find(".ha-icon-overlay").exists()).toBe(true);
     });
 
     it("applies mb-3 class for large size", () => {
       const wrapper = mount(HaIconCircle, {
-        props: { entityId: "light.bedroom", resolvedEntity: lightEntity, size: "large" },
+        props: {
+          entityId: "light.bedroom",
+          resolvedEntity: lightEntity,
+          size: "large",
+        },
       });
-      expect(wrapper.find(".ha-icon-circle-wrapper").classes()).toContain("mb-3");
+      expect(wrapper.find(".ha-icon-circle-wrapper").classes()).toContain(
+        "mb-3",
+      );
     });
 
     it("uses icon-bg (not icon-bg-small) for large size", () => {
       const wrapper = mount(HaIconCircle, {
-        props: { entityId: "light.bedroom", resolvedEntity: lightEntity, size: "large" },
+        props: {
+          entityId: "light.bedroom",
+          resolvedEntity: lightEntity,
+          size: "large",
+        },
       });
       expect(wrapper.find(".icon-bg").exists()).toBe(true);
       expect(wrapper.find(".icon-bg-small").exists()).toBe(false);
@@ -114,7 +138,11 @@ describe("HaIconCircle.vue", () => {
 
     it("uses ha-icon-overlay for large size", () => {
       const wrapper = mount(HaIconCircle, {
-        props: { entityId: "light.bedroom", resolvedEntity: lightEntity, size: "large" },
+        props: {
+          entityId: "light.bedroom",
+          resolvedEntity: lightEntity,
+          size: "large",
+        },
       });
       expect(wrapper.find(".ha-icon-overlay").exists()).toBe(true);
     });
@@ -129,7 +157,9 @@ describe("HaIconCircle.vue", () => {
 
     it("resolvedEntity defaults to null without error", () => {
       expect(
-        mount(HaIconCircle, { props: { entityId: "light.x", resolvedEntity: null } }).exists(),
+        mount(HaIconCircle, {
+          props: { entityId: "light.x", resolvedEntity: null },
+        }).exists(),
       ).toBe(true);
     });
 
@@ -167,4 +197,3 @@ describe("HaIconCircle.vue", () => {
     });
   });
 });
-

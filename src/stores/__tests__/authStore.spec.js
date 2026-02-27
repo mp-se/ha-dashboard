@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
 import { useAuthStore } from "../authStore";
 import { useConfigStore } from "../configStore";
+import * as secureStorage from "@/utils/secureStorage";
 
 // Mock home-assistant-js-websocket library
 vi.mock("home-assistant-js-websocket", () => {
@@ -68,8 +69,10 @@ describe("useAuthStore", () => {
   describe("Credentials management", () => {
     it("should load credentials from localStorage", async () => {
       const store = useAuthStore();
-      localStorage.setItem("ha_url", "http://192.168.1.100:8123");
-      localStorage.setItem("ha_token", "saved-token");
+      
+      // Store encrypted credentials
+      await secureStorage.setSecureItem("ha_url", "http://192.168.1.100:8123");
+      await secureStorage.setSecureItem("ha_token", "saved-token");
 
       const result = await store.loadCredentials();
 
@@ -98,25 +101,33 @@ describe("useAuthStore", () => {
       expect(auth.credentialsFromConfig).toBe(true);
     });
 
-    it("should save credentials to localStorage", () => {
+    it("should save credentials to localStorage", async () => {
       const store = useAuthStore();
-      store.saveCredentials("http://new-url:8123", "new-token");
+      await store.saveCredentials("http://new-url:8123", "new-token");
 
-      expect(localStorage.getItem("ha_url")).toBe("http://new-url:8123");
-      expect(localStorage.getItem("ha_token")).toBe("new-token");
+      // Verify credentials are encrypted in storage
+      const savedUrl = await secureStorage.getSecureItem("ha_url");
+      const savedToken = await secureStorage.getSecureItem("ha_token");
+      
+      expect(savedUrl).toBe("http://new-url:8123");
+      expect(savedToken).toBe("new-token");
       expect(store.haUrl).toBe("http://new-url:8123");
       expect(store.accessToken).toBe("new-token");
+      expect(store.credentialsFromConfig).toBe(false);
+      expect(store.needsCredentials).toBe(false);
     });
 
-    it("should clear credentials from localStorage", () => {
+    it("should clear credentials from localStorage", async () => {
       const store = useAuthStore();
-      localStorage.setItem("ha_url", "url");
-      localStorage.setItem("ha_token", "token");
+      
+      // Set up encrypted credentials first
+      await secureStorage.setSecureItem("ha_url", "url");
+      await secureStorage.setSecureItem("ha_token", "token");
 
       store.clearCredentials();
 
-      expect(localStorage.getItem("ha_url")).toBeNull();
-      expect(localStorage.getItem("ha_token")).toBeNull();
+      expect(await secureStorage.getSecureItem("ha_url")).toBeNull();
+      expect(await secureStorage.getSecureItem("ha_token")).toBeNull();
       expect(store.haUrl).toBe("");
       expect(store.accessToken).toBe("");
     });
@@ -196,15 +207,17 @@ describe("useAuthStore", () => {
       global.fetch.mockRejectedValueOnce(
         Object.assign(new Error("aborted"), { name: "AbortError" }),
       );
-      await expect(store.fetchWithTimeout("http://test.com", {}, 1)).rejects.toThrow(
-        "Request timeout after 1ms",
-      );
+      await expect(
+        store.fetchWithTimeout("http://test.com", {}, 1),
+      ).rejects.toThrow("Request timeout after 1ms");
     });
 
     it("should re-throw non-abort fetch errors", async () => {
       const store = useAuthStore();
       global.fetch.mockRejectedValueOnce(new Error("Network crash"));
-      await expect(store.fetchWithTimeout("http://test.com")).rejects.toThrow("Network crash");
+      await expect(store.fetchWithTimeout("http://test.com")).rejects.toThrow(
+        "Network crash",
+      );
     });
   });
 
@@ -263,7 +276,9 @@ describe("useAuthStore", () => {
       store.isLocalMode = false;
       store.haUrl = "";
       store.accessToken = "";
-      await expect(store.connectWebSocket()).rejects.toThrow("Missing credentials");
+      await expect(store.connectWebSocket()).rejects.toThrow(
+        "Missing credentials",
+      );
     });
 
     it("establishes connection and sets isConnected = true", async () => {
@@ -322,7 +337,9 @@ describe("useAuthStore", () => {
       const { createConnection } = await import("home-assistant-js-websocket");
       const listeners = {};
       const mockConn = {
-        addEventListener: vi.fn((event, handler) => { listeners[event] = handler; }),
+        addEventListener: vi.fn((event, handler) => {
+          listeners[event] = handler;
+        }),
         close: vi.fn(),
       };
       createConnection.mockResolvedValueOnce(mockConn);
@@ -367,16 +384,28 @@ describe("useAuthStore", () => {
       const store = useAuthStore();
       store.haUrl = "http://ha:8123";
       store.accessToken = "tok";
-      global.fetch.mockResolvedValueOnce({ ok: false, status: 403, statusText: "Forbidden" });
-      await expect(store.callService("light", "turn_on", {})).rejects.toThrow("Access forbidden");
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 403,
+        statusText: "Forbidden",
+      });
+      await expect(store.callService("light", "turn_on", {})).rejects.toThrow(
+        "Access forbidden",
+      );
     });
 
     it("throws a 404 not found error with correct message", async () => {
       const store = useAuthStore();
       store.haUrl = "http://ha:8123";
       store.accessToken = "tok";
-      global.fetch.mockResolvedValueOnce({ ok: false, status: 404, statusText: "Not Found" });
-      await expect(store.callService("light", "turn_on", {})).rejects.toThrow("Service not found");
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        statusText: "Not Found",
+      });
+      await expect(store.callService("light", "turn_on", {})).rejects.toThrow(
+        "Service not found",
+      );
     });
 
     it("throws a CORS error when fetch rejects with 'Failed to fetch'", async () => {
@@ -384,7 +413,9 @@ describe("useAuthStore", () => {
       store.haUrl = "http://ha:8123";
       store.accessToken = "tok";
       global.fetch.mockRejectedValueOnce(new TypeError("Failed to fetch"));
-      await expect(store.callService("light", "turn_on", {})).rejects.toThrow("CORS error");
+      await expect(store.callService("light", "turn_on", {})).rejects.toThrow(
+        "CORS error",
+      );
     });
   });
 

@@ -159,7 +159,9 @@ const copyDeviceToClipboard = async (device) => {
         ?.map((entityId) => store.entityMap.get(entityId))
         .filter(Boolean) || [],
   };
-  const success = await writeToClipboard(JSON.stringify(enrichedDevice, null, 2));
+  const success = await writeToClipboard(
+    JSON.stringify(enrichedDevice, null, 2),
+  );
   if (!success) {
     logger.error(
       "Failed to copy device to clipboard:",

@@ -223,35 +223,3 @@ const formattedValue = computed(() => {
   return numericValue.value.toFixed(1);
 });
 </script>
-
-<style scoped>
-.gauge-svg {
-  overflow: visible;
-}
-
-.gauge-background {
-  opacity: 0.3;
-}
-
-.gauge-arc {
-  opacity: 0.7;
-}
-
-.gauge-value {
-  transition: all 0.3s ease;
-}
-
-.gauge-needle {
-  transition: all 0.3s ease;
-}
-
-.gauge-label {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  user-select: none;
-}
-
-.gauge-center-value {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  user-select: none;
-}
-</style>

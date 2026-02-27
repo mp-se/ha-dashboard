@@ -265,7 +265,11 @@ const props = defineProps({
   darkMode: { type: Boolean, required: true },
 });
 
-const emit = defineEmits(["update:currentView", "update:darkMode", "edit-credentials"]);
+const emit = defineEmits([
+  "update:currentView",
+  "update:darkMode",
+  "edit-credentials",
+]);
 
 const store = useHaStore();
 const pwaInstallModal = ref(null);
@@ -323,7 +327,8 @@ const handleReloadConfig = async () => {
   try {
     const validationResult = await store.reloadConfig();
     configErrorBanner.value = true;
-    if (configErrorBannerTimeout.value) clearTimeout(configErrorBannerTimeout.value);
+    if (configErrorBannerTimeout.value)
+      clearTimeout(configErrorBannerTimeout.value);
     if (validationResult.valid) {
       // Auto-dismiss on success
       configErrorBannerTimeout.value = setTimeout(() => {
@@ -332,7 +337,8 @@ const handleReloadConfig = async () => {
     }
   } catch {
     configErrorBanner.value = true;
-    if (configErrorBannerTimeout.value) clearTimeout(configErrorBannerTimeout.value);
+    if (configErrorBannerTimeout.value)
+      clearTimeout(configErrorBannerTimeout.value);
   } finally {
     configReloading.value = false;
   }
@@ -375,7 +381,9 @@ const isPwaSupported = () => {
     if (typeof window === "undefined") return false;
     const ua = window.navigator.userAgent.toLowerCase();
     const isIos = /iphone|ipad|ipod/.test(ua);
-    return "serviceWorker" in navigator && ("beforeinstallprompt" in window || isIos);
+    return (
+      "serviceWorker" in navigator && ("beforeinstallprompt" in window || isIos)
+    );
   } catch {
     return false;
   }

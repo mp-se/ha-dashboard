@@ -8,6 +8,12 @@ import {
   ERR_INVALID_AUTH,
 } from "home-assistant-js-websocket";
 import { createLogger } from "@/utils/logger";
+import {
+  getSecureItem,
+  setSecureItem,
+  removeSecureItem,
+  isCryptoSupported,
+} from "@/utils/secureStorage";
 
 export const useAuthStore = defineStore("auth", () => {
   const haUrl = ref("");
@@ -72,15 +78,24 @@ export const useAuthStore = defineStore("auth", () => {
   };
 
   const loadCredentials = async () => {
-    // Priority 1: localStorage (user-provided override)
-    const savedUrl = localStorage.getItem("ha_url");
-    const savedToken = localStorage.getItem("ha_token");
-    if (savedUrl && savedToken) {
-      haUrl.value = savedUrl.trim();
-      accessToken.value = savedToken.trim();
-      credentialsFromConfig.value = false;
-      logger.log("✓ Using credentials from localStorage (override)");
-      return true;
+    // Priority 1: Encrypted localStorage (user-provided override)
+    try {
+      if (isCryptoSupported()) {
+        const savedUrl = await getSecureItem("ha_url");
+        const savedToken = await getSecureItem("ha_token");
+        if (savedUrl && savedToken) {
+          haUrl.value = savedUrl.trim();
+          accessToken.value = savedToken.trim();
+          credentialsFromConfig.value = false;
+          logger.log("✓ Using encrypted credentials from localStorage (override)");
+          return true;
+        }
+      } else {
+        logger.warn("Web Crypto API not supported, falling back to config/env");
+      }
+    } catch (error) {
+      logger.error("Failed to load encrypted credentials:", error);
+      // Fall through to other credential sources
     }
 
     // Priority 2: Dashboard config (provided template)
@@ -108,18 +123,28 @@ export const useAuthStore = defineStore("auth", () => {
     return false;
   };
 
-  const saveCredentials = (url, token) => {
-    localStorage.setItem("ha_url", url);
-    localStorage.setItem("ha_token", token);
-    haUrl.value = url;
-    accessToken.value = token;
-    credentialsFromConfig.value = false;
-    needsCredentials.value = false;
+  const saveCredentials = async (url, token) => {
+    try {
+      if (isCryptoSupported()) {
+        await setSecureItem("ha_url", url);
+        await setSecureItem("ha_token", token);
+        logger.log("✓ Credentials encrypted and saved");
+      } else {
+        logger.warn("Web Crypto API not supported, credentials not saved");
+      }
+      haUrl.value = url;
+      accessToken.value = token;
+      credentialsFromConfig.value = false;
+      needsCredentials.value = false;
+    } catch (error) {
+      logger.error("Failed to save encrypted credentials:", error);
+      throw new Error("Failed to save credentials securely");
+    }
   };
 
   const clearCredentials = () => {
-    localStorage.removeItem("ha_url");
-    localStorage.removeItem("ha_token");
+    removeSecureItem("ha_url");
+    removeSecureItem("ha_token");
     haUrl.value = "";
     accessToken.value = "";
     needsCredentials.value = true;

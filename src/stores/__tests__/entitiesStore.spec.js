@@ -261,7 +261,13 @@ describe("useEntitiesStore", () => {
 
     it("should return early when devices list is empty", () => {
       const store = useEntitiesStore();
-      store.entities = [{ entity_id: "sensor.temp", state: "20", attributes: { device_id: "d1" } }];
+      store.entities = [
+        {
+          entity_id: "sensor.temp",
+          state: "20",
+          attributes: { device_id: "d1" },
+        },
+      ];
       store.devices = [];
       store.mapEntitiesToDevices(); // no-op, should not throw
       expect(store.entities[0].entity_id).toBe("sensor.temp");
@@ -311,10 +317,14 @@ describe("useEntitiesStore", () => {
       // Make subscribeEntities call callback twice
       let callCount = 0;
       subscribeEntities.mockImplementation((connection, cb) => {
-        cb({ "sensor.a": { entity_id: "sensor.a", state: "1", attributes: {} } });
+        cb({
+          "sensor.a": { entity_id: "sensor.a", state: "1", attributes: {} },
+        });
         callCount++;
         if (callCount === 1) {
-          cb({ "sensor.a": { entity_id: "sensor.a", state: "2", attributes: {} } });
+          cb({
+            "sensor.a": { entity_id: "sensor.a", state: "2", attributes: {} },
+          });
         }
         return vi.fn();
       });
@@ -333,7 +343,9 @@ describe("useEntitiesStore", () => {
       vi.spyOn(auth, "getConnection").mockReturnValue(conn);
 
       subscribeEntities.mockImplementation((connection, cb) => {
-        cb({ "sensor.new": { entity_id: "sensor.new", state: "5", attributes: {} } });
+        cb({
+          "sensor.new": { entity_id: "sensor.new", state: "5", attributes: {} },
+        });
         return vi.fn();
       });
 
@@ -370,7 +382,9 @@ describe("useEntitiesStore", () => {
       ]);
 
       const store = useEntitiesStore();
-      store.entities = [{ entity_id: "sensor.temp", state: "20", attributes: {} }];
+      store.entities = [
+        { entity_id: "sensor.temp", state: "20", attributes: {} },
+      ];
 
       await store.fetchEntityRegistry();
 
@@ -422,7 +436,13 @@ describe("useEntitiesStore", () => {
       vi.spyOn(auth, "getConnection").mockReturnValue(conn);
 
       conn.sendMessagePromise.mockResolvedValueOnce([
-        { area_id: "kitchen", name: "Kitchen", icon: "mdi:stove", picture: null, aliases: [] },
+        {
+          area_id: "kitchen",
+          name: "Kitchen",
+          icon: "mdi:stove",
+          picture: null,
+          aliases: [],
+        },
       ]);
 
       const store = useEntitiesStore();
@@ -441,15 +461,25 @@ describe("useEntitiesStore", () => {
       vi.spyOn(auth, "getConnection").mockReturnValue(conn);
 
       conn.sendMessagePromise.mockResolvedValueOnce([
-        { area_id: "hall", name: "Hall", icon: null, picture: null, aliases: [] },
+        {
+          area_id: "hall",
+          name: "Hall",
+          icon: null,
+          picture: null,
+          aliases: [],
+        },
       ]);
 
       const store = useEntitiesStore();
       // Pre-populate virtual entity
-      store.entities = [{ entity_id: "area.hall", state: "Hall", attributes: {} }];
+      store.entities = [
+        { entity_id: "area.hall", state: "Hall", attributes: {} },
+      ];
       await store.fetchAreaRegistry();
 
-      const areaEntities = store.entities.filter((s) => s.entity_id === "area.hall");
+      const areaEntities = store.entities.filter(
+        (s) => s.entity_id === "area.hall",
+      );
       expect(areaEntities.length).toBe(1);
     });
 
@@ -481,7 +511,14 @@ describe("useEntitiesStore", () => {
       vi.spyOn(auth, "getConnection").mockReturnValue(conn);
 
       conn.sendMessagePromise.mockResolvedValueOnce([
-        { id: "d1", name: "Plug", model: "SP600", manufacturer: "TP-Link", sw_version: "1.0", area_id: "kitchen" },
+        {
+          id: "d1",
+          name: "Plug",
+          model: "SP600",
+          manufacturer: "TP-Link",
+          sw_version: "1.0",
+          area_id: "kitchen",
+        },
       ]);
 
       const store = useEntitiesStore();
@@ -584,7 +621,9 @@ describe("useEntitiesStore", () => {
       });
 
       const store = useEntitiesStore();
-      await expect(store.fetchHistory("sensor.temp")).rejects.toThrow("History request failed: 503");
+      await expect(store.fetchHistory("sensor.temp")).rejects.toThrow(
+        "History request failed: 503",
+      );
     });
 
     it("returns cached result on second call within TTL", async () => {
@@ -595,7 +634,9 @@ describe("useEntitiesStore", () => {
 
       const mockFetch = vi.spyOn(auth, "fetchWithTimeout").mockResolvedValue({
         ok: true,
-        json: async () => [[{ last_changed: "2026-02-26T10:00:00Z", state: "22" }]],
+        json: async () => [
+          [{ last_changed: "2026-02-26T10:00:00Z", state: "22" }],
+        ],
       });
 
       const store = useEntitiesStore();
@@ -634,8 +675,14 @@ describe("useEntitiesStore", () => {
 
       const now = new Date();
       const entries = [
-        { last_changed: new Date(now.getTime() - 1800000).toISOString(), state: "10" },
-        { last_changed: new Date(now.getTime() - 1200000).toISOString(), state: "20" },
+        {
+          last_changed: new Date(now.getTime() - 1800000).toISOString(),
+          state: "10",
+        },
+        {
+          last_changed: new Date(now.getTime() - 1200000).toISOString(),
+          state: "20",
+        },
       ];
 
       vi.spyOn(auth, "fetchWithTimeout").mockResolvedValueOnce({
@@ -657,7 +704,10 @@ describe("useEntitiesStore", () => {
       auth.accessToken = "tok";
 
       const now = new Date();
-      const entry = { last_changed: new Date(now.getTime() - 86400000).toISOString(), state: "5" };
+      const entry = {
+        last_changed: new Date(now.getTime() - 86400000).toISOString(),
+        state: "5",
+      };
 
       vi.spyOn(auth, "fetchWithTimeout").mockResolvedValueOnce({
         ok: true,
@@ -693,7 +743,10 @@ describe("useEntitiesStore", () => {
       auth.haUrl = "http://ha:8123";
       auth.accessToken = "tok";
 
-      vi.spyOn(auth, "fetchWithTimeout").mockResolvedValueOnce({ ok: false, status: 500 });
+      vi.spyOn(auth, "fetchWithTimeout").mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+      });
 
       const store = useEntitiesStore();
       await expect(store.fetchEnergyHistory("sensor.energy")).rejects.toThrow(
@@ -705,7 +758,9 @@ describe("useEntitiesStore", () => {
   describe("saveLocalData", () => {
     it("triggers a download of currently loaded data as JSON", () => {
       const store = useEntitiesStore();
-      store.entities = [{ entity_id: "sensor.temp", state: "20", attributes: {} }];
+      store.entities = [
+        { entity_id: "sensor.temp", state: "20", attributes: {} },
+      ];
       store.devices = [{ id: "d1", name: "Device" }];
 
       const createObjectURL = vi.fn(() => "blob:url");
@@ -732,7 +787,9 @@ describe("useEntitiesStore", () => {
       const { subscribeEntities } = await import("home-assistant-js-websocket");
       const unsubFn = vi.fn();
       subscribeEntities.mockImplementationOnce((conn, cb) => {
-        cb({ "sensor.x": { entity_id: "sensor.x", state: "1", attributes: {} } });
+        cb({
+          "sensor.x": { entity_id: "sensor.x", state: "1", attributes: {} },
+        });
         return unsubFn;
       });
 
@@ -758,17 +815,45 @@ describe("useEntitiesStore", () => {
     beforeEach(() => {
       const store = useEntitiesStore();
       store.entities = [
-        { entity_id: "sensor.wifi_signal", state: "75", attributes: { icon: "mdi:wifi", device_class: null } },
-        { entity_id: "sensor.power_meter", state: "100", attributes: { device_class: "power" } },
-        { entity_id: "sensor.energy_meter", state: "50", attributes: { device_class: "energy", state_class: "total" } },
-        { entity_id: "sensor.unavailable", state: "unavailable", attributes: { device_class: "power" } },
-        { entity_id: "media_player.living_room", state: "playing", attributes: {} },
-        { entity_id: "alarm_control_panel.home", state: "armed_away", attributes: {} },
+        {
+          entity_id: "sensor.wifi_signal",
+          state: "75",
+          attributes: { icon: "mdi:wifi", device_class: null },
+        },
+        {
+          entity_id: "sensor.power_meter",
+          state: "100",
+          attributes: { device_class: "power" },
+        },
+        {
+          entity_id: "sensor.energy_meter",
+          state: "50",
+          attributes: { device_class: "energy", state_class: "total" },
+        },
+        {
+          entity_id: "sensor.unavailable",
+          state: "unavailable",
+          attributes: { device_class: "power" },
+        },
+        {
+          entity_id: "media_player.living_room",
+          state: "playing",
+          attributes: {},
+        },
+        {
+          entity_id: "alarm_control_panel.home",
+          state: "armed_away",
+          attributes: {},
+        },
         { entity_id: "device_tracker.phone", state: "home", attributes: {} },
         { entity_id: "fan.bedroom", state: "on", attributes: {} },
         { entity_id: "select.mode", state: "Auto", attributes: {} },
         { entity_id: "button.restart", state: "unknown", attributes: {} },
-        { entity_id: "sensor.battery_low", state: "unknown", attributes: { device_class: "battery" } },
+        {
+          entity_id: "sensor.battery_low",
+          state: "unknown",
+          attributes: { device_class: "battery" },
+        },
       ];
     });
 
@@ -782,7 +867,9 @@ describe("useEntitiesStore", () => {
       const store = useEntitiesStore();
       const results = store.getPowerConsumptionSensors();
       expect(results.map((s) => s.entity_id)).toContain("sensor.power_meter");
-      expect(results.map((s) => s.entity_id)).not.toContain("sensor.unavailable");
+      expect(results.map((s) => s.entity_id)).not.toContain(
+        "sensor.unavailable",
+      );
     });
 
     it("getEnergyConsumptionSensors matches energy+total class", () => {
@@ -793,17 +880,23 @@ describe("useEntitiesStore", () => {
 
     it("getMediaPlayers returns media_player entities", () => {
       const store = useEntitiesStore();
-      expect(store.getMediaPlayers().map((s) => s.entity_id)).toContain("media_player.living_room");
+      expect(store.getMediaPlayers().map((s) => s.entity_id)).toContain(
+        "media_player.living_room",
+      );
     });
 
     it("getAlarmPanels returns alarm_control_panel entities", () => {
       const store = useEntitiesStore();
-      expect(store.getAlarmPanels().map((s) => s.entity_id)).toContain("alarm_control_panel.home");
+      expect(store.getAlarmPanels().map((s) => s.entity_id)).toContain(
+        "alarm_control_panel.home",
+      );
     });
 
     it("getDeviceTrackers returns device_tracker entities", () => {
       const store = useEntitiesStore();
-      expect(store.getDeviceTrackers().map((s) => s.entity_id)).toContain("device_tracker.phone");
+      expect(store.getDeviceTrackers().map((s) => s.entity_id)).toContain(
+        "device_tracker.phone",
+      );
     });
 
     it("getFans returns fan entities", () => {
@@ -813,12 +906,16 @@ describe("useEntitiesStore", () => {
 
     it("getSelects returns select entities", () => {
       const store = useEntitiesStore();
-      expect(store.getSelects().map((s) => s.entity_id)).toContain("select.mode");
+      expect(store.getSelects().map((s) => s.entity_id)).toContain(
+        "select.mode",
+      );
     });
 
     it("getButtons returns button entities", () => {
       const store = useEntitiesStore();
-      expect(store.getButtons().map((s) => s.entity_id)).toContain("button.restart");
+      expect(store.getButtons().map((s) => s.entity_id)).toContain(
+        "button.restart",
+      );
     });
 
     it("getAll returns the full sensor list", () => {
@@ -829,7 +926,9 @@ describe("useEntitiesStore", () => {
     it("getBatterySensors excludes unknown/unavailable states", () => {
       const store = useEntitiesStore();
       const results = store.getBatterySensors();
-      expect(results.map((s) => s.entity_id)).not.toContain("sensor.battery_low");
+      expect(results.map((s) => s.entity_id)).not.toContain(
+        "sensor.battery_low",
+      );
     });
   });
 
@@ -843,7 +942,9 @@ describe("useEntitiesStore", () => {
     it("returns entity objects for known device", () => {
       const store = useEntitiesStore();
       store.devices = [{ id: "d1", entities: ["sensor.temp"] }];
-      store.entities = [{ entity_id: "sensor.temp", state: "20", attributes: {} }];
+      store.entities = [
+        { entity_id: "sensor.temp", state: "20", attributes: {} },
+      ];
       const result = store.getEntitiesForDevice("d1");
       expect(result.length).toBe(1);
       expect(result[0].entity_id).toBe("sensor.temp");

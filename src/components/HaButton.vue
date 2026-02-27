@@ -80,11 +80,3 @@ const pressButton = async () => {
   });
 };
 </script>
-
-<style scoped>
-.btn-wide {
-  min-width: 120px;
-  padding-left: 2rem;
-  padding-right: 2rem;
-}
-</style>

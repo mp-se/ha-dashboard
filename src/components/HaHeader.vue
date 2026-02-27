@@ -30,5 +30,3 @@ const normalizedIcon = computed(() => {
   return normalizeIcon(props.icon);
 });
 </script>
-
-<style scoped></style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="col-lg-4 col-md-6">
+  <div class="col-lg-4 col-md-6 ha-energy">
     <!-- Error state: no consumption sensors found -->
     <div
       v-if="!energySensor"
@@ -309,57 +309,7 @@ async function fetchEnergyData() {
 const cardTitle = computed(() => {
   if (!energySensor.value) return "Energy";
   return (
-    energySensor.value.attributes?.friendly_name ||
-    energySensor.value.entity_id
+    energySensor.value.attributes?.friendly_name || energySensor.value.entity_id
   );
 });
 </script>
-
-<style scoped>
-.card-display {
-  background: rgba(255, 255, 255, 0.95);
-  border: 2px solid var(--bs-border-color);
-}
-
-.card-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.energy-chart {
-  border-radius: 4px;
-  padding: 8px;
-  position: relative;
-}
-
-.chart-tooltip {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%) translateX(-50%);
-  background: white;
-  color: #007bff;
-  padding: 4px 8px;
-  border: 2px solid #007bff;
-  border-radius: 3px;
-  font-size: 12px;
-  font-weight: bold;
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: 10;
-}
-
-.chart-axis text {
-  fill: #999;
-}
-
-.chart-bars rect {
-  transition: fill 0.2s ease;
-  cursor: pointer;
-}
-
-.chart-bars rect:hover {
-  fill: #0056b3;
-  filter: brightness(0.9);
-}
-</style>

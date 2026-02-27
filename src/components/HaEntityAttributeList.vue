@@ -21,15 +21,3 @@ defineProps({
   },
 });
 </script>
-
-<style scoped>
-.ha-attribute-key {
-  color: var(--bs-secondary-color, #6c757d);
-  font-weight: 500;
-}
-
-.ha-attribute-value {
-  color: var(--bs-body-color, #212529);
-  font-weight: 400;
-}
-</style>

@@ -56,14 +56,3 @@ const resolvedUrl = computed(() => {
   return dataBasePath + props.url;
 });
 </script>
-
-<style scoped>
-.ha-image-img {
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  border-radius: 0.375rem;
-}
-</style>

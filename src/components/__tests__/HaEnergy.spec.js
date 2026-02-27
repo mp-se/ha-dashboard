@@ -523,9 +523,13 @@ describe("HaEnergy.vue", () => {
       .fn()
       .mockImplementation((_id, _days, offsetDays = 0) => {
         if (offsetDays > 0) {
-          return Promise.resolve([{ timestamp: Date.now(), value: 700, label: "00" }]);
+          return Promise.resolve([
+            { timestamp: Date.now(), value: 700, label: "00" },
+          ]);
         }
-        return Promise.resolve([{ timestamp: Date.now(), value: 1050, label: "00" }]);
+        return Promise.resolve([
+          { timestamp: Date.now(), value: 1050, label: "00" },
+        ]);
       });
 
     const wrapper = mount(HaEnergy, {
@@ -542,9 +546,13 @@ describe("HaEnergy.vue", () => {
       .fn()
       .mockImplementation((_id, _days, offsetDays = 0) => {
         if (offsetDays > 0) {
-          return Promise.resolve([{ timestamp: Date.now(), value: 0, label: "00" }]);
+          return Promise.resolve([
+            { timestamp: Date.now(), value: 0, label: "00" },
+          ]);
         }
-        return Promise.resolve([{ timestamp: Date.now(), value: 1050, label: "00" }]);
+        return Promise.resolve([
+          { timestamp: Date.now(), value: 1050, label: "00" },
+        ]);
       });
 
     const wrapper = mount(HaEnergy, {

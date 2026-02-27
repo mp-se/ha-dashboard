@@ -133,10 +133,7 @@ const props = defineProps({
       // Handle array: up to 3 entities
       if (Array.isArray(value)) {
         if (value.length === 0 || value.length > 3) {
-          logger.warn(
-            "entity array must contain 1-3 items, got",
-            value.length,
-          );
+          logger.warn("entity array must contain 1-3 items, got", value.length);
           return false;
         }
         return value.every((ent) => {
@@ -423,15 +420,3 @@ watch(
 const api = { loadHistory, points };
 defineExpose(api);
 </script>
-
-<style scoped>
-.h-250 {
-  height: 250px !important;
-}
-.ha-sensor-graph .card-body {
-  padding: 0.75rem;
-}
-.ha-sensor-graph svg {
-  height: 160px;
-}
-</style>

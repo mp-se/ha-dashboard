@@ -178,7 +178,9 @@ describe("useHaStore (Bridge)", () => {
 
       mockAuth.isLocalMode = false;
       mockAuth.loadCredentials.mockResolvedValue(true);
-      mockAuth.connectWebSocket.mockRejectedValue(new Error("Connection refused"));
+      mockAuth.connectWebSocket.mockRejectedValue(
+        new Error("Connection refused"),
+      );
 
       await bridge.init();
 
@@ -230,7 +232,9 @@ describe("useHaStore (Bridge)", () => {
     it("should sync developerMode from dashboardConfig", async () => {
       const bridge = useHaStore();
 
-      mockConfig.dashboardConfig = { app: { developerMode: true, localMode: false } };
+      mockConfig.dashboardConfig = {
+        app: { developerMode: true, localMode: false },
+      };
       mockConfig.loadDashboardConfig.mockImplementation(async () => {
         // simulate setting dashboardConfig during load
         return { valid: true };
@@ -246,7 +250,9 @@ describe("useHaStore (Bridge)", () => {
     it("should stop early when config has a JSON validation error", async () => {
       const bridge = useHaStore();
 
-      mockConfig.configValidationError = [{ message: "JSON syntax error line 5" }];
+      mockConfig.configValidationError = [
+        { message: "JSON syntax error line 5" },
+      ];
       mockConfig.loadDashboardConfig.mockResolvedValue({ valid: false });
 
       await bridge.init();
@@ -279,7 +285,10 @@ describe("useHaStore (Bridge)", () => {
 
       await bridge.reloadConfig();
 
-      expect(mockConfig.reloadConfig).toHaveBeenCalledWith(mockAuth, mockEntities);
+      expect(mockConfig.reloadConfig).toHaveBeenCalledWith(
+        mockAuth,
+        mockEntities,
+      );
     });
   });
 
@@ -333,7 +342,10 @@ describe("useHaStore (Bridge)", () => {
       const bridge = useHaStore();
 
       mockEntities.getWeatherEntities.mockReturnValue([
-        { entity_id: "weather.fallback", attributes: { supported_features: 0 } },
+        {
+          entity_id: "weather.fallback",
+          attributes: { supported_features: 0 },
+        },
       ]);
 
       bridge.autoFetchWeatherForecasts();

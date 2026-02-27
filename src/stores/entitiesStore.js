@@ -451,7 +451,9 @@ export const useEntitiesStore = defineStore("entities", () => {
   const getSwitches = () =>
     entities.value.filter((s) => s.entity_id.startsWith("switch."));
   const getAlarmPanels = () =>
-    entities.value.filter((s) => s.entity_id.startsWith("alarm_control_panel."));
+    entities.value.filter((s) =>
+      s.entity_id.startsWith("alarm_control_panel."),
+    );
   const getDeviceTrackers = () =>
     entities.value.filter((s) => s.entity_id.startsWith("device_tracker."));
   const getMediaPlayers = () =>

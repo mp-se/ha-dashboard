@@ -133,9 +133,7 @@ const displayedEntities = computed(() => {
         item.entity.attributes === null ||
         item.entity.attributes === undefined
       ) {
-        logger.warn(
-          `Skipping entity ${item.entity.entity_id} - no attributes`,
-        );
+        logger.warn(`Skipping entity ${item.entity.entity_id} - no attributes`);
         return false;
       }
       return true;
@@ -146,16 +144,3 @@ const displayedEntities = computed(() => {
   }
 });
 </script>
-
-<style scoped>
-/* Optional component-specific styling */
-.card {
-  background-color: rgba(248, 249, 250, 0.6) !important;
-  border: 1px solid rgba(222, 226, 230, 0.4) !important;
-}
-
-[data-bs-theme="dark"] .card {
-  background-color: rgba(52, 58, 64, 0.5) !important;
-  border-color: rgba(73, 80, 87, 0.3) !important;
-}
-</style>

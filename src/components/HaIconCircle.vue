@@ -54,7 +54,3 @@ const iconCircleColor = computed(() => {
   return useIconCircleColor(props.resolvedEntity, props.entityId);
 });
 </script>
-
-<style scoped>
-/* These classes are mostly from shared-styles.css but using them here for context */
-</style>

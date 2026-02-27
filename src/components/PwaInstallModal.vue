@@ -1,5 +1,5 @@
 <template>
-  <div v-if="shouldShow">
+  <div v-if="shouldShow" class="pwa-install-modal">
     <div
       class="modal fade show d-block"
       tabindex="-1"
@@ -228,12 +228,3 @@ const showModal = () => {
 
 defineExpose({ showModal });
 </script>
-
-<style scoped>
-.modal {
-  z-index: 1200;
-}
-.modal-backdrop.show {
-  z-index: 1199;
-}
-</style>

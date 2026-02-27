@@ -236,7 +236,9 @@ describe("AppNavbar.vue", () => {
       store.developerMode = true;
       const wrapper = mountNavbar();
       await wrapper.vm.$nextTick();
-      const btn = wrapper.find('button[title="Reload dashboard configuration"]');
+      const btn = wrapper.find(
+        'button[title="Reload dashboard configuration"]',
+      );
       expect(btn.exists()).toBe(true);
     });
 
@@ -244,7 +246,9 @@ describe("AppNavbar.vue", () => {
       store.developerMode = false;
       const wrapper = mountNavbar();
       await wrapper.vm.$nextTick();
-      const btn = wrapper.find('button[title="Reload dashboard configuration"]');
+      const btn = wrapper.find(
+        'button[title="Reload dashboard configuration"]',
+      );
       expect(btn.exists()).toBe(false);
     });
 
@@ -252,7 +256,9 @@ describe("AppNavbar.vue", () => {
       store.developerMode = true;
       const wrapper = mountNavbar();
       await wrapper.vm.$nextTick();
-      const btn = wrapper.find('button[title="Save current data for local testing"]');
+      const btn = wrapper.find(
+        'button[title="Save current data for local testing"]',
+      );
       expect(btn.exists()).toBe(true);
     });
 
@@ -273,7 +279,9 @@ describe("AppNavbar.vue", () => {
       store.credentialsFromConfig = false;
       const wrapper = mountNavbar();
       await wrapper.vm.$nextTick();
-      const btn = wrapper.find('button[title="Edit Home Assistant credentials"]');
+      const btn = wrapper.find(
+        'button[title="Edit Home Assistant credentials"]',
+      );
       expect(btn.exists()).toBe(true);
     });
 
@@ -283,7 +291,9 @@ describe("AppNavbar.vue", () => {
       store.credentialsFromConfig = true;
       const wrapper = mountNavbar();
       await wrapper.vm.$nextTick();
-      const btn = wrapper.find('button[title="Edit Home Assistant credentials"]');
+      const btn = wrapper.find(
+        'button[title="Edit Home Assistant credentials"]',
+      );
       expect(btn.exists()).toBe(false);
     });
 
@@ -293,7 +303,9 @@ describe("AppNavbar.vue", () => {
       store.credentialsFromConfig = false;
       const wrapper = mountNavbar();
       await wrapper.vm.$nextTick();
-      const btn = wrapper.find('button[title="Edit Home Assistant credentials"]');
+      const btn = wrapper.find(
+        'button[title="Edit Home Assistant credentials"]',
+      );
       await btn.trigger("click");
       expect(wrapper.emitted("edit-credentials")).toBeTruthy();
     });
@@ -312,7 +324,12 @@ describe("AppNavbar.vue", () => {
       store.dashboardConfig = {
         views: [
           { name: "overview", label: "Overview", icon: "mdi:home" },
-          { name: "hidden-view", label: "Hidden", icon: "mdi:eye-off", hidden: true },
+          {
+            name: "hidden-view",
+            label: "Hidden",
+            icon: "mdi:eye-off",
+            hidden: true,
+          },
         ],
       };
       const wrapper = mountNavbar();
@@ -333,20 +350,28 @@ describe("AppNavbar.vue", () => {
   describe("Reload config", () => {
     it("calls reloadConfig when reload button is clicked", async () => {
       store.developerMode = true;
-      store.reloadConfig = vi.fn().mockResolvedValue({ valid: true, errors: [] });
+      store.reloadConfig = vi
+        .fn()
+        .mockResolvedValue({ valid: true, errors: [] });
       const wrapper = mountNavbar();
       await wrapper.vm.$nextTick();
-      const btn = wrapper.find('button[title="Reload dashboard configuration"]');
+      const btn = wrapper.find(
+        'button[title="Reload dashboard configuration"]',
+      );
       await btn.trigger("click");
       expect(store.reloadConfig).toHaveBeenCalled();
     });
 
     it("shows success banner after successful reload", async () => {
       store.developerMode = true;
-      store.reloadConfig = vi.fn().mockResolvedValue({ valid: true, errors: [] });
+      store.reloadConfig = vi
+        .fn()
+        .mockResolvedValue({ valid: true, errors: [] });
       const wrapper = mountNavbar();
       await wrapper.vm.$nextTick();
-      const btn = wrapper.find('button[title="Reload dashboard configuration"]');
+      const btn = wrapper.find(
+        'button[title="Reload dashboard configuration"]',
+      );
       await btn.trigger("click");
       await wrapper.vm.$nextTick();
       // configErrorBanner becomes true, validationError is null → shows success banner

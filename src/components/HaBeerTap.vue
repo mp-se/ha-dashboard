@@ -3,7 +3,9 @@
     v-if="entityList.length === 0 || !hasValidEntities"
     class="col-lg-4 col-md-6"
   >
-    <div class="card card-display h-100 rounded-4 shadow-lg border-warning">
+    <div
+      class="ha-beer-tap card card-display h-100 rounded-4 shadow-lg border-warning"
+    >
       <div class="card-body text-center text-warning">
         <i class="mdi mdi-alert-circle mdi-24px mb-2"></i>
         <div>No beer tap entities found</div>
@@ -13,7 +15,7 @@
 
   <div v-else class="col-lg-4 col-md-6">
     <div
-      class="card card-display h-100 rounded-4 shadow-lg"
+      class="ha-beer-tap card card-display h-100 rounded-4 shadow-lg"
       :style="{ borderColor: beerColor, borderWidth: '2px' }"
     >
       <div class="card-body d-flex align-items-start gap-3">
@@ -308,36 +310,3 @@ const beerColor = computed(() => {
   }
 });
 </script>
-
-<style scoped>
-.card {
-  background-color: #ffffff;
-  border-radius: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.card-body {
-  padding: 1.5rem;
-}
-
-.card-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0;
-  color: #333;
-}
-
-.progress {
-  background-color: #e9ecef;
-  border-radius: 0.25rem;
-  overflow: hidden;
-}
-</style>

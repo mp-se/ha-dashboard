@@ -141,19 +141,3 @@ const formatStateText = (text) => {
     .join(" ");
 };
 </script>
-
-<style scoped>
-.sun-condition {
-  font-size: 1rem;
-  color: var(--bs-primary);
-}
-
-.sun-icon {
-  font-size: 1.5rem;
-  color: var(--bs-warning);
-}
-
-.sun-times {
-  font-size: 0.85rem;
-}
-</style>
