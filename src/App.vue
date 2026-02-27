@@ -163,7 +163,11 @@ const handleEditCredentials = () => {
  * Handle component errors caught by ErrorBoundary
  */
 const handleComponentError = (errorData) => {
-  console.error("Component error in view:", errorData.viewName, errorData.error);
+  console.error(
+    "Component error in view:",
+    errorData.viewName,
+    errorData.error,
+  );
 };
 
 /**

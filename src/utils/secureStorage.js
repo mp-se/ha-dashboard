@@ -1,14 +1,14 @@
 /**
  * Secure storage utility for encrypting/decrypting sensitive data
  * Uses Web Crypto API with AES-GCM encryption
- * 
+ *
  * Key derivation uses a combination of:
  * - Fixed application secret
  * - Browser/device fingerprint (makes key unique per installation)
- * 
+ *
  * This provides better security than plain text localStorage while
  * maintaining convenience (no password required).
- * 
+ *
  * Security notes:
  * - Not immune to sophisticated XSS attacks (nothing client-side is)
  * - Protects against casual inspection and naive malicious extensions
