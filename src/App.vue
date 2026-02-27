@@ -41,11 +41,18 @@
     @touchend="onTouchEnd"
   >
     <!-- Dynamic View Rendering from Config -->
-    <component
-      :is="getViewComponent(currentView)"
-      :key="currentView"
+    <ErrorBoundary
       :view-name="currentView"
-    />
+      @error="handleComponentError"
+      @retry="handleErrorRetry"
+      @go-home="handleGoHome"
+    >
+      <component
+        :is="getViewComponent(currentView)"
+        :key="currentView"
+        :view-name="currentView"
+      />
+    </ErrorBoundary>
 
     <footer
       :class="[
@@ -66,6 +73,7 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useHaStore } from "./stores/haStore";
 import AppNavbar from "./components/AppNavbar.vue";
 import CredentialDialog from "./components/CredentialDialog.vue";
+import ErrorBoundary from "./components/ErrorBoundary.vue";
 
 // Static imports for development views
 import DevelopmentView from "./views/DevelopmentView.vue";
@@ -149,6 +157,32 @@ const handleCredentialSubmit = async (credentials) => {
 
 const handleEditCredentials = () => {
   credentialDialog.value?.showModal();
+};
+
+/**
+ * Handle component errors caught by ErrorBoundary
+ */
+const handleComponentError = (errorData) => {
+  console.error("Component error in view:", errorData.viewName, errorData.error);
+};
+
+/**
+ * Retry loading the component after an error
+ */
+const handleErrorRetry = () => {
+  // Force re-render by changing key
+  const current = currentView.value;
+  currentView.value = "";
+  setTimeout(() => {
+    currentView.value = current;
+  }, 0);
+};
+
+/**
+ * Navigate to overview after an error
+ */
+const handleGoHome = () => {
+  currentView.value = "overview";
 };
 
 onMounted(async () => {
