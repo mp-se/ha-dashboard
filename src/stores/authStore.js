@@ -87,7 +87,9 @@ export const useAuthStore = defineStore("auth", () => {
           haUrl.value = savedUrl.trim();
           accessToken.value = savedToken.trim();
           credentialsFromConfig.value = false;
-          logger.log("✓ Using encrypted credentials from localStorage (override)");
+          logger.log(
+            "✓ Using encrypted credentials from localStorage (override)",
+          );
           return true;
         }
       } else {

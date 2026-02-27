@@ -69,7 +69,7 @@ describe("useAuthStore", () => {
   describe("Credentials management", () => {
     it("should load credentials from localStorage", async () => {
       const store = useAuthStore();
-      
+
       // Store encrypted credentials
       await secureStorage.setSecureItem("ha_url", "http://192.168.1.100:8123");
       await secureStorage.setSecureItem("ha_token", "saved-token");
@@ -108,7 +108,7 @@ describe("useAuthStore", () => {
       // Verify credentials are encrypted in storage
       const savedUrl = await secureStorage.getSecureItem("ha_url");
       const savedToken = await secureStorage.getSecureItem("ha_token");
-      
+
       expect(savedUrl).toBe("http://new-url:8123");
       expect(savedToken).toBe("new-token");
       expect(store.haUrl).toBe("http://new-url:8123");
@@ -119,7 +119,7 @@ describe("useAuthStore", () => {
 
     it("should clear credentials from localStorage", async () => {
       const store = useAuthStore();
-      
+
       // Set up encrypted credentials first
       await secureStorage.setSecureItem("ha_url", "url");
       await secureStorage.setSecureItem("ha_token", "token");

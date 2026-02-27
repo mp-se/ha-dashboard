@@ -48,7 +48,9 @@ describe("ErrorBoundary", () => {
 
   it("catches and displays errors from child components", async () => {
     // Suppress console errors during test
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
     const wrapper = mount(ErrorBoundary, {
       props: {
@@ -71,7 +73,9 @@ describe("ErrorBoundary", () => {
   });
 
   it("displays error details in developer mode", async () => {
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
     const store = useHaStore();
     store.developerMode = true;
@@ -94,7 +98,9 @@ describe("ErrorBoundary", () => {
   });
 
   it("hides error details when not in developer mode", async () => {
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
     const store = useHaStore();
     store.developerMode = false;
@@ -117,7 +123,9 @@ describe("ErrorBoundary", () => {
   });
 
   it("emits error event when an error is caught", async () => {
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
     const wrapper = mount(ErrorBoundary, {
       props: {
@@ -132,13 +140,18 @@ describe("ErrorBoundary", () => {
 
     expect(wrapper.emitted("error")).toBeTruthy();
     expect(wrapper.emitted("error")[0][0]).toHaveProperty("error");
-    expect(wrapper.emitted("error")[0][0]).toHaveProperty("viewName", "test-view");
+    expect(wrapper.emitted("error")[0][0]).toHaveProperty(
+      "viewName",
+      "test-view",
+    );
 
     consoleError.mockRestore();
   });
 
   it("emits retry event when retry button is clicked", async () => {
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
     const wrapper = mount(ErrorBoundary, {
       props: {
@@ -160,7 +173,9 @@ describe("ErrorBoundary", () => {
   });
 
   it("emits goHome event when go home button is clicked", async () => {
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
     const wrapper = mount(ErrorBoundary, {
       props: {
@@ -182,7 +197,9 @@ describe("ErrorBoundary", () => {
   });
 
   it("clears error state when retry is clicked", async () => {
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
     const wrapper = mount(ErrorBoundary, {
       props: {
@@ -207,7 +224,9 @@ describe("ErrorBoundary", () => {
   });
 
   it("displays view name in error context", async () => {
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
     const wrapper = mount(ErrorBoundary, {
       props: {
