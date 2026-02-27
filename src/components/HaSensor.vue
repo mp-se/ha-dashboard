@@ -93,6 +93,7 @@ import { computed } from "vue";
 import { useHaStore } from "@/stores/haStore";
 import { useEntityResolver } from "@/composables/useEntityResolver";
 import { useAttributeResolver } from "@/composables/useAttributeResolver";
+import { createLogger } from "@/utils/logger";
 
 const props = defineProps({
   entity: {
@@ -123,6 +124,7 @@ const props = defineProps({
 });
 
 const store = useHaStore();
+const logger = createLogger("HaSensor");
 
 // Entity list: if entity is array, use it, else [entity]
 const entityList = computed(() => {
@@ -210,7 +212,7 @@ const getName = (ent) => {
     const res = getResolved(ent);
     return res?.attributes?.friendly_name || res?.entity_id || "Unknown";
   } catch (error) {
-    console.warn("Error getting name for entity:", ent, error);
+    logger.warn("Error getting name for entity:", ent, error);
     return "Unknown";
   }
 };
@@ -230,7 +232,7 @@ const getFormattedValue = (ent) => {
     }
     return s;
   } catch (error) {
-    console.warn("Error formatting value for entity:", ent, error);
+    logger.warn("Error formatting value for entity:", ent, error);
     return "unknown";
   }
 };
@@ -240,7 +242,7 @@ const getUnit = (ent) => {
     const res = getResolved(ent);
     return res?.attributes?.unit_of_measurement || "";
   } catch (error) {
-    console.warn("Error getting unit for entity:", ent, error);
+    logger.warn("Error getting unit for entity:", ent, error);
     return "";
   }
 };

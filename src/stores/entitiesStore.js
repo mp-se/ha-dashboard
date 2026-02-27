@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
+import { createLogger } from "@/utils/logger";
 import { useAuthStore } from "./authStore";
 import { subscribeEntities } from "home-assistant-js-websocket";
 
@@ -16,12 +17,13 @@ export const useEntitiesStore = defineStore("entities", () => {
   const areas = ref([]);
 
   let unsubscribeEntitiesFn = null;
+  const logger = createLogger("entitiesStore");
 
   const fetchStates = async () => {
     if (authStore.isLocalMode) return;
     const connection = authStore.getConnection();
     if (!connection) {
-      console.warn("fetchStates: Connection not established");
+      logger.warn("fetchStates: Connection not established");
       return;
     }
 
@@ -83,7 +85,7 @@ export const useEntitiesStore = defineStore("entities", () => {
       devices.value = data.devices || [];
       areas.value = data.areas || [];
     } catch (error) {
-      console.error("Error loading local data:", error);
+      logger.error("Error loading local data:", error);
       throw error;
     }
   };
@@ -121,7 +123,7 @@ export const useEntitiesStore = defineStore("entities", () => {
         }
       }
     } catch (error) {
-      console.error("Error fetching entity registry:", error);
+      logger.error("Error fetching entity registry:", error);
     }
   };
 
@@ -157,7 +159,7 @@ export const useEntitiesStore = defineStore("entities", () => {
         }
       }
     } catch (error) {
-      console.error("Error fetching area registry:", error);
+      logger.error("Error fetching area registry:", error);
     }
   };
 
@@ -222,7 +224,7 @@ export const useEntitiesStore = defineStore("entities", () => {
         }));
       }
     } catch (error) {
-      console.error("Error fetching devices:", error);
+      logger.error("Error fetching devices:", error);
     }
   };
 
@@ -280,7 +282,7 @@ export const useEntitiesStore = defineStore("entities", () => {
         }
         return extracted;
       } catch (e) {
-        console.error("fetchHistory error", e);
+        logger.error("fetchHistory error", e);
         throw e;
       }
     })();
@@ -377,7 +379,7 @@ export const useEntitiesStore = defineStore("entities", () => {
           }))
           .sort((a, b) => a.timestamp - b.timestamp);
       } catch (e) {
-        console.error("fetchEnergyHistory error:", e);
+        logger.error("fetchEnergyHistory error:", e);
         throw e;
       }
     })();

@@ -89,6 +89,7 @@
 <script setup>
 import { computed } from "vue";
 import { useHaStore } from "@/stores/haStore";
+import { createLogger } from "@/utils/logger";
 
 const props = defineProps({
   entity: {
@@ -117,6 +118,7 @@ const props = defineProps({
 });
 
 const store = useHaStore();
+const logger = createLogger("HaBeerTap");
 
 // Convert single entity to array
 const entityArray = computed(() => {
@@ -134,7 +136,7 @@ const entityList = computed(() => {
       typeof ent === "string" ? ent : ent.entity_id,
     );
   } catch (error) {
-    console.error("Error in entityList:", error);
+    logger.error("Error in entityList:", error);
     return [];
   }
 });
@@ -143,7 +145,7 @@ const entityList = computed(() => {
 const resolvedEntities = computed(() => {
   try {
     if (!store || !store.entities) {
-      console.warn("Store or sensors not yet loaded");
+      logger.warn("Store or sensors not yet loaded");
       return [];
     }
     if (!entityList.value || entityList.value.length === 0) {
@@ -156,7 +158,7 @@ const resolvedEntities = computed(() => {
       })
       .filter((e) => e !== null);
   } catch (error) {
-    console.error("Error in resolvedEntities:", error);
+    logger.error("Error in resolvedEntities:", error);
     return [];
   }
 });
@@ -187,7 +189,7 @@ const detectedEntities = computed(() => {
 
     return { volumeEntity: volumeEnt, beerEntity: beerEnt };
   } catch (error) {
-    console.error("Error in detectedEntities:", error);
+    logger.error("Error in detectedEntities:", error);
     return { volumeEntity: null, beerEntity: null };
   }
 });
@@ -212,7 +214,7 @@ const volume = computed(() => {
     const val = parseFloat(volumeEntity.value.state);
     return isNaN(val) ? "0" : val.toFixed(2);
   } catch (error) {
-    console.error("Error in volume:", error);
+    logger.error("Error in volume:", error);
     return "0";
   }
 });
@@ -225,7 +227,7 @@ const percentage = computed(() => {
     if (isNaN(vol)) return 0;
     return Math.min(100, Math.round((vol / kegVol) * 100));
   } catch (error) {
-    console.error("Error in percentage:", error);
+    logger.error("Error in percentage:", error);
     return 0;
   }
 });
@@ -236,7 +238,7 @@ const beerName = computed(() => {
     if (!beerEntity.value || !beerEntity.value.state) return "No Beer";
     return beerEntity.value.state || "Unknown";
   } catch (error) {
-    console.error("Error in beerName:", error);
+    logger.error("Error in beerName:", error);
     return "No Beer";
   }
 });
@@ -247,7 +249,7 @@ const abv = computed(() => {
     const val = beerEntity.value.attributes?.abv;
     return val ? val.toFixed(1) : "-";
   } catch (error) {
-    console.error("Error in abv:", error);
+    logger.error("Error in abv:", error);
     return "-";
   }
 });
@@ -257,7 +259,7 @@ const ibu = computed(() => {
     if (!beerEntity.value || !beerEntity.value.attributes) return "-";
     return beerEntity.value.attributes?.ibu || "-";
   } catch (error) {
-    console.error("Error in ibu:", error);
+    logger.error("Error in ibu:", error);
     return "-";
   }
 });
@@ -267,7 +269,7 @@ const ebc = computed(() => {
     if (!beerEntity.value || !beerEntity.value.attributes) return "-";
     return beerEntity.value.attributes?.ebc || "-";
   } catch (error) {
-    console.error("Error in ebc:", error);
+    logger.error("Error in ebc:", error);
     return "-";
   }
 });
@@ -280,7 +282,7 @@ const isEmpty = computed(() => {
       parseFloat(volume.value) === 0 || beerEntity.value.state === "unknown"
     );
   } catch (error) {
-    console.error("Error in isEmpty:", error);
+    logger.error("Error in isEmpty:", error);
     return true;
   }
 });
@@ -301,7 +303,7 @@ const beerColor = computed(() => {
     if (ebcValue < 100) return "#8B4513"; // Dark brown
     return "#3D2817"; // Very dark (Stout)
   } catch (error) {
-    console.error("Error in beerColor:", error);
+    logger.error("Error in beerColor:", error);
     return "#D4A574"; // Default beer color on error
   }
 });

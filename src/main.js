@@ -5,6 +5,9 @@ import "bootstrap/dist/js/bootstrap.bundle.js";
 import "@mdi/font/css/materialdesignicons.min.css";
 import App from "./App.vue";
 import { registerSW } from "virtual:pwa-register";
+import { createLogger } from "./utils/logger.js";
+
+const logger = createLogger("main");
 
 const app = createApp(App);
 app.use(createPinia());
@@ -26,6 +29,6 @@ registerSW({
     window.dispatchEvent(new CustomEvent("sw-need-refresh"));
   },
   onOfflineReady() {
-    console.log("App is ready for offline use");
+    logger.log("App is ready for offline use");
   },
 });

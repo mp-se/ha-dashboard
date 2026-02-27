@@ -261,7 +261,6 @@ describe("AppNavbar.vue", () => {
       const wrapper = mountNavbar();
       await wrapper.vm.$nextTick();
       const buttons = wrapper.findAll("button.btn-link");
-      const labels = buttons.map((b) => b.text());
       // Labels visible on large screens only, check title or count instead
       expect(buttons.length).toBeGreaterThanOrEqual(5); // 2 config views + 3 dev views
     });

@@ -1,5 +1,8 @@
 import { computed, unref } from "vue";
 import { useHaStore } from "@/stores/haStore";
+import { createLogger } from "@/utils/logger";
+
+const logger = createLogger("useEntityResolver");
 
 /**
  * Composable for resolving Home Assistant entities
@@ -21,7 +24,7 @@ export const useEntityResolver = (entity) => {
       const found = store.entityMap?.get?.(entityValue);
 
       if (!found) {
-        console.warn(`Entity "${entityValue}" not found in store`);
+        logger.warn(`Entity "${entityValue}" not found in store`);
         return null;
       }
       return found;
@@ -32,7 +35,7 @@ export const useEntityResolver = (entity) => {
       return entityValue;
     }
 
-    console.warn(`Invalid entity format: ${entityValue}`);
+    logger.warn(`Invalid entity format: ${entityValue}`);
     return null;
   });
 

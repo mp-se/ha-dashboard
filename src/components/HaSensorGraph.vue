@@ -122,6 +122,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useHaStore } from "@/stores/haStore";
+import { createLogger } from "@/utils/logger";
 
 const props = defineProps({
   entity: {
@@ -131,10 +132,11 @@ const props = defineProps({
       // Handle array: up to 3 entities
       if (Array.isArray(value)) {
         if (value.length === 0 || value.length > 3) {
-          console.warn(
-            "HaSensorGraph: entity array must contain 1-3 items, got",
-            value.length,
-          );
+          if (import.meta.env.DEV)
+            console.warn(
+              "HaSensorGraph: entity array must contain 1-3 items, got",
+              value.length,
+            );
           return false;
         }
         return value.every((ent) => {
@@ -161,6 +163,7 @@ const props = defineProps({
 });
 
 const store = useHaStore();
+const logger = createLogger("HaSensorGraph");
 
 // Entity list: convert single entity to array, handle existing arrays
 const entityList = computed(() => {
@@ -176,7 +179,7 @@ const resolvedEntities = computed(() => {
     if (typeof ent === "string") {
       const found = store.entityMap.get(ent);
       if (!found) {
-        console.warn(`Entity "${ent}" not found`);
+        logger.warn(`Entity "${ent}" not found`);
         return null;
       }
       return found;
@@ -345,7 +348,7 @@ async function loadHistory() {
       throw new Error("No valid entities provided");
     }
 
-    console.log(
+    logger.log(
       "Loading history for entities:",
       entitiesToLoad.map((e) => e.entity_id),
     );
@@ -361,10 +364,10 @@ async function loadHistory() {
     if (results[2]) points3.value = results[2];
 
     results.forEach((result, idx) => {
-      console.log(`Received ${result.length} points for entity ${idx + 1}`);
+      logger.log(`Received ${result.length} points for entity ${idx + 1}`);
     });
   } catch (e) {
-    console.error(e);
+    logger.error(e);
     error.value = e.message || String(e);
   } finally {
     loading.value = false;
@@ -381,7 +384,7 @@ function cycleHours() {
   } else {
     hoursLocal.value = 24;
   }
-  console.log("Cycling hours to:", hoursLocal.value);
+  logger.log("Cycling hours to:", hoursLocal.value);
   loadHistory();
 }
 
@@ -411,7 +414,7 @@ watch(
 watch(
   () => hoursLocal.value,
   () => {
-    console.log("Hours changed to:", hoursLocal.value, "loading history");
+    logger.log("Hours changed to:", hoursLocal.value, "loading history");
     loadHistory();
   },
 );

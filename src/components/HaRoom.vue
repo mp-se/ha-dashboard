@@ -90,6 +90,7 @@ import { computed } from "vue";
 import { useHaStore } from "@/stores/haStore";
 import { useNormalizeIcon } from "@/composables/useNormalizeIcon";
 import { useServiceCall } from "@/composables/useServiceCall";
+import { createLogger } from "@/utils/logger";
 
 const props = defineProps({
   entity: {
@@ -108,6 +109,7 @@ const props = defineProps({
 const store = useHaStore();
 const normalizeIcon = useNormalizeIcon();
 const { callService } = useServiceCall();
+const logger = createLogger("HaRoom");
 
 // Normalize entity to always be an array
 const entityArray = computed(() => {
@@ -382,7 +384,7 @@ const toggleEntity = async (entityId) => {
       });
     }
   } catch (error) {
-    console.error(`Failed to toggle ${entityId}:`, error);
+    logger.error(`Failed to toggle ${entityId}:`, error);
   }
 };
 </script>

@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { validateConfig } from "../utils/configValidator";
+import { createLogger } from "@/utils/logger";
 import { useAuthStore } from "./authStore";
 import parseJSON from "json-parse-even-better-errors";
 
@@ -8,6 +9,7 @@ export const useConfigStore = defineStore("config", () => {
   const dashboardConfig = ref(null);
   const configValidationError = ref(null);
   const configErrorCount = ref(0);
+  const logger = createLogger("configStore");
 
   const loadDashboardConfig = async () => {
     try {
@@ -82,7 +84,7 @@ export const useConfigStore = defineStore("config", () => {
 
       return validationResult;
     } catch (error) {
-      console.error("Error loading dashboard config:", error);
+      logger.error("Error loading dashboard config:", error);
       return {
         valid: false,
         errors: [{ message: error.message || "Unknown error loading config" }],
@@ -93,7 +95,7 @@ export const useConfigStore = defineStore("config", () => {
 
   const reloadConfig = async (authStore, entitiesStore) => {
     try {
-      if (import.meta.env.DEV) console.log("Reloading dashboard configuration...");
+      logger.log("Reloading dashboard configuration...");
       const currentUrl = authStore.haUrl;
       const currentToken = authStore.accessToken;
 
@@ -103,13 +105,13 @@ export const useConfigStore = defineStore("config", () => {
       if (currentToken) authStore.accessToken = currentToken;
 
       if (authStore.isLocalMode) {
-        if (import.meta.env.DEV) console.log("Reloading local data...");
+        logger.log("Reloading local data...");
         await entitiesStore.loadLocalData();
       }
 
       return validationResult;
     } catch (error) {
-      console.error("Error reloading config:", error);
+      logger.error("Error reloading config:", error);
       return {
         valid: false,
         errors: [error.message || "Failed to reload configuration"],

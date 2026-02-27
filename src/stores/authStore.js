@@ -7,6 +7,7 @@ import {
   ERR_CANNOT_CONNECT,
   ERR_INVALID_AUTH,
 } from "home-assistant-js-websocket";
+import { createLogger } from "@/utils/logger";
 
 export const useAuthStore = defineStore("auth", () => {
   const haUrl = ref("");
@@ -20,11 +21,13 @@ export const useAuthStore = defineStore("auth", () => {
   const isLoading = ref(true);
   const isInitialized = ref(false);
 
+  const logger = createLogger("authStore");
+
   let connection = null;
 
   const setError = (error) => {
     lastError.value = error;
-    console.error("Auth Store Error:", error);
+    logger.error("Auth Store Error:", error);
   };
 
   const clearError = () => {
@@ -76,7 +79,7 @@ export const useAuthStore = defineStore("auth", () => {
       haUrl.value = savedUrl.trim();
       accessToken.value = savedToken.trim();
       credentialsFromConfig.value = false;
-      if (import.meta.env.DEV) console.log("✓ Using credentials from localStorage (override)");
+      logger.log("✓ Using credentials from localStorage (override)");
       return true;
     }
 
@@ -87,7 +90,7 @@ export const useAuthStore = defineStore("auth", () => {
       haUrl.value = configHa.haUrl.trim();
       accessToken.value = configHa.accessToken.trim();
       credentialsFromConfig.value = true;
-      if (import.meta.env.DEV) console.log("✓ Using credentials from dashboard config");
+      logger.log("✓ Using credentials from dashboard config");
       return true;
     }
 
@@ -98,7 +101,7 @@ export const useAuthStore = defineStore("auth", () => {
       haUrl.value = envUrl.trim();
       accessToken.value = envToken.trim();
       credentialsFromConfig.value = true;
-      if (import.meta.env.DEV) console.log("✓ Using credentials from environment variables");
+      logger.log("✓ Using credentials from environment variables");
       return true;
     }
 
@@ -129,28 +132,28 @@ export const useAuthStore = defineStore("auth", () => {
     }
 
     if (isConnected.value && connection) {
-      if (import.meta.env.DEV) console.log("WebSocket already connected");
+      logger.log("WebSocket already connected");
       return connection;
     }
 
     try {
-      if (import.meta.env.DEV) console.log("Connecting to Home Assistant at:", haUrl.value);
+      logger.log("Connecting to Home Assistant at:", haUrl.value);
       const auth = createLongLivedTokenAuth(haUrl.value, accessToken.value);
-      if (import.meta.env.DEV) console.log("Creating connection to Home Assistant...");
+      logger.log("Creating connection to Home Assistant...");
       connection = await createConnection({ auth });
 
-      if (import.meta.env.DEV) console.log("✓ WebSocket connection established successfully");
+      logger.log("✓ WebSocket connection established successfully");
       isConnected.value = true;
       clearError();
 
       connection.addEventListener("ready", () => {
-        if (import.meta.env.DEV) console.log("WebSocket ready (reconnected)");
+        logger.log("WebSocket ready (reconnected)");
         isConnected.value = true;
         clearError();
       });
 
       connection.addEventListener("disconnected", () => {
-        if (import.meta.env.DEV) console.log("WebSocket disconnected");
+        logger.log("WebSocket disconnected");
         isConnected.value = false;
         setError("Disconnected from Home Assistant");
       });
@@ -186,7 +189,7 @@ export const useAuthStore = defineStore("auth", () => {
 
   const callService = async (domain, service, data) => {
     if (isLocalMode.value) {
-      if (import.meta.env.DEV) console.warn("Service calls are disabled in local mode");
+      logger.warn("Service calls are disabled in local mode");
       return;
     }
     if (!haUrl.value || !accessToken.value) return;
@@ -221,12 +224,12 @@ export const useAuthStore = defineStore("auth", () => {
         error instanceof TypeError &&
         error.message.includes("Failed to fetch")
       ) {
-        console.error("CORS or network error calling service:", error);
+        logger.error("CORS or network error calling service:", error);
         throw new Error(
           `CORS error: Home Assistant server at ${haUrl.value} does not allow cross-origin requests. Ensure CORS is configured properly in Home Assistant.`,
         );
       }
-      console.error("Error calling service:", error);
+      logger.error("Error calling service:", error);
       throw error;
     }
   };
