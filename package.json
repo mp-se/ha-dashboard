@@ -31,7 +31,7 @@
     "@vitejs/plugin-vue": "^6.0.4",
     "@vitest/coverage-v8": "^4.0.18",
     "@vitest/ui": "^4.0.18",
-    "@vue/test-utils": "^2.4.6",
+    "@vue/test-utils": "^2.4.0",
     "baseline-browser-mapping": "^2.10.0",
     "eslint": "^9.39.3",
     "eslint-config-prettier": "^10.1.8",
