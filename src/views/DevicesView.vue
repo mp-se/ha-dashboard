@@ -108,8 +108,10 @@ import { computed, ref } from "vue";
 import { useHaStore } from "@/stores/haStore";
 import useDebouncedRef from "@/composables/useDebouncedRef";
 import { useClipboard } from "@/composables/useClipboard";
+import { createLogger } from "@/utils/logger";
 
 const store = useHaStore();
+const logger = createLogger("DevicesView");
 
 const selectedArea = ref("");
 const { input: searchText, debounced: debouncedSearch } = useDebouncedRef(
@@ -159,7 +161,7 @@ const copyDeviceToClipboard = async (device) => {
   };
   const success = await writeToClipboard(JSON.stringify(enrichedDevice, null, 2));
   if (!success) {
-    console.error(
+    logger.error(
       "Failed to copy device to clipboard:",
       new Error(clipboardError.value || "Copy failed"),
     );

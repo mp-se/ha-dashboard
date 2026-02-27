@@ -226,6 +226,7 @@
 import { computed, ref } from "vue";
 import { useHaStore } from "../stores/haStore";
 import { DEFAULT_DOMAIN_MAP } from "@/composables/useDefaultComponentType";
+import { createLogger } from "@/utils/logger";
 import { formatAttributeValue } from "@/utils/attributeFormatters";
 import useDebouncedRef from "@/composables/useDebouncedRef";
 import { useClipboard } from "@/composables/useClipboard";
@@ -239,6 +240,7 @@ defineProps({
 });
 
 const store = useHaStore();
+const logger = createLogger("RawEntityView");
 const selectedType = ref("");
 const hideUnavailable = ref(false);
 const successBanner = ref(false);
@@ -430,7 +432,7 @@ const generateEntityConfigJson = async (entity) => {
   const componentType = DEFAULT_DOMAIN_MAP[domain];
 
   if (!componentType) {
-    console.warn(
+    logger.warn(
       "Unsupported entity type for config generation:",
       entity.entity_id,
     );

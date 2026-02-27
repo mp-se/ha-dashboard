@@ -184,8 +184,10 @@
 <script setup>
 import { computed, ref, onMounted, watch } from "vue";
 import { useHaStore } from "@/stores/haStore";
+import { createLogger } from "@/utils/logger";
 
 const store = useHaStore();
+const logger = createLogger("HaEnergy");
 
 // Period definitions
 const periods = [1, 3, 7, 14];
@@ -352,7 +354,7 @@ async function fetchEnergyData() {
     }
   } catch (e) {
     error.value = `Failed to load data: ${e.message}`;
-    console.error("Energy history error:", e);
+    logger.error("Energy history error:", e);
   } finally {
     isLoading.value = false;
     isFetching.value = false;

@@ -71,8 +71,10 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useHaStore } from "@/stores/haStore";
+import { createLogger } from "@/utils/logger";
 
 const store = useHaStore();
+const logger = createLogger("PwaInstallModal");
 const showInstallButton = ref(false);
 const showIosInstructions = ref(false);
 const deferredPrompt = ref(null);
@@ -100,7 +102,7 @@ const dismiss = () => {
     localStorage.setItem(LOCAL_STORAGE_KEY, "true");
   } catch (e) {
     // Ignored intentionally - localStorage write is non-critical
-    console.warn("Failed to write localStorage key for PWA prompt:", e);
+    logger.warn("Failed to write localStorage key for PWA prompt:", e);
   }
   showInstallButton.value = false;
   showIosInstructions.value = false;
@@ -108,12 +110,12 @@ const dismiss = () => {
 };
 
 const promptInstall = async () => {
-  console.log(
+  logger.log(
     "[PWA] promptInstall called; deferredPrompt?",
     !!deferredPrompt.value,
   );
   if (!deferredPrompt.value) {
-    console.warn(
+    logger.warn(
       "[PWA] No deferred prompt available - cannot programmatically trigger install.",
     );
     return;
@@ -125,7 +127,7 @@ const promptInstall = async () => {
       isInstalled.value = true;
     }
   } catch (e) {
-    console.warn("PWA prompt failed", e);
+    logger.warn("PWA prompt failed", e);
   } finally {
     deferredPrompt.value = null;
     showInstallButton.value = false;
@@ -136,15 +138,14 @@ const promptInstall = async () => {
 const onBeforeInstallPrompt = (e) => {
   e.preventDefault();
   // log the event for debugging
-  console.log("[PWA] beforeinstallprompt event fired", e);
+  logger.log("[PWA] beforeinstallprompt event fired", e);
   deferredPrompt.value = e;
   showInstallButton.value = true;
   // For debugging: log if this modal is currently mounted and whether we will show the button
-  if (import.meta.env.DEV)
-    console.log(
-      "[PWA] beforeinstallprompt: will show install button",
-      showInstallButton.value,
-    );
+  logger.log(
+    "[PWA] beforeinstallprompt: will show install button",
+    showInstallButton.value,
+  );
 };
 
 const onAppInstalled = () => {
@@ -153,7 +154,7 @@ const onAppInstalled = () => {
   showInstallButton.value = false;
   showIosInstructions.value = false;
   manualOpen.value = false;
-  console.log("[PWA] appinstalled event fired");
+  logger.log("[PWA] appinstalled event fired");
 };
 
 onMounted(() => {
@@ -172,13 +173,12 @@ onMounted(() => {
 
   window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
   window.addEventListener("appinstalled", onAppInstalled);
-  if (import.meta.env.DEV)
-    console.log(
-      "[PWA] listeners attached, dismissed:",
-      dismissed.value,
-      "isInstalled:",
-      isInstalled.value,
-    );
+  logger.log(
+    "[PWA] listeners attached, dismissed:",
+    dismissed.value,
+    "isInstalled:",
+    isInstalled.value,
+  );
 
   if (isIos() && !isInstalled.value && !dismissed.value) {
     setTimeout(() => {
@@ -192,7 +192,7 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener("beforeinstallprompt", onBeforeInstallPrompt);
   window.removeEventListener("appinstalled", onAppInstalled);
-  if (import.meta.env.DEV) console.log("[PWA] listeners removed");
+  logger.log("[PWA] listeners removed");
 });
 
 // If manualOpen is set this runtime-only override allows the user to re-open the modal even
@@ -222,7 +222,7 @@ const showModal = () => {
       showInstallButton.value = true;
     }
   } catch (e) {
-    console.warn("Failed to open PWA modal programmatically:", e);
+    logger.warn("Failed to open PWA modal programmatically:", e);
   }
 };
 

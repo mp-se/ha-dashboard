@@ -2,6 +2,9 @@
  * Composable to get MDI icon class based on entity attributes
  * Returns icon from entity.attributes.icon or infers from unit/domain
  */
+import { createLogger } from "@/utils/logger";
+
+const logger = createLogger("useIconClass");
 
 export const useIconClass = (entity, entityId) => {
   try {
@@ -77,7 +80,7 @@ export const useIconClass = (entity, entityId) => {
 
     return null;
   } catch (error) {
-    console.warn("Error in useIconClass for entity:", entityId, error);
+    logger.warn("Error in useIconClass for entity:", entityId, error);
     return null;
   }
 };

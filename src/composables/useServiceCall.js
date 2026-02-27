@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import { useHaStore } from "@/stores/haStore";
+import { createLogger } from "@/utils/logger";
 
 /**
  * Composable for making Home Assistant service calls with consistent error handling
@@ -9,6 +10,7 @@ import { useHaStore } from "@/stores/haStore";
  */
 export const useServiceCall = () => {
   const store = useHaStore();
+  const logger = createLogger("useServiceCall");
 
   const isLoading = ref(false);
   const error = ref(null);
@@ -39,7 +41,7 @@ export const useServiceCall = () => {
     try {
       // Skip actual call if in local mode
       if (store.isLocalMode) {
-        console.log(
+        logger.log(
           `[LOCAL MODE] Would call service: ${domain}.${service}`,
           serviceData,
         );
@@ -77,7 +79,7 @@ export const useServiceCall = () => {
         }
 
         if (showFeedback) {
-          console.error(`Service call failed: ${domain}.${service}`, e);
+          logger.error(`Service call failed: ${domain}.${service}`, e);
         }
 
         // Clear error after 5 seconds
@@ -89,7 +91,7 @@ export const useServiceCall = () => {
       }
     } catch (e) {
       error.value = e.message || "Unexpected error during service call";
-      console.error("Service call error:", e);
+      logger.error("Service call error:", e);
       return false;
     } finally {
       isLoading.value = false;

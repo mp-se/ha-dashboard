@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { toRef } from "vue";
 import { useAuthStore } from "./authStore";
+import { createLogger } from "@/utils/logger";
 import { useEntitiesStore } from "./entitiesStore";
 import { useConfigStore } from "./configStore";
 import { useForecastStore } from "./forecastStore";
@@ -15,16 +16,17 @@ export const useHaStore = defineStore("ha", () => {
   const entities = useEntitiesStore();
   const config = useConfigStore();
   const forecast = useForecastStore();
+  const logger = createLogger("haStore");
 
   const init = async () => {
-    if (import.meta.env.DEV) console.log("=== Starting initialization ===");
+    logger.log("=== Starting initialization ===");
     auth.isLoading = true;
     auth.needsCredentials = false;
     auth.clearError();
 
     try {
       // Step 1: Load dashboard configuration
-      if (import.meta.env.DEV) console.log("Step 1: Loading dashboard configuration...");
+      logger.log("Step 1: Loading dashboard configuration...");
       await config.loadDashboardConfig();
 
       // Sync developerMode/localMode from config to auth
@@ -47,12 +49,11 @@ export const useHaStore = defineStore("ha", () => {
 
       // Step 2: Check for credentials
       const hasCredentials = await auth.loadCredentials();
-      if (import.meta.env.DEV)
-        console.log("Credentials loaded:", {
-          url: auth.haUrl ? "(set)" : "(missing)",
-          token: auth.accessToken ? "(set)" : "(missing)",
-          localMode: auth.isLocalMode,
-        });
+      logger.log("Credentials loaded:", {
+        url: auth.haUrl ? "(set)" : "(missing)",
+        token: auth.accessToken ? "(set)" : "(missing)",
+        localMode: auth.isLocalMode,
+      });
 
       if (!hasCredentials && !auth.isLocalMode) {
         auth.needsCredentials = true;
@@ -62,15 +63,15 @@ export const useHaStore = defineStore("ha", () => {
 
       // Step 3: Load data
       if (auth.isLocalMode) {
-        if (import.meta.env.DEV) console.log("Step 3: Loading local data...");
+        logger.log("Step 3: Loading local data...");
         await entities.loadLocalData();
       } else {
-        if (import.meta.env.DEV) console.log("Step 3: Connecting to WebSocket...");
+        logger.log("Step 3: Connecting to WebSocket...");
         const conn = await auth.connectWebSocket();
         if (!conn)
           throw new Error("Connection failed: connection object is null");
 
-        if (import.meta.env.DEV) console.log("Step 4: Fetching states and registries...");
+        logger.log("Step 4: Fetching states and registries...");
         await entities.fetchStates();
         await entities.fetchEntityRegistry();
         await entities.fetchAreaRegistry();
@@ -78,11 +79,11 @@ export const useHaStore = defineStore("ha", () => {
         entities.mapEntitiesToDevices();
       }
 
-      if (import.meta.env.DEV) console.log("=== Initialization complete ===");
+      logger.log("=== Initialization complete ===");
       auth.isInitialized = true;
       auth.isLoading = false;
     } catch (error) {
-      console.error("=== Initialization error ===", error);
+      logger.error("=== Initialization error ===", error);
       auth.isLoading = false;
       auth.isInitialized = false;
 

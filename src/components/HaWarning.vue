@@ -38,6 +38,7 @@
 <script setup>
 import { computed } from "vue";
 import { useHaStore } from "@/stores/haStore";
+import { createLogger } from "@/utils/logger";
 
 const props = defineProps({
   entity: {
@@ -84,13 +85,14 @@ const props = defineProps({
 });
 
 const store = useHaStore();
+const logger = createLogger("HaWarning");
 
 // Smart entity resolution
 const resolvedEntity = computed(() => {
   if (typeof props.entity === "string") {
     const found = store.entityMap.get(props.entity);
     if (!found) {
-      console.warn(`Entity "${props.entity}" not found`);
+      logger.warn(`Entity "${props.entity}" not found`);
       return null;
     }
     return found;

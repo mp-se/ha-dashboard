@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **`createLogger` utility**: New `createLogger(prefix)` factory in `src/utils/logger.js` centralises all logging — `log()`/`warn()` are DEV-only, `error()` always fires. Migrated all `console.*` calls across stores, composables, components, views, and `main.js`. Added 12 unit tests.
+
 - **P1 – `useClipboard` composable**: Extracted all clipboard-write logic into a new `src/composables/useClipboard.js` composable (navigator.clipboard API + `execCommand` fallback). Refactored `RawEntityView.vue` (4 functions) and `DevicesView.vue` (1 function) to use it; added 7 tests covering success, timeout-reset, fallback-success, and failure paths.
 - **P2 – Copyright year**: Updated copyright notice in `App.vue` from 2025 → 2026.
 - **P3 – Dead code removal**: Removed ~25 commented-out `.filter()` lines from `DevelopmentView.vue`.

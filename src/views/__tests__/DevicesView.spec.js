@@ -768,6 +768,7 @@ describe("DevicesView.vue", () => {
       await copyBtn.trigger("click");
 
       expect(consoleSpy).toHaveBeenCalledWith(
+        "[DevicesView]",
         "Failed to copy device to clipboard:",
         expect.any(Error),
       );
