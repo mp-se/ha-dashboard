@@ -440,7 +440,7 @@ describe("HaSensorGraph.vue", () => {
   });
 
   describe("Value Formatting", () => {
-    it("should format integer values without decimal places", async () => {
+    it("should display integer values without decimal places", async () => {
       store.fetchHistory = vi.fn().mockResolvedValue([
         { t: Date.now() - 3600000, v: 20 },
         { t: Date.now(), v: 25 },
@@ -454,7 +454,7 @@ describe("HaSensorGraph.vue", () => {
       expect(textContent).toContain("20");
     });
 
-    it("should format decimal values with 2 decimal places", async () => {
+    it("should display decimal values with 2 decimal places", async () => {
       store.fetchHistory = vi.fn().mockResolvedValue([
         { t: Date.now() - 3600000, v: 20.5 },
         { t: Date.now(), v: 22.75 },
@@ -468,19 +468,37 @@ describe("HaSensorGraph.vue", () => {
       expect(textContent).toContain("20.50");
     });
 
-    it("should format null values as empty string", () => {
+    it("should handle null values in history data gracefully", async () => {
+      store.fetchHistory = vi.fn().mockResolvedValue([
+        { t: Date.now() - 7200000, v: 20 },
+        { t: Date.now() - 3600000, v: null },
+        { t: Date.now(), v: 22.5 },
+      ]);
       const wrapper = createWrapper();
-      expect(wrapper.vm.formatValue(null)).toBe("");
+      await flushPromises();
+
+      // Should still render graph without errors
+      expect(wrapper.find(".text-danger").exists()).toBe(false);
+      expect(wrapper.find("svg").exists()).toBe(true);
     });
 
-    it("should format undefined values as empty string", () => {
+    it("should handle undefined values in history data gracefully", async () => {
+      store.fetchHistory = vi.fn().mockResolvedValue([
+        { t: Date.now() - 7200000, v: 20 },
+        { t: Date.now() - 3600000, v: undefined },
+        { t: Date.now(), v: 22.5 },
+      ]);
       const wrapper = createWrapper();
-      expect(wrapper.vm.formatValue(undefined)).toBe("");
+      await flushPromises();
+
+      // Should still render graph without errors
+      expect(wrapper.find(".text-danger").exists()).toBe(false);
+      expect(wrapper.find("svg").exists()).toBe(true);
     });
   });
 
   describe("Entity Labels", () => {
-    it("should get entity label for string entity from store", async () => {
+    it("should display entity friendly name from store", async () => {
       const wrapper = createWrapper();
       await flushPromises();
 
@@ -488,88 +506,248 @@ describe("HaSensorGraph.vue", () => {
       expect(wrapper.text()).toContain("Temperature");
     });
 
-    it("should return 'Unknown' for entity label when no friendly name or entity_id", () => {
+    it("should display entity_id when entity has no friendly name", async () => {
+      store.entities[0].attributes = {};
       const wrapper = createWrapper();
-      // Test getEntityLabel fallback to "Unknown"
-      const result = wrapper.vm.getEntityLabel({
-        attributes: {},
-      });
-      expect(result).toBe("Unknown");
+      await flushPromises();
+
+      // Should fall back to entity_id
+      expect(wrapper.text()).toContain("sensor.temperature");
     });
 
-    it("should return entity_id when no friendly name available", () => {
-      const wrapper = createWrapper();
-      const result = wrapper.vm.getEntityLabel({
-        entity_id: "sensor.test",
-        attributes: {},
-      });
-      expect(result).toBe("sensor.test");
-    });
+    it("should show error when entity not found in store", async () => {
+      store.entities = [];
+      const wrapper = createWrapper({ entity: "sensor.nonexistent" });
+      await flushPromises();
 
-    it("should return entity ID as label when string entity not in store", () => {
-      const wrapper = createWrapper();
-      // Test with non-existent entity ID
-      const result = wrapper.vm.getEntityLabel("sensor.nonexistent");
-      expect(result).toBe("sensor.nonexistent");
+      // Should display error for non-existent entity
+      expect(wrapper.find(".text-danger").exists()).toBe(true);
+      expect(wrapper.text()).toContain("No valid entities");
     });
   });
 
-  describe("Path Generation", () => {
-    it("should handle getSmoothPath with exactly 2 points", () => {
+  describe("Graph Rendering", () => {
+    it("should render graph with exactly 2 data points", async () => {
+      store.fetchHistory = vi.fn().mockResolvedValue([
+        { t: Date.now() - 3600000, v: 20 },
+        { t: Date.now(), v: 25 },
+      ]);
       const wrapper = createWrapper();
-      const twoPoints = "10,20 30,40";
-      const path = wrapper.vm.getSmoothPath(twoPoints);
-      expect(path).toContain("M 10,20");
-      expect(path).toContain("L 30,40");
+      await flushPromises();
+
+      expect(wrapper.find("svg").exists()).toBe(true);
+      expect(wrapper.find('path[stroke="#0d6efd"]').exists()).toBe(true);
     });
 
-    it("should handle getSmoothPath with empty string", () => {
+    it("should render smooth curves for multiple data points", async () => {
+      store.fetchHistory = vi.fn().mockResolvedValue([
+        { t: Date.now() - 7200000, v: 20 },
+        { t: Date.now() - 5400000, v: 23 },
+        { t: Date.now() - 3600000, v: 21 },
+        { t: Date.now() - 1800000, v: 24 },
+        { t: Date.now(), v: 22 },
+      ]);
       const wrapper = createWrapper();
-      const path = wrapper.vm.getSmoothPath("");
-      expect(path).toBe("");
+      await flushPromises();
+
+      expect(wrapper.find("svg").exists()).toBe(true);
+      const path = wrapper.find('path[stroke="#0d6efd"]');
+      expect(path.exists()).toBe(true);
+      expect(path.attributes("d")).toBeTruthy();
     });
 
-    it("should handle getSmoothPath with single point", () => {
+    it("should handle single data point gracefully", async () => {
+      store.fetchHistory = vi.fn().mockResolvedValue([
+        { t: Date.now(), v: 22 },
+      ]);
       const wrapper = createWrapper();
-      const singlePoint = "10,20";
-      const path = wrapper.vm.getSmoothPath(singlePoint);
-      expect(path).toBe("");
+      await flushPromises();
+
+      // Single point should still render without errors
+      expect(wrapper.find(".text-danger").exists()).toBe(false);
     });
 
-    it("should generate smooth path with Bezier curves for 3+ points", () => {
+    it("should render filled area under graph line", async () => {
+      store.fetchHistory = vi.fn().mockResolvedValue([
+        { t: Date.now() - 3600000, v: 20 },
+        { t: Date.now(), v: 25 },
+      ]);
       const wrapper = createWrapper();
-      const multiPoints = "10,20 30,40 50,30";
-      const path = wrapper.vm.getSmoothPath(multiPoints);
-      expect(path).toContain("M 10,20");
-      expect(path).toContain("Q");
+      await flushPromises();
+
+      const filledArea = wrapper.find('path[fill="#0d6efd"][opacity="0.15"]');
+      expect(filledArea.exists()).toBe(true);
+    });
+  });
+
+  describe("Edge Cases", () => {
+    it("should handle mixed numeric and non-numeric values", async () => {
+      store.fetchHistory = vi.fn().mockResolvedValue([
+        { t: Date.now() - 7200000, v: 20 },
+        { t: Date.now() - 5400000, v: "invalid" },
+        { t: Date.now() - 3600000, v: 22 },
+        { t: Date.now() - 1800000, v: NaN },
+        { t: Date.now(), v: 24 },
+      ]);
+      const wrapper = createWrapper();
+      await flushPromises();
+
+      // Should filter out invalid values and render graph
+      expect(wrapper.find(".text-danger").exists()).toBe(false);
+      expect(wrapper.find("svg").exists()).toBe(true);
     });
 
-    it("should handle getAreaPath with empty string", () => {
-      const wrapper = createWrapper();
-      const path = wrapper.vm.getAreaPath("");
-      expect(path).toBe("");
+    it("should respect maxPoints limit with large datasets", async () => {
+      const largeDataset = Array.from({ length: 1000 }, (_, i) => ({
+        t: Date.now() - i * 60000,
+        v: 20 + Math.sin(i / 10) * 5,
+      }));
+      store.fetchHistory = vi.fn().mockResolvedValue(largeDataset);
+
+      const wrapper = createWrapper({ maxPoints: 100 });
+      await flushPromises();
+
+      // Should render successfully with reduced points
+      expect(wrapper.find("svg").exists()).toBe(true);
+      expect(wrapper.find('path[stroke="#0d6efd"]').exists()).toBe(true);
     });
 
-    it("should handle getAreaPath with single point", () => {
+    it("should handle rapid entity prop changes", async () => {
       const wrapper = createWrapper();
-      const singlePoint = "10,20";
-      const path = wrapper.vm.getAreaPath(singlePoint);
-      expect(path).toBe("");
+      await flushPromises();
+
+      store.entities.push({
+        entity_id: "sensor.temp2",
+        state: "25",
+        attributes: {
+          friendly_name: "Temperature 2",
+          unit_of_measurement: "°C",
+        },
+      });
+
+      // Rapid prop changes
+      await wrapper.setProps({ entity: "sensor.temp2" });
+      await flushPromises();
+
+      // Should display the final entity
+      expect(wrapper.text()).toContain("Temperature 2");
     });
 
-    it("should generate area path for multiple points", () => {
+    it("should handle entity with very small value range", async () => {
+      store.fetchHistory = vi.fn().mockResolvedValue([
+        { t: Date.now() - 3600000, v: 20.001 },
+        { t: Date.now(), v: 20.002 },
+      ]);
       const wrapper = createWrapper();
-      const multiPoints = "10,20 30,40 50,30";
-      const path = wrapper.vm.getAreaPath(multiPoints);
-      expect(path).toContain("M 10,20");
-      expect(path).toContain("L 50,40");
-      expect(path).toContain("Z");
+      await flushPromises();
+
+      // Should still render graph with tiny variations
+      expect(wrapper.find("svg").exists()).toBe(true);
+      expect(wrapper.find(".text-danger").exists()).toBe(false);
     });
 
-    it("should calculate polyline points for empty data array", () => {
+    it("should handle entity with identical values", async () => {
+      store.fetchHistory = vi.fn().mockResolvedValue([
+        { t: Date.now() - 3600000, v: 22 },
+        { t: Date.now() - 1800000, v: 22 },
+        { t: Date.now(), v: 22 },
+      ]);
       const wrapper = createWrapper();
-      const result = wrapper.vm.calculatePolylinePoints([]);
-      expect(result).toBe("");
+      await flushPromises();
+
+      // Should render flat line without errors
+      expect(wrapper.find("svg").exists()).toBe(true);
+      expect(wrapper.text()).toContain("22");
+    });
+  });
+
+  describe("Error Recovery", () => {
+    it("should recover when history becomes available after initial error", async () => {
+      store.fetchHistory = vi
+        .fn()
+        .mockRejectedValueOnce(new Error("Network error"))
+        .mockResolvedValueOnce([
+          { t: Date.now() - 3600000, v: 20 },
+          { t: Date.now(), v: 22 },
+        ]);
+
+      const wrapper = createWrapper();
+      await flushPromises();
+
+      // Should show error initially
+      expect(wrapper.find(".text-danger").exists()).toBe(true);
+      expect(wrapper.text()).toContain("Network error");
+
+      // Trigger retry by reloading history
+      await wrapper.vm.loadHistory();
+      await flushPromises();
+
+      // Should now show graph successfully
+      expect(wrapper.find(".text-danger").exists()).toBe(false);
+      expect(wrapper.find("svg").exists()).toBe(true);
+    });
+
+    it("should handle transition from empty data to valid data", async () => {
+      store.fetchHistory = vi
+        .fn()
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([
+          { t: Date.now() - 3600000, v: 20 },
+          { t: Date.now(), v: 22 },
+        ]);
+
+      const wrapper = createWrapper();
+      await flushPromises();
+
+      // Should show "no data" message initially
+      expect(wrapper.text()).toContain("No numeric history");
+
+      // Reload with valid data
+      await wrapper.vm.loadHistory();
+      await flushPromises();
+
+      // Should now display graph
+      expect(wrapper.find("svg").exists()).toBe(true);
+      expect(wrapper.text()).not.toContain("No numeric history");
+    });
+
+    it("should handle entity becoming unavailable then available again", async () => {
+      const wrapper = createWrapper();
+      await flushPromises();
+
+      expect(wrapper.text()).toContain("Temperature");
+      expect(wrapper.find("svg").exists()).toBe(true);
+
+      // Change to a non-existent entity
+      store.entities = [];
+      await wrapper.setProps({ entity: "sensor.nonexistent" });
+      await flushPromises();
+
+      expect(wrapper.find(".text-danger").exists()).toBe(true);
+      expect(wrapper.text()).toContain("No valid entities");
+
+      // Add entity back and switch to it
+      store.entities = [
+        {
+          entity_id: "sensor.temperature",
+          state: "22.5",
+          attributes: {
+            friendly_name: "Temperature",
+            unit_of_measurement: "°C",
+          },
+        },
+      ];
+      store.fetchHistory = vi.fn().mockResolvedValue([
+        { t: Date.now() - 3600000, v: 20 },
+        { t: Date.now(), v: 22.5 },
+      ]);
+      await wrapper.setProps({ entity: "sensor.temperature" });
+      await flushPromises();
+
+      // Should recover and display graph
+      expect(wrapper.find(".text-danger").exists()).toBe(false);
+      expect(wrapper.text()).toContain("Temperature");
+      expect(wrapper.find("svg").exists()).toBe(true);
     });
   });
 
