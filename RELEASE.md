@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Dependency updates**: Updated development dependencies to latest versions, including Vue 3.5.29, Vite 7.3.1, Vitest 4.0.18, Playwright 1.58.2, Prettier 3.8.1, and other dev tools. Removed unused `@babel/eslint-parser` dependency. All tests pass, lint clean, build successful.
 - **Architecture compliance**: All CSS styles moved to global `shared-styles.css` (removed scoped styles from HaLight.vue). Created comprehensive test files for 4 composables: `useLightColor.spec.js` (48 tests), `useLightColorTemp.spec.js` (42 tests), `useLightColorPresets.spec.js` (28 tests), `useEnergyChart.spec.js` (47 tests). Total test count increased from 1586 → 1751 tests (165 new tests). All tests passing, lint clean, build successful.
 - **`createLogger` utility**: New `createLogger(prefix)` factory in `src/utils/logger.js` centralises all logging — `log()`/`warn()` are DEV-only, `error()` always fires. Migrated all `console.*` calls across stores, composables, components, views, and `main.js`. Added 12 unit tests.
 - **`useClipboard` composable**: Extracted all clipboard-write logic into a new `src/composables/useClipboard.js` composable (navigator.clipboard API + `execCommand` fallback). Refactored `RawEntityView.vue` (4 functions) and `DevicesView.vue` (1 function) to use it; added 7 tests covering success, timeout-reset, fallback-success, and failure paths.
