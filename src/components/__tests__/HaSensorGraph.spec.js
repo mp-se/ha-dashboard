@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { mount } from "@vue/test-utils";
+import { mount, flushPromises } from "@vue/test-utils";
 import HaSensorGraph from "../HaSensorGraph.vue";
 import { createPinia, setActivePinia } from "pinia";
 import { useHaStore } from "@/stores/haStore";
@@ -30,74 +30,50 @@ describe("HaSensorGraph.vue", () => {
     ]);
   });
 
-  it("should render sensor graph card", () => {
-    const wrapper = mount(HaSensorGraph, {
+  // Helper function to reduce mount configuration duplication
+  const createWrapper = (props = {}, options = {}) => {
+    return mount(HaSensorGraph, {
       props: {
         entity: "sensor.temperature",
+        ...props,
       },
       global: {
         plugins: [pinia],
         stubs: { svg: true },
+        ...options.global,
       },
+      ...options,
     });
+  };
+
+  it("should render sensor graph card", () => {
+    const wrapper = createWrapper();
 
     expect(wrapper.find(".card").exists()).toBe(true);
   });
 
   it("should display title", async () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: {
-        entity: "sensor.temperature",
-      },
-      global: {
-        plugins: [pinia],
-        stubs: { svg: true },
-      },
-    });
+    const wrapper = createWrapper();
 
     await wrapper.vm.$nextTick();
     expect(wrapper.text()).toContain("Temperature");
   });
 
   it("should display unit of measurement", async () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: {
-        entity: "sensor.temperature",
-      },
-      global: {
-        plugins: [pinia],
-        stubs: { svg: true },
-      },
-    });
+    const wrapper = createWrapper();
 
     await wrapper.vm.$nextTick();
     expect(wrapper.text()).toContain("°C");
   });
 
   it("should have hours cycle button", () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: {
-        entity: "sensor.temperature",
-      },
-      global: {
-        plugins: [pinia],
-        stubs: { svg: true },
-      },
-    });
+    const wrapper = createWrapper();
 
     expect(wrapper.text()).toContain("h");
   });
 
   it("should cycle through hours (24-48-72-96)", async () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: {
-        entity: "sensor.temperature",
-      },
-      global: {
-        plugins: [pinia],
-        stubs: { svg: true },
-      },
-    });
+    const wrapper = createWrapper();
 
     expect(wrapper.vm.hoursLocal).toBe(24);
 
@@ -115,15 +91,7 @@ describe("HaSensorGraph.vue", () => {
   });
 
   it("should load history on mount", async () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: {
-        entity: "sensor.temperature",
-      },
-      global: {
-        plugins: [pinia],
-        stubs: { svg: true },
-      },
-    });
+    const wrapper = createWrapper();
 
     await wrapper.vm.$nextTick();
     expect(store.fetchHistory).toHaveBeenCalled();
@@ -137,15 +105,7 @@ describe("HaSensorGraph.vue", () => {
         }),
     );
 
-    const wrapper = mount(HaSensorGraph, {
-      props: {
-        entity: "sensor.temperature",
-      },
-      global: {
-        plugins: [pinia],
-        stubs: { svg: true },
-      },
-    });
+    const wrapper = createWrapper();
 
     expect(wrapper.vm.loading).toBe(true);
   });
@@ -153,18 +113,10 @@ describe("HaSensorGraph.vue", () => {
   it("should display error when history fetch fails", async () => {
     store.fetchHistory = vi.fn().mockRejectedValue(new Error("Fetch failed"));
 
-    const wrapper = mount(HaSensorGraph, {
-      props: {
-        entity: "sensor.temperature",
-      },
-      global: {
-        plugins: [pinia],
-        stubs: { svg: true },
-      },
-    });
+    const wrapper = createWrapper();
 
     await wrapper.vm.$nextTick();
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    await flushPromises();
 
     expect(wrapper.vm.error).toBeTruthy();
   });
@@ -172,44 +124,21 @@ describe("HaSensorGraph.vue", () => {
   it("should display message when no data available", async () => {
     store.fetchHistory = vi.fn().mockResolvedValue([]);
 
-    const wrapper = mount(HaSensorGraph, {
-      props: {
-        entity: "sensor.temperature",
-      },
-      global: {
-        plugins: [pinia],
-        stubs: { svg: true },
-      },
-    });
+    const wrapper = createWrapper();
 
     await wrapper.vm.loadHistory();
     expect(wrapper.text()).toContain("No numeric history");
   });
 
   it("should render SVG graph", async () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: {
-        entity: "sensor.temperature",
-      },
-      global: {
-        plugins: [pinia],
-      },
-    });
+    const wrapper = createWrapper({}, { global: { plugins: [pinia] } });
 
     await wrapper.vm.loadHistory();
     expect(wrapper.find("svg").exists()).toBe(true);
   });
 
   it("should calculate polyline points", async () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: {
-        entity: "sensor.temperature",
-      },
-      global: {
-        plugins: [pinia],
-        stubs: { svg: true },
-      },
-    });
+    const wrapper = createWrapper();
 
     await wrapper.vm.loadHistory();
     await wrapper.vm.$nextTick();
@@ -217,31 +146,13 @@ describe("HaSensorGraph.vue", () => {
   });
 
   it("should accept maxPoints prop", () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: {
-        entity: "sensor.temperature",
-        maxPoints: 100,
-      },
-      global: {
-        plugins: [pinia],
-        stubs: { svg: true },
-      },
-    });
+    const wrapper = createWrapper({ maxPoints: 100 });
 
     expect(wrapper.props("maxPoints")).toBe(100);
   });
 
   it("should accept hours prop", () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: {
-        entity: "sensor.temperature",
-        hours: 48,
-      },
-      global: {
-        plugins: [pinia],
-        stubs: { svg: true },
-      },
-    });
+    const wrapper = createWrapper({ hours: 48 });
 
     expect(wrapper.props("hours")).toBe(48);
   });
@@ -256,20 +167,14 @@ describe("HaSensorGraph.vue", () => {
       },
     });
 
-    const wrapper = mount(HaSensorGraph, {
-      props: {
-        entity: ["sensor.temperature", "sensor.humidity"],
-      },
-      global: {
-        plugins: [pinia],
-        stubs: { svg: true },
-      },
+    const wrapper = createWrapper({
+      entity: ["sensor.temperature", "sensor.humidity"],
     });
 
     await wrapper.vm.$nextTick();
-    // Component interface changed to array but resolvedSecondEntity was not exposed
-    // Verify the component renders correctly instead
-    expect(wrapper.exists()).toBe(true);
+    expect(wrapper.vm.resolvedEntities).toHaveLength(2);
+    expect(wrapper.vm.resolvedEntities[0]).toBeTruthy();
+    expect(wrapper.vm.resolvedEntities[1]).toBeTruthy();
   });
 
   it("should display legend for dual graphs", async () => {
@@ -282,14 +187,8 @@ describe("HaSensorGraph.vue", () => {
       },
     });
 
-    const wrapper = mount(HaSensorGraph, {
-      props: {
-        entity: ["sensor.temperature", "sensor.humidity"],
-      },
-      global: {
-        plugins: [pinia],
-        stubs: { svg: true },
-      },
+    const wrapper = createWrapper({
+      entity: ["sensor.temperature", "sensor.humidity"],
     });
 
     await wrapper.vm.loadHistory();
@@ -299,15 +198,7 @@ describe("HaSensorGraph.vue", () => {
   });
 
   it("should reload history when entity changes", async () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: {
-        entity: "sensor.temperature",
-      },
-      global: {
-        plugins: [pinia],
-        stubs: { svg: true },
-      },
-    });
+    const wrapper = createWrapper();
 
     const callCount = store.fetchHistory.mock.calls.length;
 
@@ -373,33 +264,20 @@ describe("HaSensorGraph.vue", () => {
       },
     );
 
-    const wrapper = mount(HaSensorGraph, {
-      props: {
-        entity: ["sensor.temperature", "sensor.humidity", "sensor.pressure"],
-      },
-      global: {
-        plugins: [pinia],
-        stubs: { svg: true },
-      },
+    const wrapper = createWrapper({
+      entity: ["sensor.temperature", "sensor.humidity", "sensor.pressure"],
     });
 
     await wrapper.vm.loadHistory();
     await wrapper.vm.$nextTick();
-    // Component interface changed to array but resolvedThirdEntity was not exposed
-    // Verify the component renders correctly instead
-    expect(wrapper.exists()).toBe(true);
+    expect(wrapper.vm.resolvedEntities).toHaveLength(3);
+    expect(wrapper.vm.points).toBeTruthy();
+    expect(wrapper.vm.points2).toBeTruthy();
+    expect(wrapper.vm.points3).toBeTruthy();
   });
 
   it("should expose API for external control", () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: {
-        entity: "sensor.temperature",
-      },
-      global: {
-        plugins: [pinia],
-        stubs: { svg: true },
-      },
-    });
+    const wrapper = createWrapper();
 
     expect(wrapper.vm.loadHistory).toBeTruthy();
     expect(wrapper.vm.points).toBeTruthy();
@@ -407,10 +285,7 @@ describe("HaSensorGraph.vue", () => {
 
   it("should clear interval on unmount", async () => {
     const clearIntervalSpy = vi.spyOn(globalThis, "clearInterval");
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.temperature" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper();
     await wrapper.vm.loadHistory();
     wrapper.unmount();
     expect(clearIntervalSpy).toHaveBeenCalled();
@@ -441,10 +316,7 @@ describe("HaSensorGraph.vue", () => {
   it("should throw error when no valid entities provided", async () => {
     // Entity string not in store -> resolvedEntities becomes [null]
     store.entities = [];
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.nonexistent" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper({ entity: "sensor.nonexistent" });
     await wrapper.vm.loadHistory();
     await wrapper.vm.$nextTick();
     expect(wrapper.vm.error).toBeTruthy();
@@ -455,10 +327,7 @@ describe("HaSensorGraph.vue", () => {
       { t: Date.now() - 3600000, v: 20 },
       { t: Date.now(), v: 25 },
     ]);
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.temperature" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper();
     await wrapper.vm.loadHistory();
     await wrapper.vm.$nextTick();
     expect(wrapper.vm.maxDisplay).toBe("25");
@@ -470,10 +339,7 @@ describe("HaSensorGraph.vue", () => {
       { t: Date.now() - 3600000, v: 20.5 },
       { t: Date.now(), v: 22.75 },
     ]);
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.temperature" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper();
     await wrapper.vm.loadHistory();
     await wrapper.vm.$nextTick();
     expect(wrapper.vm.maxDisplay).toBe("22.75");
@@ -486,9 +352,8 @@ describe("HaSensorGraph.vue", () => {
       state: "65",
       attributes: { friendly_name: "Humidity", unit_of_measurement: "%" },
     });
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: ["sensor.temperature", "sensor.humidity"] },
-      global: { plugins: [pinia], stubs: { svg: true } },
+    const wrapper = createWrapper({
+      entity: ["sensor.temperature", "sensor.humidity"],
     });
     await wrapper.vm.$nextTick();
     // title is empty for multi-entity, legend is used instead
@@ -496,20 +361,14 @@ describe("HaSensorGraph.vue", () => {
   });
 
   it("should get entity label for string entity from store", async () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.temperature" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper();
     await wrapper.vm.$nextTick();
     // getEntityLabel is an internal helper, but we can test it via the exposed API indirectly
     expect(wrapper.exists()).toBe(true);
   });
 
   it("should return 'Unknown' for entity label when no friendly name or entity_id", () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.temperature" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper();
     // Test getEntityLabel fallback to "Unknown"
     const result = wrapper.vm.getEntityLabel({
       attributes: {},
@@ -518,10 +377,7 @@ describe("HaSensorGraph.vue", () => {
   });
 
   it("should return entity_id when no friendly name available", () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.temperature" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper();
     const result = wrapper.vm.getEntityLabel({
       entity_id: "sensor.test",
       attributes: {},
@@ -530,10 +386,7 @@ describe("HaSensorGraph.vue", () => {
   });
 
   it("should handle getSmoothPath with exactly 2 points", () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.temperature" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper();
     const twoPoints = "10,20 30,40";
     const path = wrapper.vm.getSmoothPath(twoPoints);
     expect(path).toContain("M 10,20");
@@ -541,29 +394,20 @@ describe("HaSensorGraph.vue", () => {
   });
 
   it("should handle getSmoothPath with empty string", () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.temperature" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper();
     const path = wrapper.vm.getSmoothPath("");
     expect(path).toBe("");
   });
 
   it("should handle getSmoothPath with single point", () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.temperature" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper();
     const singlePoint = "10,20";
     const path = wrapper.vm.getSmoothPath(singlePoint);
     expect(path).toBe("");
   });
 
   it("should generate smooth path with Bezier curves for 3+ points", () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.temperature" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper();
     const multiPoints = "10,20 30,40 50,30";
     const path = wrapper.vm.getSmoothPath(multiPoints);
     expect(path).toContain("M 10,20");
@@ -571,29 +415,20 @@ describe("HaSensorGraph.vue", () => {
   });
 
   it("should handle getAreaPath with empty string", () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.temperature" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper();
     const path = wrapper.vm.getAreaPath("");
     expect(path).toBe("");
   });
 
   it("should handle getAreaPath with single point", () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.temperature" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper();
     const singlePoint = "10,20";
     const path = wrapper.vm.getAreaPath(singlePoint);
     expect(path).toBe("");
   });
 
   it("should generate area path for multiple points", () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.temperature" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper();
     const multiPoints = "10,20 30,40 50,30";
     const path = wrapper.vm.getAreaPath(multiPoints);
     expect(path).toContain("M 10,20");
@@ -602,10 +437,7 @@ describe("HaSensorGraph.vue", () => {
   });
 
   it("should not set intervalId to null when already null on unmount", () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.temperature" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper();
     // Simulate intervalId being already cleared
     const component = wrapper.vm;
     component.intervalId = null;
@@ -615,37 +447,25 @@ describe("HaSensorGraph.vue", () => {
   });
 
   it("should calculate polyline points for empty data array", () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.temperature" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper();
     const result = wrapper.vm.calculatePolylinePoints([]);
     expect(result).toBe("");
   });
 
   it("should return entity ID as label when string entity not in store", () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.temperature" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper();
     // Test with non-existent entity ID
     const result = wrapper.vm.getEntityLabel("sensor.nonexistent");
     expect(result).toBe("sensor.nonexistent");
   });
 
   it("should format null values as empty string", () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.temperature" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper();
     expect(wrapper.vm.formatValue(null)).toBe("");
   });
 
   it("should format undefined values as empty string", () => {
-    const wrapper = mount(HaSensorGraph, {
-      props: { entity: "sensor.temperature" },
-      global: { plugins: [pinia], stubs: { svg: true } },
-    });
+    const wrapper = createWrapper();
     expect(wrapper.vm.formatValue(undefined)).toBe("");
   });
 });
