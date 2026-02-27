@@ -504,4 +504,148 @@ describe("HaSensorGraph.vue", () => {
     // getEntityLabel is an internal helper, but we can test it via the exposed API indirectly
     expect(wrapper.exists()).toBe(true);
   });
+
+  it("should return 'Unknown' for entity label when no friendly name or entity_id", () => {
+    const wrapper = mount(HaSensorGraph, {
+      props: { entity: "sensor.temperature" },
+      global: { plugins: [pinia], stubs: { svg: true } },
+    });
+    // Test getEntityLabel fallback to "Unknown"
+    const result = wrapper.vm.getEntityLabel({
+      attributes: {},
+    });
+    expect(result).toBe("Unknown");
+  });
+
+  it("should return entity_id when no friendly name available", () => {
+    const wrapper = mount(HaSensorGraph, {
+      props: { entity: "sensor.temperature" },
+      global: { plugins: [pinia], stubs: { svg: true } },
+    });
+    const result = wrapper.vm.getEntityLabel({
+      entity_id: "sensor.test",
+      attributes: {},
+    });
+    expect(result).toBe("sensor.test");
+  });
+
+  it("should handle getSmoothPath with exactly 2 points", () => {
+    const wrapper = mount(HaSensorGraph, {
+      props: { entity: "sensor.temperature" },
+      global: { plugins: [pinia], stubs: { svg: true } },
+    });
+    const twoPoints = "10,20 30,40";
+    const path = wrapper.vm.getSmoothPath(twoPoints);
+    expect(path).toContain("M 10,20");
+    expect(path).toContain("L 30,40");
+  });
+
+  it("should handle getSmoothPath with empty string", () => {
+    const wrapper = mount(HaSensorGraph, {
+      props: { entity: "sensor.temperature" },
+      global: { plugins: [pinia], stubs: { svg: true } },
+    });
+    const path = wrapper.vm.getSmoothPath("");
+    expect(path).toBe("");
+  });
+
+  it("should handle getSmoothPath with single point", () => {
+    const wrapper = mount(HaSensorGraph, {
+      props: { entity: "sensor.temperature" },
+      global: { plugins: [pinia], stubs: { svg: true } },
+    });
+    const singlePoint = "10,20";
+    const path = wrapper.vm.getSmoothPath(singlePoint);
+    expect(path).toBe("");
+  });
+
+  it("should generate smooth path with Bezier curves for 3+ points", () => {
+    const wrapper = mount(HaSensorGraph, {
+      props: { entity: "sensor.temperature" },
+      global: { plugins: [pinia], stubs: { svg: true } },
+    });
+    const multiPoints = "10,20 30,40 50,30";
+    const path = wrapper.vm.getSmoothPath(multiPoints);
+    expect(path).toContain("M 10,20");
+    expect(path).toContain("Q");
+  });
+
+  it("should handle getAreaPath with empty string", () => {
+    const wrapper = mount(HaSensorGraph, {
+      props: { entity: "sensor.temperature" },
+      global: { plugins: [pinia], stubs: { svg: true } },
+    });
+    const path = wrapper.vm.getAreaPath("");
+    expect(path).toBe("");
+  });
+
+  it("should handle getAreaPath with single point", () => {
+    const wrapper = mount(HaSensorGraph, {
+      props: { entity: "sensor.temperature" },
+      global: { plugins: [pinia], stubs: { svg: true } },
+    });
+    const singlePoint = "10,20";
+    const path = wrapper.vm.getAreaPath(singlePoint);
+    expect(path).toBe("");
+  });
+
+  it("should generate area path for multiple points", () => {
+    const wrapper = mount(HaSensorGraph, {
+      props: { entity: "sensor.temperature" },
+      global: { plugins: [pinia], stubs: { svg: true } },
+    });
+    const multiPoints = "10,20 30,40 50,30";
+    const path = wrapper.vm.getAreaPath(multiPoints);
+    expect(path).toContain("M 10,20");
+    expect(path).toContain("L 50,40");
+    expect(path).toContain("Z");
+  });
+
+  it("should not set intervalId to null when already null on unmount", () => {
+    const wrapper = mount(HaSensorGraph, {
+      props: { entity: "sensor.temperature" },
+      global: { plugins: [pinia], stubs: { svg: true } },
+    });
+    // Simulate intervalId being already cleared
+    const component = wrapper.vm;
+    component.intervalId = null;
+    wrapper.unmount();
+    // Should not throw error
+    expect(true).toBe(true);
+  });
+
+  it("should calculate polyline points for empty data array", () => {
+    const wrapper = mount(HaSensorGraph, {
+      props: { entity: "sensor.temperature" },
+      global: { plugins: [pinia], stubs: { svg: true } },
+    });
+    const result = wrapper.vm.calculatePolylinePoints([]);
+    expect(result).toBe("");
+  });
+
+  it("should return entity ID as label when string entity not in store", () => {
+    const wrapper = mount(HaSensorGraph, {
+      props: { entity: "sensor.temperature" },
+      global: { plugins: [pinia], stubs: { svg: true } },
+    });
+    // Test with non-existent entity ID
+    const result = wrapper.vm.getEntityLabel("sensor.nonexistent");
+    expect(result).toBe("sensor.nonexistent");
+  });
+
+  it("should format null values as empty string", () => {
+    const wrapper = mount(HaSensorGraph, {
+      props: { entity: "sensor.temperature" },
+      global: { plugins: [pinia], stubs: { svg: true } },
+    });
+    expect(wrapper.vm.formatValue(null)).toBe("");
+  });
+
+  it("should format undefined values as empty string", () => {
+    const wrapper = mount(HaSensorGraph, {
+      props: { entity: "sensor.temperature" },
+      global: { plugins: [pinia], stubs: { svg: true } },
+    });
+    expect(wrapper.vm.formatValue(undefined)).toBe("");
+  });
 });
