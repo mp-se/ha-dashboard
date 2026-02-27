@@ -498,7 +498,7 @@ describe("PwaInstallModal.vue", () => {
     it("should set up iOS timeout on mount for iOS devices", () => {
       const originalUserAgent = navigator.userAgent;
       const originalStandalone = window.navigator.standalone;
-      
+
       // Set up iOS environment
       Object.defineProperty(window.navigator, "userAgent", {
         value: "iPhone OS",
@@ -512,7 +512,7 @@ describe("PwaInstallModal.vue", () => {
       });
 
       // Mock matchMedia to return false for standalone mode
-      const matchMediaMock =vi.fn().mockReturnValue({
+      const matchMediaMock = vi.fn().mockReturnValue({
         matches: false,
         media: "(display-mode: standalone)",
         addEventListener: vi.fn(),
@@ -648,7 +648,7 @@ describe("PwaInstallModal.vue", () => {
       wrapper.vm.showInstallButton = false;
       wrapper.vm.deferredPrompt = null;
       wrapper.vm.isInstalled = false;
-      
+
       wrapper.vm.showModal();
 
       expect(wrapper.vm.manualOpen).toBe(true);
