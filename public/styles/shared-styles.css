@@ -680,11 +680,13 @@ button:active {
 
 .gauge-label {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-user-select: none;
   user-select: none;
 }
 
 .gauge-center-value {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-user-select: none;
   user-select: none;
 }
 
