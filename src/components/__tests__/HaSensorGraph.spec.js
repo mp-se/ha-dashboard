@@ -4,6 +4,23 @@ import HaSensorGraph from "../HaSensorGraph.vue";
 import { createPinia, setActivePinia } from "pinia";
 import { useHaStore } from "@/stores/haStore";
 
+// Test constants
+const INTERVALS = {
+  AUTO_REFRESH: 5 * 60 * 1000,
+  ONE_HOUR: 3600000,
+  TWO_HOURS: 7200000,
+  NINETY_MINUTES: 5400000,
+  THIRTY_MINUTES: 1800000,
+};
+
+const HOURS_CYCLE = [24, 48, 72, 96];
+
+const UI_TEXT = {
+  LOADING: "Loading history…",
+  NO_DATA: "No numeric history",
+  NO_ENTITIES: "No valid entities",
+};
+
 describe("HaSensorGraph.vue", () => {
   let store;
   let pinia;
@@ -25,7 +42,7 @@ describe("HaSensorGraph.vue", () => {
     ];
 
     store.fetchHistory = vi.fn().mockResolvedValue([
-      { t: Date.now() - 3600000, v: 20 },
+      { t: Date.now() - INTERVALS.ONE_HOUR, v: 20 },
       { t: Date.now(), v: 22.5 },
     ]);
   });
@@ -57,7 +74,7 @@ describe("HaSensorGraph.vue", () => {
     });
 
     store.fetchHistory = vi.fn().mockResolvedValue([
-      { t: Date.now() - 3600000, v: 60 },
+      { t: Date.now() - INTERVALS.ONE_HOUR, v: 60 },
       { t: Date.now(), v: 65 },
     ]);
   };
@@ -112,23 +129,29 @@ describe("HaSensorGraph.vue", () => {
       await flushPromises();
 
       const button = wrapper.find("button");
-      expect(button.text()).toBe("24h");
+      
+      // Test cycling through all hours
+      for (const hours of [...HOURS_CYCLE, 24]) {
+        expect(button.text()).toBe(`${hours}h`);
+        await button.trigger("click");
+        await flushPromises();
+      }
+    });
+
+    it("should reload history when hours button is clicked", async () => {
+      const wrapper = createWrapper();
+      await flushPromises();
+
+      const initialCallCount = store.fetchHistory.mock.calls.length;
+      const button = wrapper.find("button");
 
       await button.trigger("click");
       await flushPromises();
-      expect(button.text()).toBe("48h");
 
-      await button.trigger("click");
-      await flushPromises();
-      expect(button.text()).toBe("72h");
-
-      await button.trigger("click");
-      await flushPromises();
-      expect(button.text()).toBe("96h");
-
-      await button.trigger("click");
-      await flushPromises();
-      expect(button.text()).toBe("24h");
+      // Watcher should trigger loadHistory
+      expect(store.fetchHistory.mock.calls.length).toBeGreaterThan(
+        initialCallCount,
+      );
     });
   });
 
@@ -158,7 +181,7 @@ describe("HaSensorGraph.vue", () => {
       // Check loading state before promise resolves
       const loadingText = wrapper.find(".text-center.py-4");
       expect(loadingText.exists()).toBe(true);
-      expect(loadingText.text()).toBe("Loading history…");
+      expect(loadingText.text()).toBe(UI_TEXT.LOADING);
 
       // Clean up by resolving the promise
       resolveHistory([]);
@@ -181,7 +204,7 @@ describe("HaSensorGraph.vue", () => {
       const wrapper = createWrapper();
 
       await wrapper.vm.loadHistory();
-      expect(wrapper.text()).toContain("No numeric history");
+      expect(wrapper.text()).toContain(UI_TEXT.NO_DATA);
     });
 
     it("should reload history when entity changes", async () => {
@@ -204,7 +227,7 @@ describe("HaSensorGraph.vue", () => {
       await flushPromises();
 
       expect(wrapper.find(".text-danger").exists()).toBe(true);
-      expect(wrapper.text()).toContain("No valid entities");
+      expect(wrapper.text()).toContain(UI_TEXT.NO_ENTITIES);
     });
   });
 
@@ -379,10 +402,10 @@ describe("HaSensorGraph.vue", () => {
       const wrapper = createWrapper();
       await flushPromises();
 
-      // Verify interval is set with 5 minute (300000ms) delay
+      // Verify interval is set with 5 minute delay
       expect(setIntervalSpy).toHaveBeenCalledWith(
         expect.any(Function),
-        5 * 60 * 1000,
+        INTERVALS.AUTO_REFRESH,
       );
       setIntervalSpy.mockRestore();
       wrapper.unmount();
@@ -416,7 +439,7 @@ describe("HaSensorGraph.vue", () => {
       const initialCallCount = store.fetchHistory.mock.calls.length;
 
       // Fast-forward 5 minutes
-      vi.advanceTimersByTime(5 * 60 * 1000);
+      vi.advanceTimersByTime(INTERVALS.AUTO_REFRESH);
       await flushPromises();
 
       // Verify history was fetched again
@@ -468,33 +491,26 @@ describe("HaSensorGraph.vue", () => {
       expect(textContent).toContain("20.50");
     });
 
-    it("should handle null values in history data gracefully", async () => {
-      store.fetchHistory = vi.fn().mockResolvedValue([
-        { t: Date.now() - 7200000, v: 20 },
-        { t: Date.now() - 3600000, v: null },
-        { t: Date.now(), v: 22.5 },
-      ]);
-      const wrapper = createWrapper();
-      await flushPromises();
+    it.each([
+      ["null", null],
+      ["undefined", undefined],
+      ["NaN", NaN],
+    ])(
+      "should handle %s values in history data gracefully",
+      async (_, invalidValue) => {
+        store.fetchHistory = vi.fn().mockResolvedValue([
+          { t: Date.now() - INTERVALS.TWO_HOURS, v: 20 },
+          { t: Date.now() - INTERVALS.ONE_HOUR, v: invalidValue },
+          { t: Date.now(), v: 22.5 },
+        ]);
+        const wrapper = createWrapper();
+        await flushPromises();
 
-      // Should still render graph without errors
-      expect(wrapper.find(".text-danger").exists()).toBe(false);
-      expect(wrapper.find("svg").exists()).toBe(true);
-    });
-
-    it("should handle undefined values in history data gracefully", async () => {
-      store.fetchHistory = vi.fn().mockResolvedValue([
-        { t: Date.now() - 7200000, v: 20 },
-        { t: Date.now() - 3600000, v: undefined },
-        { t: Date.now(), v: 22.5 },
-      ]);
-      const wrapper = createWrapper();
-      await flushPromises();
-
-      // Should still render graph without errors
-      expect(wrapper.find(".text-danger").exists()).toBe(false);
-      expect(wrapper.find("svg").exists()).toBe(true);
-    });
+        // Should still render graph without errors
+        expect(wrapper.find(".text-danger").exists()).toBe(false);
+        expect(wrapper.find("svg").exists()).toBe(true);
+      },
+    );
   });
 
   describe("Entity Labels", () => {
@@ -522,14 +538,14 @@ describe("HaSensorGraph.vue", () => {
 
       // Should display error for non-existent entity
       expect(wrapper.find(".text-danger").exists()).toBe(true);
-      expect(wrapper.text()).toContain("No valid entities");
+      expect(wrapper.text()).toContain(UI_TEXT.NO_ENTITIES);
     });
   });
 
   describe("Graph Rendering", () => {
     it("should render graph with exactly 2 data points", async () => {
       store.fetchHistory = vi.fn().mockResolvedValue([
-        { t: Date.now() - 3600000, v: 20 },
+        { t: Date.now() - INTERVALS.ONE_HOUR, v: 20 },
         { t: Date.now(), v: 25 },
       ]);
       const wrapper = createWrapper();
@@ -541,10 +557,10 @@ describe("HaSensorGraph.vue", () => {
 
     it("should render smooth curves for multiple data points", async () => {
       store.fetchHistory = vi.fn().mockResolvedValue([
-        { t: Date.now() - 7200000, v: 20 },
-        { t: Date.now() - 5400000, v: 23 },
-        { t: Date.now() - 3600000, v: 21 },
-        { t: Date.now() - 1800000, v: 24 },
+        { t: Date.now() - INTERVALS.TWO_HOURS, v: 20 },
+        { t: Date.now() - INTERVALS.NINETY_MINUTES, v: 23 },
+        { t: Date.now() - INTERVALS.ONE_HOUR, v: 21 },
+        { t: Date.now() - INTERVALS.THIRTY_MINUTES, v: 24 },
         { t: Date.now(), v: 22 },
       ]);
       const wrapper = createWrapper();
@@ -569,7 +585,7 @@ describe("HaSensorGraph.vue", () => {
 
     it("should render filled area under graph line", async () => {
       store.fetchHistory = vi.fn().mockResolvedValue([
-        { t: Date.now() - 3600000, v: 20 },
+        { t: Date.now() - INTERVALS.ONE_HOUR, v: 20 },
         { t: Date.now(), v: 25 },
       ]);
       const wrapper = createWrapper();
@@ -577,6 +593,17 @@ describe("HaSensorGraph.vue", () => {
 
       const filledArea = wrapper.find('path[fill="#0d6efd"][opacity="0.15"]');
       expect(filledArea.exists()).toBe(true);
+    });
+
+    it("should handle empty points arrays when no history is available", async () => {
+      store.fetchHistory = vi.fn().mockResolvedValue([]);
+
+      const wrapper = createWrapper();
+      await flushPromises();
+
+      // Should show "no data" message, not render SVG
+      expect(wrapper.text()).toContain(UI_TEXT.NO_DATA);
+      expect(wrapper.find("svg").exists()).toBe(false);
     });
   });
 
@@ -635,7 +662,7 @@ describe("HaSensorGraph.vue", () => {
 
     it("should handle entity with very small value range", async () => {
       store.fetchHistory = vi.fn().mockResolvedValue([
-        { t: Date.now() - 3600000, v: 20.001 },
+        { t: Date.now() - INTERVALS.ONE_HOUR, v: 20.001 },
         { t: Date.now(), v: 20.002 },
       ]);
       const wrapper = createWrapper();
@@ -648,8 +675,8 @@ describe("HaSensorGraph.vue", () => {
 
     it("should handle entity with identical values", async () => {
       store.fetchHistory = vi.fn().mockResolvedValue([
-        { t: Date.now() - 3600000, v: 22 },
-        { t: Date.now() - 1800000, v: 22 },
+        { t: Date.now() - INTERVALS.ONE_HOUR, v: 22 },
+        { t: Date.now() - INTERVALS.THIRTY_MINUTES, v: 22 },
         { t: Date.now(), v: 22 },
       ]);
       const wrapper = createWrapper();
@@ -659,6 +686,17 @@ describe("HaSensorGraph.vue", () => {
       expect(wrapper.find("svg").exists()).toBe(true);
       expect(wrapper.text()).toContain("22");
     });
+
+    it("should validate maxPoints prop range", () => {
+      // Valid values
+      expect(HaSensorGraph.props.maxPoints.validator(100)).toBe(true);
+      expect(HaSensorGraph.props.maxPoints.validator(10000)).toBe(true);
+
+      // Invalid values
+      expect(HaSensorGraph.props.maxPoints.validator(0)).toBe(false);
+      expect(HaSensorGraph.props.maxPoints.validator(-10)).toBe(false);
+      expect(HaSensorGraph.props.maxPoints.validator(10001)).toBe(false);
+    });
   });
 
   describe("Error Recovery", () => {
@@ -667,7 +705,7 @@ describe("HaSensorGraph.vue", () => {
         .fn()
         .mockRejectedValueOnce(new Error("Network error"))
         .mockResolvedValueOnce([
-          { t: Date.now() - 3600000, v: 20 },
+          { t: Date.now() - INTERVALS.ONE_HOUR, v: 20 },
           { t: Date.now(), v: 22 },
         ]);
 
@@ -692,7 +730,7 @@ describe("HaSensorGraph.vue", () => {
         .fn()
         .mockResolvedValueOnce([])
         .mockResolvedValueOnce([
-          { t: Date.now() - 3600000, v: 20 },
+          { t: Date.now() - INTERVALS.ONE_HOUR, v: 20 },
           { t: Date.now(), v: 22 },
         ]);
 
@@ -700,7 +738,7 @@ describe("HaSensorGraph.vue", () => {
       await flushPromises();
 
       // Should show "no data" message initially
-      expect(wrapper.text()).toContain("No numeric history");
+      expect(wrapper.text()).toContain(UI_TEXT.NO_DATA);
 
       // Reload with valid data
       await wrapper.vm.loadHistory();
@@ -708,7 +746,7 @@ describe("HaSensorGraph.vue", () => {
 
       // Should now display graph
       expect(wrapper.find("svg").exists()).toBe(true);
-      expect(wrapper.text()).not.toContain("No numeric history");
+      expect(wrapper.text()).not.toContain(UI_TEXT.NO_DATA);
     });
 
     it("should handle entity becoming unavailable then available again", async () => {
@@ -724,7 +762,7 @@ describe("HaSensorGraph.vue", () => {
       await flushPromises();
 
       expect(wrapper.find(".text-danger").exists()).toBe(true);
-      expect(wrapper.text()).toContain("No valid entities");
+      expect(wrapper.text()).toContain(UI_TEXT.NO_ENTITIES);
 
       // Add entity back and switch to it
       store.entities = [
@@ -738,7 +776,7 @@ describe("HaSensorGraph.vue", () => {
         },
       ];
       store.fetchHistory = vi.fn().mockResolvedValue([
-        { t: Date.now() - 3600000, v: 20 },
+        { t: Date.now() - INTERVALS.ONE_HOUR, v: 20 },
         { t: Date.now(), v: 22.5 },
       ]);
       await wrapper.setProps({ entity: "sensor.temperature" });
@@ -749,6 +787,17 @@ describe("HaSensorGraph.vue", () => {
       expect(wrapper.text()).toContain("Temperature");
       expect(wrapper.find("svg").exists()).toBe(true);
     });
+
+    it("should display improved error messages with entity details", async () => {
+      store.entities = [];
+      const wrapper = createWrapper({ entity: "sensor.nonexistent" });
+      await flushPromises();
+
+      expect(wrapper.find(".text-danger").exists()).toBe(true);
+      // New error message includes the entity that was provided
+      expect(wrapper.text()).toContain(UI_TEXT.NO_ENTITIES);
+      expect(wrapper.text()).toContain("sensor.nonexistent");
+    });
   });
 
   describe("API", () => {
@@ -758,6 +807,88 @@ describe("HaSensorGraph.vue", () => {
       // Verify exposed methods exist
       expect(typeof wrapper.vm.loadHistory).toBe("function");
       expect(Array.isArray(wrapper.vm.points)).toBe(true);
+    });
+
+    it("should expose loadHistory method that can be called externally", async () => {
+      const wrapper = createWrapper();
+      await flushPromises();
+
+      store.fetchHistory.mockClear();
+      await wrapper.vm.loadHistory();
+
+      expect(store.fetchHistory).toHaveBeenCalled();
+    });
+
+    it("should expose points as reactive reference", async () => {
+      const wrapper = createWrapper();
+      await flushPromises();
+
+      expect(Array.isArray(wrapper.vm.points)).toBe(true);
+      expect(wrapper.vm.points.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("Accessibility", () => {
+    it("should have accessible button labels", async () => {
+      const wrapper = createWrapper();
+      await flushPromises();
+
+      const button = wrapper.find("button");
+      expect(button.text()).toMatch(/\d+h/);
+      expect(button.text()).toContain("h");
+    });
+
+    it("should have semantic SVG structure with proper attributes", async () => {
+      const wrapper = createWrapper();
+      await flushPromises();
+
+      const svg = wrapper.find("svg");
+      expect(svg.exists()).toBe(true);
+      expect(svg.attributes("viewBox")).toBe("0 0 100 40");
+      expect(svg.attributes("preserveAspectRatio")).toBe("none");
+    });
+
+    it("should display unit of measurement for screen readers", async () => {
+      const wrapper = createWrapper();
+      await flushPromises();
+
+      const unit = wrapper.find(".text-muted");
+      expect(unit.exists()).toBe(true);
+      expect(unit.text()).toBe("°C");
+    });
+
+    it("should have readable chart title", async () => {
+      const wrapper = createWrapper();
+      await flushPromises();
+
+      const title = wrapper.find(".card-title");
+      expect(title.exists()).toBe(true);
+      expect(title.text()).toContain("Temperature");
+    });
+  });
+
+  describe("Missing Coverage - Edge Cases", () => {
+    it("should handle entity with no unit_of_measurement", async () => {
+      store.entities[0].attributes = { friendly_name: "Temperature" };
+      delete store.entities[0].attributes.unit_of_measurement;
+
+      const wrapper = createWrapper();
+      await flushPromises();
+
+      // Should render without unit (empty string)
+      const units = wrapper.findAll(".text-muted");
+      const unitElement = units.find((el) => el.text() === "");
+      expect(unitElement).toBeDefined();
+    });
+
+    it("should handle title when resolvedEntity is null", async () => {
+      store.entities = [];
+      const wrapper = createWrapper({ entity: "sensor.missing" });
+      await flushPromises();
+
+      // Should show error, not crash on null title
+      const errorText = wrapper.find(".text-danger");
+      expect(errorText.exists()).toBe(true);
     });
   });
 });

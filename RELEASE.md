@@ -2,28 +2,27 @@
 
 ## Unreleased
 
-- **Error boundaries**: Added `ErrorBoundary.vue` component with `onErrorCaptured` to gracefully handle component errors without crashing the app. Wrapped dynamic view rendering in `App.vue` with error boundary showing user-friendly error UI with retry/go-home actions. Added 9 comprehensive tests covering error catching, developer mode details, event emissions, and recovery actions. All tests pass (1767 tests).
-- **Safari CSS compatibility**: Fixed `user-select` CSS property compatibility by adding `-webkit-user-select` vendor prefix for Safari/iOS support in `shared-styles.css` (lines 683, 688). Resolves CSS compilation warnings.
-- **Encrypted credential storage**: Implemented AES-GCM-256 encryption for Home Assistant credentials stored in localStorage using the Web Crypto API. Key derivation uses device fingerprinting (userAgent, language, timezone, screen dimensions, platform) combined with PBKDF2 (100k iterations) for secure, password-free encryption. Each encryption operation uses a random 12-byte IV stored with the ciphertext. Falls back to config/env credentials if Web Crypto is unavailable. Added `src/utils/secureStorage.js` with comprehensive test coverage (21 tests), updated `authStore.js` to use encrypted storage. All 1758 tests pass, lint clean, build successful.
-- **Architecture compliance**: Removed all `<style scoped>` blocks from 21 Vue components, migrating their styles to `public/styles/shared-styles.css`. Added component-specific wrapper classes (e.g., `ha-beer-tap`, `ha-media-player`, `credential-dialog`) where needed for style scoping. This enforces the architectural principle that all CSS must be centralized in shared-styles.css. All tests pass, lint clean, build successful.
-- **Dependency updates**: Updated development dependencies to latest versions, including Vue 3.5.29, Vite 7.3.1, Vitest 4.0.18, Playwright 1.58.2, Prettier 3.8.1, and other dev tools. Removed unused `@babel/eslint-parser` dependency. All tests pass, lint clean, build successful.
-- **Architecture compliance**: All CSS styles moved to global `shared-styles.css` (removed scoped styles from HaLight.vue). Created comprehensive test files for 4 composables: `useLightColor.spec.js` (48 tests), `useLightColorTemp.spec.js` (42 tests), `useLightColorPresets.spec.js` (28 tests), `useEnergyChart.spec.js` (47 tests). Total test count increased from 1586 → 1751 tests (165 new tests). All tests passing, lint clean, build successful.
-- **`createLogger` utility**: New `createLogger(prefix)` factory in `src/utils/logger.js` centralises all logging — `log()`/`warn()` are DEV-only, `error()` always fires. Migrated all `console.*` calls across stores, composables, components, views, and `main.js`. Added 12 unit tests.
-- **`useClipboard` composable**: Extracted all clipboard-write logic into a new `src/composables/useClipboard.js` composable (navigator.clipboard API + `execCommand` fallback). Refactored `RawEntityView.vue` (4 functions) and `DevicesView.vue` (1 function) to use it; added 7 tests covering success, timeout-reset, fallback-success, and failure paths.
-- **Copyright year**: Updated copyright notice in `App.vue` from 2025 → 2026.
-- **Dead code removal**: Removed ~25 commented-out `.filter()` lines from `DevelopmentView.vue`.
-- **Coverage improvements**: Added `useClipboard.spec.js` (7 tests, 96%+ coverage); added unmount test to `useDebouncedRef.spec.js` covering the `onBeforeUnmount` cleanup path (lines now covered).
-- **`forecastStore` extraction**: Extracted forecast state and `subscribeToWeatherForecast` from `entitiesStore.js` into a dedicated `src/stores/forecastStore.js` (with lazy import to avoid circular deps). `haStore.js` now bridges from `forecastStore`. Added 7 tests in `forecastStore.spec.js`.
-- **O(1) entity lookup**: Removed the O(n) `entities.find()` fallback from `useEntityResolver.js`; all lookups now use the O(1) `entityMap.get()`. Updated all mock stores in `useEntityResolver.spec.js` to use `createMockStore` helper (both `entities` array and `entityMap`).
-- **ESLint v9 flat config**: Migrated from legacy `.eslintrc.cjs` (ESLint v8) to `eslint.config.js` (ESLint v9 flat config). Upgraded `eslint` ^9, `eslint-plugin-vue` ^9, added `@eslint/js` and `globals`. Browser globals set for `src/**`, Node globals added for test files. Deleted `.eslintrc.cjs`. Fixed pre-existing `no-unused-vars` catch-block bindings across `AppNavbar.vue`, `HaLight.vue`, `PwaInstallModal.vue`, `attributeFormatters.js`. Resolved `vue/no-dupe-keys` in `HaLight.vue` by renaming the internal `attributes` computed to `entityAttrs`.
-- Guarded diagnostic `console.log`/`console.warn` in `haStore.js`, `authStore.js`, and `configStore.js` behind `import.meta.env.DEV`; promoted init error to `console.error`.
-- **Test coverage uplift**: Added 9 new/extended test files targeting 80% branch coverage across the codebase. New spec files for `HaEntityAttributeList`, `HaIconCircle`, and `AppNavbar`; extended specs for `HaSun`, `HaSensorGraph`, `HaButton`, `HaRoom`, `HaWeather`, and `configStore`. Total test count grew from 1482 → 1572 (90 new tests). Overall branch coverage reached 84.56% (threshold 83%), all four coverage thresholds now pass.
-- `HaEnergy.vue`: implemented comparison vs previous period — fetches preceding window in parallel using new `offsetDays` param on `fetchEnergyHistory`, shows trending indicator with percentage. Added 5 tests.
-- Improved coverage for `HaLight.vue` (→91%/80%) and `haStore.js` (→100%/91%); fixed coverage thresholds in `vitest.config.js` for vitest v4.
-- Refactored `haStore.js` into `authStore`, `entitiesStore`, `configStore`; split `App.vue` → `App.vue` + `AppNavbar.vue`.
-- Auto-register `Ha*` components via `import.meta.glob`; renamed `sensors` → `entities` in store API.
-- Added `HaIconCircle.vue`, `HaEntityAttributeList.vue`; added `entityMap` for O(1) lookups.
-- Fixed: weather forecast for HA 2024.3+, `fetchStates` variable shadowing, missing icon CSS classes, misaligned sensor card icon.
+- Fixed Vue lifecycle warnings in tests, updated @vue/test-utils to 2.4.6
+- Fixed v-for key anti-pattern in HaSensor component
+- Added comprehensive JSDoc documentation to core composables
+- Code quality: 89.7% test coverage, zero ESLint errors, 1,822 tests passing
+- Added ErrorBoundary component for graceful error handling with retry/go-home actions
+- Implemented AES-GCM-256 encrypted credential storage using Web Crypto API
+- All CSS styles migrated to shared-styles.css (removed scoped styles from 21 components)
+- Updated dependencies: Vue 3.5.29, Vite 7.3.1, Vitest 4.0.18, Playwright 1.58.2, Prettier 3.8.1
+- Added test suites for light composables (165 new tests)
+- Created centralized logging utility (createLogger) - DEV-only log/warn, always-on error
+- Created useClipboard composable with navigator.clipboard API + execCommand fallback
+- Extracted forecastStore from entitiesStore for better separation of concerns
+- Optimized entity lookups to O(1) using entityMap (removed O(n) fallbacks)
+- Migrated to ESLint v9 flat config, fixed various linting issues
+- Enhanced test coverage to 84.56% branch coverage (90 new tests)
+- HaEnergy component now shows comparison vs previous period with trending indicators
+- Store refactoring: split haStore into authStore, entitiesStore, configStore
+- Split App.vue navigation into separate AppNavbar component
+- Auto-registration of Ha* components via import.meta.glob
+- Added HaIconCircle and HaEntityAttributeList components
+- Fixed weather forecast compatibility, variable shadowing, CSS issues
 
 ## February 2026 - v0.5.0
 

@@ -71,6 +71,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { useHaStore } from "./stores/haStore";
+import { createLogger } from "./utils/logger";
 import AppNavbar from "./components/AppNavbar.vue";
 import CredentialDialog from "./components/CredentialDialog.vue";
 import ErrorBoundary from "./components/ErrorBoundary.vue";
@@ -89,6 +90,7 @@ const devViewComponents = {
   raw: RawEntityView,
 };
 
+const logger = createLogger("App");
 const store = useHaStore();
 const currentView = ref("overview");
 const dark_mode = ref(false);
@@ -163,7 +165,7 @@ const handleEditCredentials = () => {
  * Handle component errors caught by ErrorBoundary
  */
 const handleComponentError = (errorData) => {
-  console.error(
+  logger.error(
     "Component error in view:",
     errorData.viewName,
     errorData.error,
