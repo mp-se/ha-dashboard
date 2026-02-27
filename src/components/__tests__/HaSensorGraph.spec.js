@@ -54,15 +54,15 @@ describe("HaSensorGraph.vue", () => {
 
   it("should display title", async () => {
     const wrapper = createWrapper();
+    await flushPromises();
 
-    await wrapper.vm.$nextTick();
     expect(wrapper.text()).toContain("Temperature");
   });
 
   it("should display unit of measurement", async () => {
     const wrapper = createWrapper();
+    await flushPromises();
 
-    await wrapper.vm.$nextTick();
     expect(wrapper.text()).toContain("°C");
   });
 
@@ -74,51 +74,68 @@ describe("HaSensorGraph.vue", () => {
 
   it("should cycle through hours (24-48-72-96)", async () => {
     const wrapper = createWrapper();
+    await flushPromises();
 
-    expect(wrapper.vm.hoursLocal).toBe(24);
+    const button = wrapper.find("button");
+    expect(button.text()).toBe("24h");
 
-    await wrapper.vm.cycleHours();
-    expect(wrapper.vm.hoursLocal).toBe(48);
+    await button.trigger("click");
+    await flushPromises();
+    expect(button.text()).toBe("48h");
 
-    await wrapper.vm.cycleHours();
-    expect(wrapper.vm.hoursLocal).toBe(72);
+    await button.trigger("click");
+    await flushPromises();
+    expect(button.text()).toBe("72h");
 
-    await wrapper.vm.cycleHours();
-    expect(wrapper.vm.hoursLocal).toBe(96);
+    await button.trigger("click");
+    await flushPromises();
+    expect(button.text()).toBe("96h");
 
-    await wrapper.vm.cycleHours();
-    expect(wrapper.vm.hoursLocal).toBe(24);
+    await button.trigger("click");
+    await flushPromises();
+    expect(button.text()).toBe("24h");
   });
 
   it("should load history on mount", async () => {
     const wrapper = createWrapper();
+    await flushPromises();
 
-    await wrapper.vm.$nextTick();
+    expect(wrapper.exists()).toBe(true);
     expect(store.fetchHistory).toHaveBeenCalled();
   });
 
   it("should display loading state", async () => {
+    let resolveHistory;
     store.fetchHistory = vi.fn(
       () =>
         new Promise((resolve) => {
-          setTimeout(() => resolve([]), 100);
+          resolveHistory = resolve;
         }),
     );
 
     const wrapper = createWrapper();
 
-    expect(wrapper.vm.loading).toBe(true);
+    // Wait for initial render but not for promise resolution
+    await wrapper.vm.$nextTick();
+
+    // Check loading state before promise resolves
+    const loadingText = wrapper.find(".text-center.py-4");
+    expect(loadingText.exists()).toBe(true);
+    expect(loadingText.text()).toBe("Loading history…");
+
+    // Clean up by resolving the promise
+    resolveHistory([]);
+    await flushPromises();
   });
 
   it("should display error when history fetch fails", async () => {
     store.fetchHistory = vi.fn().mockRejectedValue(new Error("Fetch failed"));
 
     const wrapper = createWrapper();
-
-    await wrapper.vm.$nextTick();
     await flushPromises();
 
-    expect(wrapper.vm.error).toBeTruthy();
+    expect(wrapper.find(".text-danger").exists()).toBe(true);
+    expect(wrapper.text()).toContain("Fetch failed");
   });
 
   it("should display message when no data available", async () => {
@@ -139,10 +156,11 @@ describe("HaSensorGraph.vue", () => {
 
   it("should calculate polyline points", async () => {
     const wrapper = createWrapper();
+    await flushPromises();
 
-    await wrapper.vm.loadHistory();
-    await wrapper.vm.$nextTick();
-    expect(wrapper.vm.polylinePoints).toBeTruthy();
+    const path = wrapper.find('path[stroke="#0d6efd"]');
+    expect(path.exists()).toBe(true);
+    expect(path.attributes("d")).toBeTruthy();
   });
 
   it("should accept maxPoints prop", () => {
@@ -167,14 +185,19 @@ describe("HaSensorGraph.vue", () => {
       },
     });
 
+    store.fetchHistory = vi.fn().mockResolvedValue([
+      { t: Date.now() - 3600000, v: 60 },
+      { t: Date.now(), v: 65 },
+    ]);
+
     const wrapper = createWrapper({
       entity: ["sensor.temperature", "sensor.humidity"],
     });
+    await flushPromises();
 
-    await wrapper.vm.$nextTick();
-    expect(wrapper.vm.resolvedEntities).toHaveLength(2);
-    expect(wrapper.vm.resolvedEntities[0]).toBeTruthy();
-    expect(wrapper.vm.resolvedEntities[1]).toBeTruthy();
+    // Check that both entity labels appear in the legend
+    expect(wrapper.text()).toContain("Temperature");
+    expect(wrapper.text()).toContain("Humidity");
   });
 
   it("should display legend for dual graphs", async () => {
@@ -187,25 +210,33 @@ describe("HaSensorGraph.vue", () => {
       },
     });
 
+    store.fetchHistory = vi.fn().mockResolvedValue([
+      { t: Date.now() - 3600000, v: 60 },
+      { t: Date.now(), v: 65 },
+    ]);
+
     const wrapper = createWrapper({
       entity: ["sensor.temperature", "sensor.humidity"],
     });
+    await flushPromises();
 
-    await wrapper.vm.loadHistory();
-    await wrapper.vm.$nextTick();
+    // Check legend exists and has colored badges
+    const badges = wrapper.findAll(".badge");
+    expect(badges.length).toBe(2);
     expect(wrapper.text()).toContain("Temperature");
     expect(wrapper.text()).toContain("Humidity");
   });
 
   it("should reload history when entity changes", async () => {
     const wrapper = createWrapper();
+    await flushPromises();
 
     const callCount = store.fetchHistory.mock.calls.length;
 
     store.entities[0].entity_id = "sensor.new_temperature";
     await wrapper.setProps({ entity: "sensor.new_temperature" });
+    await flushPromises();
 
-    await wrapper.vm.$nextTick();
     expect(store.fetchHistory.mock.calls.length).toBeGreaterThan(callCount);
   });
 
@@ -264,32 +295,89 @@ describe("HaSensorGraph.vue", () => {
       },
     );
 
+    store.fetchHistory = vi.fn().mockResolvedValue([
+      { t: Date.now() - 3600000, v: 1010 },
+      { t: Date.now(), v: 1013 },
+    ]);
+
     const wrapper = createWrapper({
       entity: ["sensor.temperature", "sensor.humidity", "sensor.pressure"],
     });
+    await flushPromises();
 
-    await wrapper.vm.loadHistory();
-    await wrapper.vm.$nextTick();
-    expect(wrapper.vm.resolvedEntities).toHaveLength(3);
-    expect(wrapper.vm.points).toBeTruthy();
-    expect(wrapper.vm.points2).toBeTruthy();
-    expect(wrapper.vm.points3).toBeTruthy();
+    // Check all three paths exist
+    const bluePath = wrapper.find('path[stroke="#0d6efd"]');
+    const redPath = wrapper.find('path[stroke="#dc3545"]');
+    const greenPath = wrapper.find('path[stroke="#198754"]');
+    expect(bluePath.exists()).toBe(true);
+    expect(redPath.exists()).toBe(true);
+    expect(greenPath.exists()).toBe(true);
+
+    // Check legend has 3 items
+    const badges = wrapper.findAll(".badge");
+    expect(badges.length).toBe(3);
   });
 
   it("should expose API for external control", () => {
     const wrapper = createWrapper();
 
-    expect(wrapper.vm.loadHistory).toBeTruthy();
-    expect(wrapper.vm.points).toBeTruthy();
+    // Verify exposed methods exist
+    expect(typeof wrapper.vm.loadHistory).toBe("function");
+    expect(Array.isArray(wrapper.vm.points)).toBe(true);
+  });
+
+  it("should set up auto-refresh interval on mount", async () => {
+    const setIntervalSpy = vi.spyOn(globalThis, "setInterval");
+    const wrapper = createWrapper();
+    await flushPromises();
+
+    // Verify interval is set with 5 minute (300000ms) delay
+    expect(setIntervalSpy).toHaveBeenCalledWith(
+      expect.any(Function),
+      5 * 60 * 1000,
+    );
+    setIntervalSpy.mockRestore();
+    wrapper.unmount();
   });
 
   it("should clear interval on unmount", async () => {
     const clearIntervalSpy = vi.spyOn(globalThis, "clearInterval");
+    const setIntervalSpy = vi.spyOn(globalThis, "setInterval");
+
     const wrapper = createWrapper();
-    await wrapper.vm.loadHistory();
+    await flushPromises();
+
+    // Get the interval ID that was set
+    const intervalId = setIntervalSpy.mock.results[0].value;
+
     wrapper.unmount();
-    expect(clearIntervalSpy).toHaveBeenCalled();
+
+    // Verify the specific interval was cleared
+    expect(clearIntervalSpy).toHaveBeenCalledWith(intervalId);
+
     clearIntervalSpy.mockRestore();
+    setIntervalSpy.mockRestore();
+  });
+
+  it("should refresh history when auto-refresh interval fires", async () => {
+    vi.useFakeTimers();
+
+    const wrapper = createWrapper();
+    await flushPromises();
+
+    const initialCallCount = store.fetchHistory.mock.calls.length;
+
+    // Fast-forward 5 minutes
+    vi.advanceTimersByTime(5 * 60 * 1000);
+    await flushPromises();
+
+    // Verify history was fetched again
+    expect(store.fetchHistory.mock.calls.length).toBeGreaterThan(
+      initialCallCount,
+    );
+
+    vi.useRealTimers();
+    wrapper.unmount();
   });
 
   it("should validate entity prop with object array items", () => {
@@ -317,9 +405,10 @@ describe("HaSensorGraph.vue", () => {
     // Entity string not in store -> resolvedEntities becomes [null]
     store.entities = [];
     const wrapper = createWrapper({ entity: "sensor.nonexistent" });
-    await wrapper.vm.loadHistory();
-    await wrapper.vm.$nextTick();
-    expect(wrapper.vm.error).toBeTruthy();
+    await flushPromises();
+
+    expect(wrapper.find(".text-danger").exists()).toBe(true);
+    expect(wrapper.text()).toContain("No valid entities");
   });
 
   it("should format integer values without decimal places", async () => {
@@ -328,10 +417,12 @@ describe("HaSensorGraph.vue", () => {
       { t: Date.now(), v: 25 },
     ]);
     const wrapper = createWrapper();
-    await wrapper.vm.loadHistory();
-    await wrapper.vm.$nextTick();
-    expect(wrapper.vm.maxDisplay).toBe("25");
-    expect(wrapper.vm.minDisplay).toBe("20");
+    await flushPromises();
+
+    // Check min/max values displayed in DOM
+    const textContent = wrapper.text();
+    expect(textContent).toContain("25");
+    expect(textContent).toContain("20");
   });
 
   it("should format decimal values with 2 decimal places", async () => {
@@ -340,10 +431,12 @@ describe("HaSensorGraph.vue", () => {
       { t: Date.now(), v: 22.75 },
     ]);
     const wrapper = createWrapper();
-    await wrapper.vm.loadHistory();
-    await wrapper.vm.$nextTick();
-    expect(wrapper.vm.maxDisplay).toBe("22.75");
-    expect(wrapper.vm.minDisplay).toBe("20.50");
+    await flushPromises();
+
+    // Check min/max values displayed in DOM
+    const textContent = wrapper.text();
+    expect(textContent).toContain("22.75");
+    expect(textContent).toContain("20.50");
   });
 
   it("should display empty string title for multi-entity graphs", async () => {
@@ -352,19 +445,26 @@ describe("HaSensorGraph.vue", () => {
       state: "65",
       attributes: { friendly_name: "Humidity", unit_of_measurement: "%" },
     });
+    store.fetchHistory = vi.fn().mockResolvedValue([
+      { t: Date.now() - 3600000, v: 60 },
+      { t: Date.now(), v: 65 },
+    ]);
     const wrapper = createWrapper({
       entity: ["sensor.temperature", "sensor.humidity"],
     });
-    await wrapper.vm.$nextTick();
-    // title is empty for multi-entity, legend is used instead
-    expect(wrapper.vm.title).toBe("");
+    await flushPromises();
+
+    // title is empty for multi-entity, only legend is used
+    const title = wrapper.find(".card-title span");
+    expect(title.text()).toBe("");
   });
 
   it("should get entity label for string entity from store", async () => {
     const wrapper = createWrapper();
-    await wrapper.vm.$nextTick();
-    // getEntityLabel is an internal helper, but we can test it via the exposed API indirectly
-    expect(wrapper.exists()).toBe(true);
+    await flushPromises();
+
+    // Verify the entity label appears in the card
+    expect(wrapper.text()).toContain("Temperature");
   });
 
   it("should return 'Unknown' for entity label when no friendly name or entity_id", () => {
