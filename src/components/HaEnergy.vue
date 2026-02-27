@@ -185,6 +185,11 @@
 import { computed, ref, onMounted, watch } from "vue";
 import { useHaStore } from "@/stores/haStore";
 import { createLogger } from "@/utils/logger";
+import {
+  useEnergyChart,
+  formatValue,
+  formatYAxisLabel,
+} from "@/composables/useEnergyChart";
 
 const store = useHaStore();
 const logger = createLogger("HaEnergy");
@@ -199,8 +204,18 @@ const isLoading = ref(false);
 const error = ref(null);
 const chartData = ref([]);
 const prevChartData = ref([]);
-const hoveredIndex = ref(-1);
 const isFetching = ref(false);
+
+// Use chart composable for calculations
+const {
+  hoveredIndex,
+  stats,
+  maxValue,
+  labelStep,
+  tooltipStyle,
+  chartWidth,
+  chartHeight,
+} = useEnergyChart(chartData, prevChartData);
 
 // Current period and label
 const selectedPeriod = computed(() => periods[selectedPeriodIndex.value]);
@@ -217,10 +232,6 @@ function cyclePeriod() {
 
   selectedPeriodIndex.value = (selectedPeriodIndex.value + 1) % periods.length;
 }
-
-// Chart dimensions
-const chartWidth = 400;
-const chartHeight = 200;
 
 // Get the primary consumption sensor (prefer energy sensor, fallback to power)
 const energySensor = computed(() => {
@@ -241,74 +252,7 @@ const energySensor = computed(() => {
 // Unit of measurement
 const unit = computed(() => {
   if (!energySensor.value) return "";
-  return energySensor.value.attributes?.unit_of_measurement || "";
-});
-
-// Card title
-const cardTitle = computed(() => {
-  if (!energySensor.value) return "Energy";
-  return energySensor.value.attributes?.friendly_name || "Energy Consumption";
-});
-
-// Calculate statistics from chart data
-const stats = computed(() => {
-  if (chartData.value.length === 0) {
-    return { max: 0, min: 0, avg: 0, total: 0, comparison: null };
-  }
-
-  const values = chartData.value.map((p) => p.value);
-  const max = Math.max(...values);
-  const min = Math.min(...values);
-  const avg = values.reduce((a, b) => a + b, 0) / values.length;
-  const total = values.reduce((a, b) => a + b, 0);
-
-  // Calculate comparison vs previous period
-  let comparison = null;
-  if (prevChartData.value.length > 0) {
-    const prevTotal = prevChartData.value.reduce((a, b) => a + b.value, 0);
-    if (prevTotal > 0) {
-      comparison = Math.round(((total - prevTotal) / prevTotal) * 1000) / 10;
-    }
-  }
-
-  return {
-    max: Math.round(max * 100) / 100,
-    min: Math.round(min * 100) / 100,
-    avg: Math.round(avg * 100) / 100,
-    total: Math.round(total * 100) / 100,
-    comparison,
-  };
-});
-
-// Maximum value for Y-axis scaling
-const maxValue = computed(() => {
-  if (stats.value.max === 0) return 1;
-  // Round up to nearest "nice" number
-  const magnitude = Math.pow(10, Math.floor(Math.log10(stats.value.max)));
-  return Math.ceil(stats.value.max / magnitude) * magnitude;
-});
-
-// Label step for X-axis (show every nth label to avoid crowding)
-const labelStep = computed(() => {
-  if (chartData.value.length <= 12) return 1;
-  if (chartData.value.length <= 24) return 2;
-  return Math.ceil(chartData.value.length / 12);
-});
-
-// Tooltip positioning
-const tooltipStyle = computed(() => {
-  if (hoveredIndex.value < 0) return {};
-
-  const barWidth = (chartWidth - 30) / chartData.value.length;
-  const barX =
-    25 +
-    (hoveredIndex.value * (chartWidth - 30)) / chartData.value.length +
-    barWidth * 0.5;
-  const percentage = (barX / chartWidth) * 100;
-
-  return {
-    left: `${percentage}%`,
-  };
+  return energySensor.value.attributes?.unit_of_measurement || "kWh";
 });
 
 // Fetch energy history when period changes
@@ -361,25 +305,14 @@ async function fetchEnergyData() {
   }
 }
 
-/**
- * Format value for display
- */
-function formatValue(value) {
-  if (value >= 1000) {
-    return `${(value / 1000).toFixed(1)}k`;
-  }
-  return value.toFixed(1);
-}
-
-/**
- * Format Y-axis label
- */
-function formatYAxisLabel(value) {
-  if (value >= 1000) {
-    return `${(value / 1000).toFixed(0)}k`;
-  }
-  return `${Math.round(value)}`;
-}
+// Card title
+const cardTitle = computed(() => {
+  if (!energySensor.value) return "Energy";
+  return (
+    energySensor.value.attributes?.friendly_name ||
+    energySensor.value.entity_id
+  );
+});
 </script>
 
 <style scoped>
