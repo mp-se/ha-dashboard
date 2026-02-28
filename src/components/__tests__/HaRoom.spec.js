@@ -15,7 +15,7 @@ describe("HaRoom.vue", () => {
     pinia = createPinia();
     setActivePinia(pinia);
     store = useHaStore();
-    store.sensors = [];
+    store.entities = [];
 
     // Mock useServiceCall composable
     mockCallService = vi.fn().mockResolvedValue(true);
@@ -26,7 +26,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("renders the component with area entity", () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -50,7 +50,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("accepts entity as string and converts to array", () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -74,7 +74,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("accepts entity string with control objects when passed as array", () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -107,7 +107,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("finds area entity by checking for area. prefix", () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -130,7 +130,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("displays temperature when available in area entities", () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -163,7 +163,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("displays humidity when available in area entities", () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -196,7 +196,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("displays temperature and humidity on same row", () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -238,7 +238,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("filters control objects to exclude area entities", () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -278,7 +278,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("displays control objects with correct icons and colors", () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -311,7 +311,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("uses custom color prop for main circle", () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -336,7 +336,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("defaults to blue color when not specified", () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -360,7 +360,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("handles unavailable temperature state", () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -391,7 +391,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("rounds temperature to 1 decimal place", () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -422,7 +422,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("rounds humidity to 0 decimal places", () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -453,7 +453,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("calls toggleEntity on control object click", async () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -489,7 +489,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("uses area icon when available", () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -513,7 +513,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("uses default door icon when area icon not available", () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -536,7 +536,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("disables control object when entity is unavailable", () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -569,7 +569,7 @@ describe("HaRoom.vue", () => {
   });
 
   it("does not call service when clicking unavailable control object", async () => {
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "area.bedroom",
         state: "Bedroom",
@@ -604,7 +604,7 @@ describe("HaRoom.vue", () => {
 
   describe("Icon and Button Positioning", () => {
     it("should have control objects with ha-control-circle-wrapper", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "area.bedroom",
           state: "Bedroom",
@@ -636,7 +636,7 @@ describe("HaRoom.vue", () => {
     });
 
     it("should have ha-control-circle SVG in each wrapper", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "area.living_room",
           state: "Living Room",
@@ -675,7 +675,7 @@ describe("HaRoom.vue", () => {
     });
 
     it("should have ha-control-icon inside each wrapper", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "area.test",
           state: "Test",
@@ -713,7 +713,7 @@ describe("HaRoom.vue", () => {
     });
 
     it("should have control icon and circle both inside wrapper", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "area.bedroom",
           state: "Bedroom",
@@ -754,7 +754,7 @@ describe("HaRoom.vue", () => {
 
   describe("Multiple Controls - Up to 6 Limit", () => {
     it("limits control objects to 6 entities", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "area.bedroom",
           state: "Bedroom",
@@ -820,7 +820,7 @@ describe("HaRoom.vue", () => {
     });
 
     it("displays 4 controls in 2-column grid layout", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "area.bedroom",
           state: "Bedroom",
@@ -871,7 +871,7 @@ describe("HaRoom.vue", () => {
     });
 
     it("displays 5 controls in 2-column grid layout", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "area.bedroom",
           state: "Bedroom",
@@ -927,7 +927,7 @@ describe("HaRoom.vue", () => {
     });
 
     it("displays 6 controls in 2-column grid layout", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "area.bedroom",
           state: "Bedroom",
@@ -992,7 +992,7 @@ describe("HaRoom.vue", () => {
     });
 
     it("maintains control functionality with expanded 6-control layout", async () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "area.bedroom",
           state: "Bedroom",
@@ -1060,7 +1060,7 @@ describe("HaRoom.vue", () => {
 
   describe("Temperature and Humidity Sensor Detection Fallback", () => {
     it("uses temperature sensor from entity list when not in area.entities", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "area.bedroom",
           state: "Bedroom",
@@ -1096,7 +1096,7 @@ describe("HaRoom.vue", () => {
     });
 
     it("uses humidity sensor from entity list when not in area.entities", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "area.bedroom",
           state: "Bedroom",
@@ -1132,7 +1132,7 @@ describe("HaRoom.vue", () => {
     });
 
     it("prefers temperature sensor from area.entities over entity list", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "area.bedroom",
           state: "Bedroom",
@@ -1177,7 +1177,7 @@ describe("HaRoom.vue", () => {
     });
 
     it("excludes temperature sensor from control objects", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "area.bedroom",
           state: "Bedroom",
@@ -1223,7 +1223,7 @@ describe("HaRoom.vue", () => {
     });
 
     it("excludes humidity sensor from control objects", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "area.bedroom",
           state: "Bedroom",
@@ -1269,7 +1269,7 @@ describe("HaRoom.vue", () => {
     });
 
     it("excludes both temperature and humidity sensors from control objects", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "area.bedroom",
           state: "Bedroom",
@@ -1335,7 +1335,7 @@ describe("HaRoom.vue", () => {
     });
 
     it("allows up to 6 non-sensor control objects even with sensors in entity list", () => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "area.bedroom",
           state: "Bedroom",
@@ -1412,6 +1412,97 @@ describe("HaRoom.vue", () => {
       // Should have exactly 6 controls (sensors don't count toward limit)
       const controls = wrapper.findAll(".control-object");
       expect(controls).toHaveLength(6);
+    });
+  });
+
+  describe("toggleEntity — media_player domain", () => {
+    beforeEach(() => {
+      store.entities = [
+        {
+          entity_id: "area.lounge",
+          state: "Lounge",
+          attributes: { friendly_name: "Lounge", icon: "mdi:sofa" },
+          entities: [],
+        },
+        {
+          entity_id: "media_player.tv",
+          state: "playing",
+          attributes: { friendly_name: "TV" },
+        },
+        {
+          entity_id: "media_player.radio",
+          state: "idle",
+          attributes: { friendly_name: "Radio" },
+        },
+      ];
+    });
+
+    it("calls media_pause when media_player is playing", async () => {
+      wrapper = mount(HaRoom, {
+        props: { entity: ["area.lounge", "media_player.tv"] },
+        global: { plugins: [pinia] },
+      });
+      await wrapper.vm.$nextTick();
+
+      const controls = wrapper.findAll(".control-object");
+      expect(controls.length).toBeGreaterThan(0);
+      await controls[0].trigger("click");
+      await wrapper.vm.$nextTick();
+
+      expect(mockCallService).toHaveBeenCalledWith(
+        "media_player",
+        "media_pause",
+        { entity_id: "media_player.tv" },
+      );
+    });
+
+    it("calls media_play when media_player is not playing", async () => {
+      wrapper = mount(HaRoom, {
+        props: { entity: ["area.lounge", "media_player.radio"] },
+        global: { plugins: [pinia] },
+      });
+      await wrapper.vm.$nextTick();
+
+      const controls = wrapper.findAll(".control-object");
+      expect(controls.length).toBeGreaterThan(0);
+      await controls[0].trigger("click");
+      await wrapper.vm.$nextTick();
+
+      expect(mockCallService).toHaveBeenCalledWith(
+        "media_player",
+        "media_play",
+        { entity_id: "media_player.radio" },
+      );
+    });
+
+    it("handles callService throwing without crashing", async () => {
+      mockCallService.mockRejectedValueOnce(new Error("Service call failed"));
+      wrapper = mount(HaRoom, {
+        props: { entity: ["area.lounge", "media_player.tv"] },
+        global: { plugins: [pinia] },
+      });
+      await wrapper.vm.$nextTick();
+
+      const controls = wrapper.findAll(".control-object");
+      // Click and expect no unhandled rejection
+      await controls[0].trigger("click");
+      await new Promise((r) => setTimeout(r, 10));
+      expect(wrapper.exists()).toBe(true);
+    });
+
+    it("does not call service for an unavailable media_player", async () => {
+      store.entities[1].state = "unavailable";
+      wrapper = mount(HaRoom, {
+        props: { entity: ["area.lounge", "media_player.tv"] },
+        global: { plugins: [pinia] },
+      });
+      await wrapper.vm.$nextTick();
+
+      const controls = wrapper.findAll(".control-object");
+      await controls[0].trigger("click");
+      await wrapper.vm.$nextTick();
+
+      expect(mockCallService).not.toHaveBeenCalled();
     });
   });
 });

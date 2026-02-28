@@ -22,7 +22,7 @@
         <div v-if="loading" class="text-center py-4">Loading history…</div>
         <div v-else-if="error" class="text-danger">{{ error }}</div>
         <div
-          v-else-if="points.length === 0"
+          v-else-if="!loading && points.length === 0"
           class="text-muted text-center d-flex align-items-center justify-content-center"
           style="height: 150px"
         >
@@ -32,60 +32,29 @@
           <svg
             :width="width"
             :height="height"
-            viewBox="0 0 100 40"
+            :viewBox="`0 0 ${GRAPH_CONFIG.VIEW_BOX_WIDTH} ${GRAPH_CONFIG.VIEW_BOX_HEIGHT}`"
             preserveAspectRatio="none"
             class="w-100"
           >
-            <!-- Filled area under first line -->
-            <path
-              v-if="polylinePoints"
-              :d="`${getAreaPath(polylinePoints)}`"
-              fill="#0d6efd"
-              opacity="0.15"
-            />
-            <!-- Filled area under second line -->
-            <path
-              v-if="polylinePoints2"
-              :d="`${getAreaPath(polylinePoints2)}`"
-              fill="#dc3545"
-              opacity="0.15"
-            />
-            <!-- Filled area under third line -->
-            <path
-              v-if="polylinePoints3"
-              :d="`${getAreaPath(polylinePoints3)}`"
-              fill="#198754"
-              opacity="0.15"
-            />
-
-            <!-- Line graphs with smooth curves -->
-            <path
-              v-if="polylinePoints"
-              :d="getSmoothPath(polylinePoints)"
-              fill="none"
-              stroke="#0d6efd"
-              stroke-width="0.9"
-              stroke-linejoin="round"
-              stroke-linecap="round"
-            />
-            <path
-              v-if="polylinePoints2"
-              :d="getSmoothPath(polylinePoints2)"
-              fill="none"
-              stroke="#dc3545"
-              stroke-width="0.9"
-              stroke-linejoin="round"
-              stroke-linecap="round"
-            />
-            <path
-              v-if="polylinePoints3"
-              :d="getSmoothPath(polylinePoints3)"
-              fill="none"
-              stroke="#198754"
-              stroke-width="0.9"
-              stroke-linejoin="round"
-              stroke-linecap="round"
-            />
+            <template v-for="(dataset, idx) in datasetList" :key="idx">
+              <!-- Filled area under line -->
+              <path
+                v-if="dataset"
+                :d="getAreaPath(dataset)"
+                :fill="GRAPH_COLORS[idx]"
+                opacity="0.15"
+              />
+              <!-- Line graph with smooth curve -->
+              <path
+                v-if="dataset"
+                :d="getSmoothPath(dataset)"
+                fill="none"
+                :stroke="GRAPH_COLORS[idx]"
+                stroke-width="0.9"
+                stroke-linejoin="round"
+                stroke-linecap="round"
+              />
+            </template>
           </svg>
           <!-- Min and max on the value axis (y-axis) -->
           <div class="position-absolute start-0 top-0 small text-muted">
@@ -122,6 +91,21 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useHaStore } from "@/stores/haStore";
+import { createLogger } from "@/utils/logger";
+
+// Constants
+const GRAPH_CONFIG = {
+  WIDTH: 600,
+  HEIGHT: 200,
+  VIEW_BOX_WIDTH: 100,
+  VIEW_BOX_HEIGHT: 40,
+  Y_PADDING: 2,
+  Y_RANGE: 36,
+  AUTO_REFRESH_MS: 5 * 60 * 1000,
+};
+
+const HOURS_CYCLE = [24, 48, 72, 96];
+const GRAPH_COLORS = ["#0d6efd", "#dc3545", "#198754"];
 
 const props = defineProps({
   entity: {
@@ -131,10 +115,6 @@ const props = defineProps({
       // Handle array: up to 3 entities
       if (Array.isArray(value)) {
         if (value.length === 0 || value.length > 3) {
-          console.warn(
-            "HaSensorGraph: entity array must contain 1-3 items, got",
-            value.length,
-          );
           return false;
         }
         return value.every((ent) => {
@@ -156,11 +136,16 @@ const props = defineProps({
     },
   },
   hours: { type: Number, default: 24 },
-  maxPoints: { type: Number, default: 200 },
+  maxPoints: {
+    type: Number,
+    default: 200,
+    validator: (value) => value > 0 && value <= 10000,
+  },
   attributes: { type: Array, default: () => [] },
 });
 
 const store = useHaStore();
+const logger = createLogger("HaSensorGraph");
 
 // Entity list: convert single entity to array, handle existing arrays
 const entityList = computed(() => {
@@ -174,9 +159,9 @@ const entityList = computed(() => {
 const resolvedEntities = computed(() => {
   return entityList.value.map((ent) => {
     if (typeof ent === "string") {
-      const found = store.sensors.find((s) => s.entity_id === ent);
+      const found = store.entityMap.get(ent);
       if (!found) {
-        console.warn(`Entity "${ent}" not found`);
+        logger.warn(`Entity "${ent}" not found`);
         return null;
       }
       return found;
@@ -193,8 +178,8 @@ const points = ref([]);
 const points2 = ref([]);
 const points3 = ref([]);
 
-const width = 600;
-const height = 200;
+const width = GRAPH_CONFIG.WIDTH;
+const height = GRAPH_CONFIG.HEIGHT;
 
 const title = computed(() => {
   if (entityList.value.length === 1) {
@@ -211,18 +196,31 @@ const unit = computed(
   () => resolvedEntity.value?.attributes?.unit_of_measurement || "",
 );
 
+/**
+ * Computes the minimum value across all data points
+ * @returns {number|null} Minimum value or null if no points
+ */
 const minVal = computed(() => {
   const allPoints = [...points.value, ...points2.value, ...points3.value];
   if (allPoints.length === 0) return null;
   return Math.min(...allPoints.map((p) => p.v));
 });
 
+/**
+ * Computes the maximum value across all data points
+ * @returns {number|null} Maximum value or null if no points
+ */
 const maxVal = computed(() => {
   const allPoints = [...points.value, ...points2.value, ...points3.value];
   if (allPoints.length === 0) return null;
   return Math.max(...allPoints.map((p) => p.v));
 });
 
+/**
+ * Formats a numeric value for display (integers without decimals, floats with 2 decimals)
+ * @param {number|null} val - Value to format
+ * @returns {string} Formatted value
+ */
 const formatValue = (val) => {
   if (val == null) return "";
   const num = Number(val);
@@ -233,33 +231,73 @@ const minDisplay = computed(() => formatValue(minVal.value));
 
 const maxDisplay = computed(() => formatValue(maxVal.value));
 
+/**
+ * Pre-computed graph metrics for performance optimization
+ * Calculates time and value ranges once instead of per-entity
+ * @returns {Object} Graph scaling metrics (t0, t1, dx, vmin, vmax, vrange)
+ */
+const graphMetrics = computed(() => {
+  const allPoints = [...points.value, ...points2.value, ...points3.value];
+  if (allPoints.length === 0) {
+    return { t0: 0, t1: 1, dx: 1, vmin: 0, vmax: 1, vrange: 1 };
+  }
+  const t0 = Math.min(...allPoints.map((p) => p.t));
+  const t1 = Math.max(...allPoints.map((p) => p.t));
+  const vmin = minVal.value;
+  const vmax = maxVal.value;
+  return {
+    t0,
+    t1,
+    dx: t1 - t0 || 1,
+    vmin,
+    vmax,
+    vrange: vmax - vmin || 1,
+  };
+});
+
+/**
+ * Aggregated list of all datasets for v-for rendering
+ */
+const datasetList = computed(() => {
+  const datasets = [];
+  if (polylinePoints.value) datasets.push(polylinePoints.value);
+  if (polylinePoints2.value) datasets.push(polylinePoints2.value);
+  if (polylinePoints3.value) datasets.push(polylinePoints3.value);
+  return datasets;
+});
+
 // Helper to get entity label for legend
+/**
+ * Gets display label for an entity (friendly name or entity_id)
+ * @param {string|Object} ent - Entity string or object
+ * @returns {string} Display label
+ */
 const getEntityLabel = (ent) => {
   if (typeof ent === "string") {
-    const resolved = store.sensors.find((s) => s.entity_id === ent);
+    const resolved = store.entityMap.get(ent);
     return resolved?.attributes?.friendly_name || ent;
   }
   return ent?.attributes?.friendly_name || ent?.entity_id || "Unknown";
 };
 
-// Helper to calculate polyline points from data array
+/**
+ * Calculates polyline points for SVG path from time-value data
+ * Uses pre-computed graphMetrics for performance optimization
+ * @param {Array<{t: number, v: number}>} data - Time-value data points
+ * @returns {string} Space-separated x,y coordinates
+ */
 const calculatePolylinePoints = (data) => {
   if (data.length === 0) return "";
-  // Get time range from all data
-  const allPoints = [...points.value, ...points2.value, ...points3.value];
-  if (allPoints.length === 0) return "";
 
-  const t0 = Math.min(...allPoints.map((p) => p.t));
-  const t1 = Math.max(...allPoints.map((p) => p.t));
-  const dx = t1 - t0 || 1;
-  const vmin = minVal.value;
-  const vmax = maxVal.value;
-  const vrange = vmax - vmin || 1;
+  const { t0, dx, vmin, vrange } = graphMetrics.value;
 
   return data
     .map((p) => {
-      const x = ((p.t - t0) / dx) * 100;
-      const y = 40 - ((p.v - vmin) / vrange) * 36 - 2;
+      const x = ((p.t - t0) / dx) * GRAPH_CONFIG.VIEW_BOX_WIDTH;
+      const y =
+        GRAPH_CONFIG.VIEW_BOX_HEIGHT -
+        ((p.v - vmin) / vrange) * GRAPH_CONFIG.Y_RANGE -
+        GRAPH_CONFIG.Y_PADDING;
       return `${x},${y}`;
     })
     .join(" ");
@@ -271,9 +309,13 @@ const polylinePoints2 = computed(() => calculatePolylinePoints(points2.value));
 
 const polylinePoints3 = computed(() => calculatePolylinePoints(points3.value));
 
-const hoursLocal = ref(24);
+const hoursLocal = ref(HOURS_CYCLE[0]);
 
-// Helper to create a filled area path from polyline points
+/**
+ * Creates a filled area path from polyline points
+ * @param {string} polylinePointsStr - Space-separated x,y coordinates
+ * @returns {string} SVG path data for filled area
+ */
 const getAreaPath = (polylinePointsStr) => {
   if (!polylinePointsStr) return "";
 
@@ -285,11 +327,15 @@ const getAreaPath = (polylinePointsStr) => {
   const lastPoint = points[points.length - 1];
   const [lastX] = lastPoint.split(",");
 
-  const path = `M ${firstPoint} L ${polylinePointsStr} L ${lastX},40 L ${firstPoint.split(",")[0]},40 Z`;
+  const path = `M ${firstPoint} L ${polylinePointsStr} L ${lastX},${GRAPH_CONFIG.VIEW_BOX_HEIGHT} L ${firstPoint.split(",")[0]},${GRAPH_CONFIG.VIEW_BOX_HEIGHT} Z`;
   return path;
 };
 
-// Helper to create smooth curves using quadratic Bézier curves
+/**
+ * Creates smooth curves using quadratic Bézier curves
+ * @param {string} polylinePointsStr - Space-separated x,y coordinates
+ * @returns {string} SVG path data for smooth curve
+ */
 const getSmoothPath = (polylinePointsStr) => {
   if (!polylinePointsStr) return "";
 
@@ -312,16 +358,19 @@ const getSmoothPath = (polylinePointsStr) => {
   // Use quadratic Bézier curves through control points
   for (let i = 1; i < pointsArray.length; i++) {
     const curr = pointsArray[i];
-    const next = pointsArray[i + 1];
 
-    // Control point is the average of current point and next point (or current for last point)
-    const controlX =
-      i === pointsArray.length - 1 ? curr.x : (curr.x + next.x) / 2;
-    const controlY =
-      i === pointsArray.length - 1 ? curr.y : (curr.y + next.y) / 2;
-
-    // Draw quadratic Bézier curve to current point using control point
-    path += ` Q ${curr.x},${curr.y} ${controlX},${controlY}`;
+    if (i === pointsArray.length - 1) {
+      // For last point, draw directly to it
+      path += ` L ${curr.x},${curr.y}`;
+    } else {
+      const next = pointsArray[i + 1];
+      // Control point is midpoint between current and next point
+      // This creates smooth quadratic Bézier curves connecting all points
+      const controlX = (curr.x + next.x) / 2;
+      const controlY = (curr.y + next.y) / 2;
+      // Draw quadratic Bézier curve to current point using control point
+      path += ` Q ${curr.x},${curr.y} ${controlX},${controlY}`;
+    }
   }
 
   return path;
@@ -329,6 +378,10 @@ const getSmoothPath = (polylinePointsStr) => {
 
 let intervalId = null;
 
+/**
+ * Loads history data for all entities from Home Assistant
+ * @async
+ */
 async function loadHistory() {
   loading.value = true;
   error.value = null;
@@ -342,10 +395,12 @@ async function loadHistory() {
     );
 
     if (entitiesToLoad.length === 0) {
-      throw new Error("No valid entities provided");
+      throw new Error(
+        `No valid entities provided. Received: ${JSON.stringify(props.entity)}`,
+      );
     }
 
-    console.log(
+    logger.log(
       "Loading history for entities:",
       entitiesToLoad.map((e) => e.entity_id),
     );
@@ -361,43 +416,37 @@ async function loadHistory() {
     if (results[2]) points3.value = results[2];
 
     results.forEach((result, idx) => {
-      console.log(`Received ${result.length} points for entity ${idx + 1}`);
+      logger.log(`Received ${result.length} points for entity ${idx + 1}`);
     });
   } catch (e) {
-    console.error(e);
+    logger.error(e);
     error.value = e.message || String(e);
   } finally {
     loading.value = false;
   }
 }
 
+/**
+ * Cycles through the available hour ranges (24, 48, 72, 96)
+ */
 function cycleHours() {
-  if (hoursLocal.value === 24) {
-    hoursLocal.value = 48;
-  } else if (hoursLocal.value === 48) {
-    hoursLocal.value = 72;
-  } else if (hoursLocal.value === 72) {
-    hoursLocal.value = 96;
-  } else {
-    hoursLocal.value = 24;
-  }
-  console.log("Cycling hours to:", hoursLocal.value);
-  loadHistory();
+  const currentIndex = HOURS_CYCLE.indexOf(hoursLocal.value);
+  const nextIndex = (currentIndex + 1) % HOURS_CYCLE.length;
+  hoursLocal.value = HOURS_CYCLE[nextIndex];
+  logger.log("Cycling hours to:", hoursLocal.value);
+  // Note: loadHistory() is called by the watcher, not here
 }
 
 onMounted(() => {
   loadHistory();
   // Auto-refresh every 5 minutes
-  intervalId = setInterval(
-    () => {
-      loadHistory();
-    },
-    5 * 60 * 1000,
-  );
+  intervalId = setInterval(() => {
+    loadHistory();
+  }, GRAPH_CONFIG.AUTO_REFRESH_MS);
 });
 
 onUnmounted(() => {
-  if (intervalId) {
+  if (intervalId !== null) {
     clearInterval(intervalId);
     intervalId = null;
   }
@@ -411,7 +460,7 @@ watch(
 watch(
   () => hoursLocal.value,
   () => {
-    console.log("Hours changed to:", hoursLocal.value, "loading history");
+    logger.log("Hours changed to:", hoursLocal.value, "loading history");
     loadHistory();
   },
 );
@@ -420,15 +469,3 @@ watch(
 const api = { loadHistory, points };
 defineExpose(api);
 </script>
-
-<style scoped>
-.h-250 {
-  height: 250px !important;
-}
-.ha-sensor-graph .card-body {
-  padding: 0.75rem;
-}
-.ha-sensor-graph svg {
-  height: 160px;
-}
-</style>

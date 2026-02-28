@@ -101,7 +101,7 @@ const entitiesList = computed(() => {
         "^" + pattern.replace(/\./g, "\\.").replace(/\*/g, ".*") + "$",
       );
 
-      const matchedSensors = store.sensors.filter((sensor) =>
+      const matchedSensors = store.entities.filter((sensor) =>
         regex.test(sensor.entity_id),
       );
 

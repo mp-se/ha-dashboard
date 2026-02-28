@@ -1,254 +1,9 @@
 <template>
-  <header class="sticky-top bg-body shadow-sm">
-    <nav
-      v-if="!store.isLoading"
-      :class="[
-        'navbar',
-        'navbar-expand-lg',
-        dark_mode ? 'navbar-dark bg-dark' : 'navbar-light bg-light',
-      ]"
-    >
-      <div class="container-fluid">
-        <div class="navbar-nav flex-row w-100">
-          <div class="d-flex flex-grow-1">
-            <button
-              v-for="item in menuItems"
-              :key="item.name"
-              class="btn btn-link nav-link text-decoration-none d-flex align-items-center px-2"
-              :class="{ 'active fw-bold': currentView === item.name }"
-              :aria-current="currentView === item.name ? 'page' : undefined"
-              :title="item.label"
-              role="tab"
-              @click="currentView = item.name"
-            >
-              <i :class="`${item.icon} me-1 nav-icon`"></i>
-              <span class="d-none d-lg-inline">{{ item.label }}</span>
-            </button>
-            <PwaInstallModal ref="pwaInstallModal" />
-          </div>
-          <div class="d-flex align-items-center">
-            <!-- Connection and mode indicators -->
-            <span
-              v-if="store.isLocalMode"
-              class="badge bg-warning text-dark me-2 d-none d-lg-inline"
-              title="Local Mode: using public/local-data.json"
-              >Local Mode</span
-            >
-            <i
-              v-if="store.isLocalMode"
-              class="mdi mdi-record me-2 text-warning d-lg-none"
-              title="Local Mode: using public/local-data.json"
-            ></i>
-            <span
-              v-else-if="store.isConnected"
-              class="badge bg-success text-light me-2 d-none d-lg-inline"
-              title="Connected to Home Assistant"
-              >Connected</span
-            >
-            <i
-              v-if="store.isConnected"
-              class="mdi mdi-record me-2 text-success d-lg-none"
-              title="Connected to Home Assistant"
-            ></i>
-            <span
-              v-else
-              class="badge bg-danger text-light me-2 d-none d-lg-inline"
-              title="Not connected to Home Assistant"
-              >Disconnected</span
-            >
-            <i
-              v-if="!store.isConnected && !store.isLocalMode"
-              class="mdi mdi-record me-2 text-danger d-lg-none"
-              title="Not connected to Home Assistant"
-            ></i>
-
-            <!-- Reload config button (dev mode only) -->
-            <button
-              v-if="store.developerMode"
-              class="btn btn-outline-secondary btn-sm me-2"
-              :disabled="configReloading"
-              title="Reload dashboard configuration"
-              @click="handleReloadConfig"
-            >
-              <i v-if="!configReloading" class="mdi mdi-refresh"></i>
-              <span
-                v-if="configReloading"
-                class="spinner-border spinner-border-sm"
-                role="status"
-              >
-                <span class="visually-hidden">Loading...</span>
-              </span>
-            </button>
-
-            <!-- Save data button (dev mode only) -->
-            <button
-              v-if="store.developerMode"
-              class="btn btn-outline-info btn-sm me-2"
-              title="Save current data for local testing"
-              @click="saveLocalData"
-            >
-              <i class="mdi mdi-content-save"></i>
-            </button>
-
-            <!-- Retry button moved to alert below to avoid duplication -->
-
-            <!-- Edit credentials button (only if set manually, not from config) -->
-            <button
-              v-if="
-                store.haUrl && store.accessToken && !store.credentialsFromConfig
-              "
-              class="btn btn-outline-secondary btn-sm me-2"
-              title="Edit Home Assistant credentials"
-              @click="handleEditCredentials"
-            >
-              <i class="mdi mdi-pencil"></i>
-            </button>
-
-            <button
-              :class="[
-                'btn',
-                'btn-sm',
-                dark_mode
-                  ? 'btn-outline-light text-light'
-                  : 'btn-outline-dark text-dark',
-              ]"
-              :aria-pressed="String(dark_mode)"
-              aria-label="Toggle dark mode"
-              title="Toggle dark mode"
-              @click="toggleDarkMode"
-            >
-              <i
-                :class="
-                  dark_mode
-                    ? 'mdi mdi-white-balance-sunny'
-                    : 'mdi mdi-moon-waning-crescent'
-                "
-              ></i>
-            </button>
-            <!-- Manual open for PWA install dialog -->
-            <button
-              v-if="!isPwaInstalled() && isPwaSupported()"
-              class="btn btn-sm btn-outline-primary ms-2"
-              title="Show PWA install dialog"
-              @click="openPwaDialog"
-            >
-              <i class="mdi mdi-phone-plus"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
-    <!-- Connection status alert -->
-    <div v-if="!store.isLocalMode">
-      <div
-        v-if="!store.isConnected && store.lastError"
-        class="alert alert-danger m-0 p-2 text-truncate"
-        role="alert"
-      >
-        <div class="d-flex justify-content-between align-items-center">
-          <div class="me-2 small text-truncate">
-            {{ store.lastError }}
-          </div>
-          <div>
-            <button
-              class="btn btn-sm btn-danger me-2"
-              title="Retry connection"
-              @click="store.retryConnection()"
-            >
-              Retry
-            </button>
-          </div>
-        </div>
-      </div>
-      <div
-        v-else-if="!store.isConnected && store.isInitialized"
-        class="alert alert-warning m-0 p-2"
-        role="alert"
-      >
-        <div class="d-flex justify-content-between align-items-center">
-          <div class="me-2 small">
-            Disconnected from Home Assistant — live data will not update.
-          </div>
-          <div>
-            <button
-              class="btn btn-sm btn-warning"
-              title="Retry connection"
-              @click="store.retryConnection()"
-            >
-              Retry
-            </button>
-          </div>
-        </div>
-      </div>
-      <div
-        v-else-if="!store.isConnected && store.isLoading"
-        class="alert alert-info m-0 p-2"
-        role="alert"
-      >
-        <div class="small">Connecting to Home Assistant…</div>
-      </div>
-    </div>
-    <!-- Update available banner -->
-    <div
-      v-if="updateAvailable"
-      class="alert alert-success m-0 p-2"
-      role="alert"
-    >
-      <div class="d-flex justify-content-between align-items-center">
-        <div class="me-2 small">A new version of the app is available!</div>
-        <div>
-          <button
-            class="btn btn-sm btn-success"
-            title="Refresh to update"
-            @click="refreshApp"
-          >
-            Refresh
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Configuration error banner -->
-    <div
-      v-if="configErrorBanner"
-      :class="[
-        'alert',
-        'm-0',
-        'p-3',
-        store.configValidationError?.length > 0
-          ? 'alert-danger'
-          : 'alert-success',
-      ]"
-      role="alert"
-    >
-      <div
-        v-if="store.configValidationError?.length > 0"
-        class="d-flex flex-column gap-2"
-      >
-        <div class="fw-bold">
-          Configuration error: {{ store.configErrorCount }} issue(s) found
-        </div>
-        <div class="small" style="max-height: 200px; overflow-y: auto">
-          <div
-            v-for="(error, idx) in store.configValidationError"
-            :key="idx"
-            class="mb-1"
-          >
-            <span
-              v-if="error.line && error.line > 0"
-              class="badge bg-danger me-2"
-            >
-              Line {{ error.line }}
-            </span>
-            <span>{{ error.message || error }}</span>
-          </div>
-        </div>
-      </div>
-      <div v-else class="d-flex justify-content-between align-items-center">
-        <div class="me-2 small">Configuration reloaded successfully.</div>
-      </div>
-    </div>
-  </header>
+  <AppNavbar
+    v-model:current-view="currentView"
+    v-model:dark-mode="dark_mode"
+    @edit-credentials="handleEditCredentials"
+  />
 
   <!-- Loading Modal -->
   <div
@@ -286,11 +41,18 @@
     @touchend="onTouchEnd"
   >
     <!-- Dynamic View Rendering from Config -->
-    <component
-      :is="getViewComponent(currentView)"
-      :key="currentView"
+    <ErrorBoundary
       :view-name="currentView"
-    />
+      @error="handleComponentError"
+      @retry="handleErrorRetry"
+      @go-home="handleGoHome"
+    >
+      <component
+        :is="getViewComponent(currentView)"
+        :key="currentView"
+        :view-name="currentView"
+      />
+    </ErrorBoundary>
 
     <footer
       :class="[
@@ -301,119 +63,76 @@
         dark_mode ? 'bg-dark' : 'bg-light',
       ]"
     >
-      <div class="small">(c) 2025 Magnus Persson, v{{ appVersion }}</div>
+      <div class="small">(c) 2026 Magnus Persson, v{{ appVersion }}</div>
     </footer>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, computed, onMounted, watch, defineAsyncComponent } from "vue";
 import { useHaStore } from "./stores/haStore";
-import { useNormalizeIcon } from "./composables/useNormalizeIcon";
-import PwaInstallModal from "./components/PwaInstallModal.vue";
+import { createLogger } from "./utils/logger";
+import { SWIPE_MIN_DISTANCE } from "./utils/constants";
+import AppNavbar from "./components/AppNavbar.vue";
 import CredentialDialog from "./components/CredentialDialog.vue";
-
-// Import version from package.json
-import packageJson from "../package.json";
-
-// Static imports for development views
-import DevelopmentView from "./views/DevelopmentView.vue";
-import RawEntityView from "./views/RawEntityView.vue";
-import DevicesView from "./views/DevicesView.vue";
-
-// Generic config-driven view component
+import ErrorBoundary from "./components/ErrorBoundary.vue";
 import JsonConfigView from "./views/JsonConfigView.vue";
 
-// Static development view components
+import packageJson from "../package.json";
+
+// Lazy-loaded development views for better performance
 const devViewComponents = {
-  device: DevicesView,
-  dev: DevelopmentView,
-  raw: RawEntityView,
+  device: defineAsyncComponent(() => import("./views/DevicesView.vue")),
+  dev: defineAsyncComponent(() => import("./views/DevelopmentView.vue")),
+  raw: defineAsyncComponent(() => import("./views/RawEntityView.vue")),
 };
 
+const logger = createLogger("App");
 const store = useHaStore();
 const currentView = ref("overview");
 const dark_mode = ref(false);
-const updateAvailable = ref(false);
-const configReloading = ref(false);
-const configErrorBanner = ref(false);
-const configErrorBannerTimeout = ref(null);
+const credentialDialog = ref(null);
 const appVersion = packageJson.version;
 
-// Computed menu items from dashboard config
-const menuItems = computed(() => {
-  if (!store.dashboardConfig?.views) {
-    console.log("No views found in dashboardConfig");
-    return [];
-  }
-  const normalizeIcon = useNormalizeIcon();
-  const filtered = store.dashboardConfig.views
-    .filter((view) => view.hidden !== true)
-    .map((view) => ({
-      name: view.name,
-      label: view.label,
-      icon: normalizeIcon(view.icon),
-    }));
-
-  // Add dev views if developer mode is enabled
-  if (store.developerMode) {
-    filtered.push(
-      { name: "dev", label: "Dev", icon: normalizeIcon("mdi-tools") },
-      { name: "device", label: "Devices", icon: normalizeIcon("mdi-devices") },
-      { name: "raw", label: "Raw", icon: normalizeIcon("mdi-code-json") },
-    );
-  }
-
-  console.log(
-    "Menu items computed. Total views:",
-    store.dashboardConfig.views.length,
-    "Filtered:",
-    filtered.length,
-    "Developer mode:",
-    store.developerMode,
-    "Items:",
-    filtered,
-  );
-  return filtered;
+/**
+ * Ordered list of navigable view names, used for swipe gesture navigation.
+ * Mirrors the menu logic in AppNavbar so swipe respects hidden/dev flags.
+ */
+const viewNames = computed(() => {
+  const views =
+    store.dashboardConfig?.views
+      ?.filter((v) => v.hidden !== true)
+      .map((v) => v.name) ?? [];
+  if (store.developerMode) views.push("dev", "device", "raw");
+  return views;
 });
 
 /**
- * Get the view component for the given view name
- * Static dev views are checked first, otherwise renders JsonConfigView
+ * Returns the view component for the given view name.
+ * Dev views are checked first; everything else uses JsonConfigView.
  */
-const getViewComponent = (viewName) => {
-  // Check static dev views first
-  if (devViewComponents[viewName]) {
-    return devViewComponents[viewName];
-  }
-  // All other views use the generic JsonConfigView component
-  return JsonConfigView;
-};
+const getViewComponent = (viewName) =>
+  devViewComponents[viewName] ?? JsonConfigView;
 
 // Swipe gesture handling
 let touchStartX = 0;
 let touchEndX = 0;
 
 const handleSwipe = () => {
-  const swipeThreshold = 50; // minimum distance for swipe
   const diff = touchStartX - touchEndX;
+  if (Math.abs(diff) < SWIPE_MIN_DISTANCE) return;
 
-  if (Math.abs(diff) < swipeThreshold) return;
-
-  const currentIndex = menuItems.value.findIndex(
-    (item) => item.name === currentView.value,
-  );
+  const currentIndex = viewNames.value.indexOf(currentView.value);
   if (currentIndex === -1) return;
 
   if (diff > 0) {
-    // Swiped left - go to next view
-    const nextIndex = (currentIndex + 1) % menuItems.value.length;
-    currentView.value = menuItems.value[nextIndex].name;
+    currentView.value =
+      viewNames.value[(currentIndex + 1) % viewNames.value.length];
   } else {
-    // Swiped right - go to previous view
-    const prevIndex =
-      (currentIndex - 1 + menuItems.value.length) % menuItems.value.length;
-    currentView.value = menuItems.value[prevIndex].name;
+    currentView.value =
+      viewNames.value[
+        (currentIndex - 1 + viewNames.value.length) % viewNames.value.length
+      ];
   }
 };
 
@@ -426,189 +145,75 @@ const onTouchEnd = (e) => {
   handleSwipe();
 };
 
-// Reference to the PWA modal so we can programmatically open it
-const pwaInstallModal = ref(null);
-const openPwaDialog = () => {
-  try {
-    pwaInstallModal.value?.showModal();
-  } catch (e) {
-    // Ignore errors; showModal may not be present during SSR or if the component was removed
-    console.warn("Failed to open PWA dialog:", e);
-  }
-};
-
-// Reference to credential dialog
-const credentialDialog = ref(null);
-
 /**
- * Handle credential submission from dialog
+ * Handle credential submission from the dialog.
+ * Saves credentials then re-runs initialization.
  */
 const handleCredentialSubmit = async (credentials) => {
-  console.log("Credentials submitted:", credentials.haUrl);
   store.saveCredentials(credentials.haUrl, credentials.accessToken);
-  // Resume initialization after credentials are provided
   await store.init();
-};
-
-/**
- * Reload dashboard configuration in-memory
- */
-const handleReloadConfig = async () => {
-  configReloading.value = true;
-  configErrorBanner.value = false;
-
-  try {
-    const validationResult = await store.reloadConfig();
-
-    if (!validationResult.valid) {
-      configErrorBanner.value = true;
-      // Don't auto-dismiss error banner - keep it visible so user has time to fix issues
-      if (configErrorBannerTimeout.value)
-        clearTimeout(configErrorBannerTimeout.value);
-    } else {
-      // Show success briefly then auto-dismiss on success
-      configErrorBanner.value = true;
-      if (configErrorBannerTimeout.value)
-        clearTimeout(configErrorBannerTimeout.value);
-      configErrorBannerTimeout.value = setTimeout(() => {
-        configErrorBanner.value = false;
-      }, 2000);
-    }
-  } catch (error) {
-    console.error("Error reloading config:", error);
-    configErrorBanner.value = true;
-    // Don't auto-dismiss error banner - keep it visible so user has time to fix issues
-    if (configErrorBannerTimeout.value)
-      clearTimeout(configErrorBannerTimeout.value);
-  } finally {
-    configReloading.value = false;
-  }
-};
-
-const toggleDarkMode = () => {
-  dark_mode.value = !dark_mode.value;
-  const root = document.documentElement;
-  if (dark_mode.value) {
-    root.setAttribute("data-bs-theme", "dark");
-    root.style.colorScheme = "dark";
-    localStorage.setItem("ha-dashboard-dark-mode", "true");
-  } else {
-    root.setAttribute("data-bs-theme", "light");
-    root.style.colorScheme = "light";
-    localStorage.setItem("ha-dashboard-dark-mode", "false");
-  }
-  // Blur button and remove focus styles to release iOS focus state
-  const darkModeBtn = document.querySelector('[aria-label="Toggle dark mode"]');
-  if (darkModeBtn) {
-    darkModeBtn.blur();
-    // Remove inline focus styling that iOS applies
-    darkModeBtn.style.outline = "none";
-    darkModeBtn.style.boxShadow = "none";
-    darkModeBtn.style.backgroundColor = "transparent";
-  }
 };
 
 const handleEditCredentials = () => {
-  // Show credential dialog in edit mode
   credentialDialog.value?.showModal();
 };
 
-const saveLocalData = () => {
-  store.saveLocalData();
+/**
+ * Handle component errors caught by ErrorBoundary
+ */
+const handleComponentError = (errorData) => {
+  logger.error("Component error in view:", errorData.viewName, errorData.error);
 };
 
-const refreshApp = () => {
-  window.location.reload();
+/**
+ * Retry loading the component after an error
+ */
+const handleErrorRetry = () => {
+  // Force re-render by changing key
+  const current = currentView.value;
+  currentView.value = "";
+  setTimeout(() => {
+    currentView.value = current;
+  }, 0);
 };
 
-const isPwaInstalled = () => {
-  try {
-    if (typeof window === "undefined") return false;
-    return (
-      window.navigator?.standalone === true ||
-      window.matchMedia("(display-mode: standalone)").matches
-    );
-  } catch (e) {
-    return false;
-  }
-};
-
-const isPwaSupported = () => {
-  try {
-    if (typeof window === "undefined") return false;
-    const ua = window.navigator.userAgent.toLowerCase();
-    const isIos = /iphone|ipad|ipod/.test(ua);
-    return (
-      "serviceWorker" in navigator && ("beforeinstallprompt" in window || isIos)
-    );
-  } catch (e) {
-    return false;
-  }
+/**
+ * Navigate to overview after an error
+ */
+const handleGoHome = () => {
+  currentView.value = "overview";
 };
 
 onMounted(async () => {
-  console.log("App.vue onMounted called");
-
-  // Listen for service worker update
-  window.addEventListener("sw-need-refresh", () => {
-    updateAvailable.value = true;
-  });
-
-  // Initialize the Home Assistant store
   await store.init();
 
-  // Show config errors if any were found during init
-  if (store.configValidationError?.length > 0) {
-    console.log(
-      "Config validation errors detected during init:",
-      store.configValidationError,
-    );
-    configErrorBanner.value = true;
-    // Don't auto-dismiss - keep visible so user can fix issues
-    // Don't show credentials dialog if there are config errors (e.g., JSON syntax error)
-  } else if (store.needsCredentials) {
-    // Only show credentials dialog if config is valid and credentials are needed
+  // Show credentials dialog if config is valid but credentials are missing
+  if (!store.configValidationError?.length && store.needsCredentials) {
     credentialDialog.value?.showModal();
   }
 
   // Initialize dark mode from localStorage or system preference
   const root = document.documentElement;
   const savedDarkMode = localStorage.getItem("ha-dashboard-dark-mode");
+  dark_mode.value =
+    savedDarkMode !== null
+      ? savedDarkMode === "true"
+      : (window.matchMedia?.("(prefers-color-scheme: dark)")?.matches ?? false);
 
-  if (savedDarkMode !== null) {
-    // Use saved preference
-    dark_mode.value = savedDarkMode === "true";
-  } else {
-    // Use system preference if available
-    dark_mode.value =
-      window.matchMedia?.("(prefers-color-scheme: dark)")?.matches ?? false;
-  }
-
-  // Apply the theme
-  if (dark_mode.value) {
-    root.setAttribute("data-bs-theme", "dark");
-    root.style.colorScheme = "dark";
-  } else {
-    root.setAttribute("data-bs-theme", "light");
-    root.style.colorScheme = "light";
-  }
+  root.setAttribute("data-bs-theme", dark_mode.value ? "dark" : "light");
+  root.style.colorScheme = dark_mode.value ? "dark" : "light";
 });
 
-// Watch for credentials being needed and auto-show dialog
+// Auto-show credentials dialog when credentials become needed at runtime
 watch(
   () => store.needsCredentials,
   (needsCredentials) => {
-    // Don't show credentials dialog if there are config errors
     if (
       needsCredentials &&
       !store.isLoading &&
       !store.configValidationError?.length
     ) {
-      console.log("Credentials needed - auto-showing dialog");
-      // Use nextTick to ensure dialog is mounted
-      setTimeout(() => {
-        credentialDialog.value?.showModal();
-      }, 0);
+      setTimeout(() => credentialDialog.value?.showModal(), 0);
     }
   },
 );

@@ -1,25 +1,39 @@
 import { computed, unref } from "vue";
 import { useHaStore } from "@/stores/haStore";
+import { createLogger } from "@/utils/logger";
+
+const logger = createLogger("useEntityResolver");
 
 /**
  * Composable for resolving Home Assistant entities
  * Handles both string entity IDs and full entity objects
  * Supports both direct values and reactive refs/computed
+ *
  * @param {string|object|Ref|Computed} entity - Entity ID string, entity object, or reactive ref
- * @returns {object} - Computed ref with resolved entity and helper methods
+ * @returns {object} Object containing:
+ *   - resolvedEntity: {ComputedRef<object|null>} The resolved entity object or null if not found
+ *   - isAvailable: {ComputedRef<boolean>} True if entity is available (not unavailable/unknown)
+ *   - friendlyName: {ComputedRef<string>} User-friendly display name with fallbacks
+ *   - entityId: {ComputedRef<string>} The entity ID string
  */
 export const useEntityResolver = (entity) => {
   const store = useHaStore();
 
-  // Resolve entity from string ID or use object directly
+  /**
+   * Resolves the entity from string ID or uses object directly
+   * Performs O(1) lookup using entityMap for string IDs
+   * @type {ComputedRef<object|null>}
+   */
   const resolvedEntity = computed(() => {
     // Use unref to handle both refs and plain values
     const entityValue = unref(entity);
 
     if (typeof entityValue === "string") {
-      const found = store.sensors.find((s) => s.entity_id === entityValue);
+      // O(1) lookup via entityMap (a Map computed from the entities array)
+      const found = store.entityMap?.get?.(entityValue);
+
       if (!found) {
-        console.warn(`Entity "${entityValue}" not found in store`);
+        logger.warn(`Entity "${entityValue}" not found in store`);
         return null;
       }
       return found;
@@ -30,11 +44,14 @@ export const useEntityResolver = (entity) => {
       return entityValue;
     }
 
-    console.warn(`Invalid entity format: ${entityValue}`);
+    logger.warn(`Invalid entity format: ${entityValue}`);
     return null;
   });
 
-  // Check if entity is available
+  /**
+   * Checks if the entity is available (not unavailable or unknown)
+   * @type {ComputedRef<boolean>}
+   */
   const isAvailable = computed(() => {
     return (
       resolvedEntity.value &&
@@ -43,7 +60,10 @@ export const useEntityResolver = (entity) => {
     );
   });
 
-  // Get friendly name with fallback
+  /**
+   * Gets the friendly display name with fallback to entity_id or 'Unknown'
+   * @type {ComputedRef<string>}
+   */
   const friendlyName = computed(() => {
     if (!resolvedEntity.value) return "Unknown Entity";
     return (
@@ -53,7 +73,10 @@ export const useEntityResolver = (entity) => {
     );
   });
 
-  // Get entity ID (works for both string and object)
+  /**
+   * Gets the entity ID string, works for both string and object inputs
+   * @type {ComputedRef<string>}
+   */
   const entityId = computed(() => {
     const entityValue = unref(entity);
     if (typeof entityValue === "string") {

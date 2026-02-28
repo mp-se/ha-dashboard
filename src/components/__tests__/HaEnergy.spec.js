@@ -14,7 +14,7 @@ describe("HaEnergy.vue", () => {
     store = useHaStore();
 
     // Mock energy and power sensors
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.power_hemma",
         state: "1250",
@@ -55,7 +55,7 @@ describe("HaEnergy.vue", () => {
   });
 
   it("should render warning when no energy sensors found", () => {
-    store.sensors = [];
+    store.entities = [];
 
     const wrapper = mount(HaEnergy, {
       global: {
@@ -90,7 +90,7 @@ describe("HaEnergy.vue", () => {
   });
 
   it("should fallback to power sensor when energy sensor not available", async () => {
-    store.sensors = store.sensors.filter(
+    store.entities = store.entities.filter(
       (s) => s.attributes.device_class !== "energy",
     );
 
@@ -466,5 +466,122 @@ describe("HaEnergy.vue", () => {
 
     expect(wrapper.vm.formatYAxisLabel(1000)).toBe("1k");
     expect(wrapper.vm.formatYAxisLabel(100)).toBe("100");
+  });
+
+  it("should fetch both current and previous period data in parallel", async () => {
+    mount(HaEnergy, {
+      global: { plugins: [pinia], stubs: { i: true, svg: true } },
+    });
+
+    await flushPromises();
+
+    // Must be called twice per fetch: current period and previous period
+    expect(store.fetchEnergyHistory).toHaveBeenCalledTimes(2);
+    expect(store.fetchEnergyHistory).toHaveBeenCalledWith(
+      "sensor.accumulated_consumption_hemma",
+      1,
+    );
+    expect(store.fetchEnergyHistory).toHaveBeenCalledWith(
+      "sensor.accumulated_consumption_hemma",
+      1,
+      1,
+    );
+  });
+
+  it("should calculate comparison percentage vs previous period", async () => {
+    store.fetchEnergyHistory = vi
+      .fn()
+      .mockImplementation((_id, _days, offsetDays = 0) => {
+        if (offsetDays > 0) {
+          // Previous period: total 2400
+          return Promise.resolve([
+            { timestamp: Date.now(), value: 700, label: "00" },
+            { timestamp: Date.now(), value: 800, label: "01" },
+            { timestamp: Date.now(), value: 900, label: "02" },
+          ]);
+        }
+        // Current period: total 2820
+        return Promise.resolve([
+          { timestamp: Date.now(), value: 850, label: "00" },
+          { timestamp: Date.now(), value: 920, label: "01" },
+          { timestamp: Date.now(), value: 1050, label: "02" },
+        ]);
+      });
+
+    const wrapper = mount(HaEnergy, {
+      global: { plugins: [pinia], stubs: { i: true, svg: true } },
+    });
+
+    await flushPromises();
+
+    // ((2820 - 2400) / 2400) * 100 = 17.5%
+    expect(wrapper.vm.stats.comparison).toBeCloseTo(17.5, 1);
+  });
+
+  it("should show comparison indicator in template when comparison is non-null", async () => {
+    store.fetchEnergyHistory = vi
+      .fn()
+      .mockImplementation((_id, _days, offsetDays = 0) => {
+        if (offsetDays > 0) {
+          return Promise.resolve([
+            { timestamp: Date.now(), value: 700, label: "00" },
+          ]);
+        }
+        return Promise.resolve([
+          { timestamp: Date.now(), value: 1050, label: "00" },
+        ]);
+      });
+
+    const wrapper = mount(HaEnergy, {
+      global: { plugins: [pinia], stubs: { svg: true } },
+    });
+
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("% vs previous");
+  });
+
+  it("should set comparison to null when previous period total is zero", async () => {
+    store.fetchEnergyHistory = vi
+      .fn()
+      .mockImplementation((_id, _days, offsetDays = 0) => {
+        if (offsetDays > 0) {
+          return Promise.resolve([
+            { timestamp: Date.now(), value: 0, label: "00" },
+          ]);
+        }
+        return Promise.resolve([
+          { timestamp: Date.now(), value: 1050, label: "00" },
+        ]);
+      });
+
+    const wrapper = mount(HaEnergy, {
+      global: { plugins: [pinia], stubs: { i: true, svg: true } },
+    });
+
+    await flushPromises();
+
+    expect(wrapper.vm.stats.comparison).toBeNull();
+  });
+
+  it("should set comparison to null when previous period data is empty", async () => {
+    store.fetchEnergyHistory = vi
+      .fn()
+      .mockImplementation((_id, _days, offsetDays = 0) => {
+        if (offsetDays > 0) {
+          return Promise.resolve([]);
+        }
+        return Promise.resolve([
+          { timestamp: Date.now(), value: 850, label: "00" },
+        ]);
+      });
+
+    const wrapper = mount(HaEnergy, {
+      global: { plugins: [pinia], stubs: { i: true, svg: true } },
+    });
+
+    await flushPromises();
+
+    expect(wrapper.vm.stats.comparison).toBeNull();
   });
 });

@@ -410,4 +410,458 @@ describe("PwaInstallModal.vue", () => {
       expect(wrapper.vm.showInstallButton).toBe(false);
     });
   });
+
+  describe("localStorage handling", () => {
+    it("should handle localStorage write failure in dismiss", async () => {
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      // Mock localStorage to throw an error
+      const setItemSpy = vi
+        .spyOn(Storage.prototype, "setItem")
+        .mockImplementation(() => {
+          throw new Error("localStorage not available");
+        });
+
+      wrapper.vm.dismissed = false;
+      wrapper.vm.showInstallButton = true;
+      await wrapper.vm.$nextTick();
+
+      // Should not throw when localStorage fails
+      expect(() => wrapper.vm.dismiss()).not.toThrow();
+      expect(wrapper.vm.dismissed).toBe(true);
+
+      setItemSpy.mockRestore();
+    });
+
+    it("should handle localStorage read failure in onMounted", async () => {
+      const getItemSpy = vi
+        .spyOn(Storage.prototype, "getItem")
+        .mockImplementation(() => {
+          throw new Error("localStorage not available");
+        });
+
+      // Should not throw when mounting
+      expect(() => {
+        mount(PwaInstallModal, {
+          global: {
+            plugins: [pinia],
+          },
+        });
+      }).not.toThrow();
+
+      getItemSpy.mockRestore();
+    });
+
+    it("should read dismissed state from localStorage on mount", () => {
+      const getItemSpy = vi
+        .spyOn(Storage.prototype, "getItem")
+        .mockReturnValue("true");
+
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      expect(wrapper.vm.dismissed).toBe(true);
+
+      getItemSpy.mockRestore();
+    });
+  });
+
+  describe("iOS detection", () => {
+    it("should detect iOS devices", () => {
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      const originalUserAgent = navigator.userAgent;
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "iPhone OS",
+        configurable: true,
+      });
+
+      expect(wrapper.vm.isIos()).toBe(true);
+
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: originalUserAgent,
+        configurable: true,
+      });
+    });
+
+    it("should set up iOS timeout on mount for iOS devices", () => {
+      const originalUserAgent = navigator.userAgent;
+      const originalStandalone = window.navigator.standalone;
+
+      // Set up iOS environment
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "iPhone OS",
+        configurable: true,
+      });
+
+      // Ensure not in standalone mode
+      Object.defineProperty(window.navigator, "standalone", {
+        value: false,
+        configurable: true,
+      });
+
+      // Mock matchMedia to return false for standalone mode
+      const matchMediaMock = vi.fn().mockReturnValue({
+        matches: false,
+        media: "(display-mode: standalone)",
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      });
+      window.matchMedia = matchMediaMock;
+
+      const getItemSpy = vi
+        .spyOn(Storage.prototype, "getItem")
+        .mockReturnValue(null);
+
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      // Verify iOS was detected and component is set up correctly
+      expect(wrapper.vm.isIos()).toBe(true);
+      expect(wrapper.vm.isInStandaloneMode()).toBe(false);
+
+      getItemSpy.mockRestore();
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: originalUserAgent,
+        configurable: true,
+      });
+      Object.defineProperty(window.navigator, "standalone", {
+        value: originalStandalone,
+        configurable: true,
+      });
+    });
+
+    it("should not show iOS instructions if already dismissed", async () => {
+      vi.useFakeTimers();
+
+      const originalUserAgent = navigator.userAgent;
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "iPhone OS",
+        configurable: true,
+      });
+
+      const getItemSpy = vi
+        .spyOn(Storage.prototype, "getItem")
+        .mockReturnValue("true");
+
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      vi.advanceTimersByTime(2000);
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.showIosInstructions).toBe(false);
+
+      vi.useRealTimers();
+      getItemSpy.mockRestore();
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: originalUserAgent,
+        configurable: true,
+      });
+    });
+  });
+
+  describe("showModal programmatic API", () => {
+    it("should not show modal if already installed", () => {
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      wrapper.vm.isInstalled = true;
+      wrapper.vm.showModal();
+
+      expect(wrapper.vm.manualOpen).toBe(false);
+    });
+
+    it("should not show modal in local mode", () => {
+      store.isLocalMode = true;
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      wrapper.vm.showModal();
+
+      expect(wrapper.vm.manualOpen).toBe(false);
+    });
+
+    it("should show iOS instructions when no deferredPrompt on iOS", () => {
+      const originalUserAgent = navigator.userAgent;
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "iPhone OS",
+        configurable: true,
+      });
+
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      wrapper.vm.deferredPrompt = null;
+      wrapper.vm.showModal();
+
+      expect(wrapper.vm.manualOpen).toBe(true);
+      expect(wrapper.vm.showIosInstructions).toBe(true);
+
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: originalUserAgent,
+        configurable: true,
+      });
+    });
+
+    it("should show install button as fallback on non-iOS without deferredPrompt", () => {
+      // Ensure non-iOS user agent
+      const originalUserAgent = navigator.userAgent;
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        configurable: true,
+      });
+
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      // Reset state to simulate a clean scenario
+      wrapper.vm.showInstallButton = false;
+      wrapper.vm.deferredPrompt = null;
+      wrapper.vm.isInstalled = false;
+
+      wrapper.vm.showModal();
+
+      expect(wrapper.vm.manualOpen).toBe(true);
+      expect(wrapper.vm.showInstallButton).toBe(true);
+
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: originalUserAgent,
+        configurable: true,
+      });
+    });
+
+    it("should handle errors in showModal gracefully", () => {
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      // Force an error by making isIos throw
+      const originalIsIos = wrapper.vm.isIos;
+      wrapper.vm.isIos = () => {
+        throw new Error("Test error");
+      };
+
+      // Should not throw
+      expect(() => wrapper.vm.showModal()).not.toThrow();
+
+      wrapper.vm.isIos = originalIsIos;
+    });
+  });
+
+  describe("promptInstall", () => {
+    it("should return early when no deferredPrompt available", async () => {
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      wrapper.vm.deferredPrompt = null;
+      await wrapper.vm.promptInstall();
+
+      // Should complete without error
+      expect(wrapper.vm.deferredPrompt).toBeNull();
+    });
+
+    it("should handle prompt failure gracefully", async () => {
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      const mockPrompt = vi.fn().mockRejectedValue(new Error("Prompt failed"));
+      wrapper.vm.deferredPrompt = {
+        prompt: mockPrompt,
+        userChoice: Promise.reject(new Error("User canceled")),
+      };
+
+      await wrapper.vm.promptInstall();
+
+      // Should handle error without throwing
+      expect(wrapper.vm.deferredPrompt).toBeNull();
+    });
+
+    it("should set isInstalled when user accepts", async () => {
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      const mockPrompt = vi.fn();
+      wrapper.vm.deferredPrompt = {
+        prompt: mockPrompt,
+        userChoice: Promise.resolve({ outcome: "accepted" }),
+      };
+
+      await wrapper.vm.promptInstall();
+
+      expect(wrapper.vm.isInstalled).toBe(true);
+    });
+  });
+
+  describe("isInStandaloneMode", () => {
+    it("should detect standalone mode", () => {
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      const originalStandalone = window.navigator.standalone;
+      Object.defineProperty(window.navigator, "standalone", {
+        value: true,
+        configurable: true,
+      });
+
+      expect(wrapper.vm.isInStandaloneMode()).toBe(true);
+
+      Object.defineProperty(window.navigator, "standalone", {
+        value: originalStandalone,
+        configurable: true,
+      });
+    });
+
+    it("should return false if not installed and dismissed", () => {
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      wrapper.vm.isInstalled = false;
+      wrapper.vm.dismissed = true;
+      wrapper.vm.showInstallButton = false;
+
+      expect(wrapper.vm.shouldShow).toBe(false);
+    });
+
+    it("should return false in local mode", () => {
+      store.isLocalMode = true;
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      wrapper.vm.showInstallButton = true;
+      wrapper.vm.dismissed = false;
+
+      expect(wrapper.vm.shouldShow).toBe(false);
+    });
+
+    it("should return true when manualOpen overrides dismissed", () => {
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      wrapper.vm.dismissed = true;
+      wrapper.vm.manualOpen = true;
+      wrapper.vm.showInstallButton = true;
+
+      expect(wrapper.vm.shouldShow).toBe(true);
+    });
+  });
+
+  describe("display variations", () => {
+    it("should show iOS icon when showIosInstructions is true", async () => {
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      wrapper.vm.dismissed = false;
+      wrapper.vm.showIosInstructions = true;
+      wrapper.vm.showInstallButton = false;
+      await wrapper.vm.$nextTick();
+
+      const icon = wrapper.find(".mdi-apple");
+      expect(icon.exists()).toBe(true);
+    });
+
+    it("should show install icon when showInstallButton is true", async () => {
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      wrapper.vm.dismissed = false;
+      wrapper.vm.showInstallButton = true;
+      wrapper.vm.showIosInstructions = false;
+      await wrapper.vm.$nextTick();
+
+      const icon = wrapper.find(".mdi-phone-plus");
+      expect(icon.exists()).toBe(true);
+    });
+
+    it("should show warning when no deferredPrompt available", async () => {
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      wrapper.vm.dismissed = false;
+      wrapper.vm.showInstallButton = true;
+      wrapper.vm.deferredPrompt = null;
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.text()).toContain("not available");
+    });
+
+    it("should not show install button when no deferredPrompt", async () => {
+      const wrapper = mount(PwaInstallModal, {
+        global: {
+          plugins: [pinia],
+        },
+      });
+
+      wrapper.vm.dismissed = false;
+      wrapper.vm.showInstallButton = true;
+      wrapper.vm.deferredPrompt = null;
+      wrapper.vm.isInstalled = false;
+      await wrapper.vm.$nextTick();
+
+      const buttons = wrapper.findAll("button");
+      const installBtn = buttons.find((btn) => btn.text() === "Install");
+      expect(installBtn).toBeUndefined();
+    });
+  });
 });

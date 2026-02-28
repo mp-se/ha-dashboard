@@ -8,7 +8,7 @@ describe("HaBeerTap.vue", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     const store = useHaStore();
-    store.sensors = [];
+    store.entities = [];
   });
 
   it("renders error when no entities provided", () => {
@@ -30,7 +30,7 @@ describe("HaBeerTap.vue", () => {
 
   it("renders beer tap with volume and beer data", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.tap_tap_volume1",
         state: "3.499",
@@ -85,7 +85,7 @@ describe("HaBeerTap.vue", () => {
 
   it("calculates percentage correctly", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.tap_tap_volume1",
         state: "9.5",
@@ -130,7 +130,7 @@ describe("HaBeerTap.vue", () => {
 
   it("shows empty state when volume is 0", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.tap_tap_volume4",
         state: "0",
@@ -175,7 +175,7 @@ describe("HaBeerTap.vue", () => {
 
   it("uses EBC value to determine beer color", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.tap_tap_volume1",
         state: "10",
@@ -219,7 +219,7 @@ describe("HaBeerTap.vue", () => {
 
   it("handles missing attributes gracefully", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.tap_tap_volume1",
         state: "5",
@@ -282,7 +282,7 @@ describe("HaBeerTap.vue", () => {
       },
     };
 
-    store.sensors = [volumeEntity, beerEntity];
+    store.entities = [volumeEntity, beerEntity];
 
     const wrapper = mount(HaBeerTap, {
       props: {
@@ -303,7 +303,7 @@ describe("HaBeerTap.vue", () => {
 
   it("auto-detects volume entity by device_class", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.tap_tap_volume1",
         state: "12.5",
@@ -348,7 +348,7 @@ describe("HaBeerTap.vue", () => {
 
   it("auto-detects beer entity by entity_id pattern", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.gravitymon_volume",
         state: "8.5",
@@ -391,7 +391,7 @@ describe("HaBeerTap.vue", () => {
 
   it("handles non-numeric volume state", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.tap_tap_volume1",
         state: "unavailable",
@@ -425,7 +425,7 @@ describe("HaBeerTap.vue", () => {
 
   it("handles missing beer attributes (ABV, IBU, EBC)", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.tap_tap_volume1",
         state: "5",
@@ -474,7 +474,7 @@ describe("HaBeerTap.vue", () => {
     ];
 
     testCases.forEach(({ ebc, expected }) => {
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "sensor.beer",
           state: "Test",
@@ -498,7 +498,7 @@ describe("HaBeerTap.vue", () => {
 
   it("auto-detects beer entity by name and volume by device_class", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.test_vol",
         state: "10",
@@ -521,7 +521,7 @@ describe("HaBeerTap.vue", () => {
 
   it("handles beer state as unknown", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.vol",
         state: "10",
@@ -547,7 +547,7 @@ describe("HaBeerTap.vue", () => {
 
   it("handles missing store sensors gracefully", () => {
     const store = useHaStore();
-    store.sensors = null;
+    store.entities = null;
 
     const wrapper = mount(HaBeerTap, {
       props: { entity: "sensor.any" },
@@ -587,7 +587,7 @@ describe("HaBeerTap.vue", () => {
 
   it("handles single entity object as prop", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.beer_volume",
         state: "12",

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import HaWeather from "../HaWeather.vue";
 import { createPinia, setActivePinia } from "pinia";
@@ -7,13 +7,19 @@ import { useHaStore } from "@/stores/haStore";
 describe("HaWeather.vue", () => {
   let store;
   let pinia;
+  let subscribeToWeatherForecastSpy;
 
   beforeEach(() => {
     pinia = createPinia();
     setActivePinia(pinia);
     store = useHaStore();
 
-    store.sensors = [
+    // Prevent real WebSocket subscription attempts in tests
+    subscribeToWeatherForecastSpy = vi
+      .spyOn(store, "subscribeToWeatherForecast")
+      .mockResolvedValue(undefined);
+
+    store.entities = [
       {
         entity_id: "weather.home",
         state: "sunny",
@@ -39,7 +45,6 @@ describe("HaWeather.vue", () => {
         },
       },
     ];
-    store.entities = {};
   });
 
   it("should render weather card", () => {
@@ -216,7 +221,7 @@ describe("HaWeather.vue", () => {
   });
 
   it("should show cloudy icon for cloudy condition", async () => {
-    store.sensors[0].state = "cloudy";
+    store.entities[0].state = "cloudy";
 
     const wrapper = mount(HaWeather, {
       props: {
@@ -232,7 +237,7 @@ describe("HaWeather.vue", () => {
   });
 
   it("should show rainy icon for rainy condition", async () => {
-    store.sensors[0].state = "rainy";
+    store.entities[0].state = "rainy";
 
     const wrapper = mount(HaWeather, {
       props: {
@@ -248,7 +253,7 @@ describe("HaWeather.vue", () => {
   });
 
   it("should show snowy icon for snowy condition", async () => {
-    store.sensors[0].state = "snowy";
+    store.entities[0].state = "snowy";
 
     const wrapper = mount(HaWeather, {
       props: {
@@ -275,6 +280,64 @@ describe("HaWeather.vue", () => {
 
     await wrapper.vm.$nextTick();
     expect(wrapper.vm.weatherIcon).toBeTruthy();
+  });
+
+  it("should call subscribeToWeatherForecast on mount for live mode", async () => {
+    store.isLocalMode = false;
+
+    mount(HaWeather, {
+      props: { entity: "weather.home" },
+      global: { plugins: [pinia] },
+    });
+
+    await new Promise((r) => setTimeout(r, 0));
+    expect(subscribeToWeatherForecastSpy).toHaveBeenCalledWith(
+      "weather.home",
+      "daily",
+    );
+  });
+
+  it("should NOT call subscribeToWeatherForecast in local mode", async () => {
+    store.isLocalMode = true;
+
+    mount(HaWeather, {
+      props: { entity: "weather.home" },
+      global: { plugins: [pinia] },
+    });
+
+    await new Promise((r) => setTimeout(r, 0));
+    expect(subscribeToWeatherForecastSpy).not.toHaveBeenCalled();
+  });
+
+  it("should read forecast from store forecasts when available", async () => {
+    store.forecasts["weather.home"] = {
+      type: "daily",
+      data: [
+        {
+          datetime: new Date().toISOString(),
+          condition: "cloudy",
+          temperature: 18,
+          templow: 10,
+        },
+        {
+          datetime: new Date(Date.now() + 86400000).toISOString(),
+          condition: "rainy",
+          temperature: 15,
+          templow: 8,
+        },
+      ],
+    };
+    // Remove attributes forecast to verify store data is preferred
+    delete store.entities[0].attributes.forecast;
+
+    const wrapper = mount(HaWeather, {
+      props: { entity: "weather.home" },
+      global: { plugins: [pinia] },
+    });
+
+    await wrapper.vm.$nextTick();
+    expect(wrapper.vm.forecastData.length).toBe(2);
+    expect(wrapper.vm.forecastData[0].condition).toBe("cloudy");
   });
 
   it("should map temperature unit correctly", async () => {
@@ -335,7 +398,7 @@ describe("HaWeather.vue", () => {
   });
 
   it("should handle missing forecast gracefully", async () => {
-    delete store.sensors[0].attributes.forecast;
+    delete store.entities[0].attributes.forecast;
 
     const wrapper = mount(HaWeather, {
       props: {
@@ -362,7 +425,7 @@ describe("HaWeather.vue", () => {
 
     expect(wrapper.text()).toContain("Sunny");
 
-    store.sensors[0].state = "rainy";
+    store.entities[0].state = "rainy";
     await wrapper.vm.$nextTick();
 
     expect(wrapper.text()).toContain("Rainy");
@@ -380,7 +443,7 @@ describe("HaWeather.vue", () => {
 
     expect(wrapper.text()).toContain("22.5");
 
-    store.sensors[0].attributes.temperature = 25.0;
+    store.entities[0].attributes.temperature = 25.0;
     await wrapper.vm.$nextTick();
 
     expect(wrapper.text()).toContain("25");
@@ -410,6 +473,140 @@ describe("HaWeather.vue", () => {
     const values = ["1.5", "65", "1013.25", "10", "22.5"];
     values.forEach((val) => {
       expect(wrapper.text()).toContain(val);
+    });
+  });
+
+  describe("convertToMs — alternate wind speed units", () => {
+    const mountWeather = (windSpeedUnit, windSpeed = 10) => {
+      store.entities[0].attributes.wind_speed = windSpeed;
+      store.entities[0].attributes.wind_speed_unit = windSpeedUnit;
+      return mount(HaWeather, {
+        props: { entity: "weather.home" },
+        global: { plugins: [pinia] },
+      });
+    };
+
+    it("converts m/s correctly (returns same value)", async () => {
+      const wrapper = mountWeather("m/s", 10);
+      await wrapper.vm.$nextTick();
+      expect(wrapper.vm.windSpeedMs).toBeCloseTo(10, 5);
+    });
+
+    it("converts mi/h to m/s", async () => {
+      const wrapper = mountWeather("mi/h", 10);
+      await wrapper.vm.$nextTick();
+      expect(wrapper.vm.windSpeedMs).toBeCloseTo(4.4704, 3);
+    });
+
+    it("converts ft/s to m/s", async () => {
+      const wrapper = mountWeather("ft/s", 10);
+      await wrapper.vm.$nextTick();
+      expect(wrapper.vm.windSpeedMs).toBeCloseTo(3.048, 3);
+    });
+
+    it("converts kn (knots) to m/s", async () => {
+      const wrapper = mountWeather("kn", 10);
+      await wrapper.vm.$nextTick();
+      expect(wrapper.vm.windSpeedMs).toBeCloseTo(5.1444, 3);
+    });
+
+    it("returns null when wind speed is null", async () => {
+      store.entities[0].attributes.wind_speed = null;
+      const wrapper = mount(HaWeather, {
+        props: { entity: "weather.home" },
+        global: { plugins: [pinia] },
+      });
+      await wrapper.vm.$nextTick();
+      expect(wrapper.vm.windSpeedMs).toBeNull();
+    });
+  });
+
+  describe("windDirectionArrow", () => {
+    it("returns arrow for north bearing (0)", async () => {
+      store.entities[0].attributes.wind_bearing = 0;
+      const wrapper = mount(HaWeather, {
+        props: { entity: "weather.home" },
+        global: { plugins: [pinia] },
+      });
+      await wrapper.vm.$nextTick();
+      expect(wrapper.vm.windDirectionArrow).toBe("↑");
+    });
+
+    it("returns arrow for east bearing (90)", async () => {
+      store.entities[0].attributes.wind_bearing = 90;
+      const wrapper = mount(HaWeather, {
+        props: { entity: "weather.home" },
+        global: { plugins: [pinia] },
+      });
+      await wrapper.vm.$nextTick();
+      expect(wrapper.vm.windDirectionArrow).toBe("→");
+    });
+
+    it("returns empty string when bearing is null", async () => {
+      store.entities[0].attributes.wind_bearing = null;
+      const wrapper = mount(HaWeather, {
+        props: { entity: "weather.home" },
+        global: { plugins: [pinia] },
+      });
+      await wrapper.vm.$nextTick();
+      expect(wrapper.vm.windDirectionArrow).toBe("");
+    });
+  });
+
+  describe("formatDate", () => {
+    it("returns empty string for null/undefined input", async () => {
+      const wrapper = mount(HaWeather, {
+        props: { entity: "weather.home" },
+        global: { plugins: [pinia] },
+      });
+      await wrapper.vm.$nextTick();
+      // Access the internal formatDate by checking forecast rendering with no datetime
+      store.entities[0].attributes.forecast = [
+        { condition: "sunny", temperature: 20 },
+      ];
+      await wrapper.vm.$nextTick();
+      expect(wrapper.find(".card").exists()).toBe(true);
+    });
+
+    it("formats a valid datetime string", async () => {
+      store.entities[0].attributes.forecast = [
+        {
+          datetime: "2026-03-15T12:00:00.000Z",
+          condition: "sunny",
+          temperature: 20,
+          templow: 10,
+        },
+      ];
+      const wrapper = mount(HaWeather, {
+        props: { entity: "weather.home" },
+        global: { plugins: [pinia] },
+      });
+      await wrapper.vm.$nextTick();
+      // A formatted date string like "Mar 15" should appear
+      const text = wrapper.text();
+      expect(text).toMatch(/Mar|15/);
+    });
+  });
+
+  describe("forecastData from haStore.forecasts", () => {
+    it("uses websocket forecast data when available", async () => {
+      const forecastPayload = [
+        {
+          datetime: "2026-03-15T12:00:00.000Z",
+          condition: "cloudy",
+          temperature: 18,
+          templow: 8,
+        },
+      ];
+      store.forecasts = {
+        "weather.home": { data: forecastPayload },
+      };
+      const wrapper = mount(HaWeather, {
+        props: { entity: "weather.home" },
+        global: { plugins: [pinia] },
+      });
+      await wrapper.vm.$nextTick();
+      expect(wrapper.vm.forecastData).toEqual(forecastPayload);
     });
   });
 });

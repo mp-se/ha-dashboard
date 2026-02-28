@@ -17,14 +17,14 @@
 }
 
 .nav-icon {
-  font-size: 1.5rem; /* larger on small screens */
+  font-size: 1.1rem;
   line-height: 1;
   color: inherit; /* Ensure icon inherits text color from parent */
 }
 
 @media (min-width: 992px) {
   .nav-icon {
-    font-size: 1.1rem; /* slightly smaller on large screens to match label layout */
+    font-size: 1rem; /* match label text size on large screens */
   }
 }
 
@@ -44,8 +44,8 @@ button:focus,
 button:focus-visible,
 button:active {
   outline: none !important;
-  box-shadow: none !important;
   -webkit-box-shadow: none !important;
+  box-shadow: none !important;
 }
 
 /* Nuclear option: override ALL Bootstrap button focus states */
@@ -53,8 +53,8 @@ button:active {
 .btn:focus-visible,
 .btn:active {
   outline: none !important;
-  box-shadow: none !important;
   -webkit-box-shadow: none !important;
+  box-shadow: none !important;
   background-color: transparent !important;
   background-image: none !important;
 }
@@ -102,8 +102,8 @@ button:active {
   .btn:focus-visible,
   .btn:active {
     outline: none !important;
-    box-shadow: none !important;
     -webkit-box-shadow: none !important;
+    box-shadow: none !important;
     background-color: transparent !important;
     background-image: none !important;
   }
@@ -197,9 +197,9 @@ button:active {
 /* Icon Circle Styles */
 .ha-icon-circle-wrapper {
   position: relative;
+  flex-shrink: 0;
   width: var(--ha-icon-circle-size);
   height: var(--ha-icon-circle-size);
-  margin: 0 auto;
 }
 
 .ha-icon-circle {
@@ -216,6 +216,7 @@ button:active {
   top: 0;
   left: 0;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  aspect-ratio: 1 / 1;
 }
 
 .ha-icon-overlay {
@@ -236,17 +237,41 @@ button:active {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 50px;
+  height: 50px;
   flex-shrink: 0;
 }
 
 .icon-bg {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 50px;
   height: 50px;
   border-radius: 50%;
   flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  aspect-ratio: 1 / 1;
+}
+
+.icon-bg-small {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  aspect-ratio: 1 / 1;
+}
+
+.icon-overlay-small {
+  position: relative;
+  z-index: 1;
+  font-size: 1rem;
+  color: #fff;
+  font-weight: 400;
 }
 
 /* Card Title Styles */
@@ -301,6 +326,7 @@ button:active {
   border-radius: 50%;
   filter: drop-shadow(var(--ha-shadow));
   transition: var(--ha-transition);
+  aspect-ratio: 1 / 1;
 }
 
 .ha-control-button:hover .ha-control-circle {
@@ -524,4 +550,629 @@ button:active {
   color: #fff !important;
   background-color: rgba(255, 255, 255, 0.1) !important;
   border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Light Component Preset Buttons */
+.preset-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 2px solid transparent;
+  border-radius: 0.5rem;
+  font-size: 1.5rem;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: inherit;
+}
+
+.preset-btn-icon:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.preset-btn-icon.active-preset {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+  color: #333;
+}
+
+.preset-btn-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.color-preset-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 2px solid transparent;
+  border-radius: 0.5rem;
+  font-size: 1.5rem;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.color-preset-btn-icon.white-preset {
+  color: #333;
+  background-color: #ffffff !important;
+}
+
+.color-preset-btn-icon:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.color-preset-btn-icon.active-color {
+  border-color: #fff;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.color-preset-btn-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+ * Component-Specific Styles (migrated from scoped styles)
+ * ============================================ */
+
+/* HaBeerTap Component */
+.ha-beer-tap .card {
+  background-color: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.ha-beer-tap .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.ha-beer-tap .card-body {
+  padding: 1.5rem;
+}
+
+.ha-beer-tap .card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+}
+
+.ha-beer-tap .progress {
+  background-color: #e9ecef;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+/* HaImage Component */
+.ha-image-img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 0.375rem;
+}
+
+/* HaGauge Component */
+.gauge-svg {
+  overflow: visible;
+}
+
+.gauge-background {
+  opacity: 0.3;
+}
+
+.gauge-arc {
+  opacity: 0.7;
+}
+
+.gauge-value {
+  transition: all 0.3s ease;
+}
+
+.gauge-needle {
+  transition: all 0.3s ease;
+}
+
+.gauge-label {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.gauge-center-value {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* HaBinarySensor Component */
+.binary-state-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.binary-state-indicator.state-on {
+  color: #28a745;
+}
+
+.binary-state-indicator.state-off {
+  color: #6c757d;
+}
+
+.binary-state-indicator.state-unavailable {
+  color: #ffc107;
+}
+
+.state-icon {
+  font-size: 2rem;
+  display: block;
+}
+
+/* HaEntityAttributeList Component */
+.ha-attribute-key {
+  color: var(--bs-secondary-color, #6c757d);
+  font-weight: 500;
+}
+
+.ha-attribute-value {
+  color: var(--bs-body-color, #212529);
+  font-weight: 400;
+}
+
+/* HaSensor Component - using consolidated icon-bg styles above */
+.icon-bg-wrapper-small {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.icon-overlay-small {
+  position: relative;
+  z-index: 1;
+  font-size: 1.1rem;
+  color: white;
+}
+
+/* HaWeather Component */
+.weather-condition {
+  font-size: 1rem;
+  color: var(--bs-primary);
+}
+
+.weather-icon {
+  font-size: 1.5rem;
+  color: var(--bs-primary);
+}
+
+.weather-details {
+  font-size: 0.85rem;
+}
+
+.forecast-container {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  margin-left: -1.5rem;
+  margin-right: -1.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-bottom: 0;
+  margin-bottom: -1rem;
+}
+
+.forecast-item {
+  flex: 1;
+  text-align: center;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  background: transparent;
+  font-size: 0.75rem;
+}
+
+.forecast-time {
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.forecast-temp {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #333;
+  margin: 0.25rem 0;
+}
+
+.forecast-condition {
+  font-size: 0.7rem;
+  color: #555;
+  margin: 0.25rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.forecast-wind {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  color: #0078d4;
+  margin-top: 0.25rem;
+  font-size: 0.65rem;
+}
+
+/* HaEntityList Component */
+.ha-entity-list .card {
+  background-color: rgba(248, 249, 250, 0.6) !important;
+  border: 1px solid rgba(222, 226, 230, 0.4) !important;
+}
+
+[data-bs-theme="dark"] .ha-entity-list .card {
+  background-color: rgba(52, 58, 64, 0.5) !important;
+  border-color: rgba(73, 80, 87, 0.3) !important;
+}
+
+/* HaError Component */
+.ha-error .icon-circle-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.ha-error .icon-circle {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.ha-error .icon-overlay {
+  position: relative;
+  z-index: 1;
+  font-size: 1.5rem;
+  color: white;
+}
+
+/* CredentialDialog Component */
+.credential-dialog .invalid-feedback {
+  color: #dc3545;
+  font-size: 0.875em;
+  margin-top: 0.25rem;
+}
+
+.credential-dialog .form-control.is-invalid {
+  border-color: #dc3545;
+}
+
+.credential-dialog .form-control.is-invalid:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* HaEnergy Component */
+.ha-energy .card-display {
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid var(--bs-border-color);
+}
+
+.ha-energy .card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.energy-chart {
+  border-radius: 4px;
+  padding: 8px;
+  position: relative;
+}
+
+.chart-tooltip {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) translateX(-50%);
+  background: white;
+  color: #007bff;
+  padding: 4px 8px;
+  border: 2px solid #007bff;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.chart-axis text {
+  fill: #999;
+}
+
+.chart-bars rect {
+  transition: fill 0.2s ease;
+  cursor: pointer;
+}
+
+.chart-bars rect:hover {
+  fill: #0056b3;
+  filter: brightness(0.9);
+}
+
+/* HaChip Component */
+.ha-chip .badge {
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+}
+
+/* HaRoom Component */
+.room-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.room-right {
+  margin-left: 1rem;
+}
+
+.room-controls-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(3, auto);
+  grid-auto-flow: column;
+  gap: 0.5rem;
+  direction: rtl;
+}
+
+.room-controls-grid .control-object {
+  direction: ltr;
+}
+
+.room-header {
+  padding-bottom: 0.75rem;
+}
+
+.room-icon-wrapper {
+  position: relative;
+  margin: 0;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.room-icon-wrapper .ha-icon-circle {
+  background-color: transparent;
+}
+
+.room-icon-wrapper .ha-icon-overlay {
+  font-size: 2.5rem;
+}
+
+.control-object {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.control-object:hover:not(.control-object-disabled) {
+  transform: scale(1.1);
+}
+
+.control-object.control-object-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.control-object.control-object-disabled .ha-control-circle {
+  filter: grayscale(100%) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
+}
+
+.control-object:hover .ha-control-circle {
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+}
+
+/* HaButton Component */
+.btn-wide {
+  min-width: 120px;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+/* HaSun Component */
+.sun-condition {
+  font-size: 1rem;
+  color: var(--bs-primary);
+}
+
+.sun-icon {
+  font-size: 1.5rem;
+  color: var(--bs-warning);
+}
+
+.sun-times {
+  font-size: 0.85rem;
+}
+
+/* HaMediaPlayer Component */
+.ha-media-player .progress-container {
+  margin-top: 0.5rem;
+}
+
+@keyframes pulse-progress {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.progress-indeterminate {
+  animation: pulse-progress 2s ease-in-out infinite;
+}
+
+/* PwaInstallModal Component */
+.pwa-install-modal .modal {
+  z-index: 1200;
+}
+
+.pwa-install-modal .modal-backdrop.show {
+  z-index: 1199;
+}
+
+/* HaSensorGraph Component */
+.h-250 {
+  height: 250px !important;
+}
+
+.ha-sensor-graph .card-body {
+  padding: 0.75rem;
+}
+
+.ha-sensor-graph svg {
+  height: 160px;
+}
+
+/* HaGlance Component */
+.glance-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-auto-flow: dense;
+}
+
+.glance-cols-1 {
+  grid-template-columns: 1fr;
+}
+
+.glance-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.glance-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.glance-cols-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.glance-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.glance-item:hover {
+  background-color: rgba(248, 249, 250, 0.2);
+  transform: translateY(-1px);
+}
+
+[data-bs-theme="dark"] .glance-item {
+  background-color: transparent;
+}
+
+[data-bs-theme="dark"] .glance-item:hover {
+  background-color: rgba(52, 58, 64, 0.2);
+}
+
+.glance-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+}
+
+.glance-icon-bg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  aspect-ratio: 1 / 1;
+}
+
+.glance-icon-overlay {
+  font-size: 1.5rem;
+  color: #fff;
+  font-weight: 400;
+}
+
+.icon-circle-wrapper-glance {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+}
+
+.glance-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  width: 100%;
+}
+
+/* HaSelect Component */
+.select-state {
+  font-size: 1.1rem;
+  color: var(--bs-primary);
+}
+
+.select-icon {
+  font-size: 1.5rem;
+  color: var(--bs-info);
+}
+
+.select-control {
+  max-width: 250px;
+  margin: 0 auto;
 }

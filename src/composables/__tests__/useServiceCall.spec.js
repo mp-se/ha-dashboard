@@ -183,6 +183,7 @@ describe("useServiceCall", () => {
       await callService("light", "turn_on", { entity_id: "light.bedroom" });
 
       expect(logSpy).toHaveBeenCalledWith(
+        "[useServiceCall]",
         "[LOCAL MODE] Would call service: light.turn_on",
         { entity_id: "light.bedroom" },
       );

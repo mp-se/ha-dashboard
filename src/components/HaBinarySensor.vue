@@ -30,18 +30,7 @@
         <div v-if="resolvedEntity" class="text-start flex-grow-1">
           <h6 class="ha-entity-name mb-0">{{ name }}</h6>
           <!-- Display requested attributes if provided -->
-          <div v-if="requestedAttributes.length > 0" class="mt-1">
-            <div
-              v-for="[label, value] in requestedAttributes"
-              :key="label"
-              class="small d-flex gap-2 mb-0"
-            >
-              <div class="ha-attribute-key">
-                {{ label }}:
-                <span class="ha-attribute-value">{{ value }}</span>
-              </div>
-            </div>
-          </div>
+          <HaEntityAttributeList :attributes="requestedAttributes" />
         </div>
         <div v-if="resolvedEntity" class="d-flex align-items-center ms-2">
           <div
@@ -181,32 +170,3 @@ const { requestedAttributes } = useAttributeResolver(
   props.attributes,
 );
 </script>
-
-<style scoped>
-.binary-state-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  transition: all 0.2s ease;
-  cursor: default;
-}
-
-.binary-state-indicator.state-on {
-  color: #28a745;
-}
-
-.binary-state-indicator.state-off {
-  color: #6c757d;
-}
-
-.binary-state-indicator.state-unavailable {
-  color: #ffc107;
-}
-
-.state-icon {
-  font-size: 2rem;
-  display: block;
-}
-</style>

@@ -26,9 +26,10 @@ export const useAttributeResolver = (entity, attributes) => {
       // Check if this is a sensor reference (starts with "sensor.")
       if (typeof key === "string" && key.startsWith("sensor.")) {
         // Look up the sensor in the store
-        const referencedSensor = haStore.sensors.find(
-          (s) => s.entity_id === key,
-        );
+        // Use optimized entityMap if available, fallback to find for tests/stability
+        const referencedSensor = haStore.entityMap?.get
+          ? haStore.entityMap.get(key)
+          : haStore.entities?.find((s) => s.entity_id === key);
 
         if (referencedSensor) {
           if (referencedSensor.state === "unavailable") {

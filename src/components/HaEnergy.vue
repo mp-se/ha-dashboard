@@ -1,5 +1,5 @@
 <template>
-  <div class="col-lg-4 col-md-6">
+  <div class="col-lg-4 col-md-6 ha-energy">
     <!-- Error state: no consumption sensors found -->
     <div
       v-if="!energySensor"
@@ -184,8 +184,15 @@
 <script setup>
 import { computed, ref, onMounted, watch } from "vue";
 import { useHaStore } from "@/stores/haStore";
+import { createLogger } from "@/utils/logger";
+import {
+  useEnergyChart,
+  formatValue,
+  formatYAxisLabel,
+} from "@/composables/useEnergyChart";
 
 const store = useHaStore();
+const logger = createLogger("HaEnergy");
 
 // Period definitions
 const periods = [1, 3, 7, 14];
@@ -196,8 +203,19 @@ const selectedPeriodIndex = ref(0);
 const isLoading = ref(false);
 const error = ref(null);
 const chartData = ref([]);
-const hoveredIndex = ref(-1);
+const prevChartData = ref([]);
 const isFetching = ref(false);
+
+// Use chart composable for calculations
+const {
+  hoveredIndex,
+  stats,
+  maxValue,
+  labelStep,
+  tooltipStyle,
+  chartWidth,
+  chartHeight,
+} = useEnergyChart(chartData, prevChartData);
 
 // Current period and label
 const selectedPeriod = computed(() => periods[selectedPeriodIndex.value]);
@@ -214,10 +232,6 @@ function cyclePeriod() {
 
   selectedPeriodIndex.value = (selectedPeriodIndex.value + 1) % periods.length;
 }
-
-// Chart dimensions
-const chartWidth = 400;
-const chartHeight = 200;
 
 // Get the primary consumption sensor (prefer energy sensor, fallback to power)
 const energySensor = computed(() => {
@@ -238,65 +252,7 @@ const energySensor = computed(() => {
 // Unit of measurement
 const unit = computed(() => {
   if (!energySensor.value) return "";
-  return energySensor.value.attributes?.unit_of_measurement || "";
-});
-
-// Card title
-const cardTitle = computed(() => {
-  if (!energySensor.value) return "Energy";
-  return energySensor.value.attributes?.friendly_name || "Energy Consumption";
-});
-
-// Calculate statistics from chart data
-const stats = computed(() => {
-  if (chartData.value.length === 0) {
-    return { max: 0, min: 0, avg: 0, total: 0, comparison: null };
-  }
-
-  const values = chartData.value.map((p) => p.value);
-  const max = Math.max(...values);
-  const min = Math.min(...values);
-  const avg = values.reduce((a, b) => a + b, 0) / values.length;
-  const total = values.reduce((a, b) => a + b, 0);
-
-  return {
-    max: Math.round(max * 100) / 100,
-    min: Math.round(min * 100) / 100,
-    avg: Math.round(avg * 100) / 100,
-    total: Math.round(total * 100) / 100,
-    comparison: null, // TODO: Calculate vs previous period
-  };
-});
-
-// Maximum value for Y-axis scaling
-const maxValue = computed(() => {
-  if (stats.value.max === 0) return 1;
-  // Round up to nearest "nice" number
-  const magnitude = Math.pow(10, Math.floor(Math.log10(stats.value.max)));
-  return Math.ceil(stats.value.max / magnitude) * magnitude;
-});
-
-// Label step for X-axis (show every nth label to avoid crowding)
-const labelStep = computed(() => {
-  if (chartData.value.length <= 12) return 1;
-  if (chartData.value.length <= 24) return 2;
-  return Math.ceil(chartData.value.length / 12);
-});
-
-// Tooltip positioning
-const tooltipStyle = computed(() => {
-  if (hoveredIndex.value < 0) return {};
-
-  const barWidth = (chartWidth - 30) / chartData.value.length;
-  const barX =
-    25 +
-    (hoveredIndex.value * (chartWidth - 30)) / chartData.value.length +
-    barWidth * 0.5;
-  const percentage = (barX / chartWidth) * 100;
-
-  return {
-    left: `${percentage}%`,
-  };
+  return energySensor.value.attributes?.unit_of_measurement || "kWh";
 });
 
 // Fetch energy history when period changes
@@ -323,90 +279,37 @@ async function fetchEnergyData() {
   error.value = null;
 
   try {
-    const data = await store.fetchEnergyHistory(
-      energySensor.value.entity_id,
-      selectedPeriod.value,
-    );
+    const [data, prevData] = await Promise.all([
+      store.fetchEnergyHistory(
+        energySensor.value.entity_id,
+        selectedPeriod.value,
+      ),
+      store.fetchEnergyHistory(
+        energySensor.value.entity_id,
+        selectedPeriod.value,
+        selectedPeriod.value,
+      ),
+    ]);
     chartData.value = data;
+    prevChartData.value = prevData;
 
     if (data.length === 0) {
       error.value = "No data available for this period";
     }
   } catch (e) {
     error.value = `Failed to load data: ${e.message}`;
-    console.error("Energy history error:", e);
+    logger.error("Energy history error:", e);
   } finally {
     isLoading.value = false;
     isFetching.value = false;
   }
 }
 
-/**
- * Format value for display
- */
-function formatValue(value) {
-  if (value >= 1000) {
-    return `${(value / 1000).toFixed(1)}k`;
-  }
-  return value.toFixed(1);
-}
-
-/**
- * Format Y-axis label
- */
-function formatYAxisLabel(value) {
-  if (value >= 1000) {
-    return `${(value / 1000).toFixed(0)}k`;
-  }
-  return `${Math.round(value)}`;
-}
+// Card title
+const cardTitle = computed(() => {
+  if (!energySensor.value) return "Energy";
+  return (
+    energySensor.value.attributes?.friendly_name || energySensor.value.entity_id
+  );
+});
 </script>
-
-<style scoped>
-.card-display {
-  background: rgba(255, 255, 255, 0.95);
-  border: 2px solid var(--bs-border-color);
-}
-
-.card-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.energy-chart {
-  border-radius: 4px;
-  padding: 8px;
-  position: relative;
-}
-
-.chart-tooltip {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%) translateX(-50%);
-  background: white;
-  color: #007bff;
-  padding: 4px 8px;
-  border: 2px solid #007bff;
-  border-radius: 3px;
-  font-size: 12px;
-  font-weight: bold;
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: 10;
-}
-
-.chart-axis text {
-  fill: #999;
-}
-
-.chart-bars rect {
-  transition: fill 0.2s ease;
-  cursor: pointer;
-}
-
-.chart-bars rect:hover {
-  fill: #0056b3;
-  filter: brightness(0.9);
-}
-</style>

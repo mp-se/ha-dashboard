@@ -4,7 +4,7 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const imagesDir = path.join(__dirname, "images");
+const imagesDir = path.join(__dirname, "..", "images");
 
 async function captureMultiSensorCard() {
   const browser = await chromium.launch();

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import RawEntityView from "../RawEntityView.vue";
 import { createPinia, setActivePinia } from "pinia";
-import { useHaStore } from "../../stores/haStore";
+import { useHaStore } from "@/stores/haStore";
 
 describe("RawEntityView.vue", () => {
   beforeEach(() => {
@@ -25,7 +25,7 @@ describe("RawEntityView.vue", () => {
 
   it("displays all entity types in the type selector", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       { entity_id: "sensor.temperature", state: "on", attributes: {} },
       { entity_id: "sensor.humidity", state: "65", attributes: {} },
       { entity_id: "light.living_room", state: "on", attributes: {} },
@@ -42,7 +42,7 @@ describe("RawEntityView.vue", () => {
 
   it("filters entities by type selection", async () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.temperature",
         state: "on",
@@ -73,7 +73,7 @@ describe("RawEntityView.vue", () => {
 
   it("filters entities by search text", async () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.temperature",
         state: "25",
@@ -107,7 +107,7 @@ describe("RawEntityView.vue", () => {
 
   it("filters entities by search on entity_id", async () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.temperature",
         state: "25",
@@ -141,7 +141,7 @@ describe("RawEntityView.vue", () => {
 
   it("hides unavailable entities when checkbox is checked", async () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.available",
         state: "on",
@@ -174,7 +174,7 @@ describe("RawEntityView.vue", () => {
 
   it("displays entity friendly name with fallback to entity_id", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.with_name",
         state: "on",
@@ -192,7 +192,7 @@ describe("RawEntityView.vue", () => {
 
   it("displays entity state", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.test",
         state: "25.5",
@@ -206,7 +206,7 @@ describe("RawEntityView.vue", () => {
 
   it("displays entity attributes excluding blacklisted ones", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.test",
         state: "25",
@@ -234,7 +234,7 @@ describe("RawEntityView.vue", () => {
 
   it("formats array attributes as comma-separated values", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.test",
         state: "on",
@@ -251,7 +251,7 @@ describe("RawEntityView.vue", () => {
 
   it("formats object attributes as JSON", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.test",
         state: "on",
@@ -268,7 +268,7 @@ describe("RawEntityView.vue", () => {
 
   it("clears search text when clear button is clicked", async () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.temperature",
         state: "25",
@@ -294,7 +294,7 @@ describe("RawEntityView.vue", () => {
 
   it("applies correct styling to unavailable entities", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       { entity_id: "sensor.available", state: "on", attributes: {} },
       { entity_id: "sensor.unavailable", state: "unavailable", attributes: {} },
     ];
@@ -308,7 +308,7 @@ describe("RawEntityView.vue", () => {
 
   it("handles empty sensor list", () => {
     const store = useHaStore();
-    store.sensors = [];
+    store.entities = [];
 
     const wrapper = mount(RawEntityView);
     const cards = wrapper.findAll(".card");
@@ -335,7 +335,7 @@ describe("RawEntityView.vue", () => {
       attr14: "val14", // Should be excluded
     };
 
-    store.sensors = [{ entity_id: "sensor.test", state: "on", attributes }];
+    store.entities = [{ entity_id: "sensor.test", state: "on", attributes }];
 
     const wrapper = mount(RawEntityView);
     const attributeElements = wrapper.findAll("li");
@@ -346,7 +346,7 @@ describe("RawEntityView.vue", () => {
 
   it("handles null/undefined attribute values", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.test",
         state: "on",
@@ -366,7 +366,7 @@ describe("RawEntityView.vue", () => {
 
   it("handles entities without attributes", () => {
     const store = useHaStore();
-    store.sensors = [{ entity_id: "sensor.test", state: "on" }];
+    store.entities = [{ entity_id: "sensor.test", state: "on" }];
 
     const wrapper = mount(RawEntityView);
     expect(wrapper.find(".card-body").exists()).toBe(true);
@@ -374,7 +374,7 @@ describe("RawEntityView.vue", () => {
 
   it("combines multiple filters correctly", async () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.temperature",
         state: "25",
@@ -430,7 +430,7 @@ describe("RawEntityView.vue", () => {
         },
         { id: "kitchen", area_id: "kitchen", name: "Kitchen", entities: [] },
       ];
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(RawEntityView);
       const select = wrapper.find("select");
@@ -452,7 +452,7 @@ describe("RawEntityView.vue", () => {
           entities: [],
         },
       ];
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(RawEntityView);
       const select = wrapper.find("select");
@@ -476,7 +476,7 @@ describe("RawEntityView.vue", () => {
           entities: [],
         },
       ];
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(RawEntityView);
       const select = wrapper.find("select");
@@ -500,7 +500,7 @@ describe("RawEntityView.vue", () => {
           entities: [],
         },
       ];
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(RawEntityView);
       const select = wrapper.find("select");
@@ -524,7 +524,7 @@ describe("RawEntityView.vue", () => {
           entities: [],
         },
       ];
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(RawEntityView);
       const select = wrapper.find("select");
@@ -548,7 +548,7 @@ describe("RawEntityView.vue", () => {
           entities: ["light.kitchen", "switch.oven", "sensor.temp"],
         },
       ];
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(RawEntityView);
       const select = wrapper.find("select");
@@ -575,7 +575,7 @@ describe("RawEntityView.vue", () => {
           entities: [],
         },
       ];
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(RawEntityView);
       const select = wrapper.find("select");
@@ -596,7 +596,7 @@ describe("RawEntityView.vue", () => {
       store.areas = [
         { id: "kitchen", area_id: "kitchen", name: "Kitchen", entities: [] },
       ];
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(RawEntityView);
       const select = wrapper.find("select");
@@ -613,7 +613,7 @@ describe("RawEntityView.vue", () => {
       store.areas = [
         { id: "kitchen", area_id: "kitchen", name: "Kitchen", entities: [] },
       ];
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(RawEntityView);
       const select = wrapper.find("select");
@@ -636,7 +636,7 @@ describe("RawEntityView.vue", () => {
           entities: [],
         },
       ];
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(RawEntityView);
       const select = wrapper.find("select");
@@ -652,7 +652,7 @@ describe("RawEntityView.vue", () => {
   describe("Generate Config Functionality", () => {
     it("renders generate config button", () => {
       const store = useHaStore();
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(RawEntityView);
       const btn = wrapper.find('button[title*="Generate configuration"]');
@@ -661,7 +661,7 @@ describe("RawEntityView.vue", () => {
 
     it("generates config for supported entities only", async () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         { entity_id: "sensor.temp", state: "25", attributes: {} },
         { entity_id: "light.lamp", state: "on", attributes: {} },
         { entity_id: "switch.pump", state: "off", attributes: {} },
@@ -683,7 +683,7 @@ describe("RawEntityView.vue", () => {
 
     it("shows message when no supported entities found", async () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         { entity_id: "unknown_domain.entity", state: "on", attributes: {} },
       ];
 
@@ -701,7 +701,7 @@ describe("RawEntityView.vue", () => {
 
     it("excludes unavailable entities from config", async () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         { entity_id: "sensor.temp", state: "25", attributes: {} },
         { entity_id: "sensor.humid", state: "unavailable", attributes: {} },
         { entity_id: "sensor.pressure", state: "unknown", attributes: {} },
@@ -720,7 +720,7 @@ describe("RawEntityView.vue", () => {
 
     it("groups entities by component type in config", async () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         { entity_id: "sensor.temp", state: "25", attributes: {} },
         { entity_id: "sensor.humid", state: "60", attributes: {} },
         { entity_id: "light.lamp", state: "on", attributes: {} },
@@ -740,7 +740,7 @@ describe("RawEntityView.vue", () => {
 
     it("displays success banner that auto-dismisses", async () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         { entity_id: "sensor.temp", state: "25", attributes: {} },
       ];
       store.haUrl = "https://ha.local:8123";
@@ -762,7 +762,7 @@ describe("RawEntityView.vue", () => {
   describe("Success Banner", () => {
     it("displays success banner with message", async () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         { entity_id: "sensor.temp", state: "25", attributes: {} },
       ];
       store.haUrl = "https://ha.local:8123";
@@ -781,7 +781,7 @@ describe("RawEntityView.vue", () => {
 
     it("displays success icon in banner", async () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         { entity_id: "sensor.temp", state: "25", attributes: {} },
       ];
       store.haUrl = "https://ha.local:8123";
@@ -799,7 +799,7 @@ describe("RawEntityView.vue", () => {
 
     it("closes success banner when close button is clicked", async () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         { entity_id: "sensor.temp", state: "25", attributes: {} },
       ];
       store.haUrl = "https://ha.local:8123";
@@ -854,7 +854,7 @@ describe("RawEntityView.vue", () => {
   describe("Copy to Clipboard", () => {
     it("copy entity button is clickable", async () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         {
           entity_id: "sensor.test",
           state: "on",
@@ -876,7 +876,7 @@ describe("RawEntityView.vue", () => {
       store.areas = [
         { id: "kitchen", area_id: "kitchen", name: "Kitchen", entities: [] },
       ];
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(RawEntityView);
       const select = wrapper.find("select");
@@ -913,7 +913,7 @@ describe("RawEntityView.vue", () => {
     it("handles empty areas array", async () => {
       const store = useHaStore();
       store.areas = [];
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(RawEntityView);
       const select = wrapper.find("select");
@@ -928,7 +928,7 @@ describe("RawEntityView.vue", () => {
     it("handles undefined areas array", async () => {
       const store = useHaStore();
       store.areas = undefined;
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(RawEntityView);
       const select = wrapper.find("select");
@@ -942,7 +942,7 @@ describe("RawEntityView.vue", () => {
 
     it("handles entity with no friendly_name attribute", () => {
       const store = useHaStore();
-      store.sensors = [
+      store.entities = [
         { entity_id: "sensor.test", state: "on", attributes: {} },
       ];
 
@@ -955,7 +955,7 @@ describe("RawEntityView.vue", () => {
     it("handles area with unnamed label", async () => {
       const store = useHaStore();
       store.areas = [{ id: "area1", area_id: "area1", entities: [] }];
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(RawEntityView);
       const select = wrapper.find("select");
@@ -970,7 +970,7 @@ describe("RawEntityView.vue", () => {
     it("handles area without entities array", async () => {
       const store = useHaStore();
       store.areas = [{ id: "kitchen", area_id: "kitchen", name: "Kitchen" }];
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(RawEntityView);
       const select = wrapper.find("select");
@@ -986,7 +986,7 @@ describe("RawEntityView.vue", () => {
       store.areas = [
         { id: "kitchen", area_id: "kitchen", name: "Kitchen", entities: [] },
       ];
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(RawEntityView);
       const select = wrapper.find("select");

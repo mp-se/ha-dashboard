@@ -90,6 +90,7 @@ import { computed } from "vue";
 import { useHaStore } from "@/stores/haStore";
 import { useNormalizeIcon } from "@/composables/useNormalizeIcon";
 import { useServiceCall } from "@/composables/useServiceCall";
+import { createLogger } from "@/utils/logger";
 
 const props = defineProps({
   entity: {
@@ -108,6 +109,7 @@ const props = defineProps({
 const store = useHaStore();
 const normalizeIcon = useNormalizeIcon();
 const { callService } = useServiceCall();
+const logger = createLogger("HaRoom");
 
 // Normalize entity to always be an array
 const entityArray = computed(() => {
@@ -129,7 +131,7 @@ const roomEntityId = computed(() => {
 
 // Helper to check if entity is temperature or humidity sensor
 const isTempOrHumiditySensor = (entityId) => {
-  const entity = store.sensors.find((s) => s.entity_id === entityId);
+  const entity = store.entityMap.get(entityId);
   if (!entity) return false;
   const deviceClass = entity.attributes?.device_class;
   return deviceClass === "temperature" || deviceClass === "humidity";
@@ -150,9 +152,7 @@ const controlObjects = computed(() => {
 
 // Get room name from first entity
 const roomName = computed(() => {
-  const roomEntity = store.sensors.find(
-    (s) => s.entity_id === roomEntityId.value,
-  );
+  const roomEntity = store.entityMap.get(roomEntityId.value);
   if (roomEntity) {
     return roomEntity.attributes?.friendly_name || roomEntity.state || "Room";
   }
@@ -162,14 +162,12 @@ const roomName = computed(() => {
 // Find temperature sensor in area's entities, fallback to entity list
 const temperatureEntity = computed(() => {
   // Get the area entity
-  const areaEntity = store.sensors.find(
-    (s) => s.entity_id === roomEntityId.value,
-  );
+  const areaEntity = store.entityMap.get(roomEntityId.value);
 
   // First, search for temperature sensor in the area's entities
   if (areaEntity && areaEntity.entities) {
     for (const entityId of areaEntity.entities) {
-      const entity = store.sensors.find((s) => s.entity_id === entityId);
+      const entity = store.entityMap.get(entityId);
       if (entity && entity.attributes?.device_class === "temperature") {
         return entity;
       }
@@ -179,7 +177,7 @@ const temperatureEntity = computed(() => {
   // Fallback: search in the provided entity list
   for (const entityId of entityArray.value) {
     if (entityId.startsWith("area.")) continue;
-    const entity = store.sensors.find((s) => s.entity_id === entityId);
+    const entity = store.entityMap.get(entityId);
     if (entity && entity.attributes?.device_class === "temperature") {
       return entity;
     }
@@ -207,14 +205,12 @@ const temperatureUnit = computed(() => {
 // Find humidity sensor in area's entities, fallback to entity list
 const humidityEntity = computed(() => {
   // Get the area entity
-  const areaEntity = store.sensors.find(
-    (s) => s.entity_id === roomEntityId.value,
-  );
+  const areaEntity = store.entityMap.get(roomEntityId.value);
 
   // First, search for humidity sensor in the area's entities
   if (areaEntity && areaEntity.entities) {
     for (const entityId of areaEntity.entities) {
-      const entity = store.sensors.find((s) => s.entity_id === entityId);
+      const entity = store.entityMap.get(entityId);
       if (entity && entity.attributes?.device_class === "humidity") {
         return entity;
       }
@@ -224,7 +220,7 @@ const humidityEntity = computed(() => {
   // Fallback: search in the provided entity list
   for (const entityId of entityArray.value) {
     if (entityId.startsWith("area.")) continue;
-    const entity = store.sensors.find((s) => s.entity_id === entityId);
+    const entity = store.entityMap.get(entityId);
     if (entity && entity.attributes?.device_class === "humidity") {
       return entity;
     }
@@ -251,9 +247,7 @@ const humidityUnit = computed(() => {
 
 // Room icon (from first entity or default)
 const roomIconClass = computed(() => {
-  const roomEntity = store.sensors.find(
-    (s) => s.entity_id === roomEntityId.value,
-  );
+  const roomEntity = store.entityMap.get(roomEntityId.value);
   if (roomEntity?.attributes?.icon) {
     return normalizeIcon(roomEntity.attributes.icon);
   }
@@ -266,7 +260,7 @@ const circleColor = computed(() => {
 
 // Get icon for control object
 const getObjectIcon = (entityId) => {
-  const entity = store.sensors.find((s) => s.entity_id === entityId);
+  const entity = store.entityMap.get(entityId);
   if (!entity) return "mdi mdi-help-circle";
 
   const icon = entity.attributes?.icon;
@@ -297,7 +291,7 @@ const getObjectIcon = (entityId) => {
 
 // Get icon color for control object (matches circle color when on, darker when off)
 const getIconColor = (entityId) => {
-  const entity = store.sensors.find((s) => s.entity_id === entityId);
+  const entity = store.entityMap.get(entityId);
   if (!entity) return "#333333";
 
   const state = entity.state?.toLowerCase();
@@ -318,7 +312,7 @@ const getIconColor = (entityId) => {
 
 // Get color for control object based on state
 const getObjectColor = (entityId) => {
-  const entity = store.sensors.find((s) => s.entity_id === entityId);
+  const entity = store.entityMap.get(entityId);
   if (!entity) return "#cccccc";
 
   const domain = entityId.split(".")[0];
@@ -347,7 +341,7 @@ const getObjectColor = (entityId) => {
 
 // Get entity label/name
 const getEntityLabel = (entityId) => {
-  const entity = store.sensors.find((s) => s.entity_id === entityId);
+  const entity = store.entityMap.get(entityId);
   if (entity) {
     return entity.attributes?.friendly_name || entityId;
   }
@@ -356,7 +350,7 @@ const getEntityLabel = (entityId) => {
 
 // Check if entity is unavailable
 const isEntityUnavailable = (entityId) => {
-  const entity = store.sensors.find((s) => s.entity_id === entityId);
+  const entity = store.entityMap.get(entityId);
   if (!entity) return true;
   const state = entity.state?.toLowerCase();
   return state === "unavailable" || state === "unknown";
@@ -364,7 +358,7 @@ const isEntityUnavailable = (entityId) => {
 
 // Toggle entity on/off
 const toggleEntity = async (entityId) => {
-  const entity = store.sensors.find((s) => s.entity_id === entityId);
+  const entity = store.entityMap.get(entityId);
   if (!entity) return;
 
   const domain = entityId.split(".")[0];
@@ -390,76 +384,7 @@ const toggleEntity = async (entityId) => {
       });
     }
   } catch (error) {
-    console.error(`Failed to toggle ${entityId}:`, error);
+    logger.error(`Failed to toggle ${entityId}:`, error);
   }
 };
 </script>
-
-<style scoped>
-.room-left {
-  flex: 1;
-  min-width: 0;
-}
-
-.room-right {
-  margin-left: 1rem;
-}
-
-.room-controls-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: repeat(3, auto);
-  grid-auto-flow: column;
-  gap: 0.5rem;
-  direction: rtl;
-}
-
-.room-controls-grid .control-object {
-  direction: ltr;
-}
-
-.room-header {
-  padding-bottom: 0.75rem;
-}
-
-.room-icon-wrapper {
-  position: relative;
-  margin: 0;
-  width: 80px;
-  height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.room-icon-wrapper .ha-icon-circle {
-  background-color: transparent;
-}
-
-.room-icon-wrapper .ha-icon-overlay {
-  font-size: 2.5rem;
-}
-
-.control-object {
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.control-object:hover:not(.control-object-disabled) {
-  transform: scale(1.1);
-}
-
-.control-object.control-object-disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.control-object.control-object-disabled .ha-control-circle {
-  filter: grayscale(100%) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
-}
-
-.control-object:hover .ha-control-circle {
-  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
-}
-</style>

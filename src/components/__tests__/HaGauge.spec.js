@@ -13,7 +13,7 @@ describe("HaGauge.vue", () => {
     setActivePinia(pinia);
     store = useHaStore();
 
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.temperature",
         state: "22.5",
@@ -117,7 +117,7 @@ describe("HaGauge.vue", () => {
   });
 
   it("should handle non-numeric state values", () => {
-    store.sensors[0].state = "unavailable";
+    store.entities[0].state = "unavailable";
 
     const wrapper = mount(HaGauge, {
       props: {
@@ -228,7 +228,7 @@ describe("HaGauge.vue", () => {
   });
 
   it("should use icon attribute when provided", () => {
-    store.sensors[0].attributes.icon = "mdi:custom-icon";
+    store.entities[0].attributes.icon = "mdi:custom-icon";
 
     const wrapper = mount(HaGauge, {
       props: {
@@ -286,7 +286,7 @@ describe("HaGauge.vue", () => {
   });
 
   it("should clamp numeric value within min-max range", () => {
-    store.sensors[0].state = "100";
+    store.entities[0].state = "100";
 
     const wrapper = mount(HaGauge, {
       props: {
@@ -307,7 +307,7 @@ describe("HaGauge.vue", () => {
   });
 
   it("should clamp value below min to min", () => {
-    store.sensors[0].state = "-10";
+    store.entities[0].state = "-10";
 
     const wrapper = mount(HaGauge, {
       props: {

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import DevicesView from "../DevicesView.vue";
 import { createPinia, setActivePinia } from "pinia";
-import { useHaStore } from "../../stores/haStore";
+import { useHaStore } from "@/stores/haStore";
 
 describe("DevicesView.vue", () => {
   beforeEach(() => {
@@ -487,7 +487,7 @@ describe("DevicesView.vue", () => {
       const store = useHaStore();
       store.devices = [{ id: "device1", name: "Test Device", entities: [] }];
       store.areas = [];
-      store.sensors = [];
+      store.entities = [];
 
       const wrapper = mount(DevicesView);
       const copyBtn = wrapper.find('button[title*="Copy device JSON"]');
@@ -721,7 +721,7 @@ describe("DevicesView.vue", () => {
         },
       ];
       store.areas = [{ area_id: "living_room", name: "Living Room" }];
-      store.sensors = [
+      store.entities = [
         { entity_id: "sensor.test", state: "on", attributes: {} },
       ];
 
@@ -754,6 +754,8 @@ describe("DevicesView.vue", () => {
           writeText: vi.fn().mockRejectedValue(new Error("Clipboard error")),
         },
       });
+      // happy-dom has no document.execCommand, so the useClipboard fallback
+      // naturally fails and returns false, causing DevicesView to log the error
 
       const store = useHaStore();
       store.devices = [{ id: "device1", name: "Test Device", entities: [] }];
@@ -766,6 +768,7 @@ describe("DevicesView.vue", () => {
       await copyBtn.trigger("click");
 
       expect(consoleSpy).toHaveBeenCalledWith(
+        "[DevicesView]",
         "Failed to copy device to clipboard:",
         expect.any(Error),
       );

@@ -1,5 +1,29 @@
 # Release Notes
 
+## February 2026 - v0.6.0
+
+- Updated vite-plugin-pwa 0.19.8→1.2.0 (Vite 7 support) and added npm override for serialize-javascript ^7.0.3 to fix RCE vulnerability (GHSA-5c6j-r48x-rmvq)
+- Updated to Vue 3.5.29, Vite 7.3.1, Vitest 4.0.18, Playwright 1.58.2, Prettier 3.8.1, @vue/test-utils 2.4.6
+- Centralized error handling with global error/warning handlers and ErrorBoundary component
+- Network timeout handling via fetchWithTimeout utility with AbortController
+- Lazy-loaded dev views using defineAsyncComponent to reduce bundle size
+- Store refactoring: split haStore into authStore, entitiesStore, configStore, and forecastStore
+- Created constants.js with 70+ named constants; eliminated magic numbers
+- Optimized entity lookups to O(1) using entityMap
+- Component auto-registration via import.meta.glob
+- Test coverage: 1847 tests passing at 93.42% (thresholds 92/86/93/93%)
+- Added Playwright E2E infrastructure (5 browsers, 20+ tests)
+- Standardized test imports to @/ alias
+- Enhanced accessibility with aria-labels on icon-only buttons
+- Migrated to ESLint v9 flat config; zero linting errors
+- All CSS consolidated to shared-styles.css
+- Enhanced nginx.conf: strict CSP (no 'unsafe-eval'), HSTS (1-year max-age), Permissions-Policy
+- AES-GCM-256 encrypted credential storage via Web Crypto API
+- Split AppNavbar into separate component
+- Added HaIconCircle, HaEntityAttributeList, useClipboard composable
+- HaEnergy shows period comparisons with trending indicators
+- Fixed v-for key patterns, weather forecast compatibility, dark mode issues
+
 ## February 2026 - v0.5.0
 
 - Updated the dashboard layout to keep the navigation menubar and status banners always visible at the top of the screen using sticky positioning

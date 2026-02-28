@@ -105,8 +105,9 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { useEntityResolver } from "@/composables/useEntityResolver";
+import { useHaStore } from "@/stores/haStore";
 
 const props = defineProps({
   entity: {
@@ -127,6 +128,17 @@ const props = defineProps({
 
 // Use composable for entity resolution
 const { resolvedEntity } = useEntityResolver(props.entity);
+const haStore = useHaStore();
+
+const entityId = computed(() =>
+  typeof props.entity === "string" ? props.entity : props.entity?.entity_id,
+);
+
+onMounted(() => {
+  if (props.forecast && entityId.value && !haStore.isLocalMode) {
+    haStore.subscribeToWeatherForecast(entityId.value, "daily");
+  }
+});
 
 const state = computed(() => resolvedEntity.value?.state ?? "unknown");
 
@@ -229,10 +241,14 @@ const windDirectionArrow = computed(() => {
   return directions[index];
 });
 
-// Forecast data
-const forecastData = computed(
-  () => resolvedEntity.value?.attributes?.forecast || [],
-);
+// Forecast data — prefer WebSocket subscription data (HA 2024.3+), fall back to attributes
+const forecastData = computed(() => {
+  const id = entityId.value;
+  if (id && haStore.forecasts?.[id]?.data) {
+    return haStore.forecasts[id].data;
+  }
+  return resolvedEntity.value?.attributes?.forecast || [];
+});
 
 const displayForecast = computed(() => {
   // Show 3 days forecast
@@ -261,76 +277,3 @@ const formatDate = (isoDatetime) => {
   }
 };
 </script>
-
-<style scoped>
-.weather-condition {
-  font-size: 1rem;
-  color: var(--bs-primary);
-}
-
-.weather-icon {
-  font-size: 1.5rem;
-  color: var(--bs-primary);
-}
-
-.weather-details {
-  font-size: 0.85rem;
-}
-
-.forecast-container {
-  display: flex;
-  gap: 0.75rem;
-  padding: 0.5rem 0;
-  margin-left: -1.5rem;
-  margin-right: -1.5rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  padding-bottom: 0;
-  margin-bottom: -1rem;
-}
-
-.forecast-item {
-  flex: 1;
-  text-align: center;
-  border: none;
-  border-radius: 0.375rem;
-  padding: 0.5rem;
-  background: transparent;
-  font-size: 0.75rem;
-}
-
-.forecast-time {
-  font-weight: 600;
-  color: #666;
-  margin-bottom: 0.25rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.forecast-temp {
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: #333;
-  margin: 0.25rem 0;
-}
-
-.forecast-condition {
-  font-size: 0.7rem;
-  color: #555;
-  margin: 0.25rem 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.forecast-wind {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.15rem;
-  color: #0078d4;
-  margin-top: 0.25rem;
-  font-size: 0.65rem;
-}
-</style>

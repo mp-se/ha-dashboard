@@ -45,24 +45,14 @@
                 }}
               </h6>
               <!-- Display requested attributes if provided -->
-              <div v-if="requestedAttributes.length > 0" class="mt-1">
-                <div
-                  v-for="[label, value] in requestedAttributes"
-                  :key="label"
-                  class="small d-flex gap-2 mb-0"
-                >
-                  <div class="ha-attribute-key">
-                    {{ label }}:
-                    <span class="ha-attribute-value">{{ value }}</span>
-                  </div>
-                </div>
-              </div>
+              <HaEntityAttributeList :attributes="requestedAttributes" />
             </div>
             <button
               class="ha-control-button"
               :class="{ 'control-button-on': isOn && !isDisabled }"
               :disabled="isDisabled || isLoading"
               :title="isOn ? 'Turn off' : 'Turn on'"
+              :aria-label="isOn ? 'Turn off switch' : 'Turn on switch'"
               @click="isOn = !isOn"
             >
               <div class="ha-control-circle-wrapper">

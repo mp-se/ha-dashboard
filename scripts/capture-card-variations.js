@@ -132,7 +132,11 @@ const cardVariations = [
   },
 ];
 
-const imagesDir = path.join(__dirname, "images");
+const imagesDir = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "images",
+);
 
 // Ensure images directory exists
 if (!fs.existsSync(imagesDir)) {
@@ -140,15 +144,16 @@ if (!fs.existsSync(imagesDir)) {
 }
 
 async function captureCardVariations() {
+  const rootDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
   // Start a simple HTTP server to serve the showcase
   const server = http.createServer((req, res) => {
     let filePath = path.join(
-      __dirname,
+      rootDir,
       req.url === "/" ? "card-showcase.html" : req.url,
     );
 
     // Security: prevent directory traversal
-    if (!filePath.startsWith(__dirname)) {
+    if (!filePath.startsWith(rootDir)) {
       res.writeHead(403);
       res.end("Forbidden");
       return;

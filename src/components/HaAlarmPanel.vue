@@ -88,6 +88,7 @@
 import { ref, computed } from "vue";
 import { useHaStore } from "@/stores/haStore";
 import { useEntityResolver } from "@/composables/useEntityResolver";
+import { createLogger } from "@/utils/logger";
 
 const props = defineProps({
   entity: {
@@ -108,6 +109,7 @@ const props = defineProps({
 
 const store = useHaStore();
 const { resolvedEntity } = useEntityResolver(computed(() => props.entity));
+const logger = createLogger("HaAlarmPanel");
 const code = ref("");
 const isLoading = ref(false);
 const passwordVisible = ref(false);
@@ -186,7 +188,7 @@ async function callService(service) {
       code: code.value,
     });
   } catch (error) {
-    console.error("Alarm service error:", error);
+    logger.error("Alarm service error:", error);
   } finally {
     isLoading.value = false;
   }

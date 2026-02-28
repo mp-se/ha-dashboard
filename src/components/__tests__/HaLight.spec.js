@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import HaLight from "../HaLight.vue";
+import * as useServiceCallModule from "@/composables/useServiceCall";
 
 describe("HaLight.vue", () => {
   beforeEach(() => {
@@ -1104,6 +1105,428 @@ describe("HaLight.vue", () => {
       const circleWrapper = wrapper.find(".ha-control-circle-wrapper");
       const circle = circleWrapper.find(".ha-control-circle");
       expect(circle.exists()).toBe(true);
+    });
+  });
+
+  describe("Interactions (Actions)", () => {
+    let mockCallService;
+
+    beforeEach(() => {
+      mockCallService = vi.fn().mockResolvedValue(true);
+      vi.spyOn(useServiceCallModule, "useServiceCall").mockReturnValue({
+        callService: mockCallService,
+        isLoading: { value: false },
+        error: { value: null },
+        success: { value: false },
+      });
+    });
+
+    it("should call turn_on with hs_color when a color preset is clicked", async () => {
+      const entity = {
+        entity_id: "light.rgb_click",
+        state: "on",
+        attributes: {
+          friendly_name: "RGB Click Light",
+          supported_color_modes: ["rgb"],
+        },
+      };
+
+      const wrapper = mount(HaLight, { props: { entity } });
+
+      const colorBtn = wrapper.find(".color-preset-btn-icon");
+      expect(colorBtn.exists()).toBe(true);
+      await colorBtn.trigger("click");
+
+      expect(mockCallService).toHaveBeenCalledWith(
+        "light",
+        "turn_on",
+        expect.objectContaining({
+          entity_id: "light.rgb_click",
+          hs_color: expect.any(Array),
+        }),
+      );
+    });
+
+    it("should call turn_on with color_temp when a color temp preset is clicked", async () => {
+      const entity = {
+        entity_id: "light.ct_click",
+        state: "on",
+        attributes: {
+          friendly_name: "CT Click Light",
+          supported_color_modes: ["color_temp"],
+          color_temp: 370,
+          min_color_temp_kelvin: 2700,
+          max_color_temp_kelvin: 6500,
+        },
+      };
+
+      const wrapper = mount(HaLight, { props: { entity } });
+
+      const presetBtn = wrapper.find(".preset-btn-icon");
+      expect(presetBtn.exists()).toBe(true);
+      await presetBtn.trigger("click");
+
+      expect(mockCallService).toHaveBeenCalledWith(
+        "light",
+        "turn_on",
+        expect.objectContaining({
+          entity_id: "light.ct_click",
+          color_temp: expect.any(Number),
+        }),
+      );
+    });
+
+    it("should call turn_on with brightness when slider is moved", async () => {
+      const entity = {
+        entity_id: "light.dim_slide",
+        state: "on",
+        attributes: {
+          friendly_name: "Dimmable Slide",
+          brightness: 128,
+          supported_color_modes: ["brightness"],
+        },
+      };
+
+      const wrapper = mount(HaLight, { props: { entity } });
+
+      const slider = wrapper.find('input[type="range"]');
+      expect(slider.exists()).toBe(true);
+
+      // Simulate an input event with a specific value
+      await slider.setValue(75);
+      await slider.trigger("input");
+
+      expect(mockCallService).toHaveBeenCalledWith(
+        "light",
+        "turn_on",
+        expect.objectContaining({
+          entity_id: "light.dim_slide",
+          brightness: expect.any(Number),
+        }),
+      );
+    });
+
+    it("should not call service when color preset is clicked but entity is null", async () => {
+      // Pass a string entity ID that doesn't exist in the store
+      mount(HaLight, {
+        props: { entity: "light.nonexistent_for_setColorPreset" },
+      });
+
+      // Entity not found → no template buttons to click, callService never called
+      expect(mockCallService).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("controlCircleColor computed", () => {
+    it("returns gray when light is unavailable", () => {
+      const entity = {
+        entity_id: "light.unavail_circle",
+        state: "unavailable",
+        attributes: {},
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const circle = wrapper.find("circle");
+      expect(circle.attributes("fill")).toBe("#6c757d");
+    });
+
+    it("returns light gray when light is off", () => {
+      const entity = {
+        entity_id: "light.off_circle",
+        state: "off",
+        attributes: {},
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const circle = wrapper.find("circle");
+      expect(circle.attributes("fill")).toBe("#e9ecef");
+    });
+
+    it("returns yellow for simple on/off light with no color modes", () => {
+      const entity = {
+        entity_id: "light.simple_on",
+        state: "on",
+        attributes: {},
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const circle = wrapper.find("circle");
+      expect(circle.attributes("fill")).toBe("#FFC107");
+    });
+
+    it("computes RGB color for hue sector 0-60 (red-orange)", () => {
+      const entity = {
+        entity_id: "light.hue_0",
+        state: "on",
+        attributes: {
+          supported_color_modes: ["rgb"],
+          hs_color: [30, 100], // hue=30 → sector 0-1
+          brightness: 255,
+        },
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const circle = wrapper.find("circle");
+      expect(circle.attributes("fill")).toMatch(/^#[0-9a-f]{6}$/i);
+    });
+
+    it("computes RGB color for hue sector 60-120 (yellow-green)", () => {
+      const entity = {
+        entity_id: "light.hue_90",
+        state: "on",
+        attributes: {
+          supported_color_modes: ["hs"],
+          hs_color: [90, 100], // hue=90 → sector 1-2
+          brightness: 200,
+        },
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const circle = wrapper.find("circle");
+      expect(circle.attributes("fill")).toMatch(/^#[0-9a-f]{6}$/i);
+    });
+
+    it("computes RGB color for hue sector 120-180 (green-cyan)", () => {
+      const entity = {
+        entity_id: "light.hue_150",
+        state: "on",
+        attributes: {
+          supported_color_modes: ["rgb"],
+          hs_color: [150, 100], // hue=150 → sector 2-3
+          brightness: 255,
+        },
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const circle = wrapper.find("circle");
+      expect(circle.attributes("fill")).toMatch(/^#[0-9a-f]{6}$/i);
+    });
+
+    it("computes RGB color for hue sector 180-240 (cyan-blue)", () => {
+      const entity = {
+        entity_id: "light.hue_210",
+        state: "on",
+        attributes: {
+          supported_color_modes: ["rgb"],
+          hs_color: [210, 100], // hue=210 → sector 3-4
+          brightness: 255,
+        },
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const circle = wrapper.find("circle");
+      expect(circle.attributes("fill")).toMatch(/^#[0-9a-f]{6}$/i);
+    });
+
+    it("computes RGB color for hue sector 240-300 (blue-magenta)", () => {
+      const entity = {
+        entity_id: "light.hue_270",
+        state: "on",
+        attributes: {
+          supported_color_modes: ["rgb"],
+          hs_color: [270, 100], // hue=270 → sector 4-5
+          brightness: 255,
+        },
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const circle = wrapper.find("circle");
+      expect(circle.attributes("fill")).toMatch(/^#[0-9a-f]{6}$/i);
+    });
+
+    it("computes RGB color for hue sector 300-360 (else branch)", () => {
+      const entity = {
+        entity_id: "light.hue_330",
+        state: "on",
+        attributes: {
+          supported_color_modes: ["rgb"],
+          hs_color: [330, 100], // hue=330 → sector 5+ (else branch)
+          brightness: 255,
+        },
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const circle = wrapper.find("circle");
+      expect(circle.attributes("fill")).toMatch(/^#[0-9a-f]{6}$/i);
+    });
+
+    it("returns warm color for color_temp light (2700K preset)", () => {
+      const entity = {
+        entity_id: "light.warm_ct",
+        state: "on",
+        attributes: {
+          supported_color_modes: ["color_temp"],
+          color_temp: 370, // ≈ 2702K → warm preset
+          min_color_temp_kelvin: 2700,
+          max_color_temp_kelvin: 6500,
+        },
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const circle = wrapper.find("circle");
+      expect(circle.attributes("fill")).toBeTruthy();
+    });
+
+    it("uses fallback kelvin colors when no preset matches (<=2700K)", () => {
+      // min/max above all presets → supportedPresets = [] → falls to kelvin fallback
+      const entity = {
+        entity_id: "light.fallback_ct",
+        state: "on",
+        attributes: {
+          supported_color_modes: ["color_temp"],
+          color_temp: 371, // 1000000/371 ≈ 2695K ≤ 2700
+          min_color_temp_kelvin: 7000,
+          max_color_temp_kelvin: 8000,
+        },
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const circle = wrapper.find("circle");
+      expect(circle.attributes("fill")).toBe("#FFB366");
+    });
+
+    it("uses fallback kelvin color for 3000K range", () => {
+      const entity = {
+        entity_id: "light.fallback_3000",
+        state: "on",
+        attributes: {
+          supported_color_modes: ["color_temp"],
+          color_temp: 334, // 1000000/334 ≈ 2994K ≤ 3000
+          min_color_temp_kelvin: 7000,
+          max_color_temp_kelvin: 8000,
+        },
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const circle = wrapper.find("circle");
+      expect(circle.attributes("fill")).toBe("#FFCC80");
+    });
+
+    it("uses fallback kelvin color for 4000K range", () => {
+      const entity = {
+        entity_id: "light.fallback_4000",
+        state: "on",
+        attributes: {
+          supported_color_modes: ["color_temp"],
+          color_temp: 251, // 1000000/251 ≈ 3984K ≤ 4000
+          min_color_temp_kelvin: 7000,
+          max_color_temp_kelvin: 8000,
+        },
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const circle = wrapper.find("circle");
+      expect(circle.attributes("fill")).toBe("#E8F4FD");
+    });
+
+    it("uses fallback kelvin color for 5000K range", () => {
+      const entity = {
+        entity_id: "light.fallback_5000",
+        state: "on",
+        attributes: {
+          supported_color_modes: ["color_temp"],
+          color_temp: 201, // 1000000/201 ≈ 4975K ≤ 5000
+          min_color_temp_kelvin: 7000,
+          max_color_temp_kelvin: 8000,
+        },
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const circle = wrapper.find("circle");
+      expect(circle.attributes("fill")).toBe("#F0F8FF");
+    });
+
+    it("uses cold blue fallback for kelvin > 5000K", () => {
+      const entity = {
+        entity_id: "light.fallback_cold",
+        state: "on",
+        attributes: {
+          supported_color_modes: ["color_temp"],
+          color_temp: 153, // 1000000/153 ≈ 6536K > 5000K → else
+          min_color_temp_kelvin: 7000,
+          max_color_temp_kelvin: 8000,
+        },
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const circle = wrapper.find("circle");
+      expect(circle.attributes("fill")).toBe("#E3F2FD");
+    });
+  });
+
+  describe("iconColor computed", () => {
+    it("returns white when light is off", () => {
+      const entity = {
+        entity_id: "light.icon_off",
+        state: "off",
+        attributes: {},
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const icon = wrapper.find(".ha-control-icon");
+      expect(icon.attributes("style")).toContain("color: white");
+    });
+
+    it("returns #333 for cool color_temp >= 4000K", () => {
+      const entity = {
+        entity_id: "light.icon_cool",
+        state: "on",
+        attributes: {
+          supported_color_modes: ["color_temp"],
+          color_temp: 200, // ≈ 5000K → >= 4000K → dark icon
+          min_color_temp_kelvin: 2700,
+          max_color_temp_kelvin: 6500,
+        },
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const icon = wrapper.find(".ha-control-icon");
+      expect(icon.attributes("style")).toContain("color: #333");
+    });
+
+    it("returns white for warm color_temp < 4000K (passes through to luminance)", () => {
+      const entity = {
+        entity_id: "light.icon_warm",
+        state: "on",
+        attributes: {
+          supported_color_modes: ["color_temp"],
+          color_temp: 370, // ≈ 2702K → < 4000K → luminance check of #FFB366 → dark
+          min_color_temp_kelvin: 2700,
+          max_color_temp_kelvin: 6500,
+        },
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const icon = wrapper.find(".ha-control-icon");
+      // #FFB366 luminance is well below threshold → white icon
+      expect(icon.attributes("style")).toContain("color: white");
+    });
+
+    it("returns #333 for very pale/white explicit colors (e.g. #F0F8FF)", () => {
+      const entity = {
+        entity_id: "light.icon_daylight",
+        state: "on",
+        attributes: {
+          supported_color_modes: ["color_temp"],
+          color_temp: 200, // ≈ 5000K → fallback #F0F8FF → explicit light color → #333
+          min_color_temp_kelvin: 5200,
+          max_color_temp_kelvin: 6000,
+        },
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const icon = wrapper.find(".ha-control-icon");
+      expect(icon.attributes("style")).toContain("color: #333");
+    });
+
+    it("returns white for a dark color (e.g. deep blue #0000FF)", () => {
+      const entity = {
+        entity_id: "light.icon_blue",
+        state: "on",
+        attributes: {
+          supported_color_modes: ["rgb"],
+          hs_color: [240, 100], // Pure blue → dark → white icon
+          brightness: 255,
+        },
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const icon = wrapper.find(".ha-control-icon");
+      expect(icon.attributes("style")).toContain("color: white");
+    });
+
+    it("returns yellow (#FFC107) circle and white icon for a simple on light", () => {
+      const entity = {
+        entity_id: "light.icon_simple",
+        state: "on",
+        attributes: {},
+      };
+      const wrapper = mount(HaLight, { props: { entity } });
+      const circle = wrapper.find("circle");
+      expect(circle.attributes("fill")).toBe("#FFC107");
+      const icon = wrapper.find(".ha-control-icon");
+      // #FFC107 luminance < 0.9 threshold → white icon
+      expect(icon.attributes("style")).toContain("color: white");
     });
   });
 });

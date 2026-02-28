@@ -232,7 +232,7 @@ describe("JsonConfigView.vue", () => {
 
   it("handles getter functions that return entities", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       { entity_id: "sensor.battery1", state: "85", attributes: {} },
       { entity_id: "sensor.battery2", state: "90", attributes: {} },
     ];
@@ -329,7 +329,7 @@ describe("JsonConfigView.vue", () => {
 
   it("handles wildcard entity patterns", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       { entity_id: "sensor.temperature", state: "25", attributes: {} },
       { entity_id: "sensor.humidity", state: "60", attributes: {} },
       { entity_id: "sensor.pressure", state: "1013", attributes: {} },
@@ -363,7 +363,7 @@ describe("JsonConfigView.vue", () => {
 
   it("handles complex wildcard patterns with dots", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       { entity_id: "sensor.room1.temperature", state: "25", attributes: {} },
       { entity_id: "sensor.room1.humidity", state: "60", attributes: {} },
       { entity_id: "sensor.room2.temperature", state: "22", attributes: {} },
@@ -523,7 +523,7 @@ describe("JsonConfigView.vue", () => {
 
   it("handles mixed direct entities and wildcard patterns", () => {
     const store = useHaStore();
-    store.sensors = [
+    store.entities = [
       { entity_id: "sensor.temperature", state: "25", attributes: {} },
       { entity_id: "sensor.humidity", state: "60", attributes: {} },
       { entity_id: "sensor.pressure", state: "1013", attributes: {} },

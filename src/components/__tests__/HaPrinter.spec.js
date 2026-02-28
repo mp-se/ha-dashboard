@@ -13,7 +13,7 @@ describe("HaPrinter.vue", () => {
     setActivePinia(pinia);
     store = useHaStore();
     store.devices = [];
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "sensor.printer_toner",
         state: "ready",
@@ -119,7 +119,7 @@ describe("HaPrinter.vue", () => {
         global: { plugins: [pinia] },
       });
 
-      store.sensors.push({
+      store.entities.push({
         entity_id: "sensor.printer_toner_black",
         state: "50",
         attributes: {
@@ -152,7 +152,7 @@ describe("HaPrinter.vue", () => {
     });
 
     it("should display entity_id as fallback", () => {
-      store.sensors[0].attributes.friendly_name = undefined;
+      store.entities[0].attributes.friendly_name = undefined;
       const wrapper = mount(HaPrinter, {
         props: {
           entity: "sensor.printer_toner",
@@ -289,7 +289,7 @@ describe("HaPrinter.vue", () => {
 
   describe("Missing Entity Handling", () => {
     it("should handle missing entity gracefully", () => {
-      store.sensors = [];
+      store.entities = [];
       const wrapper = mount(HaPrinter, {
         props: {
           entity: "sensor.printer_nonexistent",
@@ -304,7 +304,7 @@ describe("HaPrinter.vue", () => {
     });
 
     it("should display alert icon when entity not found", () => {
-      store.sensors = [];
+      store.entities = [];
       const wrapper = mount(HaPrinter, {
         props: {
           entity: "sensor.printer_nonexistent",
@@ -319,7 +319,7 @@ describe("HaPrinter.vue", () => {
     });
 
     it("should display error message when entity not found", () => {
-      store.sensors = [];
+      store.entities = [];
       const wrapper = mount(HaPrinter, {
         props: {
           entity: "sensor.printer_nonexistent",
@@ -334,7 +334,7 @@ describe("HaPrinter.vue", () => {
     });
 
     it("should have warning border when entity not found", () => {
-      store.sensors = [];
+      store.entities = [];
       const wrapper = mount(HaPrinter, {
         props: {
           entity: "sensor.printer_nonexistent",
@@ -432,7 +432,7 @@ describe("HaPrinter.vue", () => {
     });
 
     it("should accept valid object entity", () => {
-      const entity = store.sensors[0];
+      const entity = store.entities[0];
       const wrapper = mount(HaPrinter, {
         props: {
           entity,

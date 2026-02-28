@@ -22,6 +22,7 @@
 import { computed } from "vue";
 import { useHaStore } from "@/stores/haStore";
 import HaSpacer from "./HaSpacer.vue";
+import { createLogger } from "@/utils/logger";
 
 const props = defineProps({
   // Array of { entityId: string, component?: Component } OR { getter: string, component?: Component }
@@ -50,6 +51,7 @@ const defaultDomainMap = {
 };
 
 const store = useHaStore();
+const logger = createLogger("HaEntityList");
 
 const domainMap = computed(() => ({
   ...defaultDomainMap,
@@ -95,7 +97,7 @@ const displayedEntities = computed(() => {
         }
 
         // Try to find entity in sensors array
-        let entity = store.sensors.find((s) => s.entity_id === item.entityId);
+        let entity = store.entityMap.get(item.entityId);
 
         // Create fallback entity if not found
         if (!entity) {
@@ -120,40 +122,25 @@ const displayedEntities = computed(() => {
       // Skip entities with invalid or missing attributes
       if (item.isSpacer) return true;
       if (!item.entity) {
-        console.warn("Skipping null entity at index", item.index);
+        logger.warn("Skipping null entity at index", item.index);
         return false;
       }
       if (!item.entity.entity_id) {
-        console.warn("Skipping entity without entity_id at index", item.index);
+        logger.warn("Skipping entity without entity_id at index", item.index);
         return false;
       }
       if (
         item.entity.attributes === null ||
         item.entity.attributes === undefined
       ) {
-        console.warn(
-          `Skipping entity ${item.entity.entity_id} - no attributes`,
-        );
+        logger.warn(`Skipping entity ${item.entity.entity_id} - no attributes`);
         return false;
       }
       return true;
     });
   } catch (error) {
-    console.error("Error processing entities in HaEntityList:", error);
+    logger.error("Error processing entities in HaEntityList:", error);
     return [];
   }
 });
 </script>
-
-<style scoped>
-/* Optional component-specific styling */
-.card {
-  background-color: rgba(248, 249, 250, 0.6) !important;
-  border: 1px solid rgba(222, 226, 230, 0.4) !important;
-}
-
-[data-bs-theme="dark"] .card {
-  background-color: rgba(52, 58, 64, 0.5) !important;
-  border-color: rgba(73, 80, 87, 0.3) !important;
-}
-</style>

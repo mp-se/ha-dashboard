@@ -56,3 +56,14 @@ Before finalizing any change, you must:
    - `npm test`
    - `npm run lint`
    - `npm run build`
+
+## 6. Architecture and Coding Principles
+
+- All CSS styles must be placed in the global shared-styles.css file.
+- Each source file should have its dedicated test file in the `__tests__` directory, following the same structure as the source files.
+- Deployment will be on LAN so there should not be exposure over internet. This will also mean that performance will be high when fetching data from Home Assistant, so we can afford to fetch more data and do more processing on the client side if needed. However, we should still strive for efficiency and avoid unnecessary computations or data fetching.
+- The project should be designed with modularity in mind, allowing for easy maintenance and scalability.
+- Follow best practices for Vue 3 development, including the use of the Composition API and `<script setup>` syntax.
+- Ensure that all components are reusable and follow a consistent design pattern.
+- Always update packages to avoid security vulnerabilities, but ensure that updates do not break existing functionality. Test thoroughly after any package updates.
+- Use GitHub Copilot to assist with code generation, but always review and test the generated code to ensure it meets the project's standards and requirements.

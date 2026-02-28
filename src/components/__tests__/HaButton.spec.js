@@ -1,11 +1,17 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import HaButton from "../HaButton.vue";
+import { useHaStore } from "@/stores/haStore";
 
 describe("HaButton.vue", () => {
+  let store;
+
   beforeEach(() => {
     setActivePinia(createPinia());
+    store = useHaStore();
+    store.callService = vi.fn().mockResolvedValue(undefined);
+    store.isLocalMode = false;
   });
 
   describe("Component Rendering", () => {
@@ -361,6 +367,48 @@ describe("HaButton.vue", () => {
       const container = wrapper.find(".col-lg-4");
       expect(container.exists()).toBe(true);
       expect(wrapper.find(".col-md-6").exists()).toBe(true);
+    });
+  });
+
+  describe("pressButton service call", () => {
+    it("calls store.callService when button is clicked with a valid active entity", async () => {
+      const entity = {
+        entity_id: "button.my_button",
+        state: "idle",
+        attributes: { friendly_name: "My Button" },
+      };
+
+      const wrapper = mount(HaButton, {
+        props: { entity },
+        global: { stubs: { i: true } },
+      });
+
+      const btn = wrapper.find("button");
+      expect(btn.attributes("disabled")).toBeUndefined();
+      await btn.trigger("click");
+      await wrapper.vm.$nextTick();
+
+      expect(store.callService).toHaveBeenCalledWith(
+        "button",
+        "press",
+        { entity_id: "button.my_button" },
+        expect.any(Object),
+      );
+    });
+
+    it("does not call callService when entity resolves to null (string not in store)", async () => {
+      const wrapper = mount(HaButton, {
+        props: { entity: "button.nonexistent" },
+        global: { stubs: { i: true } },
+      });
+
+      const btn = wrapper.find("button");
+      // Button is not disabled because we compute isUnavailable from resolved entity
+      // even if it resolves null, the guard 'if (!resolvedEntity.value) return' fires
+      await btn.trigger("click");
+      await wrapper.vm.$nextTick();
+
+      expect(store.callService).not.toHaveBeenCalled();
     });
   });
 });

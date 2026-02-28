@@ -2,6 +2,7 @@
   <div v-if="shouldShowError" class="col-lg-4 col-md-6">
     <div
       :class="[
+        'ha-error',
         'h-100',
         'rounded-4',
         'shadow-lg',
@@ -131,29 +132,3 @@ const shouldShowError = computed(() => {
   }
 });
 </script>
-
-<style scoped>
-.icon-circle-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-}
-
-.icon-circle {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
-}
-
-.icon-overlay {
-  position: relative;
-  z-index: 1;
-  font-size: 1.5rem;
-  color: white;
-}
-</style>

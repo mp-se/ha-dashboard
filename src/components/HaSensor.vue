@@ -35,27 +35,12 @@
           'gap-3',
         ]"
       >
-        <div v-if="iconClass" class="ha-icon-circle-wrapper flex-shrink-0">
-          <div class="icon-bg" :style="{ backgroundColor: iconCircleColor }">
-            <i :class="iconClass" class="ha-icon-overlay"></i>
-          </div>
-        </div>
+        <HaIconCircle :entity-id="entityId" :resolved-entity="resolvedEntity" />
         <div class="flex-grow-1">
           <div class="text-start">
             <h6 class="ha-entity-name">{{ name }}</h6>
             <!-- Display requested attributes if provided -->
-            <div v-if="requestedAttributes.length > 0" class="mt-1">
-              <div
-                v-for="[label, value] in requestedAttributes"
-                :key="label"
-                class="small d-flex gap-2 mb-0"
-              >
-                <div class="ha-attribute-key">
-                  {{ label }}:
-                  <span class="ha-attribute-value">{{ value }}</span>
-                </div>
-              </div>
-            </div>
+            <HaEntityAttributeList :attributes="requestedAttributes" />
           </div>
         </div>
         <div class="flex-shrink-0">
@@ -80,16 +65,17 @@
       ]"
     >
       <div class="card-body">
-        <div v-for="ent in entityList" :key="ent" class="mb-2">
+        <div
+          v-for="ent in entityList"
+          :key="typeof ent === 'string' ? ent : ent.entity_id"
+          class="mb-2"
+        >
           <div class="d-flex align-items-center gap-2">
-            <div v-if="getIconClass(ent)" class="ha-icon-circle-wrapper">
-              <div
-                class="icon-bg-small"
-                :style="{ backgroundColor: getIconCircleColor(ent) }"
-              >
-                <i :class="getIconClass(ent)" class="icon-overlay-small"></i>
-              </div>
-            </div>
+            <HaIconCircle
+              size="small"
+              :entity-id="typeof ent === 'string' ? ent : ent.entity_id"
+              :resolved-entity="getResolved(ent)"
+            />
             <div class="flex-grow-1 text-start">
               <h6 class="ha-entity-name">{{ getName(ent) }}</h6>
             </div>
@@ -111,8 +97,7 @@ import { computed } from "vue";
 import { useHaStore } from "@/stores/haStore";
 import { useEntityResolver } from "@/composables/useEntityResolver";
 import { useAttributeResolver } from "@/composables/useAttributeResolver";
-import { useIconClass } from "@/composables/useIconClass";
-import { useIconCircleColor } from "@/composables/useIconCircleColor";
+import { createLogger } from "@/utils/logger";
 
 const props = defineProps({
   entity: {
@@ -143,6 +128,7 @@ const props = defineProps({
 });
 
 const store = useHaStore();
+const logger = createLogger("HaSensor");
 
 // Entity list: if entity is array, use it, else [entity]
 const entityList = computed(() => {
@@ -171,11 +157,6 @@ const entityId = computed(() => {
     return firstEntity;
   }
   return resolvedEntity.value?.entity_id || "";
-});
-
-// Calculate icon circle color
-const iconCircleColor = computed(() => {
-  return useIconCircleColor(resolvedEntity.value, entityId.value);
 });
 
 // Format numbers if possible, otherwise show raw state
@@ -213,18 +194,6 @@ const name = computed(
     "Unknown",
 );
 
-const iconClass = computed(() => {
-  if (!resolvedEntity.value) return null;
-  const firstEntity = Array.isArray(props.entity)
-    ? props.entity[0]
-    : props.entity;
-  const entityId =
-    typeof firstEntity === "string"
-      ? firstEntity
-      : resolvedEntity.value.entity_id;
-  return useIconClass(resolvedEntity.value, entityId);
-});
-
 // Use attribute resolver composable to get formatted attributes
 const { requestedAttributes } = useAttributeResolver(
   Array.isArray(props.entity) ? props.entity[0] : props.entity,
@@ -236,7 +205,7 @@ const { requestedAttributes } = useAttributeResolver(
 
 const getResolved = (ent) => {
   if (typeof ent === "string") {
-    return store.sensors.find((s) => s.entity_id === ent);
+    return store.entityMap.get(ent);
   } else {
     return ent;
   }
@@ -247,7 +216,7 @@ const getName = (ent) => {
     const res = getResolved(ent);
     return res?.attributes?.friendly_name || res?.entity_id || "Unknown";
   } catch (error) {
-    console.warn("Error getting name for entity:", ent, error);
+    logger.warn("Error getting name for entity:", ent, error);
     return "Unknown";
   }
 };
@@ -267,7 +236,7 @@ const getFormattedValue = (ent) => {
     }
     return s;
   } catch (error) {
-    console.warn("Error formatting value for entity:", ent, error);
+    logger.warn("Error formatting value for entity:", ent, error);
     return "unknown";
   }
 };
@@ -277,82 +246,8 @@ const getUnit = (ent) => {
     const res = getResolved(ent);
     return res?.attributes?.unit_of_measurement || "";
   } catch (error) {
-    console.warn("Error getting unit for entity:", ent, error);
+    logger.warn("Error getting unit for entity:", ent, error);
     return "";
   }
 };
-
-const getIconClass = (ent) => {
-  try {
-    const res = getResolved(ent);
-    if (!res || !res.attributes) return null;
-    const entityId = typeof ent === "string" ? ent : res.entity_id;
-    return useIconClass(res, entityId);
-  } catch (error) {
-    console.warn("Error getting icon class for entity:", ent, error);
-    return null;
-  }
-};
-
-const getIconCircleColor = (ent) => {
-  try {
-    const res = getResolved(ent);
-    if (!res) return "#6c757d";
-    const entityId = typeof ent === "string" ? ent : res.entity_id;
-    return useIconCircleColor(res, entityId);
-  } catch (error) {
-    console.warn("Error getting icon circle color for entity:", ent, error);
-    return "#6c757d";
-  }
-};
 </script>
-
-<style scoped>
-/* Icon background circle */
-.icon-bg-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 50px;
-  height: 50px;
-  flex-shrink: 0;
-}
-
-.icon-bg {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-.icon-bg-wrapper-small {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-}
-
-.icon-bg-small {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.icon-overlay-small {
-  position: relative;
-  z-index: 1;
-  font-size: 1.1rem;
-  color: white;
-}
-</style>

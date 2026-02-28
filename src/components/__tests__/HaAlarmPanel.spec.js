@@ -14,7 +14,7 @@ describe("HaAlarmPanel.vue", () => {
     store = useHaStore();
 
     // Mock data
-    store.sensors = [
+    store.entities = [
       {
         entity_id: "alarm_control_panel.home",
         state: "disarmed",
@@ -110,7 +110,7 @@ describe("HaAlarmPanel.vue", () => {
     ];
 
     states.forEach(({ state, expectedText }) => {
-      store.sensors[0].state = state;
+      store.entities[0].state = state;
 
       const wrapper = mount(HaAlarmPanel, {
         props: {
@@ -230,7 +230,7 @@ describe("HaAlarmPanel.vue", () => {
   });
 
   it("should disable arm buttons when already armed", async () => {
-    store.sensors[0].state = "armed_away";
+    store.entities[0].state = "armed_away";
 
     const wrapper = mount(HaAlarmPanel, {
       props: {
@@ -254,7 +254,7 @@ describe("HaAlarmPanel.vue", () => {
   });
 
   it("should enable disarm button when armed and code is entered", async () => {
-    store.sensors[0].state = "armed_away";
+    store.entities[0].state = "armed_away";
 
     const wrapper = mount(HaAlarmPanel, {
       props: {
@@ -334,7 +334,7 @@ describe("HaAlarmPanel.vue", () => {
   });
 
   it("should call disarm service when Disarm button is clicked", async () => {
-    store.sensors[0].state = "armed_away";
+    store.entities[0].state = "armed_away";
 
     const wrapper = mount(HaAlarmPanel, {
       props: {

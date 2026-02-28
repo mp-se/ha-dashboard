@@ -19,6 +19,7 @@
             class="btn btn-outline-primary btn-wide"
             :disabled="isUnavailable"
             title="Press Button"
+            :aria-label="`Press ${name} button`"
             @click="pressButton"
           >
             <i class="mdi mdi-gesture-tap-button"></i>
@@ -80,11 +81,3 @@ const pressButton = async () => {
   });
 };
 </script>
-
-<style scoped>
-.btn-wide {
-  min-width: 120px;
-  padding-left: 2rem;
-  padding-right: 2rem;
-}
-</style>

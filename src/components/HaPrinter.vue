@@ -125,6 +125,7 @@
 <script setup>
 import { computed } from "vue";
 import { useHaStore } from "@/stores/haStore";
+import { createLogger } from "@/utils/logger";
 
 const props = defineProps({
   entity: {
@@ -158,13 +159,14 @@ const props = defineProps({
 });
 
 const store = useHaStore();
+const logger = createLogger("HaPrinter");
 
 // Smart entity resolution for main entity
 const resolvedEntity = computed(() => {
   if (typeof props.entity === "string") {
-    const found = store.sensors.find((s) => s.entity_id === props.entity);
+    const found = store.entityMap.get(props.entity);
     if (!found) {
-      console.warn(`Entity "${props.entity}" not found`);
+      logger.warn(`Entity "${props.entity}" not found`);
       return null;
     }
     return found;
@@ -175,7 +177,7 @@ const resolvedEntity = computed(() => {
 
 // Helper to get toner level
 const getTonerLevel = (entityId) => {
-  const toner = store.sensors.find((s) => s.entity_id === entityId);
+  const toner = store.entityMap.get(entityId);
   if (!toner) return 0;
   const level = Number(toner.state);
   return Number.isNaN(level) ? 0 : Math.max(0, Math.min(100, level));

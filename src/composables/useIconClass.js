@@ -1,7 +1,19 @@
 /**
  * Composable to get MDI icon class based on entity attributes
  * Returns icon from entity.attributes.icon or infers from unit/domain
+ *
+ * Priority order:
+ * 1. Explicit icon attribute (entity.attributes.icon)
+ * 2. Inferred from unit_of_measurement
+ * 3. Inferred from entity domain
+ *
+ * @param {object|null} entity - The entity object with attributes
+ * @param {string} entityId - The entity ID string (e.g., 'sensor.temperature')
+ * @returns {string|null} MDI icon class string (e.g., 'mdi mdi-thermometer') or null
  */
+import { createLogger } from "@/utils/logger";
+
+const logger = createLogger("useIconClass");
 
 export const useIconClass = (entity, entityId) => {
   try {
@@ -77,7 +89,7 @@ export const useIconClass = (entity, entityId) => {
 
     return null;
   } catch (error) {
-    console.warn("Error in useIconClass for entity:", entityId, error);
+    logger.warn("Error in useIconClass for entity:", entityId, error);
     return null;
   }
 };
