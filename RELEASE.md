@@ -2,42 +2,27 @@
 
 ## Unreleased
 
-### Code Quality & Architecture Improvements
-
-- Added global error handler and warning handler in Vue app to capture unhandled errors
-- Implemented centralized network timeout handling with `fetchWithTimeout` and `fetchJsonWithTimeout` utilities using AbortController
-- Lazy-loaded development views (DevelopmentView, DevicesView, RawEntityView, JsonConfigView) using `defineAsyncComponent` to reduce initial bundle size
-- Created centralized `constants.js` file with 70+ named constants for timeouts, precision values, colors, and states (eliminates magic numbers)
-- Improved accessibility by adding aria-labels to icon-only buttons across HaLight, HaSwitch, HaMediaPlayer, HaButton, and DevicesView
-- Standardized test imports to use `@/` alias consistently (updated 6 test files)
-- Enhanced nginx.conf with strict CSP headers (no 'unsafe-eval'), HSTS with 1-year max-age, and Permissions-Policy
-- Added Playwright E2E test infrastructure with configuration for 5 browsers and 20+ tests covering navigation, PWA, accessibility, and performance
-- Updated test coverage thresholds to 92/86/93/93% to match current 93.42% coverage
-- Suppressed Vue test warnings for Material Design Icon reserved HTML elements (i, svg)
-- Excluded E2E tests from Vitest to prevent conflicts with Playwright test runner
-- All 1847 unit tests passing with 93.42% coverage
-
-- Fixed Vue lifecycle warnings in tests, updated @vue/test-utils to 2.4.6
-- Fixed v-for key anti-pattern in HaSensor component
-- Added comprehensive JSDoc documentation to core composables
-- Code quality: 89.7% test coverage, zero ESLint errors, 1,822 tests passing
-- Added ErrorBoundary component for graceful error handling with retry/go-home actions
-- Implemented AES-GCM-256 encrypted credential storage using Web Crypto API
-- All CSS styles migrated to shared-styles.css (removed scoped styles from 21 components)
-- Updated dependencies: Vue 3.5.29, Vite 7.3.1, Vitest 4.0.18, Playwright 1.58.2, Prettier 3.8.1
-- Added test suites for light composables (165 new tests)
-- Created centralized logging utility (createLogger) - DEV-only log/warn, always-on error
-- Created useClipboard composable with navigator.clipboard API + execCommand fallback
-- Extracted forecastStore from entitiesStore for better separation of concerns
-- Optimized entity lookups to O(1) using entityMap (removed O(n) fallbacks)
-- Migrated to ESLint v9 flat config, fixed various linting issues
-- Enhanced test coverage to 84.56% branch coverage (90 new tests)
-- HaEnergy component now shows comparison vs previous period with trending indicators
-- Store refactoring: split haStore into authStore, entitiesStore, configStore
-- Split App.vue navigation into separate AppNavbar component
-- Auto-registration of Ha\* components via import.meta.glob
-- Added HaIconCircle and HaEntityAttributeList components
-- Fixed weather forecast compatibility, variable shadowing, CSS issues
+- Updated vite-plugin-pwa 0.19.8→1.2.0 (Vite 7 support) and added npm override for serialize-javascript ^7.0.3 to fix RCE vulnerability (GHSA-5c6j-r48x-rmvq)
+- Updated to Vue 3.5.29, Vite 7.3.1, Vitest 4.0.18, Playwright 1.58.2, Prettier 3.8.1, @vue/test-utils 2.4.6
+- Centralized error handling with global error/warning handlers and ErrorBoundary component
+- Network timeout handling via fetchWithTimeout utility with AbortController
+- Lazy-loaded dev views using defineAsyncComponent to reduce bundle size
+- Store refactoring: split haStore into authStore, entitiesStore, configStore, and forecastStore
+- Created constants.js with 70+ named constants; eliminated magic numbers
+- Optimized entity lookups to O(1) using entityMap
+- Component auto-registration via import.meta.glob
+- Test coverage: 1847 tests passing at 93.42% (thresholds 92/86/93/93%)
+- Added Playwright E2E infrastructure (5 browsers, 20+ tests)
+- Standardized test imports to @/ alias
+- Enhanced accessibility with aria-labels on icon-only buttons
+- Migrated to ESLint v9 flat config; zero linting errors
+- All CSS consolidated to shared-styles.css
+- Enhanced nginx.conf: strict CSP (no 'unsafe-eval'), HSTS (1-year max-age), Permissions-Policy
+- AES-GCM-256 encrypted credential storage via Web Crypto API
+- Split AppNavbar into separate component
+- Added HaIconCircle, HaEntityAttributeList, useClipboard composable
+- HaEnergy shows period comparisons with trending indicators
+- Fixed v-for key patterns, weather forecast compatibility, dark mode issues
 
 ## February 2026 - v0.5.0
 
