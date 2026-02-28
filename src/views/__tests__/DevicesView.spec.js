@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import DevicesView from "../DevicesView.vue";
 import { createPinia, setActivePinia } from "pinia";
-import { useHaStore } from "../../stores/haStore";
+import { useHaStore } from "@/stores/haStore";
 
 describe("DevicesView.vue", () => {
   beforeEach(() => {

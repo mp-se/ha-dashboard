@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import DevelopmentView from "../DevelopmentView.vue";
 import { createPinia, setActivePinia } from "pinia";
-import { useHaStore } from "../../stores/haStore";
+import { useHaStore } from "@/stores/haStore";
 
 // Mock HaEntityList component
 const mockHaEntityList = {

@@ -86,6 +86,7 @@
                 class="btn btn-outline-secondary btn-sm"
                 :disabled="!isOn"
                 title="Previous Track"
+                aria-label="Previous track"
                 @click="callService('media_previous_track')"
               >
                 <i class="mdi mdi-skip-previous"></i>
@@ -96,6 +97,7 @@
                 class="btn btn-primary btn-sm"
                 :disabled="!isOn"
                 title="Play/Pause"
+                aria-label="Play or pause"
                 @click="callService('media_play_pause')"
               >
                 <i
@@ -109,6 +111,7 @@
                 class="btn btn-outline-secondary btn-sm"
                 :disabled="!isOn"
                 title="Next Track"
+                aria-label="Next track"
                 @click="callService('media_next_track')"
               >
                 <i class="mdi mdi-skip-next"></i>
@@ -119,6 +122,7 @@
                 class="btn btn-outline-secondary btn-sm"
                 style="margin-left: 0.5rem"
                 title="Power Toggle"
+                aria-label="Power toggle"
                 @click="callService(isOn ? 'turn_off' : 'turn_on')"
               >
                 <i class="mdi mdi-power"></i>

@@ -4,6 +4,8 @@ import { createLogger } from "@/utils/logger";
 import { useAuthStore } from "./authStore";
 import { useForecastStore } from "./forecastStore";
 import { subscribeEntities } from "home-assistant-js-websocket";
+import { fetchJsonWithTimeout } from "@/utils/fetchWithTimeout";
+import { TIMEOUT_CONFIG, TIMEOUT_WEBSOCKET } from "@/utils/constants";
 
 export const useEntitiesStore = defineStore("entities", () => {
   const authStore = useAuthStore();
@@ -68,7 +70,7 @@ export const useEntitiesStore = defineStore("entities", () => {
 
         setTimeout(() => {
           if (firstUpdate) resolve();
-        }, 5000);
+        }, TIMEOUT_WEBSOCKET);
       } catch (error) {
         reject(error);
       }
@@ -79,9 +81,7 @@ export const useEntitiesStore = defineStore("entities", () => {
     try {
       const baseUrl = import.meta.env.BASE_URL || "/";
       const dataUrl = baseUrl + "data/local-data.json";
-      const response = await fetch(dataUrl);
-      if (!response.ok) throw new Error("Local data file not found");
-      const data = await response.json();
+      const data = await fetchJsonWithTimeout(dataUrl, {}, TIMEOUT_CONFIG);
       entities.value = data.sensors || [];
       devices.value = data.devices || [];
       areas.value = data.areas || [];

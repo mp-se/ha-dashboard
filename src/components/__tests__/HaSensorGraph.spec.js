@@ -129,7 +129,7 @@ describe("HaSensorGraph.vue", () => {
       await flushPromises();
 
       const button = wrapper.find("button");
-      
+
       // Test cycling through all hours
       for (const hours of [...HOURS_CYCLE, 24]) {
         expect(button.text()).toBe(`${hours}h`);
@@ -573,9 +573,9 @@ describe("HaSensorGraph.vue", () => {
     });
 
     it("should handle single data point gracefully", async () => {
-      store.fetchHistory = vi.fn().mockResolvedValue([
-        { t: Date.now(), v: 22 },
-      ]);
+      store.fetchHistory = vi
+        .fn()
+        .mockResolvedValue([{ t: Date.now(), v: 22 }]);
       const wrapper = createWrapper();
       await flushPromises();
 

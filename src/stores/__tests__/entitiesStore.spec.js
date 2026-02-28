@@ -164,7 +164,7 @@ describe("useEntitiesStore", () => {
 
       const store = useEntitiesStore();
       await expect(store.loadLocalData()).rejects.toThrow(
-        "Local data file not found",
+        /HTTP error! status: 404/,
       );
     });
   });

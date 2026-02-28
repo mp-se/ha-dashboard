@@ -19,6 +19,7 @@
             class="btn btn-outline-primary btn-wide"
             :disabled="isUnavailable"
             title="Press Button"
+            :aria-label="`Press ${name} button`"
             @click="pressButton"
           >
             <i class="mdi mdi-gesture-tap-button"></i>

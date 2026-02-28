@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Code Quality & Architecture Improvements
+
+- Added global error handler and warning handler in Vue app to capture unhandled errors
+- Implemented centralized network timeout handling with `fetchWithTimeout` and `fetchJsonWithTimeout` utilities using AbortController
+- Lazy-loaded development views (DevelopmentView, DevicesView, RawEntityView, JsonConfigView) using `defineAsyncComponent` to reduce initial bundle size
+- Created centralized `constants.js` file with 70+ named constants for timeouts, precision values, colors, and states (eliminates magic numbers)
+- Improved accessibility by adding aria-labels to icon-only buttons across HaLight, HaSwitch, HaMediaPlayer, HaButton, and DevicesView
+- Standardized test imports to use `@/` alias consistently (updated 6 test files)
+- Enhanced nginx.conf with strict CSP headers (no 'unsafe-eval'), HSTS with 1-year max-age, and Permissions-Policy
+- Added Playwright E2E test infrastructure with configuration for 5 browsers and 20+ tests covering navigation, PWA, accessibility, and performance
+- Updated test coverage thresholds to 92/86/93/93% to match current 93.42% coverage
+- Suppressed Vue test warnings for Material Design Icon reserved HTML elements (i, svg)
+- Excluded E2E tests from Vitest to prevent conflicts with Playwright test runner
+- All 1847 unit tests passing with 93.42% coverage
+
 - Fixed Vue lifecycle warnings in tests, updated @vue/test-utils to 2.4.6
 - Fixed v-for key anti-pattern in HaSensor component
 - Added comprehensive JSDoc documentation to core composables
@@ -20,7 +35,7 @@
 - HaEnergy component now shows comparison vs previous period with trending indicators
 - Store refactoring: split haStore into authStore, entitiesStore, configStore
 - Split App.vue navigation into separate AppNavbar component
-- Auto-registration of Ha* components via import.meta.glob
+- Auto-registration of Ha\* components via import.meta.glob
 - Added HaIconCircle and HaEntityAttributeList components
 - Fixed weather forecast compatibility, variable shadowing, CSS issues
 

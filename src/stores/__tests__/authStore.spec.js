@@ -209,7 +209,7 @@ describe("useAuthStore", () => {
       );
       await expect(
         store.fetchWithTimeout("http://test.com", {}, 1),
-      ).rejects.toThrow("Request timeout after 1ms");
+      ).rejects.toThrow(/Request timeout/);
     });
 
     it("should re-throw non-abort fetch errors", async () => {

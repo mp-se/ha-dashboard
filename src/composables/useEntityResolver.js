@@ -8,7 +8,7 @@ const logger = createLogger("useEntityResolver");
  * Composable for resolving Home Assistant entities
  * Handles both string entity IDs and full entity objects
  * Supports both direct values and reactive refs/computed
- * 
+ *
  * @param {string|object|Ref|Computed} entity - Entity ID string, entity object, or reactive ref
  * @returns {object} Object containing:
  *   - resolvedEntity: {ComputedRef<object|null>} The resolved entity object or null if not found

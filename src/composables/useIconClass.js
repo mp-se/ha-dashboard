@@ -1,12 +1,12 @@
 /**
  * Composable to get MDI icon class based on entity attributes
  * Returns icon from entity.attributes.icon or infers from unit/domain
- * 
+ *
  * Priority order:
  * 1. Explicit icon attribute (entity.attributes.icon)
  * 2. Inferred from unit_of_measurement
  * 3. Inferred from entity domain
- * 
+ *
  * @param {object|null} entity - The entity object with attributes
  * @param {string} entityId - The entity ID string (e.g., 'sensor.temperature')
  * @returns {string|null} MDI icon class string (e.g., 'mdi mdi-thermometer') or null

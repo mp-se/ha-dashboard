@@ -4,6 +4,8 @@ import { validateConfig } from "../utils/configValidator";
 import { createLogger } from "@/utils/logger";
 import { useAuthStore } from "./authStore";
 import parseJSON from "json-parse-even-better-errors";
+import { fetchWithTimeout } from "@/utils/fetchWithTimeout";
+import { TIMEOUT_CONFIG } from "@/utils/constants";
 
 export const useConfigStore = defineStore("config", () => {
   const dashboardConfig = ref(null);
@@ -15,7 +17,7 @@ export const useConfigStore = defineStore("config", () => {
     try {
       const baseUrl = import.meta.env.BASE_URL || "/";
       const configUrl = baseUrl + "data/dashboard-config.json";
-      const response = await fetch(configUrl);
+      const response = await fetchWithTimeout(configUrl, {}, TIMEOUT_CONFIG);
 
       if (!response.ok) {
         return {

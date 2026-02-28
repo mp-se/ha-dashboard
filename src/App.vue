@@ -69,25 +69,22 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, defineAsyncComponent } from "vue";
 import { useHaStore } from "./stores/haStore";
 import { createLogger } from "./utils/logger";
+import { SWIPE_MIN_DISTANCE } from "./utils/constants";
 import AppNavbar from "./components/AppNavbar.vue";
 import CredentialDialog from "./components/CredentialDialog.vue";
 import ErrorBoundary from "./components/ErrorBoundary.vue";
-
-// Static imports for development views
-import DevelopmentView from "./views/DevelopmentView.vue";
-import RawEntityView from "./views/RawEntityView.vue";
-import DevicesView from "./views/DevicesView.vue";
 import JsonConfigView from "./views/JsonConfigView.vue";
 
 import packageJson from "../package.json";
 
+// Lazy-loaded development views for better performance
 const devViewComponents = {
-  device: DevicesView,
-  dev: DevelopmentView,
-  raw: RawEntityView,
+  device: defineAsyncComponent(() => import("./views/DevicesView.vue")),
+  dev: defineAsyncComponent(() => import("./views/DevelopmentView.vue")),
+  raw: defineAsyncComponent(() => import("./views/RawEntityView.vue")),
 };
 
 const logger = createLogger("App");
@@ -123,7 +120,7 @@ let touchEndX = 0;
 
 const handleSwipe = () => {
   const diff = touchStartX - touchEndX;
-  if (Math.abs(diff) < 50) return;
+  if (Math.abs(diff) < SWIPE_MIN_DISTANCE) return;
 
   const currentIndex = viewNames.value.indexOf(currentView.value);
   if (currentIndex === -1) return;
@@ -165,11 +162,7 @@ const handleEditCredentials = () => {
  * Handle component errors caught by ErrorBoundary
  */
 const handleComponentError = (errorData) => {
-  logger.error(
-    "Component error in view:",
-    errorData.viewName,
-    errorData.error,
-  );
+  logger.error("Component error in view:", errorData.viewName, errorData.error);
 };
 
 /**

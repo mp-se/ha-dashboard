@@ -59,6 +59,7 @@
               class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-2"
               type="button"
               title="Copy device JSON to clipboard"
+              aria-label="Copy device JSON to clipboard"
               @click="copyDeviceToClipboard(device)"
             >
               <i class="mdi mdi-content-copy"></i>

@@ -105,7 +105,7 @@ const GRAPH_CONFIG = {
 };
 
 const HOURS_CYCLE = [24, 48, 72, 96];
-const GRAPH_COLORS = ['#0d6efd', '#dc3545', '#198754'];
+const GRAPH_COLORS = ["#0d6efd", "#dc3545", "#198754"];
 
 const props = defineProps({
   entity: {

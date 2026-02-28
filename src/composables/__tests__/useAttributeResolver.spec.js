@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { useAttributeResolver } from "../useAttributeResolver";
 import { useEntityResolver } from "../useEntityResolver";
-import { useHaStore } from "../../stores/haStore";
+import { useHaStore } from "@/stores/haStore";
 
 vi.mock("../useEntityResolver");
-vi.mock("../../stores/haStore");
+vi.mock("@/stores/haStore");
 
 describe("useAttributeResolver.js", () => {
   let mockStore;
