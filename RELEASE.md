@@ -1,6 +1,6 @@
 # Release Notes
 
-## Unreleased
+## February 2026 - v0.6.0
 
 - Updated vite-plugin-pwa 0.19.8→1.2.0 (Vite 7 support) and added npm override for serialize-javascript ^7.0.3 to fix RCE vulnerability (GHSA-5c6j-r48x-rmvq)
 - Updated to Vue 3.5.29, Vite 7.3.1, Vitest 4.0.18, Playwright 1.58.2, Prettier 3.8.1, @vue/test-utils 2.4.6
