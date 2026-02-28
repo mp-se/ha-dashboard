@@ -52,6 +52,7 @@
               :class="{ 'control-button-on': isOn && !isDisabled }"
               :disabled="isDisabled || isLoading"
               :title="isOn ? 'Turn off' : 'Turn on'"
+              :aria-label="isOn ? 'Turn off switch' : 'Turn on switch'"
               @click="isOn = !isOn"
             >
               <div class="ha-control-circle-wrapper">

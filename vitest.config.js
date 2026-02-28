@@ -8,19 +8,19 @@ export default defineConfig({
     setupFiles: ["./src/setupTests.js"],
     globals: true,
     environment: "happy-dom",
+    exclude: ["tests/e2e/**", "node_modules/**", "dist/**"],
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
       exclude: ["node_modules/", "dist/", "**/*.spec.js", "**/__tests__/**"],
       thresholds: {
         // Enforced floors — tests will fail if coverage drops below these.
-        // Set ~1-2% below current measured coverage so CI catches regressions
-        // without failing on the current codebase.
-        // Current: stmts 89.7%, branch 84.3%, funcs 91.8%, lines 90.9%
-        statements: 88,
-        branches: 83,
-        functions: 90,
-        lines: 89,
+        // Current coverage: stmts 93.42%, branch 87.5%, funcs 94.28%, lines 94.35%
+        // Set thresholds ~1-2% below current to catch regressions
+        statements: 92,
+        branches: 86,
+        functions: 93,
+        lines: 93,
       },
     },
   },

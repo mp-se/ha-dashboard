@@ -14,6 +14,8 @@ import {
   removeSecureItem,
   isCryptoSupported,
 } from "@/utils/secureStorage";
+import { fetchWithTimeout } from "@/utils/fetchWithTimeout";
+import { TIMEOUT_SERVICE_CALL } from "@/utils/constants";
 
 export const useAuthStore = defineStore("auth", () => {
   const haUrl = ref("");
@@ -194,26 +196,6 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
-  const fetchWithTimeout = async (url, options = {}, timeout = 30000) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-    try {
-      const response = await fetch(url, {
-        ...options,
-        signal: controller.signal,
-      });
-      clearTimeout(timeoutId);
-      return response;
-    } catch (error) {
-      clearTimeout(timeoutId);
-      if (error.name === "AbortError") {
-        throw new Error(`Request timeout after ${timeout}ms`);
-      }
-      throw error;
-    }
-  };
-
   const callService = async (domain, service, data) => {
     if (isLocalMode.value) {
       logger.warn("Service calls are disabled in local mode");
@@ -221,7 +203,7 @@ export const useAuthStore = defineStore("auth", () => {
     }
     if (!haUrl.value || !accessToken.value) return;
     try {
-      const response = await fetch(
+      const response = await fetchWithTimeout(
         `${haUrl.value}/api/services/${domain}/${service}`,
         {
           method: "POST",
@@ -231,6 +213,7 @@ export const useAuthStore = defineStore("auth", () => {
           },
           body: JSON.stringify(data),
         },
+        TIMEOUT_SERVICE_CALL,
       );
       if (!response.ok) {
         let errorMessage = `Service call failed: ${response.status} ${response.statusText}`;

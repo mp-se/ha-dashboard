@@ -34,6 +34,7 @@
               :class="{ 'control-button-on': isOn && !isDisabled }"
               :disabled="isDisabled || isLoading"
               :title="isOn ? 'Turn off' : 'Turn on'"
+              :aria-label="isOn ? 'Turn off light' : 'Turn on light'"
               @click="isOn = !isOn"
             >
               <div class="ha-control-circle-wrapper">
@@ -90,6 +91,7 @@
                   :style="getPresetColor(preset.kelvin)"
                   :disabled="isDisabled || !isOn"
                   :title="preset.name"
+                  :aria-label="`Set color temperature to ${preset.name}`"
                   @click="setColorTempPreset(preset.kelvin)"
                 >
                   <i class="mdi mdi-lightbulb-on-90"></i>

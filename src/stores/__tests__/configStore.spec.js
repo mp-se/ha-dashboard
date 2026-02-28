@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
 import { useConfigStore } from "../configStore";
 import { useAuthStore } from "../authStore";
-import { validateConfig } from "../../utils/configValidator";
+import { validateConfig } from "@/utils/configValidator";
 
 // Mock fetch globally
 global.fetch = vi.fn();
