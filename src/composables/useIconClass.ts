@@ -70,7 +70,8 @@ export const useIconClass = (
     // Third priority: infer from domain
     if (entityId) {
       // Handle case where entityId might be an object instead of string
-      const idString = typeof entityId === "string" ? entityId : entityId;
+      const idString =
+        typeof entityId === "string" ? entityId : (entity as any)?.entity_id;
       if (idString) {
         const domain = idString.split(".")[0];
         const domainIconMap: Record<string, string> = {
