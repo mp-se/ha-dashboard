@@ -78,7 +78,9 @@ export const useForecastStore = defineStore("forecast", () => {
     } catch (error) {
       forecastLoading.value[entityId] = false;
       forecastErrors.value[entityId] =
-        (error && typeof error === "object" && "message" in error ? (error as Record<string, unknown>).message : null) as string || "Failed to subscribe to forecast";
+        ((error && typeof error === "object" && "message" in error
+          ? (error as Record<string, unknown>).message
+          : null) as string) || "Failed to subscribe to forecast";
     }
   };
 

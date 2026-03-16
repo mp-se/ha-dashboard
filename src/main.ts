@@ -13,7 +13,11 @@ const app: VueApp = createApp(App);
 app.use(createPinia());
 
 // Global error handler for unhandled component errors
-app.config.errorHandler = (err: unknown, instance: unknown, info: string): void => {
+app.config.errorHandler = (
+  err: unknown,
+  instance: unknown,
+  info: string,
+): void => {
   const error = err instanceof Error ? err : new Error(String(err));
   const component = (instance as any)?.$options?.name || "Unknown";
   logger.error("Global error caught:", {
@@ -30,7 +34,11 @@ app.config.errorHandler = (err: unknown, instance: unknown, info: string): void 
 
 // Global warning handler for Vue warnings
 // eslint-disable-next-line no-unused-vars
-app.config.warnHandler = (msg: string, instance: unknown, trace: string): void => {
+app.config.warnHandler = (
+  msg: string,
+  instance: unknown,
+  trace: string,
+): void => {
   // Only log in development
   if (import.meta.env.DEV) {
     logger.warn("Vue warning:", msg);

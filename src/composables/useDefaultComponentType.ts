@@ -41,11 +41,7 @@ export function getDefaultComponentType(
   getterName: string = "",
 ): string {
   // Handle object with type property (entity config)
-  if (
-    entityId &&
-    typeof entityId === "object" &&
-    !Array.isArray(entityId)
-  ) {
+  if (entityId && typeof entityId === "object" && !Array.isArray(entityId)) {
     const config = entityId as EntityConfig;
     if (config.type) {
       return config.type;

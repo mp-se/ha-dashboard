@@ -31,7 +31,10 @@ export const useHaStore = defineStore("ha", () => {
       await config.loadDashboardConfig();
 
       // Sync developerMode/localMode from config to auth
-      const configObj = config.dashboardConfig as Record<string, unknown> | null;
+      const configObj = config.dashboardConfig as Record<
+        string,
+        unknown
+      > | null;
       if (configObj?.app && typeof configObj.app === "object") {
         const appConfig = configObj.app as Record<string, unknown>;
         if (appConfig.developerMode !== undefined) {
@@ -103,7 +106,9 @@ export const useHaStore = defineStore("ha", () => {
         const errorMessage =
           typeof error === "number"
             ? `Connection failed (code ${error}). Please check your URL and network.`
-            : (error && typeof error === "object" && "message" in error ? (error as Record<string, unknown>).message : null) as string || "Initialization failed";
+            : ((error && typeof error === "object" && "message" in error
+                ? (error as Record<string, unknown>).message
+                : null) as string) || "Initialization failed";
         auth.setError(errorMessage);
       }
     }

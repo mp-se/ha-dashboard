@@ -58,7 +58,9 @@ export const useConfigStore = defineStore("config", () => {
         const error = e as Record<string, unknown>;
         const line = (error.line as number) || 1;
         const columnMatch = (error.message as string)?.match(/position (\d+)/);
-        const column = (error.column as number) || (columnMatch ? Number(columnMatch[1]) : 0);
+        const column =
+          (error.column as number) ||
+          (columnMatch ? Number(columnMatch[1]) : 0);
         return {
           valid: false,
           errors: [
@@ -107,13 +109,22 @@ export const useConfigStore = defineStore("config", () => {
       logger.error("Error loading dashboard config:", error);
       return {
         valid: false,
-        errors: [{ message: (error as Record<string, unknown>).message as string || "Unknown error loading config" }],
+        errors: [
+          {
+            message:
+              ((error as Record<string, unknown>).message as string) ||
+              "Unknown error loading config",
+          },
+        ],
         errorCount: 1,
       };
     }
   };
 
-  const reloadConfig = async (authStore: ReturnType<typeof useAuthStore>, entitiesStore: unknown): Promise<ValidationResult> => {
+  const reloadConfig = async (
+    authStore: ReturnType<typeof useAuthStore>,
+    entitiesStore: unknown,
+  ): Promise<ValidationResult> => {
     try {
       logger.log("Reloading dashboard configuration...");
       const currentUrl = authStore.haUrl;
@@ -137,7 +148,10 @@ export const useConfigStore = defineStore("config", () => {
       logger.error("Error reloading config:", error);
       return {
         valid: false,
-        errors: [(error as Record<string, unknown>).message as string || "Failed to reload configuration"],
+        errors: [
+          ((error as Record<string, unknown>).message as string) ||
+            "Failed to reload configuration",
+        ],
         errorCount: 1,
       };
     }

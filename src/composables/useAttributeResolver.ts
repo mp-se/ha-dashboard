@@ -21,7 +21,10 @@ interface AttributeResolverReturn {
  * @returns Object with requestedAttributes computed property returning [label, value] tuples
  */
 export const useAttributeResolver = (
-  entity: string | Record<string, unknown> | Ref<string | Record<string, unknown>>,
+  entity:
+    | string
+    | Record<string, unknown>
+    | Ref<string | Record<string, unknown>>,
   attributes: string[] | Ref<string[]>,
 ): AttributeResolverReturn => {
   const { resolvedEntity } = useEntityResolver(entity);

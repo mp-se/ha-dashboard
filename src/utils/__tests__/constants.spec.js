@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import * as constants from "../constants.ts";
+import * as constants from "../constants";
 
 describe("constants.js", () => {
   describe("Network and API timeouts", () => {
