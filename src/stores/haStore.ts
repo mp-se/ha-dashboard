@@ -1,10 +1,11 @@
 import { defineStore } from "pinia";
-import { toRef } from "vue";
+import { toRef, Ref, ComputedRef } from "vue";
 import { useAuthStore } from "./authStore";
 import { createLogger } from "@/utils/logger";
 import { useEntitiesStore } from "./entitiesStore";
 import { useConfigStore } from "./configStore";
 import { useForecastStore } from "./forecastStore";
+import type { Connection } from "home-assistant-js-websocket";
 
 /**
  * Bridge store that maintains the original useHaStore API
@@ -18,7 +19,7 @@ export const useHaStore = defineStore("ha", () => {
   const forecast = useForecastStore();
   const logger = createLogger("haStore");
 
-  const init = async () => {
+  const init = async (): Promise<void> => {
     logger.log("=== Starting initialization ===");
     auth.isLoading = true;
     auth.needsCredentials = false;
@@ -30,17 +31,22 @@ export const useHaStore = defineStore("ha", () => {
       await config.loadDashboardConfig();
 
       // Sync developerMode/localMode from config to auth
-      if (config.dashboardConfig?.app?.developerMode !== undefined) {
-        auth.developerMode = config.dashboardConfig.app.developerMode;
-      }
-      if (config.dashboardConfig?.app?.localMode !== undefined) {
-        auth.isLocalMode = config.dashboardConfig.app.localMode;
+      const configObj = config.dashboardConfig as Record<string, unknown> | null;
+      if (configObj?.app && typeof configObj.app === "object") {
+        const appConfig = configObj.app as Record<string, unknown>;
+        if (appConfig.developerMode !== undefined) {
+          auth.developerMode = Boolean(appConfig.developerMode);
+        }
+        if (appConfig.localMode !== undefined) {
+          auth.isLocalMode = Boolean(appConfig.localMode);
+        }
       }
 
       // Check for JSON errors
       if (
+        config.configValidationError &&
         config.configValidationError?.some((err) =>
-          err.message?.includes("JSON"),
+          (err.message as string)?.includes("JSON"),
         )
       ) {
         auth.isLoading = false;
@@ -97,20 +103,20 @@ export const useHaStore = defineStore("ha", () => {
         const errorMessage =
           typeof error === "number"
             ? `Connection failed (code ${error}). Please check your URL and network.`
-            : error.message || "Initialization failed";
+            : (error && typeof error === "object" && "message" in error ? (error as Record<string, unknown>).message : null) as string || "Initialization failed";
         auth.setError(errorMessage);
       }
     }
   };
 
-  const retryConnection = async () => {
+  const retryConnection = async (): Promise<void> => {
     auth.clearError();
     auth.isConnected = false;
     entities.unsubscribeEntities();
     await init();
   };
 
-  const reloadConfig = async () => {
+  const reloadConfig = async (): Promise<unknown> => {
     return await config.reloadConfig(auth, entities);
   };
 
@@ -193,9 +199,9 @@ export const useHaStore = defineStore("ha", () => {
 
     // Compatibility aliases
     fetchDevices: entities.fetchDevicesAfterAuth,
-    autoFetchWeatherForecasts: () => {
+    autoFetchWeatherForecasts: (): void => {
       entities.getWeatherEntities().forEach((e) => {
-        const feat = e.attributes?.supported_features || 0;
+        const feat = (e.attributes?.supported_features as number) || 0;
         let type = "daily";
         if (feat & 1) type = "daily";
         else if (feat & 2) type = "hourly";
