@@ -2,7 +2,15 @@
 
 You are an expert Vue 3 and Home Assistant dashboard developer. Follow these core requirements for every code change or feature implementation.
 
-## 1. Quality Standards & Verification
+## 1. Workflow & Process
+
+- Before writing any code, ensure you have a clear understanding of the requirements and design. If necessary, create a design mockup in `card-showcase.html` to visualize the intended UI changes.
+- If the requirements are ambiguous, ask for clarification before proceeding.
+- When completed the code change ensure that there are test cases that cover the new functionallity and also the edge cases
+- If a change require changes to more than 3 files, consider breaking it down into smaller tasks first.
+- When there is an issue start with creating the test that reproduces the issue, then implement the fix and verify that the test passes. This will ensure that the issue is properly addressed and prevent regressions in the future.
+
+## 2. Quality Standards & Verification
 
 - **Unit Tests**: All changes must have unit tests covering the functionality. Aim for **minimum 80% coverage** for files under `src/`. Check the `__tests__` directory relative to the file being edited. Use Vitest and `@vue/test-utils`.
   - _Exceptions_: Currently, the following files are permitted to be below 80% but should not decrease in coverage: `haStore.js`, `PwaInstallModal.vue`, and `RawEntityView.vue`.
@@ -10,7 +18,7 @@ You are an expert Vue 3 and Home Assistant dashboard developer. Follow these cor
 - **Code Formatting**: All code must comply with formatting standards (`npm run format`).
 - **Build**: All changes must build successfully (`npm run build`) without errors or warnings.
 
-## 2. UI Development Workflow (CRITICAL)
+## 3. UI Development Workflow for UI changes (CRITICAL)
 
 For any change that impacts UI appearance or interaction:
 
@@ -18,7 +26,7 @@ For any change that impacts UI appearance or interaction:
 2. **Verify Appearance**: Ensure the design works across devices and themes (light/dark).
 3. **Regenerate Images**: After updating the showcase, run `node capture-card-variations.js` to update documentation screenshots in the `/images` directory.
 
-## 3. Project Architecture & Patterns
+## 4. Project Architecture & Patterns
 
 - **Directory Structure**:
   - `src/components/`: Vue card components (prefix `Ha`, e.g., `HaSensor.vue`).
@@ -31,7 +39,7 @@ For any change that impacts UI appearance or interaction:
   - Use `useEntityResolver()`, `useIconClass()`, `useIconCircleColor()`, and `useAttributeResolver()` composables.
 - **Icons**: Use Material Design Icons (MDI). Home Assistant formats like `mdi:power` should be normalized using project utilities.
 
-## 4. Coding Conventions
+## 5. Coding Conventions
 
 - **Naming**:
   - Components: `HaPascalCase.vue`
@@ -40,13 +48,13 @@ For any change that impacts UI appearance or interaction:
   - Functions/Properties: `camelCase`
 - **Styling**: Use scoped styles (`<style scoped>`), Bootstrap classes, and shared classes from `public/styles/shared-styles.css`.
 
-## 5. Documentation & Metadata
+## 6. Documentation & Metadata
 
-- **Release Notes**: Update `RELEASE.md` with a concise summary of changes.
+- **Release Notes**: Update `RELEASE.md` with a concise summary of changes and this should always be done under the "Unreleased" section at the top of the file.
 - **Configuration**: If the change impacts user configuration, update `CONFIGURATION.md` with examples.
 - **JSDoc**: Include JSDoc comments for complex logic, parameters, and return types.
 
-## 6. Verification Steps (Instructions for AI)
+## 7. Verification Steps (Instructions for AI)
 
 Before finalizing any change, you must:
 
@@ -57,7 +65,7 @@ Before finalizing any change, you must:
    - `npm run lint`
    - `npm run build`
 
-## 6. Architecture and Coding Principles
+## 8. Architecture and Coding Principles
 
 - All CSS styles must be placed in the global shared-styles.css file.
 - Each source file should have its dedicated test file in the `__tests__` directory, following the same structure as the source files.
