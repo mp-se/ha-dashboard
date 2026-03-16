@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, Ref } from "vue";
 import { validateConfig } from "../utils/configValidator";
 import { createLogger } from "@/utils/logger";
 import { useAuthStore } from "./authStore";
@@ -7,13 +7,25 @@ import parseJSON from "json-parse-even-better-errors";
 import { fetchWithTimeout } from "@/utils/fetchWithTimeout";
 import { TIMEOUT_CONFIG } from "@/utils/constants";
 
+interface ValidationError {
+  message: string;
+  line?: number;
+  column?: number;
+}
+
+interface ValidationResult {
+  valid: boolean;
+  errors: ValidationError[];
+  errorCount: number;
+}
+
 export const useConfigStore = defineStore("config", () => {
-  const dashboardConfig = ref(null);
-  const configValidationError = ref(null);
-  const configErrorCount = ref(0);
+  const dashboardConfig: Ref<unknown> = ref(null);
+  const configValidationError: Ref<ValidationError[] | null> = ref(null);
+  const configErrorCount: Ref<number> = ref(0);
   const logger = createLogger("configStore");
 
-  const loadDashboardConfig = async () => {
+  const loadDashboardConfig = async (): Promise<ValidationResult> => {
     try {
       const baseUrl = import.meta.env.BASE_URL || "/";
       const configUrl = baseUrl + "data/dashboard-config.json";
@@ -32,7 +44,7 @@ export const useConfigStore = defineStore("config", () => {
       }
 
       // Very simple JSON loading to match tests and standard behavior
-      let config;
+      let config: unknown;
       try {
         if (typeof response.text === "function") {
           const text = await response.text();
@@ -43,13 +55,15 @@ export const useConfigStore = defineStore("config", () => {
           config = response;
         }
       } catch (e) {
-        const line = e.line || 1;
-        const column = e.column || e.message.match(/position (\d+)/)?.[1] || 0;
+        const error = e as Record<string, unknown>;
+        const line = (error.line as number) || 1;
+        const columnMatch = (error.message as string)?.match(/position (\d+)/);
+        const column = (error.column as number) || (columnMatch ? Number(columnMatch[1]) : 0);
         return {
           valid: false,
           errors: [
             {
-              message: `JSON syntax error: ${e.message} (line ${line}, column ${column})`,
+              message: `JSON syntax error: ${error.message} (line ${line}, column ${column})`,
               line: line,
               column: column,
             },
@@ -60,7 +74,7 @@ export const useConfigStore = defineStore("config", () => {
 
       if (config && typeof config === "object") {
         for (const sym of Object.getOwnPropertySymbols(config)) {
-          delete config[sym];
+          delete (config as Record<symbol, unknown>)[sym];
         }
       }
 
@@ -71,17 +85,21 @@ export const useConfigStore = defineStore("config", () => {
         configValidationError.value = validationResult.errors;
         configErrorCount.value = validationResult.errorCount;
       } else {
-        configValidationError.value = [];
+        configValidationError.value = null;
         configErrorCount.value = 0;
       }
 
       // Sync settings to authStore if it's initialized
       const authStore = useAuthStore();
-      if (config?.app?.developerMode !== undefined) {
-        authStore.developerMode = config.app.developerMode;
-      }
-      if (config?.app?.localMode !== undefined) {
-        authStore.isLocalMode = config.app.localMode;
+      const configObj = config as Record<string, unknown> | null;
+      if (configObj?.app && typeof configObj.app === "object") {
+        const appConfig = configObj.app as Record<string, unknown>;
+        if (appConfig.developerMode !== undefined) {
+          authStore.developerMode = Boolean(appConfig.developerMode);
+        }
+        if (appConfig.localMode !== undefined) {
+          authStore.isLocalMode = Boolean(appConfig.localMode);
+        }
       }
 
       return validationResult;
@@ -89,13 +107,13 @@ export const useConfigStore = defineStore("config", () => {
       logger.error("Error loading dashboard config:", error);
       return {
         valid: false,
-        errors: [{ message: error.message || "Unknown error loading config" }],
+        errors: [{ message: (error as Record<string, unknown>).message as string || "Unknown error loading config" }],
         errorCount: 1,
       };
     }
   };
 
-  const reloadConfig = async (authStore, entitiesStore) => {
+  const reloadConfig = async (authStore: ReturnType<typeof useAuthStore>, entitiesStore: unknown): Promise<ValidationResult> => {
     try {
       logger.log("Reloading dashboard configuration...");
       const currentUrl = authStore.haUrl;
@@ -106,9 +124,12 @@ export const useConfigStore = defineStore("config", () => {
       if (currentUrl) authStore.haUrl = currentUrl;
       if (currentToken) authStore.accessToken = currentToken;
 
+      const entitiesStoreTyped = entitiesStore as {
+        loadLocalData: () => Promise<void>;
+      };
       if (authStore.isLocalMode) {
         logger.log("Reloading local data...");
-        await entitiesStore.loadLocalData();
+        await entitiesStoreTyped.loadLocalData();
       }
 
       return validationResult;
@@ -116,7 +137,7 @@ export const useConfigStore = defineStore("config", () => {
       logger.error("Error reloading config:", error);
       return {
         valid: false,
-        errors: [error.message || "Failed to reload configuration"],
+        errors: [(error as Record<string, unknown>).message as string || "Failed to reload configuration"],
         errorCount: 1,
       };
     }

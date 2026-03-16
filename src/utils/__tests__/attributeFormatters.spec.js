@@ -3,7 +3,7 @@ import {
   formatAttributeValue,
   formatKey,
   attributeLabel,
-} from "../attributeFormatters";
+} from "../attributeFormatters.ts";
 
 describe("attributeFormatters", () => {
   describe("formatAttributeValue", () => {

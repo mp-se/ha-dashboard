@@ -1,9 +1,11 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, Ref } from "vue";
 import { useConfigStore } from "./configStore";
 import {
   createConnection,
   createLongLivedTokenAuth,
+  Connection,
+  Auth,
   ERR_CANNOT_CONNECT,
   ERR_INVALID_AUTH,
 } from "home-assistant-js-websocket";
@@ -17,34 +19,44 @@ import {
 import { fetchWithTimeout } from "@/utils/fetchWithTimeout";
 import { TIMEOUT_SERVICE_CALL } from "@/utils/constants";
 
+interface ServiceCallData {
+  [key: string]: unknown;
+}
+
+interface RequestOptions {
+  method?: string;
+  headers?: Record<string, string>;
+  body?: string;
+}
+
 export const useAuthStore = defineStore("auth", () => {
-  const haUrl = ref("");
-  const accessToken = ref("");
-  const isConnected = ref(false);
-  const lastError = ref(null);
-  const isLocalMode = ref(import.meta.env.VITE_LOCAL_MODE === "true");
-  const developerMode = ref(import.meta.env.VITE_DEVELOPER_MODE === "true");
-  const credentialsFromConfig = ref(false);
-  const needsCredentials = ref(false);
-  const isLoading = ref(true);
-  const isInitialized = ref(false);
+  const haUrl: Ref<string> = ref("");
+  const accessToken: Ref<string> = ref("");
+  const isConnected: Ref<boolean> = ref(false);
+  const lastError: Ref<string | null> = ref(null);
+  const isLocalMode: Ref<boolean> = ref(import.meta.env.VITE_LOCAL_MODE === "true");
+  const developerMode: Ref<boolean> = ref(import.meta.env.VITE_DEVELOPER_MODE === "true");
+  const credentialsFromConfig: Ref<boolean> = ref(false);
+  const needsCredentials: Ref<boolean> = ref(false);
+  const isLoading: Ref<boolean> = ref(true);
+  const isInitialized: Ref<boolean> = ref(false);
 
   const logger = createLogger("authStore");
 
-  let connection = null;
+  let connection: Connection | null = null;
 
-  const setError = (error) => {
-    lastError.value = error;
+  const setError = (error: unknown): void => {
+    lastError.value = String(error);
     logger.error("Auth Store Error:", error);
   };
 
-  const clearError = () => {
+  const clearError = (): void => {
     lastError.value = null;
   };
 
-  const wrapLibraryError = (error) => {
+  const wrapLibraryError = (error: unknown): string => {
     // home-assistant-js-websocket sometimes throws the error code directly (numeric)
-    const code = error && typeof error === "object" ? error.code : error;
+    const code = error && typeof error === "object" ? (error as Record<string, unknown>).code : error;
 
     if (code === ERR_INVALID_AUTH || code === "invalid_auth") {
       return "Authentication failed: Invalid access token. Check your VITE_HA_TOKEN.";
@@ -72,14 +84,14 @@ export const useAuthStore = defineStore("auth", () => {
       return `CORS or SSL error: Home Assistant server at ${haUrl.value} does not allow cross-origin requests or has an untrusted certificate. Ensure you can visit the URL in your browser and accept any certificate warnings.`;
     }
     return (
-      (error && error.message) ||
+      (error && typeof error === "object" && "message" in error ? (error as Record<string, unknown>).message : null) ||
       (typeof error === "string"
         ? error
         : "Connection error with Home Assistant")
     );
   };
 
-  const loadCredentials = async () => {
+  const loadCredentials = async (): Promise<boolean> => {
     // Priority 1: Encrypted localStorage (user-provided override)
     try {
       if (isCryptoSupported()) {
@@ -104,10 +116,10 @@ export const useAuthStore = defineStore("auth", () => {
 
     // Priority 2: Dashboard config (provided template)
     const configStore = useConfigStore();
-    const configHa = configStore.dashboardConfig?.haConfig;
+    const configHa = (configStore.dashboardConfig as Record<string, unknown>)?.haConfig as Record<string, unknown> | undefined;
     if (configHa?.haUrl && configHa?.accessToken) {
-      haUrl.value = configHa.haUrl.trim();
-      accessToken.value = configHa.accessToken.trim();
+      haUrl.value = String(configHa.haUrl).trim();
+      accessToken.value = String(configHa.accessToken).trim();
       credentialsFromConfig.value = true;
       logger.log("✓ Using credentials from dashboard config");
       return true;
@@ -127,7 +139,7 @@ export const useAuthStore = defineStore("auth", () => {
     return false;
   };
 
-  const saveCredentials = async (url, token) => {
+  const saveCredentials = async (url: string, token: string): Promise<void> => {
     try {
       if (isCryptoSupported()) {
         await setSecureItem("ha_url", url);
@@ -146,7 +158,7 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
-  const clearCredentials = () => {
+  const clearCredentials = (): void => {
     removeSecureItem("ha_url");
     removeSecureItem("ha_token");
     haUrl.value = "";
@@ -154,8 +166,8 @@ export const useAuthStore = defineStore("auth", () => {
     needsCredentials.value = true;
   };
 
-  const connectWebSocket = async () => {
-    if (isLocalMode.value) return;
+  const connectWebSocket = async (): Promise<Connection | undefined> => {
+    if (isLocalMode.value) return undefined;
     if (!haUrl.value || !accessToken.value) {
       throw new Error("Missing credentials for WebSocket connection");
     }
@@ -167,7 +179,7 @@ export const useAuthStore = defineStore("auth", () => {
 
     try {
       logger.log("Connecting to Home Assistant at:", haUrl.value);
-      const auth = createLongLivedTokenAuth(haUrl.value, accessToken.value);
+      const auth: Auth = createLongLivedTokenAuth(haUrl.value, accessToken.value);
       logger.log("Creating connection to Home Assistant...");
       connection = await createConnection({ auth });
 
@@ -196,7 +208,11 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
-  const callService = async (domain, service, data) => {
+  const callService = async (
+    domain: string,
+    service: string,
+    data: ServiceCallData,
+  ): Promise<void> => {
     if (isLocalMode.value) {
       logger.warn("Service calls are disabled in local mode");
       return;
@@ -255,7 +271,7 @@ export const useAuthStore = defineStore("auth", () => {
     needsCredentials,
     isLoading,
     isInitialized,
-    getConnection: () => connection,
+    getConnection: (): Connection | null => connection,
     loadCredentials,
     saveCredentials,
     clearCredentials,

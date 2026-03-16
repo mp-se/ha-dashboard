@@ -1,7 +1,13 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, Ref } from "vue";
 import { useAuthStore } from "./authStore";
 import { useEntitiesStore } from "./entitiesStore";
+
+interface Forecast {
+  type: string;
+  data: unknown[];
+  timestamp: number;
+}
 
 /**
  * Store responsible for managing weather forecast subscriptions and their state.
@@ -10,11 +16,11 @@ import { useEntitiesStore } from "./entitiesStore";
 export const useForecastStore = defineStore("forecast", () => {
   const authStore = useAuthStore();
 
-  const forecasts = ref({});
-  const forecastSubscriptions = ref({});
-  const forecastSupport = ref({});
-  const forecastErrors = ref({});
-  const forecastLoading = ref({});
+  const forecasts: Ref<Record<string, Forecast>> = ref({});
+  const forecastSubscriptions: Ref<Record<string, () => void>> = ref({});
+  const forecastSupport: Ref<Record<string, boolean>> = ref({});
+  const forecastErrors: Ref<Record<string, string | null>> = ref({});
+  const forecastLoading: Ref<Record<string, boolean>> = ref({});
 
   /**
    * Subscribe to real-time forecast data for a weather entity.
@@ -22,9 +28,9 @@ export const useForecastStore = defineStore("forecast", () => {
    * @param {string} [forecastType="daily"] - Forecast type: "daily", "hourly", or "twice_daily".
    */
   const subscribeToWeatherForecast = async (
-    entityId,
-    forecastType = "daily",
-  ) => {
+    entityId: string,
+    forecastType: string = "daily",
+  ): Promise<void> => {
     // Avoid duplicate subscriptions
     if (entityId in forecastSubscriptions.value) return;
 
@@ -44,11 +50,11 @@ export const useForecastStore = defineStore("forecast", () => {
     try {
       forecastLoading.value[entityId] = true;
       const unsubscribe = await connection.subscribeMessage(
-        (forecastData) => {
+        (forecastData: Record<string, unknown>) => {
           if (forecastData && forecastData.forecast) {
             forecasts.value[entityId] = {
-              type: forecastData.type || forecastType,
-              data: forecastData.forecast,
+              type: (forecastData.type as string) || forecastType,
+              data: (forecastData.forecast as unknown[]) || [],
               timestamp: Date.now(),
             };
             // Mirror forecast into entity attributes for components that read it there
@@ -65,14 +71,14 @@ export const useForecastStore = defineStore("forecast", () => {
           type: "weather/subscribe_forecast",
           entity_id: entityId,
           forecast_type: forecastType,
-        },
+        } as Record<string, unknown>,
         { resubscribe: true },
       );
       forecastSubscriptions.value[entityId] = unsubscribe;
     } catch (error) {
       forecastLoading.value[entityId] = false;
       forecastErrors.value[entityId] =
-        error.message || "Failed to subscribe to forecast";
+        (error && typeof error === "object" && "message" in error ? (error as Record<string, unknown>).message : null) as string || "Failed to subscribe to forecast";
     }
   };
 

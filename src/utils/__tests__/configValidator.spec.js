@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { validateConfig } from "../configValidator";
+import { validateConfig } from "../configValidator.ts";
 
 describe("configValidator", () => {
   describe("validateConfig - basic structure", () => {
