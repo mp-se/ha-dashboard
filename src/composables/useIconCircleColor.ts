@@ -206,27 +206,89 @@ export const useIconCircleColor = (
         return "#dc3545"; // Red - Unhealthy
       }
       // Generic AQI (0-500 scale)
-      if (value <= 50) return "#28a745"; // Green - Good
-      if (value <= 100) return "#ffc107"; // Yellow - Moderate
-      if (value <= 150) return "#fd7e14"; // Orange - Unhealthy for sensitive
-      if (value <= 200) return "#dc3545"; // Red - Unhealthy
-      if (value <= 300) return "#9d3061"; // Purple - Very unhealthy
-      return "#330000"; // Dark red - Hazardous
+      if (value < 50) return "#28a745"; // Green - Good
+      if (value < 100) return "#ffc107"; // Yellow - Moderate
+      if (value < 150) return "#fd7e14"; // Orange - Unhealthy for sensitive
+      if (value < 200) return "#dc3545"; // Red - Unhealthy
+      return "#7d1f1f"; // Dark red - Hazardous
     }
   }
 
-  // Binary sensor - on or off
-  if (domain === "binary_sensor") {
-    const isOn = state === "on" || state === "true" || state === "1";
-    return isOn ? "#28a745" : "#6c757d"; // Green if on, gray if off
+  // Pressure sensors (barometric)
+  if (deviceClass === "pressure" || /hPa|mbar|inHg|pressure/.test(unit)) {
+    const value = Number(state);
+    if (!Number.isNaN(value)) {
+      // Normal range is ~1010-1020 hPa
+      if (value >= 1010 && value <= 1020) return "#28a745"; // Green - Normal
+      if (value >= 1000 && value < 1010) return "#ffc107"; // Yellow - Low
+      if (value > 1020 && value <= 1030) return "#ffc107"; // Yellow - High
+      return "#dc3545"; // Red - Abnormal
+    }
   }
 
-  // Switch - on or off
-  if (domain === "switch") {
-    const isOn = state === "on" || state === "true" || state === "1";
-    return isOn ? "#28a745" : "#6c757d"; // Green if on, gray if off
+  // Illuminance/Light level sensors
+  if (
+    deviceClass === "illuminance" ||
+    /lux|illuminance|light.*level/.test(unit.toLowerCase())
+  ) {
+    const value = Number(state);
+    if (!Number.isNaN(value)) {
+      if (value < 50) return "#1f1f7d"; // Dark blue - Night
+      if (value < 500) return "#ffc107"; // Yellow - Twilight
+      return "#28a745"; // Green - Day
+    }
   }
 
-  // Default color - assume it's informational
-  return "#28a745"; // Default green
+  // Moisture/Water sensors
+  if (deviceClass === "moisture" || /moisture|water/.test(unit.toLowerCase())) {
+    const value = Number(state);
+    if (!Number.isNaN(value)) {
+      if (value <= 30) return "#28a745"; // Green - Dry (OK)
+      if (value <= 60) return "#ffc107"; // Yellow - Moist (caution)
+      return "#dc3545"; // Red - Wet (alert)
+    }
+  }
+
+  // Smoke/Gas detection (binary)
+  if (
+    deviceClass === "smoke" ||
+    deviceClass === "gas" ||
+    deviceClass === "problem"
+  ) {
+    if (state === "on" || state === "detected") return "#dc3545"; // Red - Detected
+    return "#28a745"; // Green - Clear
+  }
+
+  // Door/Window/Opening sensors (binary)
+  if (
+    deviceClass === "door" ||
+    deviceClass === "window" ||
+    deviceClass === "opening"
+  ) {
+    if (state === "on" || state === "open") return "#dc3545"; // Red - Open
+    return "#28a745"; // Green - Closed
+  }
+
+  // Occupancy/Motion sensors (binary)
+  if (deviceClass === "motion" || deviceClass === "occupancy") {
+    if (state === "on" || state === "detected") return "#ffc107"; // Yellow - Motion detected
+    return "#6c757d"; // Grey - No motion
+  }
+
+  // State-based entities (switches, lights, binary sensors, person, device_tracker, etc.)
+  if (
+    domain === "switch" ||
+    domain === "light" ||
+    domain === "binary_sensor" ||
+    domain === "person" ||
+    domain === "device_tracker"
+  ) {
+    if (state === "on" || state === "home" || state === "true") {
+      return "#28a745"; // Green - Active
+    }
+    return "#6c757d"; // Grey - Inactive
+  }
+
+  // Default: grey
+  return "#6c757d";
 };
