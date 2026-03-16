@@ -128,7 +128,11 @@ export const useEntitiesStore = defineStore("entities", () => {
     try {
       const baseUrl = import.meta.env.BASE_URL || "/";
       const dataUrl = baseUrl + "data/local-data.json";
-      const data = (await fetchJsonWithTimeout(dataUrl, {}, TIMEOUT_CONFIG)) as LocalData;
+      const data = (await fetchJsonWithTimeout(
+        dataUrl,
+        {},
+        TIMEOUT_CONFIG,
+      )) as LocalData;
       entities.value = data.sensors || [];
       devices.value = data.devices || [];
       areas.value = data.areas || [];
@@ -190,7 +194,9 @@ export const useEntitiesStore = defineStore("entities", () => {
         type: "config/area_registry/list",
       })) as Record<string, unknown>;
 
-      const areasArray = Array.isArray(result) ? result : (result?.result as Area[]) || [];
+      const areasArray = Array.isArray(result)
+        ? result
+        : (result?.result as Area[]) || [];
 
       if (areasArray.length > 0) {
         areas.value = areasArray.map((area) => {
@@ -259,7 +265,9 @@ export const useEntitiesStore = defineStore("entities", () => {
           }
 
           // 3. Update the virtual area sensor if it exists
-          const virtualAreaEntity = entityMap.value.get(`area.${device.area_id}`);
+          const virtualAreaEntity = entityMap.value.get(
+            `area.${device.area_id}`,
+          );
           if (virtualAreaEntity) {
             virtualAreaEntity.entities = area.entities;
           }
@@ -278,7 +286,9 @@ export const useEntitiesStore = defineStore("entities", () => {
         type: "config/device_registry/list",
       })) as Record<string, unknown>;
 
-      const deviceList = Array.isArray(result) ? result : (result?.result as Record<string, unknown>[]) || [];
+      const deviceList = Array.isArray(result)
+        ? result
+        : (result?.result as Record<string, unknown>[]) || [];
 
       if (deviceList.length > 0) {
         devices.value = deviceList.map((device) => {

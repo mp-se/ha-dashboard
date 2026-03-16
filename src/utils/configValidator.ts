@@ -371,7 +371,11 @@ export function validateConfig(config: unknown): ValidationResult {
         entityIndex++
       ) {
         const entity = view.entities[entityIndex] as Record<string, unknown>;
-        const validation = validateEntity(entity, String(view.name), entityIndex);
+        const validation = validateEntity(
+          entity,
+          String(view.name),
+          entityIndex,
+        );
         if (!validation.valid) {
           // Add line number hints for entities
           const entityLine = 20 + viewIndex * 10 + entityIndex;

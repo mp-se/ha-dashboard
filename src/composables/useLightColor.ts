@@ -198,10 +198,14 @@ export function useLightColor(
       }
 
       // Fallback color temperature gradient
-      if (kelvin <= 2700) return "#FFB366"; // Warm orange
-      else if (kelvin <= 3000) return "#FFCC80"; // Soft yellow
-      else if (kelvin <= 4000) return "#E8F4FD"; // Cool white
-      else if (kelvin <= 5000) return "#F0F8FF"; // Daylight white
+      if (kelvin <= 2700)
+        return "#FFB366"; // Warm orange
+      else if (kelvin <= 3000)
+        return "#FFCC80"; // Soft yellow
+      else if (kelvin <= 4000)
+        return "#E8F4FD"; // Cool white
+      else if (kelvin <= 5000)
+        return "#F0F8FF"; // Daylight white
       else return "#E3F2FD"; // Cold blue-white
     }
 

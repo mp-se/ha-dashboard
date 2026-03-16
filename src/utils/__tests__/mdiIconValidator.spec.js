@@ -4,7 +4,7 @@ import {
   suggestMdiIcons,
   getAllMdiIcons,
   getMdiIconCount,
-} from "../mdiIconValidator.ts";
+} from "../mdiIconValidator";
 
 describe("mdiIconValidator", () => {
   describe("isValidMdiIcon", () => {

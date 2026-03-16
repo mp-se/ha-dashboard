@@ -50,7 +50,9 @@ export const useClipboard = (): ClipboardReturn => {
         return true;
       } catch (fallbackError) {
         const errorMsg =
-          fallbackError instanceof Error ? fallbackError.message : "Copy failed";
+          fallbackError instanceof Error
+            ? fallbackError.message
+            : "Copy failed";
         error.value = errorMsg;
         return false;
       }

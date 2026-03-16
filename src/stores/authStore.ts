@@ -34,8 +34,12 @@ export const useAuthStore = defineStore("auth", () => {
   const accessToken: Ref<string> = ref("");
   const isConnected: Ref<boolean> = ref(false);
   const lastError: Ref<string | null> = ref(null);
-  const isLocalMode: Ref<boolean> = ref(import.meta.env.VITE_LOCAL_MODE === "true");
-  const developerMode: Ref<boolean> = ref(import.meta.env.VITE_DEVELOPER_MODE === "true");
+  const isLocalMode: Ref<boolean> = ref(
+    import.meta.env.VITE_LOCAL_MODE === "true",
+  );
+  const developerMode: Ref<boolean> = ref(
+    import.meta.env.VITE_DEVELOPER_MODE === "true",
+  );
   const credentialsFromConfig: Ref<boolean> = ref(false);
   const needsCredentials: Ref<boolean> = ref(false);
   const isLoading: Ref<boolean> = ref(true);
@@ -56,7 +60,10 @@ export const useAuthStore = defineStore("auth", () => {
 
   const wrapLibraryError = (error: unknown): string => {
     // home-assistant-js-websocket sometimes throws the error code directly (numeric)
-    const code = error && typeof error === "object" ? (error as Record<string, unknown>).code : error;
+    const code =
+      error && typeof error === "object"
+        ? (error as Record<string, unknown>).code
+        : error;
 
     if (code === ERR_INVALID_AUTH || code === "invalid_auth") {
       return "Authentication failed: Invalid access token. Check your VITE_HA_TOKEN.";
@@ -84,7 +91,9 @@ export const useAuthStore = defineStore("auth", () => {
       return `CORS or SSL error: Home Assistant server at ${haUrl.value} does not allow cross-origin requests or has an untrusted certificate. Ensure you can visit the URL in your browser and accept any certificate warnings.`;
     }
     return (
-      (error && typeof error === "object" && "message" in error ? (error as Record<string, unknown>).message : null) ||
+      (error && typeof error === "object" && "message" in error
+        ? (error as Record<string, unknown>).message
+        : null) ||
       (typeof error === "string"
         ? error
         : "Connection error with Home Assistant")
@@ -116,7 +125,8 @@ export const useAuthStore = defineStore("auth", () => {
 
     // Priority 2: Dashboard config (provided template)
     const configStore = useConfigStore();
-    const configHa = (configStore.dashboardConfig as Record<string, unknown>)?.haConfig as Record<string, unknown> | undefined;
+    const configHa = (configStore.dashboardConfig as Record<string, unknown>)
+      ?.haConfig as Record<string, unknown> | undefined;
     if (configHa?.haUrl && configHa?.accessToken) {
       haUrl.value = String(configHa.haUrl).trim();
       accessToken.value = String(configHa.accessToken).trim();
@@ -179,7 +189,10 @@ export const useAuthStore = defineStore("auth", () => {
 
     try {
       logger.log("Connecting to Home Assistant at:", haUrl.value);
-      const auth: Auth = createLongLivedTokenAuth(haUrl.value, accessToken.value);
+      const auth: Auth = createLongLivedTokenAuth(
+        haUrl.value,
+        accessToken.value,
+      );
       logger.log("Creating connection to Home Assistant...");
       connection = await createConnection({ auth });
 

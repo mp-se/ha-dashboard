@@ -106,7 +106,8 @@ export const useServiceCall = (): ServiceCallReturn => {
         return false;
       }
     } catch (e) {
-      error.value = (e as Error).message || "Unexpected error during service call";
+      error.value =
+        (e as Error).message || "Unexpected error during service call";
       logger.error("Service call error:", e);
       return false;
     } finally {

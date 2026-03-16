@@ -6,7 +6,7 @@ import {
   getSecureItem,
   removeSecureItem,
   isCryptoSupported,
-} from "../secureStorage.ts";
+} from "../secureStorage";
 
 describe("secureStorage", () => {
   beforeEach(() => {
