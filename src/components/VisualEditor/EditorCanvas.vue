@@ -5,32 +5,33 @@
       No entities in this view. Add entities from the palette on the left.
     </div>
 
+    <!-- Draggable list -->
     <draggable
-      v-else
+      v-if="entities.length > 0"
       v-model="localEntities"
       tag="div"
       class="row g-3"
-      item-key="__editorKey"
       ghost-class="ghost-entity"
       animation="200"
       @change="handleDragEnd"
       @start="isDragging = true"
       @end="isDragging = false"
     >
-      <template #item="{ element: entity, index }">
-        <div key="`entity-${index}`" class="col-lg-6 col-md-12">
+      <template #default>
+        <div
+          v-for="(entity, index) in localEntities"
+          :key="`entity-${index}`"
+          class="col-lg-6 col-md-12"
+        >
           <div
-            role="button"
-            class="card h-100 entity-card"
+            class="card h-100 entity-card bg-white"
             :class="{
-              'border-primary border-3': selectedEntityId === index,
+              'border-3 border-primary': isEntitySelected(index),
+              'border-1 border-light': !isEntitySelected(index),
               'dragging': isDragging,
             }"
-            :aria-label="`${getEntityName(entity)} - click to select`"
-            :tabindex="0"
-            @click="$emit('select-entity', index)"
-            @keydown.enter="$emit('select-entity', index)"
-            @keydown.space.prevent="$emit('select-entity', index)"
+            @click.stop="onCardClick(index)"
+            style="cursor: move"
           >
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-start gap-2">
@@ -51,15 +52,6 @@
                     Auto
                   </small>
                 </div>
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-danger flex-shrink-0"
-                  title="Remove entity"
-                  aria-label="Remove entity"
-                  @click.stop="$emit('remove-entity', index)"
-                >
-                  <i class="mdi mdi-trash-can"></i>
-                </button>
               </div>
             </div>
           </div>
@@ -80,7 +72,7 @@ const props = defineProps({
     default: () => [],
   },
   selectedEntityId: {
-    type: Number,
+    type: [Number, null],
     default: null,
   },
 });
@@ -99,16 +91,21 @@ watch(
   { deep: true }
 );
 
+const isEntitySelected = (index) => {
+  return props.selectedEntityId === index;
+};
+
 const getEntityName = (entity) => {
   if (!entity) return "Unknown";
 
   // Try to get entity name from store
-  if (entity.entity) {
+  if (entity.entity && typeof entity.entity === "string") {
     const entityState = store.entityMap?.[entity.entity];
     if (entityState?.attributes?.friendly_name) {
       return entityState.attributes.friendly_name;
     }
-    return entity.entity.split(".")[1]?.toUpperCase() || entity.entity;
+    const parts = entity.entity.split(".");
+    return parts[1]?.toUpperCase() || entity.entity;
   }
 
   if (entity.getter) {
@@ -133,6 +130,20 @@ const getEntityName = (entity) => {
 const handleDragEnd = () => {
   emit("reorder-entities", localEntities.value);
 };
+
+const handleSelectClick = (index) => {
+  if (isEntitySelected(index)) {
+    // Deselect if clicking the same entity
+    emit("select-entity", null);
+  } else {
+    // Select the clicked entity
+    emit("select-entity", index);
+  }
+};
+
+const onCardClick = (index) => {
+  handleSelectClick(index);
+};
 </script>
 
 <style scoped>
@@ -145,6 +156,7 @@ const handleDragEnd = () => {
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
+  background: white;
 }
 
 .entity-card:hover {
@@ -168,6 +180,20 @@ const handleDragEnd = () => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.ghost-entity {
+  opacity: 0.5;
+  background: #d3e5f8 !important;
+  border: 2px dashed #0d6efd !important;
+}
+
+.sortable-move {
+  transition: transform 0.2s ease;
 }
 
 .drag-handle:active {

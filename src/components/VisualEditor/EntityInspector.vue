@@ -38,94 +38,96 @@
     <div class="inspector-section mb-3">
       <label class="form-label small mb-2"><strong>Attributes</strong></label>
       <div class="attributes-form">
+        <!-- Show message if no entity is selected -->
+        <div v-if="!props.entity?.entity" class="alert alert-info alert-sm mb-2">
+          <small>Select an entity to see available attributes</small>
+        </div>
+
+        <!-- List of configured attributes -->
         <div v-for="(value, key, idx) in localAttributes" :key="`attr-${key}-${idx}`" class="mb-2">
-          <div class="input-group input-group-sm">
-            <input
-              type="text"
-              class="form-control form-control-sm"
-              placeholder="Key"
-              :value="key"
-              disabled
-            />
-            <input
-              type="text"
-              class="form-control form-control-sm"
-              placeholder="Value"
-              :value="value"
-              @input="updateAttribute(key, $event.target.value)"
-            />
-            <button
-              type="button"
-              class="btn btn-outline-danger btn-sm"
-              title="Remove attribute"
-              @click="removeAttribute(key)"
-            >
-              ✕
-            </button>
+          <div class="attribute-row">
+            <div class="attribute-key">
+              <small class="text-monospace">{{ key }}</small>
+              <span class="badge bg-secondary ms-1" :title="`Value type: ${getAttributeType(value)}`">
+                {{ getAttributeTypeShort(value) }}
+              </span>
+            </div>
+            <div class="input-group input-group-sm">
+              <input
+                type="text"
+                class="form-control form-control-sm attribute-input"
+                placeholder="Value"
+                :value="formatAttributeValue(value)"
+                @input="updateAttribute(key, $event.target.value)"
+              />
+              <button
+                type="button"
+                class="btn btn-outline-danger btn-sm"
+                title="Remove attribute"
+                @click="removeAttribute(key)"
+              >
+                <i class="mdi mdi-trash-can"></i>
+              </button>
+            </div>
+            <small v-if="attributeErrors[key]" class="text-danger d-block mt-1">
+              {{ attributeErrors[key] }}
+            </small>
           </div>
         </div>
 
-        <!-- Add New Attribute -->
-        <button
-          type="button"
-          class="btn btn-sm btn-outline-secondary w-100"
-          @click="showAddAttribute = true"
-        >
-          <i class="mdi mdi-plus me-1"></i>Add Attribute
-        </button>
+        <!-- Dropdown to add attributes from available list -->
+        <div v-if="unusedAttributeNames.length > 0" class="mt-2">
+          <label class="form-label small mb-1"><strong>Add Attribute</strong></label>
+          <select
+            class="form-select form-select-sm"
+            @change="addAttributeFromDropdown($event.target.value); $event.target.value = ''"
+          >
+            <option value="">-- Select an attribute --</option>
+            <option v-for="attrName in unusedAttributeNames" :key="attrName" :value="attrName">
+              {{ attrName }}
+            </option>
+          </select>
+        </div>
 
-        <!-- New Attribute Form (Hidden by default) -->
-        <div v-if="showAddAttribute" class="mt-2 p-2 bg-light rounded">
-          <div class="mb-2">
-            <input
-              v-model="newAttributeKey"
-              type="text"
-              class="form-control form-control-sm mb-2"
-              placeholder="Attribute name"
-            />
-            <input
-              v-model="newAttributeValue"
-              type="text"
-              class="form-control form-control-sm"
-              placeholder="Attribute value"
-            />
-          </div>
-          <div class="d-flex gap-2">
-            <button
-              type="button"
-              class="btn btn-sm btn-primary"
-              @click="addNewAttribute"
-            >
-              Add
-            </button>
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-secondary"
-              @click="cancelAddAttribute"
-            >
-              Cancel
-            </button>
-          </div>
+        <!-- Message when all attributes are added -->
+        <div v-else-if="Object.keys(availableAttributes).length > 0" class="alert alert-success alert-sm mt-2 mb-0">
+          <small><i class="mdi mdi-check-circle me-1"></i>All available attributes added</small>
+        </div>
+
+        <!-- Message when no attributes available -->
+        <div v-else-if="props.entity?.entity && !entityFromStore" class="alert alert-warning alert-sm mt-2 mb-0">
+          <small><i class="mdi mdi-alert-circle me-1"></i>Entity not found in Home Assistant</small>
         </div>
       </div>
     </div>
 
     <!-- Actions -->
     <div class="inspector-section">
-      <button
-        type="button"
-        class="btn btn-danger w-100 btn-sm"
-        title="Remove this entity from the view"
-        @click="$emit('remove-entity')"
-      >
-        <i class="mdi mdi-trash-can me-2"></i>Remove Entity
-      </button>
+      <div class="btn-group w-100" role="group">
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          title="Deselect this entity"
+          @click="$emit('deselect')"
+        >
+          <i class="mdi mdi-close me-1"></i>Deselect
+        </button>
+        <button
+          type="button"
+          class="btn btn-danger btn-sm"
+          title="Remove this entity from the view"
+          @click="$emit('remove-entity')"
+        >
+          <i class="mdi mdi-trash-can me-1"></i>Remove
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch } from "vue";
+import { useHaStore } from "../../stores/haStore";
 import { getDefaultComponentType } from "../../composables/useDefaultComponentType";
 
 const props = defineProps({
@@ -139,21 +141,41 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["update-type", "update-attributes", "remove-entity"]);
+const emit = defineEmits(["update-type", "update-attributes", "remove-entity", "deselect"]);
 
+const store = useHaStore();
 const localAttributes = ref({});
-const showAddAttribute = ref(false);
-const newAttributeKey = ref("");
-const newAttributeValue = ref("");
+const attributeErrors = ref({});
 
 // Sync local attributes with prop
 watch(
   () => props.entity?.attributes,
   (newAttributes) => {
     localAttributes.value = { ...newAttributes };
+    attributeErrors.value = {};
   },
   { immediate: true, deep: true }
 );
+
+/** Get available attributes from the entity state in the store */
+const entityFromStore = computed(() => {
+  if (!props.entity?.entity) return null;
+  return store.entityMap?.[props.entity.entity];
+});
+
+/** Get all available attributes from the entity state */
+const availableAttributes = computed(() => {
+  if (!entityFromStore.value?.attributes) return {};
+  return entityFromStore.value.attributes;
+});
+
+/** Get attribute names that are available but not yet in the config */
+const unusedAttributeNames = computed(() => {
+  if (!availableAttributes.value) return [];
+  return Object.keys(availableAttributes.value)
+    .filter((key) => !(key in localAttributes.value))
+    .sort();
+});
 
 const recommendedType = computed(() => {
   if (props.entity?.getter) {
@@ -199,35 +221,102 @@ const availableComponentTypes = computed(() => {
   ].sort();
 });
 
+/**
+ * Format attribute value for display in input field
+ */
+const formatAttributeValue = (value) => {
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  // For objects/arrays, return JSON string
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+};
+
+/**
+ * Get the type of an attribute value
+ */
+const getAttributeType = (value) => {
+  if (value === null) return "null";
+  if (typeof value === "boolean") return "boolean";
+  if (typeof value === "number") return "number";
+  if (Array.isArray(value)) return "array";
+  if (typeof value === "object") return "object";
+  return "string";
+};
+
+/**
+ * Get short type indicator for badge
+ */
+const getAttributeTypeShort = (value) => {
+  const type = getAttributeType(value);
+  const typeMap = {
+    string: "str",
+    number: "num",
+    boolean: "bool",
+    object: "obj",
+    array: "arr",
+    null: "null",
+  };
+  return typeMap[type] || type;
+};
+
 const handleComponentTypeChange = (event) => {
   const value = event.target.value;
   emit("update-type", value === "auto" ? undefined : value);
 };
 
-const updateAttribute = (key, value) => {
+const updateAttribute = (key, valueStr) => {
+  const value = parseAttributeValue(valueStr);
   localAttributes.value[key] = value;
-  emit("update-attributes", localAttributes.value);
+  emit("update-attributes", { ...localAttributes.value });
 };
 
 const removeAttribute = (key) => {
   delete localAttributes.value[key];
+  delete attributeErrors.value[key];
   emit("update-attributes", { ...localAttributes.value });
 };
 
-const addNewAttribute = () => {
-  if (newAttributeKey.value.trim()) {
-    localAttributes.value[newAttributeKey.value] = newAttributeValue.value;
-    emit("update-attributes", { ...localAttributes.value });
-    newAttributeKey.value = "";
-    newAttributeValue.value = "";
-    showAddAttribute.value = false;
-  }
+/** Add attribute from dropdown - use value from store */
+const addAttributeFromDropdown = (attributeName) => {
+  const value = availableAttributes.value[attributeName];
+  localAttributes.value[attributeName] = value;
+  emit("update-attributes", { ...localAttributes.value });
 };
 
-const cancelAddAttribute = () => {
-  showAddAttribute.value = false;
-  newAttributeKey.value = "";
-  newAttributeValue.value = "";
+/**
+ * Parse attribute value from string input
+ * Handles: strings, numbers, booleans, JSON objects/arrays
+ */
+const parseAttributeValue = (valueStr) => {
+  if (!valueStr || typeof valueStr !== "string") return valueStr;
+
+  const trimmed = valueStr.trim();
+
+  // Boolean values
+  if (trimmed.toLowerCase() === "true") return true;
+  if (trimmed.toLowerCase() === "false") return false;
+
+  // Numeric values
+  if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
+    return parseFloat(trimmed);
+  }
+
+  // JSON values
+  if ((trimmed.startsWith("{") && trimmed.endsWith("}")) ||
+      (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return trimmed; // Return as string if JSON parsing fails
+    }
+  }
+
+  // Default to string
+  return trimmed;
 };
 </script>
 
@@ -257,17 +346,63 @@ const cancelAddAttribute = () => {
 }
 
 .attributes-form {
-  background-color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.attribute-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background: white;
   border: 1px solid #dee2e6;
   border-radius: 0.25rem;
-  padding: 0.5rem;
 }
 
-.attributes-form .input-group {
-  margin-bottom: 0.5rem;
+.attribute-key {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  font-size: 0.875rem;
 }
 
-.attributes-form .input-group:last-child {
+.attribute-key .badge {
+  font-size: 0.65rem;
+  padding: 0.25rem 0.4rem;
+  white-space: nowrap;
+}
+
+.attribute-input {
+  font-family: "Courier New", monospace;
+  font-size: 0.875rem;
+}
+
+.text-monospace {
+  font-family: "Courier New", monospace;
+  font-size: 0.875rem;
+}
+
+/* Hide spinner buttons on number inputs */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.alert-sm {
+  padding: 0.5rem 0.75rem;
   margin-bottom: 0;
+  font-size: 0.875rem;
+}
+
+.alert-sm small {
+  font-size: 0.825rem;
 }
 </style>

@@ -95,4 +95,20 @@ describe("EditorCanvas.vue", () => {
     await wrapper.vm.$nextTick();
     expect(wrapper.vm.selectedEntityId).toBe(0);
   });
+
+  it("deselects entity when clicking the same selected entity", async () => {
+    // Simulate selecting an entity
+    wrapper.vm.handleSelectClick(0);
+    expect(wrapper.emitted("select-entity")).toBeTruthy();
+    expect(wrapper.emitted("select-entity")[0]).toEqual([0]);
+
+    // Now update selectedEntityId to 0 (as parent would do)
+    await wrapper.setProps({ selectedEntityId: 0 });
+    await wrapper.vm.$nextTick();
+
+    // Click the same entity again to deselect
+    wrapper.vm.handleSelectClick(0);
+    const emissions = wrapper.emitted("select-entity");
+    expect(emissions[1]).toEqual([null]); // Should emit null to deselect
+  });
 });

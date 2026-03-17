@@ -35,35 +35,67 @@
 
     <!-- Entities List -->
     <div class="entities-list">
-      <div v-if="filteredEntities.length === 0" class="alert alert-sm alert-info mb-0">
-        <small>No entities match your filters</small>
+      <!-- No entities at all (usually means not connected or data not loaded) -->
+      <div v-if="allEntities.length === 0" class="alert alert-warning mb-0">
+        <small>
+          <i class="mdi mdi-alert-circle me-2"></i>
+          <strong>No entities available</strong>
+        </small>
+        <div class="mt-2 small text-dark">
+          <p class="mb-2">Entities will appear here when:</p>
+          <ul class="mb-0 ps-3">
+            <li>You connect to Home Assistant, OR</li>
+            <li>You enable Local Mode with sample data</li>
+          </ul>
+        </div>
+        <div class="mt-2 small text-muted">
+          Check the app settings or navbar for connection options.
+        </div>
       </div>
 
+      <!-- Search/filter matched no results (but entities exist) -->
+      <div v-else-if="filteredEntities.length === 0" class="alert alert-info mb-0">
+        <small>
+          <i class="mdi mdi-filter me-2"></i>
+          No entities match your filters ({{ allEntities.length }} total available)
+        </small>
+      </div>
+
+      <!-- Display filtered entities -->
       <div
         v-for="entity in filteredEntities"
+        v-else
         :key="entity.entity_id"
         class="entity-item mb-2"
       >
         <button
           type="button"
-          class="btn btn-sm btn-outline-primary w-100 text-start"
-          :disabled="isEntityInView(entity.entity_id)"
-          :title="isEntityInView(entity.entity_id) ? 'Already in this view' : 'Add to view'"
-          @click="$emit('add-entity', entity.entity_id)"
+          class="btn btn-sm w-100 text-start entity-button"
+          :class="{
+            'entity-button-selected': isEntityInView(entity.entity_id),
+            'entity-button-unselected': !isEntityInView(entity.entity_id),
+          }"
+          :title="
+            isEntityInView(entity.entity_id)
+              ? 'Click to remove from view'
+              : 'Click to add to view'
+          "
+          @click="
+            isEntityInView(entity.entity_id)
+              ? $emit('remove-entity', entity.entity_id)
+              : $emit('add-entity', entity.entity_id)
+          "
         >
           <div class="d-flex justify-content-between align-items-center">
             <div class="flex-grow-1">
               <div class="small">
-                <i class="mdi mdi-plus me-1"></i>
+                <i :class="isEntityInView(entity.entity_id) ? 'mdi mdi-check me-1' : 'mdi mdi-plus me-1'"></i>
                 {{ entity.attributes?.friendly_name || entity.entity_id.split(".")[1] }}
               </div>
               <small class="text-muted d-block">
                 {{ entity.entity_id }}
               </small>
             </div>
-            <small v-if="isEntityInView(entity.entity_id)" class="badge bg-success">
-              ✓
-            </small>
           </div>
         </button>
       </div>
@@ -82,7 +114,7 @@ const props = defineProps({
   },
 });
 
-defineEmits(["add-entity"]);
+defineEmits(["add-entity", "remove-entity"]);
 
 const store = useHaStore();
 const searchText = ref("");
@@ -95,8 +127,9 @@ const entitiesInViewIds = computed(() => {
 });
 
 const allEntities = computed(() => {
-  const map = store.entityMap || {};
-  return Object.entries(map).map(([entityId, state]) => ({
+  const map = store.entityMap;
+  if (!map || map.size === 0) return [];
+  return Array.from(map.entries()).map(([entityId, state]) => ({
     entity_id: entityId,
     ...state,
   }));
@@ -160,6 +193,59 @@ const isEntityInView = (entityId) => {
 .entity-item .btn {
   font-size: 0.875rem;
   padding: 0.5rem 0.75rem;
+  transition: all 0.15s ease-in-out;
+}
+
+.entity-button {
+  border: 1px solid #cbd5e1 !important;
+  background-color: #f8fafc !important;
+  color: #1e293b !important;
+  font-weight: 500;
+  transition: all 0.15s ease-in-out;
+}
+
+.entity-button-unselected {
+  border: 1px solid #cbd5e1 !important;
+  background-color: #f8fafc !important;
+  color: #1e293b !important;
+  box-shadow: none !important;
+}
+
+.entity-button-unselected:hover {
+  background-color: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+}
+
+.entity-button-selected {
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+  border: 2px solid #0284c7 !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(2, 132, 199, 0.25) !important;
+  transform: translateY(1px);
+  font-weight: 600;
+}
+
+.entity-button-selected:hover {
+  background-color: #cffafe !important;
+  border-color: #0284c7 !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08), 0 3px 8px rgba(2, 132, 199, 0.3) !important;
+}
+
+.entity-button-selected:active {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), inset 0 -1px 1px rgba(255, 255, 255, 0.5) !important;
+  transform: translateY(2px);
+}
+
+/* Ensure text is visible in selected state */
+.entity-button-selected .small,
+.entity-button-selected small {
+  color: #0369a1 !important;
+}
+
+.entity-button-selected i {
+  color: #0284c7 !important;
 }
 
 .entity-item button:disabled {

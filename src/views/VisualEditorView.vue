@@ -69,6 +69,7 @@
         <EntityPalette
           :entities-in-view="currentViewEntities"
           @add-entity="handleAddEntity"
+          @remove-entity="handleRemoveEntityByEntityId"
         />
       </div>
 
@@ -77,7 +78,7 @@
         <EditorCanvas
           :entities="currentViewEntities"
           :selected-entity-id="selectedEntityId"
-          @select-entity="selectedEntityId = $event"
+          @select-entity="onSelectEntity"
           @reorder-entities="handleReorderEntities"
           @remove-entity="handleRemoveEntity"
         />
@@ -92,6 +93,7 @@
           @update-type="handleUpdateEntityType"
           @update-attributes="handleUpdateEntityAttributes"
           @remove-entity="handleRemoveEntity(selectedEntityId)"
+          @deselect="selectedEntityId = null"
         />
         <div v-else class="p-3 text-muted text-center">
           <i class="mdi mdi-information-outline me-2"></i>
@@ -108,7 +110,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, watch } from "vue";
 import { useHaStore } from "../stores/haStore";
 import EditorCanvas from "../components/VisualEditor/EditorCanvas.vue";
 import EntityPalette from "../components/VisualEditor/EntityPalette.vue";
@@ -126,19 +128,34 @@ const saveStatus = ref("");
 const saveTimeout = ref(null);
 
 const availableViews = computed(() => {
-  return store.dashboardConfig?.views ?? [];
+  const views = store.dashboardConfig?.views ?? [];
+  return views;
 });
 
+// Watch availableViews and set the first view when it becomes available
+watch(
+  () => availableViews.value,
+  (views) => {
+    if (views.length > 0 && !selectedViewName.value) {
+      selectedViewName.value = views[0].name;
+      logger.log("Auto-selected first view:", views[0].name);
+    }
+  },
+  { immediate: true }
+);
+
 const currentView = computed(() => {
-  return availableViews.value.find((v) => v.name === selectedViewName.value);
+  const view = availableViews.value.find((v) => v.name === selectedViewName.value);
+  return view;
 });
 
 const currentViewEntities = computed(() => {
-  return currentView.value?.entities ?? [];
+  const entities = currentView.value?.entities ?? [];
+  return entities;
 });
 
 const selectedEntity = computed(() => {
-  if (!selectedEntityId.value) return null;
+  if (selectedEntityId.value == null) return null;
   return currentViewEntities.value.find((_, idx) => idx === selectedEntityId.value);
 });
 
@@ -201,6 +218,10 @@ const handleViewChange = () => {
   selectedEntityId.value = null;
 };
 
+const onSelectEntity = (entityId) => {
+  selectedEntityId.value = entityId;
+};
+
 const handleAddEntity = (entityId) => {
   if (!currentView.value) return;
 
@@ -216,6 +237,30 @@ const handleAddEntity = (entityId) => {
   };
 
   currentView.value.entities.push(newEntity);
+  debouncedSave();
+};
+
+const handleRemoveEntityByEntityId = (entityId) => {
+  if (!currentView.value) return;
+
+  const viewIndex = store.dashboardConfig.views.findIndex(
+    (v) => v.name === selectedViewName.value,
+  );
+  if (viewIndex === -1) return;
+
+  // Find the index of the entity with this entity_id and remove it
+  const entityIndex = currentView.value.entities.findIndex(
+    (e) => e.entity === entityId,
+  );
+  if (entityIndex === -1) return;
+
+  currentView.value.entities.splice(entityIndex, 1);
+  
+  // Deselect if this entity was selected
+  if (selectedEntityId.value === entityIndex) {
+    selectedEntityId.value = null;
+  }
+  
   debouncedSave();
 };
 
@@ -267,13 +312,6 @@ const handleUpdateEntityAttributes = (attributes) => {
   currentView.value.entities[selectedEntityId.value].attributes = attributes;
   debouncedSave();
 };
-
-onMounted(() => {
-  // Set default view to first available view
-  if (availableViews.value.length > 0) {
-    selectedViewName.value = availableViews.value[0].name;
-  }
-});
 </script>
 
 <style scoped>

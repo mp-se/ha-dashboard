@@ -99,4 +99,21 @@ describe("EntityPalette.vue", () => {
       expect(searchInput.element.value).toBe("");
     }
   });
+
+  it("shows helpful message when no entities are available", async () => {
+    // Create a wrapper with mocked empty store
+    const pinia2 = createPinia();
+    const wrapper2 = mount(EntityPalette, {
+      props: {
+        entitiesInView: [],
+      },
+      global: {
+        plugins: [pinia2],
+      },
+    });
+
+    // The new wrapper should have empty store
+    await wrapper2.vm.$nextTick();
+    expect(wrapper2.text()).toContain("No entities available");
+  });
 });
