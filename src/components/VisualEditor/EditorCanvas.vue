@@ -11,26 +11,38 @@
       tag="div"
       class="row g-3"
       item-key="__editorKey"
-      ghost-class="bg-light border-2 border-primary"
+      ghost-class="ghost-entity"
       animation="200"
       @change="handleDragEnd"
+      @start="isDragging = true"
+      @end="isDragging = false"
     >
       <template #item="{ element: entity, index }">
         <div key="`entity-${index}`" class="col-lg-6 col-md-12">
           <div
-            class="card h-100 cursor-pointer entity-card"
-            :class="{ 'border-primary border-3': selectedEntityId === index }"
+            role="button"
+            class="card h-100 entity-card"
+            :class="{
+              'border-primary border-3': selectedEntityId === index,
+              'dragging': isDragging,
+            }"
+            :aria-label="`${getEntityName(entity)} - click to select`"
+            :tabindex="0"
             @click="$emit('select-entity', index)"
+            @keydown.enter="$emit('select-entity', index)"
+            @keydown.space.prevent="$emit('select-entity', index)"
           >
             <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start">
-                <div class="flex-grow-1">
-                  <h6 class="card-title mb-2">
-                    <i class="mdi mdi-dragvertical me-2 text-muted"></i>
+              <div class="d-flex justify-content-between align-items-start gap-2">
+                <div class="drag-handle flex-shrink-0" title="Drag to reorder">
+                  <i class="mdi mdi-drag-vertical text-muted"></i>
+                </div>
+                <div class="flex-grow-1 min-width-0">
+                  <h6 class="card-title mb-2 text-truncate">
                     {{ getEntityName(entity) }}
                   </h6>
-                  <small class="text-muted d-block mb-2">
-                    ID: {{ entity.entity || entity.getter || "N/A" }}
+                  <small class="text-muted d-block mb-2 text-truncate" :title="entity.entity || entity.getter || 'N/A'">
+                    {{ entity.entity || entity.getter || "N/A" }}
                   </small>
                   <small v-if="entity.type" class="badge bg-light text-dark">
                     {{ entity.type }}
@@ -41,8 +53,9 @@
                 </div>
                 <button
                   type="button"
-                  class="btn btn-sm btn-outline-danger"
+                  class="btn btn-sm btn-outline-danger flex-shrink-0"
                   title="Remove entity"
+                  aria-label="Remove entity"
                   @click.stop="$emit('remove-entity', index)"
                 >
                   <i class="mdi mdi-trash-can"></i>
@@ -75,6 +88,7 @@ const props = defineProps({
 const emit = defineEmits(["select-entity", "reorder-entities", "remove-entity"]);
 
 const store = useHaStore();
+const isDragging = ref(false);
 const localEntities = ref(props.entities.length > 0 ? [...props.entities] : []);
 
 watch(
@@ -130,30 +144,52 @@ const handleDragEnd = () => {
 .entity-card {
   cursor: pointer;
   transition: all 0.2s ease;
+  user-select: none;
 }
 
 .entity-card:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
-.entity-card.active {
-  border: 2px solid #0d6efd !important;
+.entity-card:focus {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
 }
 
-.mdi-dragvertical {
+.entity-card.dragging {
+  opacity: 0.6;
+  background-color: #e7f1ff;
+}
+
+.drag-handle {
   cursor: grab;
+  padding: 0.25rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.mdi-dragvertical:active {
+.drag-handle:active {
   cursor: grabbing;
+}
+
+.min-width-0 {
+  min-width: 0;
+}
+
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:deep(.ghost-entity) {
+  opacity: 0.5;
 }
 
 :deep(.sortable-ghost) {
   opacity: 0.5;
   background-color: #e9ecef;
-}
-
-.cursor-pointer {
-  cursor: pointer;
 }
 </style>

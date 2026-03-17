@@ -68,8 +68,13 @@ describe("VisualEditorView.vue", () => {
   });
 
   it("has tab buttons", () => {
-    const buttons = wrapper.findAll(".btn-outline-primary");
+    const buttons = wrapper.findAll(".btn-group button");
+    // Should have Editor and Preview buttons
     expect(buttons.length).toBeGreaterThanOrEqual(2);
+    // Check for tab button content
+    const buttonTexts = buttons.map((b) => b.text());
+    expect(buttonTexts.some((t) => t.includes("Editor"))).toBe(true);
+    expect(buttonTexts.some((t) => t.includes("Preview"))).toBe(true);
   });
 
   it("loads first view by default", async () => {
