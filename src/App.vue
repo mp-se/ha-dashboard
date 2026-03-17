@@ -85,6 +85,7 @@ const devViewComponents = {
   device: defineAsyncComponent(() => import("./views/DevicesView.vue")),
   dev: defineAsyncComponent(() => import("./views/DevelopmentView.vue")),
   raw: defineAsyncComponent(() => import("./views/RawEntityView.vue")),
+  editor: defineAsyncComponent(() => import("./views/VisualEditorView.vue")),
 };
 
 const logger = createLogger("App");
