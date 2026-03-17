@@ -121,6 +121,11 @@ const searchText = ref("");
 const selectedType = ref("");
 
 const entitiesInViewIds = computed(() => {
+  console.log("[EntityPalette] entitiesInViewIds - entitiesInView:", props.entitiesInView, "isArray:", Array.isArray(props.entitiesInView));
+  if (!Array.isArray(props.entitiesInView)) {
+    console.warn("[EntityPalette] entitiesInViewIds - entitiesInView is not an array!");
+    return [];
+  }
   return props.entitiesInView
     .map((e) => e.entity)
     .filter((e) => e !== undefined && e !== null);

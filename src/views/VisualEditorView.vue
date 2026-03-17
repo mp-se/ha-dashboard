@@ -150,13 +150,24 @@ const currentView = computed(() => {
 });
 
 const currentViewEntities = computed(() => {
-  const entities = currentView.value?.entities ?? [];
+  const entities = currentView.value?.entities;
+  console.log("[VisualEditorView] currentViewEntities computed - currentView:", currentView.value, "entities:", entities, "isArray:", Array.isArray(entities));
+  // Ensure entities is always an array
+  if (!Array.isArray(entities)) {
+    return [];
+  }
   return entities;
 });
 
 const selectedEntity = computed(() => {
   if (selectedEntityId.value == null) return null;
-  return currentViewEntities.value.find((_, idx) => idx === selectedEntityId.value);
+  const entities = currentViewEntities.value;
+  console.log("[VisualEditorView] selectedEntity computed - entities:", entities, "isArray:", Array.isArray(entities), "selectedEntityId:", selectedEntityId.value);
+  if (!Array.isArray(entities)) {
+    console.warn("[VisualEditorView] selectedEntity - entities is not an array!");
+    return null;
+  }
+  return entities.find((_, idx) => idx === selectedEntityId.value);
 });
 
 const saveStatusClass = computed(() => {
@@ -236,12 +247,22 @@ const handleAddEntity = (entityId) => {
     type: undefined, // Will auto-detect based on entity type
   };
 
+  // Ensure entities is an array
+  if (!Array.isArray(currentView.value.entities)) {
+    currentView.value.entities = [];
+  }
+
   currentView.value.entities.push(newEntity);
   debouncedSave();
 };
 
 const handleRemoveEntityByEntityId = (entityId) => {
   if (!currentView.value) return;
+
+  // Ensure entities is an array
+  if (!Array.isArray(currentView.value.entities)) {
+    return;
+  }
 
   const viewIndex = store.dashboardConfig.views.findIndex(
     (v) => v.name === selectedViewName.value,
@@ -278,6 +299,11 @@ const handleReorderEntities = (reorderedEntities) => {
 
 const handleRemoveEntity = (entityIndex) => {
   if (entityIndex === null || !currentView.value) return;
+
+  // Ensure entities is an array
+  if (!Array.isArray(currentView.value.entities)) {
+    return;
+  }
 
   const viewIndex = store.dashboardConfig.views.findIndex(
     (v) => v.name === selectedViewName.value,
