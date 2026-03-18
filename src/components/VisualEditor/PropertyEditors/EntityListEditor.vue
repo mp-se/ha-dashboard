@@ -216,7 +216,11 @@ const onDropInList = (event, index) => {
   
   const sourceIndex = draggedIndex.value;
   // Don't allow dropping on first entity (room entity)
-  if (isFirstEntity(index)) return;
+  if (isFirstEntity(index)) {
+    draggedIndex.value = null;
+    dragOverIndex.value = null;
+    return;
+  }
   
   // Don't do anything if dropped on itself
   if (sourceIndex === index) {
