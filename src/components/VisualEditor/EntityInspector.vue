@@ -34,6 +34,21 @@
       </select>
     </div>
 
+    <!-- Card-Specific Properties -->
+    <div v-if="hasCardProperties" class="inspector-section mb-3">
+      <label class="form-label small mb-2"><strong>Properties</strong></label>
+      <div class="properties-form">
+        <PropertyEditorFactory
+          v-for="(propertyDef, propName) in cardProperties"
+          :key="propName"
+          :property="{ ...propertyDef, label: propertyDef.label }"
+          :model-value="localProperties[propName]"
+          :error="propertyErrors[propName]"
+          @update:model-value="updateProperty(propName, $event)"
+        />
+      </div>
+    </div>
+
     <!-- Attributes Editor -->
     <div v-if="entityFromStore && Object.keys(availableAttributes).length > 0" class="inspector-section mb-3">
       <label class="form-label small mb-2"><strong>Attributes</strong></label>
@@ -129,6 +144,8 @@
 import { ref, computed, watch } from "vue";
 import { useHaStore } from "../../stores/haStore";
 import { getDefaultComponentType } from "../../composables/useDefaultComponentType";
+import { getCardProperties, validateProperty } from "../../utils/cardPropertyMetadata";
+import PropertyEditorFactory from "./PropertyEditors/PropertyEditorFactory.vue";
 
 const props = defineProps({
   entity: {
@@ -141,11 +158,13 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["update-type", "update-attributes", "remove-entity", "deselect"]);
+const emit = defineEmits(["update-type", "update-attributes", "update-properties", "remove-entity", "deselect"]);
 
 const store = useHaStore();
 const localAttributes = ref({});
+const localProperties = ref({});
 const attributeErrors = ref({});
+const propertyErrors = ref({});
 
 // Sync local attributes with prop
 watch(
@@ -153,6 +172,25 @@ watch(
   (newAttributes) => {
     localAttributes.value = { ...newAttributes };
     attributeErrors.value = {};
+  },
+  { immediate: true, deep: true }
+);
+
+// Sync local properties with prop
+watch(
+  () => props.entity,
+  (newEntity) => {
+    if (!newEntity) return;
+    // Extract all card-specific properties from entity
+    const propsDef = getCardProperties(newEntity.type || "");
+    const newProperties = {};
+    for (const propName of Object.keys(propsDef)) {
+      if (propName in newEntity) {
+        newProperties[propName] = newEntity[propName];
+      }
+    }
+    localProperties.value = newProperties;
+    propertyErrors.value = {};
   },
   { immediate: true, deep: true }
 );
@@ -221,6 +259,18 @@ const availableComponentTypes = computed(() => {
   ].sort();
 });
 
+/** Get properties for the current component type */
+const cardProperties = computed(() => {
+  const type = props.entity?.type;
+  if (!type) return {};
+  return getCardProperties(type);
+});
+
+/** Check if the current card has any special properties */
+const hasCardProperties = computed(() => {
+  return Object.keys(cardProperties.value).length > 0;
+});
+
 /**
  * Format attribute value for display in input field
  */
@@ -266,6 +316,24 @@ const getAttributeTypeShort = (value) => {
 const handleComponentTypeChange = (event) => {
   const value = event.target.value;
   emit("update-type", value === "auto" ? undefined : value);
+};
+
+const updateProperty = (propName, value) => {
+  // Validate the property
+  const validation = validateProperty(props.entity?.type || "", propName, value);
+  if (!validation.valid) {
+    propertyErrors.value[propName] = validation.error;
+    return;
+  }
+  
+  // Clear any previous error
+  propertyErrors.value[propName] = "";
+  
+  // Update local property
+  localProperties.value[propName] = value;
+  
+  // Emit all properties
+  emit("update-properties", { ...localProperties.value });
 };
 
 const updateAttribute = (key, valueStr) => {

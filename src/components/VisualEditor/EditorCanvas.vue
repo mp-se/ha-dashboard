@@ -1,8 +1,8 @@
 <template>
-  <div class="editor-canvas p-4">
-    <div v-if="entityCount === 0" class="alert alert-info">
+  <div class="editor-canvas p-4" @dragover="handleDragOver" @drop="handleDrop" @dragenter="handleDragEnter" @dragleave="handleDragLeave">
+    <div v-if="entityCount === 0" class="alert alert-info" :class="{ 'drop-zone-active': isDragOver }">
       <i class="mdi mdi-information-outline me-2"></i>
-      No entities in this view. Add entities from the palette on the left.
+      No entities in this view. Drag entities from the palette on the left or add them by clicking.
     </div>
 
     <!-- Draggable grid layout - matches main view structure -->
@@ -13,17 +13,29 @@
       class="row g-3"
       ghost-class="ghost-entity"
       animation="200"
+      group="entities"
       @change="handleDragEnd"
+      @add="handleEntityAdded"
       @start="isDragging = true"
       @end="isDragging = false"
+      @dragover="handleDragOver"
+      @drop="handleDrop"
+      @dragenter="handleDragEnter"
+      @dragleave="handleDragLeave"
     >
       <template #default>
         <!-- Grid wrapper with layout from componentLayouts constants -->
         <div
           v-for="(entity, index) in localEntities"
           :key="`entity-${index}`"
-          :class="getComponentClasses(entity)"
+          :class="[getComponentClasses(entity), { 'drop-before': dragOverIndex === index && isDropping }]"
+          @dragover.prevent="handleEntityDragOver(index, $event)"
+          @dragleave="handleEntityDragLeave(index)"
+          @drop.prevent="handleEntityDrop(index, $event)"
         >
+          <!-- Drop indicator line (before this item) -->
+          <div v-if="dragOverIndex === index && isDropping" class="drop-indicator drop-indicator-before"></div>
+          
           <!-- Editor overlay for edit controls -->
           <div
             class="editor-overlay"
@@ -53,6 +65,9 @@
             </div>
           </div>
         </div>
+        
+        <!-- Drop indicator at the end -->
+        <div v-if="dragOverIndex === localEntities.length && isDropping" class="drop-indicator drop-indicator-end" style="grid-column: 1 / -1; height: 3px;"></div>
       </template>
     </draggable>
   </div>
@@ -106,10 +121,14 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["select-entity", "reorder-entities", "remove-entity"]);
+const emit = defineEmits(["select-entity", "reorder-entities", "remove-entity", "add-entity", "add-entity-at-index"]);
 
 const store = useHaStore();
 const isDragging = ref(false);
+const isDragOver = ref(false);
+const isDropping = ref(false);
+const dragOverCounter = ref(0);
+const dragOverIndex = ref(null);
 const localEntities = ref(Array.isArray(props.entities) ? [...props.entities] : []);
 
 // Safe entity count
@@ -280,6 +299,107 @@ const getComponentClasses = (entity) => {
   if (!entity) return "col-lg-4 col-md-6";
   return getComponentLayoutClasses(entity.type);
 };
+
+const handleDragOver = (event) => {
+  event.preventDefault();
+  event.dataTransfer.dropEffect = "copy";
+};
+
+const handleDragEnter = () => {
+  dragOverCounter.value++;
+  isDragOver.value = true;
+  isDropping.value = true;
+};
+
+const handleDragLeave = () => {
+  dragOverCounter.value--;
+  if (dragOverCounter.value <= 0) {
+    isDragOver.value = false;
+    dragOverCounter.value = 0;
+    dragOverIndex.value = null;
+    isDropping.value = false;
+  }
+};
+
+const handleEntityDragOver = (index, event) => {
+  event.preventDefault();
+  event.dataTransfer.dropEffect = "copy";
+  
+  // Track the vertical position to determine if dropping before or after
+  const rect = event.currentTarget.getBoundingClientRect();
+  const midpoint = rect.top + rect.height / 2;
+  
+  // If dragging in upper half, place before this index
+  // If dragging in lower half, place after (at next index)
+  if (event.clientY < midpoint) {
+    dragOverIndex.value = index;
+  } else {
+    dragOverIndex.value = index + 1;
+  }
+};
+
+const handleEntityDragLeave = (index) => {
+  // Only reset if we're leaving this specific entity without entering another
+  if (dragOverIndex.value === index || dragOverIndex.value === index + 1) {
+    dragOverIndex.value = null;
+  }
+};
+
+const handleEntityDrop = (index, event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  
+  try {
+    const data = event.dataTransfer.getData("application/json");
+    if (data) {
+      const entityData = JSON.parse(data);
+      if (entityData.entity) {
+        // Determine the actual insertion index based on mouse position
+        const rect = event.currentTarget.getBoundingClientRect();
+        const midpoint = rect.top + rect.height / 2;
+        const insertIndex = event.clientY < midpoint ? index : index + 1;
+        
+        // Emit event with both the entity data and the insertion index
+        emit("add-entity-at-index", { entity: entityData.entity, index: insertIndex });
+      }
+    }
+  } catch (error) {
+    console.error("[EditorCanvas] Error handling entity drop:", error);
+  } finally {
+    isDropping.value = false;
+    dragOverIndex.value = null;
+  }
+};
+
+
+const handleDrop = (event) => {
+  event.preventDefault();
+  isDragOver.value = false;
+  isDropping.value = false;
+  dragOverCounter.value = 0;
+  dragOverIndex.value = null;
+
+  try {
+    const data = event.dataTransfer.getData("application/json");
+    if (data) {
+      const entityData = JSON.parse(data);
+      // Only add if it contains entity data
+      if (entityData.entity) {
+        // Add the entity to the view by emitting add-entity event
+        // The parent component (VisualEditorView) will handle this
+        emit("add-entity", entityData.entity);
+      }
+    }
+  } catch (error) {
+    console.error("[EditorCanvas] Error parsing dropped data:", error);
+  }
+};
+
+const handleEntityAdded = () => {
+  // This is called by vue-draggable when an item is added via external drag
+  // After the entity is added, emit the reorder event to sync with parent
+  emit("reorder-entities", localEntities.value);
+};
 </script>
 
 <style scoped>
@@ -287,6 +407,12 @@ const getComponentClasses = (entity) => {
   min-height: 400px;
   background-color: #f8f9fa;
   padding: 1rem;
+}
+
+.drop-zone-active {
+  background-color: #e8f4f8 !important;
+  border: 2px dashed #0d6efd !important;
+  border-radius: 4px;
 }
 
 .editor-overlay {
@@ -386,5 +512,32 @@ const getComponentClasses = (entity) => {
   letter-spacing: 0.5px;
   z-index: 11;
   pointer-events: none;
+}
+
+/* Drop indicator styling */
+.drop-before {
+  position: relative;
+}
+
+.drop-indicator {
+  position: absolute;
+  left: -0.75rem;
+  right: -0.75rem;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #0d6efd 10%, #0d6efd 90%, transparent);
+  border-radius: 2px;
+  z-index: 20;
+  box-shadow: 0 0 4px rgba(13, 110, 253, 0.5);
+}
+
+.drop-indicator-before {
+  top: -4px;
+}
+
+.drop-indicator-end {
+  margin-top: 0.5rem;
+  background: linear-gradient(90deg, transparent, #0d6efd 10%, #0d6efd 90%, transparent);
+  border-radius: 2px;
+  box-shadow: 0 0 4px rgba(13, 110, 253, 0.5);
 }
 </style>

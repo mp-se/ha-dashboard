@@ -54,42 +54,31 @@
       </div>
 
       <!-- Search/filter matched no results (but entities exist) -->
-      <div v-else-if="filteredEntities.length === 0" class="alert alert-info mb-0">
+      <div v-else-if="filteredEntities.length === 0" class="alert alert-success mb-0">
         <small>
-          <i class="mdi mdi-filter me-2"></i>
-          No entities match your filters ({{ allEntities.length }} total available)
+          <i class="mdi mdi-check-circle me-2\"></i>
+          All entities are already in this view!
         </small>
       </div>
 
-      <!-- Display filtered entities -->
+      <!-- Display filtered entities (available to drag) -->
       <div
         v-for="entity in filteredEntities"
         v-else
         :key="entity.entity_id"
         class="entity-item mb-2"
+        draggable="true"
+        @dragstart="handleDragStart($event, entity)"
+        @dragend="handleDragEnd"
       >
-        <button
-          type="button"
-          class="btn btn-sm w-100 text-start entity-button"
-          :class="{
-            'entity-button-selected': isEntityInView(entity.entity_id),
-            'entity-button-unselected': !isEntityInView(entity.entity_id),
-          }"
-          :title="
-            isEntityInView(entity.entity_id)
-              ? 'Click to remove from view'
-              : 'Click to add to view'
-          "
-          @click="
-            isEntityInView(entity.entity_id)
-              ? $emit('remove-entity', entity.entity_id)
-              : $emit('add-entity', entity.entity_id)
-          "
+        <div
+          class="btn btn-sm w-100 text-start entity-button entity-button-available"
+          title="Drag to add to view"
         >
           <div class="d-flex justify-content-between align-items-center">
             <div class="flex-grow-1">
               <div class="small">
-                <i :class="isEntityInView(entity.entity_id) ? 'mdi mdi-check me-1' : 'mdi mdi-plus me-1'"></i>
+                <i class="mdi mdi-drag-vertical me-1"></i>
                 {{ entity.attributes?.friendly_name || entity.entity_id.split(".")[1] }}
               </div>
               <small class="text-muted d-block">
@@ -97,7 +86,7 @@
               </small>
             </div>
           </div>
-        </button>
+        </div>
       </div>
     </div>
   </div>
@@ -150,6 +139,9 @@ const entityTypes = computed(() => {
 const filteredEntities = computed(() => {
   let result = allEntities.value;
 
+  // Filter out entities already in the view
+  result = result.filter((e) => !isEntityInView(e.entity_id));
+
   // Filter by type
   if (selectedType.value) {
     result = result.filter((e) => e.entity_id.startsWith(selectedType.value));
@@ -178,6 +170,20 @@ const filteredEntities = computed(() => {
 const isEntityInView = (entityId) => {
   return entitiesInViewIds.value.includes(entityId);
 };
+
+const handleDragStart = (event, entity) => {
+  event.dataTransfer.effectAllowed = "copy";
+  event.dataTransfer.setData("application/json", JSON.stringify({
+    entity: entity.entity_id,
+    type: "auto",
+  }));
+  const img = new Image();
+  event.dataTransfer.setDragImage(img, 0, 0);
+};
+
+const handleDragEnd = () => {
+  // Cleanup if needed
+};
 </script>
 
 <style scoped>
@@ -195,6 +201,14 @@ const isEntityInView = (entityId) => {
   margin-bottom: 0.5rem;
 }
 
+.entity-item {
+  cursor: move;
+}
+
+.entity-item[draggable="true"]:hover {
+  opacity: 0.8;
+}
+
 .entity-item .btn {
   font-size: 0.875rem;
   padding: 0.5rem 0.75rem;
@@ -207,6 +221,23 @@ const isEntityInView = (entityId) => {
   color: #1e293b !important;
   font-weight: 500;
   transition: all 0.15s ease-in-out;
+}
+
+.entity-button-available {
+  background-color: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #1e293b !important;
+}
+
+.entity-button-available:hover {
+  background-color: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  cursor: grab;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+}
+
+.entity-button-available:active {
+  cursor: grabbing;
 }
 
 .entity-button-unselected {

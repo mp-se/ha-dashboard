@@ -51,6 +51,8 @@
           @select-entity="onSelectEntity"
           @reorder-entities="handleReorderEntities"
           @remove-entity="handleRemoveEntity"
+          @add-entity="handleAddEntity"
+          @add-entity-at-index="handleAddEntityAtIndex"
         />
       </div>
 
@@ -62,6 +64,7 @@
           :entity-id="selectedEntityId"
           @update-type="handleUpdateEntityType"
           @update-attributes="handleUpdateEntityAttributes"
+          @update-properties="handleUpdateEntityProperties"
           @remove-entity="handleRemoveEntity(selectedEntityId)"
           @deselect="selectedEntityId = null"
         />
@@ -219,6 +222,33 @@ const handleAddEntity = (entityId) => {
   debouncedSave();
 };
 
+const handleAddEntityAtIndex = (payload) => {
+  if (!currentView.value || !payload) return;
+
+  const { entity: entityId, index } = payload;
+
+  const viewIndex = store.dashboardConfig.views.findIndex(
+    (v) => v.name === selectedViewName.value,
+  );
+  if (viewIndex === -1) return;
+
+  // Create a new entity entry
+  const newEntity = {
+    entity: entityId,
+    type: undefined, // Will auto-detect based on entity type
+  };
+
+  // Ensure entities is an array
+  if (!Array.isArray(currentView.value.entities)) {
+    currentView.value.entities = [];
+  }
+
+  // Clamp the index to valid range [0, array.length]
+  const clampedIndex = Math.max(0, Math.min(index, currentView.value.entities.length));
+  currentView.value.entities.splice(clampedIndex, 0, newEntity);
+  debouncedSave();
+};
+
 const handleRemoveEntityByEntityId = (entityId) => {
   if (!currentView.value) return;
 
@@ -299,6 +329,19 @@ const handleUpdateEntityAttributes = (attributes) => {
   if (viewIndex === -1) return;
 
   currentView.value.entities[selectedEntityId.value].attributes = attributes;
+  debouncedSave();
+};
+
+const handleUpdateEntityProperties = (properties) => {
+  if (selectedEntityId.value === null || !currentView.value) return;
+
+  const viewIndex = store.dashboardConfig.views.findIndex(
+    (v) => v.name === selectedViewName.value,
+  );
+  if (viewIndex === -1) return;
+
+  // Merge all properties into the entity
+  Object.assign(currentView.value.entities[selectedEntityId.value], properties);
   debouncedSave();
 };
 </script>
