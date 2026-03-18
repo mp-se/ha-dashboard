@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { COMPONENT_LAYOUTS, getComponentLayoutClasses, getComponentLayoutConfig } from "../componentLayouts";
+import {
+  COMPONENT_LAYOUTS,
+  getComponentLayoutClasses,
+  getComponentLayoutConfig,
+} from "../componentLayouts";
 
 describe("componentLayouts.js", () => {
   describe("COMPONENT_LAYOUTS constant", () => {
@@ -86,7 +90,7 @@ describe("componentLayouts.js", () => {
     it("all layouts should have classes property", () => {
       Object.entries(COMPONENT_LAYOUTS).forEach(([component, layout]) => {
         expect(layout.classes).toBeDefined(
-          `${component} should have classes property`
+          `${component} should have classes property`,
         );
       });
     });
@@ -94,13 +98,13 @@ describe("componentLayouts.js", () => {
     it("all layouts should have responsive breakpoint properties", () => {
       Object.entries(COMPONENT_LAYOUTS).forEach(([component, layout]) => {
         expect(layout.desktop).toBeDefined(
-          `${component} should have desktop property`
+          `${component} should have desktop property`,
         );
         expect(layout.tablet).toBeDefined(
-          `${component} should have tablet property`
+          `${component} should have tablet property`,
         );
         expect(layout.mobile).toBeDefined(
-          `${component} should have mobile property`
+          `${component} should have mobile property`,
         );
       });
     });

@@ -72,9 +72,9 @@ describe("EntityPalette.vue", () => {
     const filtered = wrapper.vm.filteredEntities;
     // Filtered entities should only include sensors
     if (filtered.length > 0) {
-      expect(
-        filtered.every((e) => e.entity_id.startsWith("sensor")),
-      ).toBe(true);
+      expect(filtered.every((e) => e.entity_id.startsWith("sensor"))).toBe(
+        true,
+      );
     }
   });
 

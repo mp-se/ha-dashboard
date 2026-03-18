@@ -101,7 +101,7 @@ const currentValue = computed(() => {
 const shouldShowError = computed(() => {
   // Always show in editor mode for management
   if (props.editorMode) return true;
-  
+
   if (!resolvedEntity.value || currentValue.value === null) return false;
 
   const current = currentValue.value;

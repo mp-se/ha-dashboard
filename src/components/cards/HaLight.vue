@@ -9,132 +9,126 @@
       !resolvedEntity ? 'border-warning' : cardBorderClass,
     ]"
   >
-      <div
-        :class="[
-          'card-body',
-          !resolvedEntity ? 'text-center text-warning' : 'd-flex flex-column',
-        ]"
-      >
-        <i
-          v-if="!resolvedEntity"
-          class="mdi mdi-alert-circle mdi-24px mb-2"
-        ></i>
-        <div v-if="!resolvedEntity">
-          Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
-          not found
-        </div>
-        <template v-else>
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <div class="text-start flex-grow-1">
-              <h6 class="card-title mb-0">{{ name }}</h6>
-            </div>
-            <button
-              class="ha-control-button"
-              :class="{ 'control-button-on': isOn && !isDisabled }"
-              :disabled="isDisabled || isLoading"
-              :title="isOn ? 'Turn off' : 'Turn on'"
-              :aria-label="isOn ? 'Turn off light' : 'Turn on light'"
-              @click="isOn = !isOn"
-            >
-              <div class="ha-control-circle-wrapper">
-                <svg
-                  width="50"
-                  height="50"
-                  viewBox="0 0 50 50"
-                  class="ha-control-circle"
-                >
-                  <circle cx="25" cy="25" r="22" :fill="controlCircleColor" />
-                </svg>
-                <i
-                  class="mdi mdi-lightbulb ha-control-icon"
-                  :style="{ color: iconColor }"
-                ></i>
-              </div>
-            </button>
-          </div>
-          <!-- Brightness slider for dimmable lights -->
-          <div class="mt-auto">
-            <div
-              v-if="supportsBrightness"
-              class="d-flex align-items-center gap-2 mb-2"
-            >
-              <input
-                :id="`brightness-${resolvedEntity.entity_id}`"
-                v-model="brightnessSliderValue"
-                type="range"
-                class="form-range flex-grow-1"
-                min="0"
-                max="100"
-                :disabled="isDisabled || !isOn"
-                @input="handleBrightnessChange"
-              />
-              <span class="text-muted small" style="min-width: 45px"
-                >{{ brightnessPct }}%</span
-              >
-            </div>
-
-            <!-- Color temperature presets for color temperature lights -->
-            <div
-              v-if="supportsColorTemp && !supportsColor && isOn"
-              class="mb-2"
-            >
-              <div class="d-flex gap-2 flex-wrap justify-content-center">
-                <button
-                  v-for="preset in supportedPresets"
-                  :key="preset.kelvin"
-                  type="button"
-                  class="preset-btn-icon"
-                  :class="{
-                    'active-preset': activePreset?.kelvin === preset.kelvin,
-                  }"
-                  :style="getPresetColor(preset.kelvin)"
-                  :disabled="isDisabled || !isOn"
-                  :title="preset.name"
-                  :aria-label="`Set color temperature to ${preset.name}`"
-                  @click="setColorTempPreset(preset.kelvin)"
-                >
-                  <i class="mdi mdi-lightbulb-on-90"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- Color presets for color lights -->
-            <div v-if="supportsColor && isOn" class="mb-2">
-              <div class="d-flex gap-2 flex-wrap justify-content-center">
-                <button
-                  v-for="preset in colorPresets"
-                  :key="preset.name"
-                  type="button"
-                  class="color-preset-btn-icon"
-                  :class="{
-                    'active-color': activeColorPreset?.name === preset.name,
-                    'white-preset': preset.name === 'White',
-                  }"
-                  :style="{
-                    backgroundColor: preset.color,
-                  }"
-                  :disabled="isDisabled || !isOn"
-                  :title="preset.name"
-                  @click="setColorPreset(preset)"
-                >
-                  <i class="mdi mdi-palette"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- Spacer for non-dimmable lights to maintain consistent height -->
-            <div
-              v-if="!supportsBrightness && !supportsColorTemp"
-              class="d-flex align-items-center gap-2"
-              style="visibility: hidden"
-            >
-              <input type="range" class="form-range flex-grow-1" disabled />
-              <span class="text-muted small" style="min-width: 45px">100%</span>
-            </div>
-          </div>
-        </template>
+    <div
+      :class="[
+        'card-body',
+        !resolvedEntity ? 'text-center text-warning' : 'd-flex flex-column',
+      ]"
+    >
+      <i v-if="!resolvedEntity" class="mdi mdi-alert-circle mdi-24px mb-2"></i>
+      <div v-if="!resolvedEntity">
+        Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
+        not found
       </div>
+      <template v-else>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div class="text-start flex-grow-1">
+            <h6 class="card-title mb-0">{{ name }}</h6>
+          </div>
+          <button
+            class="ha-control-button"
+            :class="{ 'control-button-on': isOn && !isDisabled }"
+            :disabled="isDisabled || isLoading"
+            :title="isOn ? 'Turn off' : 'Turn on'"
+            :aria-label="isOn ? 'Turn off light' : 'Turn on light'"
+            @click="isOn = !isOn"
+          >
+            <div class="ha-control-circle-wrapper">
+              <svg
+                width="50"
+                height="50"
+                viewBox="0 0 50 50"
+                class="ha-control-circle"
+              >
+                <circle cx="25" cy="25" r="22" :fill="controlCircleColor" />
+              </svg>
+              <i
+                class="mdi mdi-lightbulb ha-control-icon"
+                :style="{ color: iconColor }"
+              ></i>
+            </div>
+          </button>
+        </div>
+        <!-- Brightness slider for dimmable lights -->
+        <div class="mt-auto">
+          <div
+            v-if="supportsBrightness"
+            class="d-flex align-items-center gap-2 mb-2"
+          >
+            <input
+              :id="`brightness-${resolvedEntity.entity_id}`"
+              v-model="brightnessSliderValue"
+              type="range"
+              class="form-range flex-grow-1"
+              min="0"
+              max="100"
+              :disabled="isDisabled || !isOn"
+              @input="handleBrightnessChange"
+            />
+            <span class="text-muted small" style="min-width: 45px"
+              >{{ brightnessPct }}%</span
+            >
+          </div>
+
+          <!-- Color temperature presets for color temperature lights -->
+          <div v-if="supportsColorTemp && !supportsColor && isOn" class="mb-2">
+            <div class="d-flex gap-2 flex-wrap justify-content-center">
+              <button
+                v-for="preset in supportedPresets"
+                :key="preset.kelvin"
+                type="button"
+                class="preset-btn-icon"
+                :class="{
+                  'active-preset': activePreset?.kelvin === preset.kelvin,
+                }"
+                :style="getPresetColor(preset.kelvin)"
+                :disabled="isDisabled || !isOn"
+                :title="preset.name"
+                :aria-label="`Set color temperature to ${preset.name}`"
+                @click="setColorTempPreset(preset.kelvin)"
+              >
+                <i class="mdi mdi-lightbulb-on-90"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Color presets for color lights -->
+          <div v-if="supportsColor && isOn" class="mb-2">
+            <div class="d-flex gap-2 flex-wrap justify-content-center">
+              <button
+                v-for="preset in colorPresets"
+                :key="preset.name"
+                type="button"
+                class="color-preset-btn-icon"
+                :class="{
+                  'active-color': activeColorPreset?.name === preset.name,
+                  'white-preset': preset.name === 'White',
+                }"
+                :style="{
+                  backgroundColor: preset.color,
+                }"
+                :disabled="isDisabled || !isOn"
+                :title="preset.name"
+                @click="setColorPreset(preset)"
+              >
+                <i class="mdi mdi-palette"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Spacer for non-dimmable lights to maintain consistent height -->
+          <div
+            v-if="!supportsBrightness && !supportsColorTemp"
+            class="d-flex align-items-center gap-2"
+            style="visibility: hidden"
+          >
+            <input type="range" class="form-range flex-grow-1" disabled />
+            <span class="text-muted small" style="min-width: 45px">100%</span>
+          </div>
+        </div>
+      </template>
     </div>
+  </div>
 </template>
 
 <script setup>

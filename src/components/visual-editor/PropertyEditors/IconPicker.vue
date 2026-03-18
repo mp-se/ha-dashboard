@@ -14,17 +14,29 @@
           class="form-control"
           placeholder="Search icons (e.g., home, light, switch)..."
         />
-        <button v-if="searchText" type="button" class="btn btn-outline-secondary" @click="searchText = ''">
+        <button
+          v-if="searchText"
+          type="button"
+          class="btn btn-outline-secondary"
+          @click="searchText = ''"
+        >
           ✕
         </button>
       </div>
 
       <!-- Selected icon display -->
-      <div v-if="modelValue" class="d-flex align-items-center gap-2 mb-2 p-2 bg-light rounded">
+      <div
+        v-if="modelValue"
+        class="d-flex align-items-center gap-2 mb-2 p-2 bg-light rounded"
+      >
         <i :class="`mdi ${modelValue}`" style="font-size: 1.5rem"></i>
         <div class="small">
           <div class="fw-bold">{{ modelValue }}</div>
-          <button type="button" class="btn btn-link btn-sm p-0 text-danger" @click="$emit('update:modelValue', '')">
+          <button
+            type="button"
+            class="btn btn-link btn-sm p-0 text-danger"
+            @click="$emit('update:modelValue', '')"
+          >
             Clear
           </button>
         </div>
@@ -56,122 +68,122 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed } from "vue";
 
 // Common MDI icons for dashboard - expanded selection
 const COMMON_ICONS = [
-  'mdi-home',
-  'mdi-lightbulb',
-  'mdi-lightbulb-on',
-  'mdi-lightbulb-off',
-  'mdi-toggle-switch',
-  'mdi-toggle-switch-off',
-  'mdi-power-socket',
-  'mdi-fan',
-  'mdi-thermostat',
-  'mdi-thermometer',
-  'mdi-water-percent',
-  'mdi-water',
-  'mdi-cloud',
-  'mdi-cloud-sun',
-  'mdi-cloud-rain',
-  'mdi-sun',
-  'mdi-moon',
-  'mdi-weather-cloudy',
-  'mdi-weather-rainy',
-  'mdi-weather-sunny',
-  'mdi-alert-circle',
-  'mdi-alert-outline',
-  'mdi-check-circle',
-  'mdi-check-circle-outline',
-  'mdi-lock',
-  'mdi-lock-open',
-  'mdi-door',
-  'mdi-door-open',
-  'mdi-window-closed',
-  'mdi-window-open',
-  'mdi-blinds-vertical',
-  'mdi-blinds-vertical-closed',
-  'mdi-garage',
-  'mdi-garage-open',
-  'mdi-camera',
-  'mdi-motion-sensor',
-  'mdi-bell',
-  'mdi-bell-outline',
-  'mdi-phone',
-  'mdi-speaker',
-  'mdi-speaker-off',
-  'mdi-volume-high',
-  'mdi-volume-mute',
-  'mdi-music',
-  'mdi-play',
-  'mdi-pause',
-  'mdi-stop',
-  'mdi-skip-next',
-  'mdi-skip-previous',
-  'mdi-heart',
-  'mdi-heart-outline',
-  'mdi-star',
-  'mdi-star-outline',
-  'mdi-information-outline',
-  'mdi-help-circle',
-  'mdi-help-circle-outline',
-  'mdi-settings',
-  'mdi-cog',
-  'mdi-calendar',
-  'mdi-clock',
-  'mdi-clock-outline',
-  'mdi-timer',
-  'mdi-battery',
-  'mdi-battery-high',
-  'mdi-battery-medium',
-  'mdi-battery-low',
-  'mdi-power',
-  'mdi-power-on',
-  'mdi-power-off',
-  'mdi-wifi',
-  'mdi-wifi-off',
-  'mdi-radio',
-  'mdi-signal-2g',
-  'mdi-signal-3g',
-  'mdi-signal-4g',
-  'mdi-printer',
-  'mdi-laptop',
-  'mdi-desktop',
-  'mdi-television',
-  'mdi-tablet',
-  'mdi-phone-outline',
-  'mdi-car',
-  'mdi-bike',
-  'mdi-walk',
-  'mdi-run',
-  'mdi-tree',
-  'mdi-flower',
-  'mdi-fireplace',
-  'mdi-fire',
-  'mdi-bed',
-  'mdi-sofa',
-  'mdi-table-furniture',
-  'mdi-chart-line',
-  'mdi-chart-bar',
-  'mdi-chart-pie',
-  'mdi-percent',
-  'mdi-plus',
-  'mdi-minus',
-  'mdi-close',
-  'mdi-menu',
-  'mdi-dots-vertical',
-  'mdi-arrow-up',
-  'mdi-arrow-down',
-  'mdi-arrow-left',
-  'mdi-arrow-right',
+  "mdi-home",
+  "mdi-lightbulb",
+  "mdi-lightbulb-on",
+  "mdi-lightbulb-off",
+  "mdi-toggle-switch",
+  "mdi-toggle-switch-off",
+  "mdi-power-socket",
+  "mdi-fan",
+  "mdi-thermostat",
+  "mdi-thermometer",
+  "mdi-water-percent",
+  "mdi-water",
+  "mdi-cloud",
+  "mdi-cloud-sun",
+  "mdi-cloud-rain",
+  "mdi-sun",
+  "mdi-moon",
+  "mdi-weather-cloudy",
+  "mdi-weather-rainy",
+  "mdi-weather-sunny",
+  "mdi-alert-circle",
+  "mdi-alert-outline",
+  "mdi-check-circle",
+  "mdi-check-circle-outline",
+  "mdi-lock",
+  "mdi-lock-open",
+  "mdi-door",
+  "mdi-door-open",
+  "mdi-window-closed",
+  "mdi-window-open",
+  "mdi-blinds-vertical",
+  "mdi-blinds-vertical-closed",
+  "mdi-garage",
+  "mdi-garage-open",
+  "mdi-camera",
+  "mdi-motion-sensor",
+  "mdi-bell",
+  "mdi-bell-outline",
+  "mdi-phone",
+  "mdi-speaker",
+  "mdi-speaker-off",
+  "mdi-volume-high",
+  "mdi-volume-mute",
+  "mdi-music",
+  "mdi-play",
+  "mdi-pause",
+  "mdi-stop",
+  "mdi-skip-next",
+  "mdi-skip-previous",
+  "mdi-heart",
+  "mdi-heart-outline",
+  "mdi-star",
+  "mdi-star-outline",
+  "mdi-information-outline",
+  "mdi-help-circle",
+  "mdi-help-circle-outline",
+  "mdi-settings",
+  "mdi-cog",
+  "mdi-calendar",
+  "mdi-clock",
+  "mdi-clock-outline",
+  "mdi-timer",
+  "mdi-battery",
+  "mdi-battery-high",
+  "mdi-battery-medium",
+  "mdi-battery-low",
+  "mdi-power",
+  "mdi-power-on",
+  "mdi-power-off",
+  "mdi-wifi",
+  "mdi-wifi-off",
+  "mdi-radio",
+  "mdi-signal-2g",
+  "mdi-signal-3g",
+  "mdi-signal-4g",
+  "mdi-printer",
+  "mdi-laptop",
+  "mdi-desktop",
+  "mdi-television",
+  "mdi-tablet",
+  "mdi-phone-outline",
+  "mdi-car",
+  "mdi-bike",
+  "mdi-walk",
+  "mdi-run",
+  "mdi-tree",
+  "mdi-flower",
+  "mdi-fireplace",
+  "mdi-fire",
+  "mdi-bed",
+  "mdi-sofa",
+  "mdi-table-furniture",
+  "mdi-chart-line",
+  "mdi-chart-bar",
+  "mdi-chart-pie",
+  "mdi-percent",
+  "mdi-plus",
+  "mdi-minus",
+  "mdi-close",
+  "mdi-menu",
+  "mdi-dots-vertical",
+  "mdi-arrow-up",
+  "mdi-arrow-down",
+  "mdi-arrow-left",
+  "mdi-arrow-right",
 ];
 
 // eslint-disable-next-line no-unused-vars
 const props = defineProps({
   modelValue: {
     type: String,
-    default: '',
+    default: "",
   },
   label: {
     type: String,
@@ -179,7 +191,7 @@ const props = defineProps({
   },
   help: {
     type: String,
-    default: '',
+    default: "",
   },
   required: {
     type: Boolean,
@@ -187,13 +199,13 @@ const props = defineProps({
   },
   error: {
     type: String,
-    default: '',
+    default: "",
   },
 });
 
-defineEmits(['update:modelValue']);
+defineEmits(["update:modelValue"]);
 
-const searchText = ref('');
+const searchText = ref("");
 
 const filteredIcons = computed(() => {
   if (!searchText.value) return COMMON_ICONS;

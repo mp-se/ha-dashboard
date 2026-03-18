@@ -96,14 +96,14 @@
 </template>
 
 <script setup>
-import TextInput from './TextInput.vue';
-import TextAreaInput from './TextAreaInput.vue';
-import SelectInput from './SelectInput.vue';
-import BooleanToggle from './BooleanToggle.vue';
-import EntityListEditor from './EntityListEditor.vue';
-import IconPicker from './IconPicker.vue';
-import ColorPicker from './ColorPicker.vue';
-import NumberInput from './NumberInput.vue';
+import TextInput from "./TextInput.vue";
+import TextAreaInput from "./TextAreaInput.vue";
+import SelectInput from "./SelectInput.vue";
+import BooleanToggle from "./BooleanToggle.vue";
+import EntityListEditor from "./EntityListEditor.vue";
+import IconPicker from "./IconPicker.vue";
+import ColorPicker from "./ColorPicker.vue";
+import NumberInput from "./NumberInput.vue";
 
 // eslint-disable-next-line no-unused-vars
 const props = defineProps({
@@ -117,11 +117,11 @@ const props = defineProps({
   },
   error: {
     type: String,
-    default: '',
+    default: "",
   },
 });
 
-defineEmits(['update:modelValue']);
+defineEmits(["update:modelValue"]);
 </script>
 
 <style scoped>

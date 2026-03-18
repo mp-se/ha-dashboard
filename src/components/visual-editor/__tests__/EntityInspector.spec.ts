@@ -77,7 +77,9 @@ describe("EntityInspector.vue", () => {
     expect(entitiesStore.entityMap.has("light.living_room")).toBe(true);
     const storedEntity = entitiesStore.entityMap.get("light.living_room");
     expect(storedEntity?.attributes).toBeDefined();
-    expect(Object.keys(storedEntity?.attributes || {}).length).toBeGreaterThan(0);
+    expect(Object.keys(storedEntity?.attributes || {}).length).toBeGreaterThan(
+      0,
+    );
 
     // Verify the haStore also has the entity data via delegation
     const haStore = useHaStore();
@@ -97,7 +99,10 @@ describe("EntityInspector.vue", () => {
     // Now check if the attributes section is visible
     const attribForm = wrapper.find(".attributes-form");
     console.log("Attributes form exists:", attribForm.exists());
-    console.log("Looking for inspector-section:", wrapper.findAll(".inspector-section").length);
+    console.log(
+      "Looking for inspector-section:",
+      wrapper.findAll(".inspector-section").length,
+    );
     expect(attribForm.exists()).toBe(true);
   });
 
@@ -120,8 +125,10 @@ describe("EntityInspector.vue", () => {
     // Mock store data with available attributes
     const selects = wrapper.findAll("select");
     // Find the select that's for adding attributes (not the component type selector)
-    const addAttributeSelect = selects.find((s) => s.element.innerHTML.includes("Select an attribute"));
-    
+    const addAttributeSelect = selects.find((s) =>
+      s.element.innerHTML.includes("Select an attribute"),
+    );
+
     if (addAttributeSelect) {
       // The store should provide available attributes, so the dropdown should have options
       expect(addAttributeSelect.exists()).toBe(true);

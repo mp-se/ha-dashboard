@@ -7,8 +7,8 @@
 
     <div class="entity-list-editor">
       <!-- Entity list with drop zones -->
-      <div 
-        v-if="entities.length > 0" 
+      <div
+        v-if="entities.length > 0"
         class="list-group"
         @dragover.prevent="isDragOver = true"
         @dragleave="isDragOver = false"
@@ -18,7 +18,11 @@
           v-for="(entity, index) in entities"
           :key="`${entity}-${index}`"
           class="list-group-item list-group-item-sm d-flex justify-content-between align-items-center"
-          :class="{ 'entity-item-locked': isFirstEntity(index), 'entity-item-dragging': draggedIndex === index, 'list-group-drop-active': isDragOver }"
+          :class="{
+            'entity-item-locked': isFirstEntity(index),
+            'entity-item-dragging': draggedIndex === index,
+            'list-group-drop-active': isDragOver,
+          }"
           draggable="true"
           @dragstart="startDrag($event, index)"
           @dragenter.prevent="onDragEnter($event, index)"
@@ -36,7 +40,9 @@
             <i v-else class="mdi mdi-lock text-muted"></i>
             <div>
               <div class="small fw-bold">{{ getEntityLabel(entity) }}</div>
-              <div class="text-muted" style="font-size: 0.75rem">{{ entity }}</div>
+              <div class="text-muted" style="font-size: 0.75rem">
+                {{ entity }}
+              </div>
             </div>
           </div>
           <button
@@ -53,7 +59,7 @@
       </div>
 
       <!-- Empty state with drop zone -->
-      <div 
+      <div
         v-else
         class="drop-zone-empty p-3 border-2 border-dashed rounded text-center"
         :class="{ 'drop-zone-active': isDragOver }"
@@ -74,8 +80,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useHaStore } from '@/stores/haStore';
+import { ref, computed } from "vue";
+import { useHaStore } from "@/stores/haStore";
 
 const props = defineProps({
   modelValue: {
@@ -88,7 +94,7 @@ const props = defineProps({
   },
   help: {
     type: String,
-    default: '',
+    default: "",
   },
   required: {
     type: Boolean,
@@ -96,7 +102,7 @@ const props = defineProps({
   },
   error: {
     type: String,
-    default: '',
+    default: "",
   },
   lockFirstEntity: {
     type: Boolean,
@@ -104,7 +110,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['update:modelValue', 'all-entities-removed']);
+const emit = defineEmits(["update:modelValue", "all-entities-removed"]);
 
 const store = useHaStore();
 const isDragOver = ref(false);
@@ -113,7 +119,7 @@ const dragOverIndex = ref(null);
 
 const entities = computed({
   get: () => props.modelValue || [],
-  set: (value) => emit('update:modelValue', value),
+  set: (value) => emit("update:modelValue", value),
 });
 
 const allEntities = computed(() => {
@@ -144,14 +150,14 @@ const isFirstEntity = (index) => {
 /** Extract entity ID from drag event */
 const getEntityIdFromDragEvent = (event) => {
   let entityId = null;
-  
+
   // First try plain text format (from inspector)
-  entityId = event.dataTransfer.getData('text/plain');
-  
+  entityId = event.dataTransfer.getData("text/plain");
+
   // If that fails, try JSON format (from canvas/palette)
   if (!entityId) {
     try {
-      const json = event.dataTransfer.getData('application/json');
+      const json = event.dataTransfer.getData("application/json");
       if (json) {
         const data = JSON.parse(json);
         entityId = data.entity || data.entity_id;
@@ -160,7 +166,7 @@ const getEntityIdFromDragEvent = (event) => {
       // Ignore JSON parse errors
     }
   }
-  
+
   return entityId;
 };
 
@@ -168,7 +174,7 @@ const getEntityIdFromDragEvent = (event) => {
 const handleDropOnList = (event) => {
   isDragOver.value = false;
   const entityId = getEntityIdFromDragEvent(event);
-  
+
   if (entityId && !entities.value.includes(entityId)) {
     entities.value = [...entities.value, entityId];
   }
@@ -178,7 +184,7 @@ const handleDropOnList = (event) => {
 const handleDropOnEmptyList = (event) => {
   isDragOver.value = false;
   const entityId = getEntityIdFromDragEvent(event);
-  
+
   if (entityId) {
     entities.value = [entityId];
   }
@@ -192,8 +198,8 @@ const startDrag = (event, index) => {
     return;
   }
   draggedIndex.value = index;
-  event.dataTransfer.effectAllowed = 'move';
-  event.dataTransfer.setData('text/plain', entities.value[index]);
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("text/plain", entities.value[index]);
 };
 
 const onDragEnter = (event, index) => {
@@ -217,7 +223,7 @@ const onDropInList = (event, index) => {
     }
     return;
   }
-  
+
   const sourceIndex = draggedIndex.value;
   // Don't allow dropping on first entity (room entity)
   if (isFirstEntity(index)) {
@@ -225,20 +231,20 @@ const onDropInList = (event, index) => {
     dragOverIndex.value = null;
     return;
   }
-  
+
   // Don't do anything if dropped on itself
   if (sourceIndex === index) {
     draggedIndex.value = null;
     dragOverIndex.value = null;
     return;
   }
-  
+
   // Reorder the array
   const newArray = [...entities.value];
   const [removed] = newArray.splice(sourceIndex, 1);
   newArray.splice(index, 0, removed);
   entities.value = newArray;
-  
+
   draggedIndex.value = null;
   dragOverIndex.value = null;
 };
@@ -253,7 +259,7 @@ const removeEntity = (index) => {
   if (isFirstEntity(index)) return;
   const newArray = entities.value.filter((_, i) => i !== index);
   if (newArray.length === 0) {
-    emit('all-entities-removed');
+    emit("all-entities-removed");
   }
   entities.value = newArray;
 };
@@ -299,7 +305,9 @@ const removeEntity = (index) => {
   background-color: #cfe2ff;
   border-color: #0d6efd;
   border-style: solid;
-  box-shadow: inset 0 0 0.25rem rgba(13, 110, 253, 0.5), 0 0 0.5rem rgba(13, 110, 253, 0.2);
+  box-shadow:
+    inset 0 0 0.25rem rgba(13, 110, 253, 0.5),
+    0 0 0.5rem rgba(13, 110, 253, 0.2);
 }
 
 .drop-zone-empty.drop-zone-active small {
@@ -317,7 +325,9 @@ const removeEntity = (index) => {
   background-color: #cfe2ff;
   border-color: #0d6efd;
   border-style: solid;
-  box-shadow: inset 0 0 0.25rem rgba(13, 110, 253, 0.5), 0 0 0.5rem rgba(13, 110, 253, 0.2);
+  box-shadow:
+    inset 0 0 0.25rem rgba(13, 110, 253, 0.5),
+    0 0 0.5rem rgba(13, 110, 253, 0.2);
 }
 
 .drop-zone-active small {

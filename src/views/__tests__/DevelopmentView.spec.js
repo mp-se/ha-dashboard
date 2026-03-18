@@ -19,7 +19,7 @@ describe("DevelopmentView.vue", () => {
   it("renders the view title", () => {
     const wrapper = mount(DevelopmentView, {
       global: {
-        components:  { EntityList:  mockEntityList },
+        components: { EntityList: mockEntityList },
       },
     });
     expect(wrapper.text()).toContain("Component Development View");
@@ -33,7 +33,7 @@ describe("DevelopmentView.vue", () => {
 
     const wrapper = mount(DevelopmentView, {
       global: {
-        components:  { EntityList:  mockEntityList },
+        components: { EntityList: mockEntityList },
       },
     });
 
@@ -50,7 +50,7 @@ describe("DevelopmentView.vue", () => {
 
     const wrapper = mount(DevelopmentView, {
       global: {
-        components:  { EntityList:  mockEntityList },
+        components: { EntityList: mockEntityList },
       },
     });
 
@@ -95,7 +95,7 @@ describe("DevelopmentView.vue", () => {
 
     const wrapper = mount(DevelopmentView, {
       global: {
-        components:  { EntityList:  mockEntityList },
+        components: { EntityList: mockEntityList },
       },
     });
 
@@ -134,7 +134,7 @@ describe("DevelopmentView.vue", () => {
 
     const wrapper = mount(DevelopmentView, {
       global: {
-        components:  { EntityList:  mockEntityList },
+        components: { EntityList: mockEntityList },
       },
     });
 
@@ -156,7 +156,7 @@ describe("DevelopmentView.vue", () => {
 
     const wrapper = mount(DevelopmentView, {
       global: {
-        components:  { EntityList:  mockEntityList },
+        components: { EntityList: mockEntityList },
       },
     });
 
@@ -181,7 +181,7 @@ describe("DevelopmentView.vue", () => {
 
     const wrapper = mount(DevelopmentView, {
       global: {
-        components:  { EntityList:  mockEntityList },
+        components: { EntityList: mockEntityList },
       },
     });
 

@@ -9,23 +9,23 @@
       'shadow-lg',
     ]"
   >
-      <div class="card-body d-flex align-items-center">
-        <div class="text-start flex-grow-1">
-          <h6 class="card-title mb-0">{{ name }}</h6>
-        </div>
-        <div class="d-flex align-items-center">
-          <button
-            class="btn btn-outline-primary btn-wide"
-            :disabled="isUnavailable"
-            title="Press Button"
-            :aria-label="`Press ${name} button`"
-            @click="pressButton"
-          >
-            <i class="mdi mdi-gesture-tap-button"></i>
-          </button>
-        </div>
+    <div class="card-body d-flex align-items-center">
+      <div class="text-start flex-grow-1">
+        <h6 class="card-title mb-0">{{ name }}</h6>
+      </div>
+      <div class="d-flex align-items-center">
+        <button
+          class="btn btn-outline-primary btn-wide"
+          :disabled="isUnavailable"
+          title="Press Button"
+          :aria-label="`Press ${name} button`"
+          @click="pressButton"
+        >
+          <i class="mdi mdi-gesture-tap-button"></i>
+        </button>
       </div>
     </div>
+  </div>
 </template>
 
 <script setup>

@@ -64,7 +64,7 @@ describe("VisualEditorView - Phase 3: Simplified Integration Tests", () => {
     it("updates entity type in store when handler is called", async () => {
       // Ensure component is fully initialized
       await wrapper.vm.$nextTick();
-      
+
       // The onMounted should have set selectedViewName to "home"
       wrapper.vm.selectedEntityId = 0;
 
@@ -88,9 +88,11 @@ describe("VisualEditorView - Phase 3: Simplified Integration Tests", () => {
       wrapper.vm.handleUpdateEntityType("HaSensor");
       await wrapper.vm.$nextTick();
 
-      expect(store.dashboardConfig.views[0].entities[0].entity).toBe("light.living_room");
+      expect(store.dashboardConfig.views[0].entities[0].entity).toBe(
+        "light.living_room",
+      );
       expect(store.dashboardConfig.views[0].entities[0].attributes).toEqual(
-        originalAttributes
+        originalAttributes,
       );
     });
 
@@ -98,7 +100,8 @@ describe("VisualEditorView - Phase 3: Simplified Integration Tests", () => {
       await wrapper.vm.$nextTick();
       wrapper.vm.selectedEntityId = null;
 
-      const fn = () => {wrapper.vm.handleUpdateEntityType("HaButton");
+      const fn = () => {
+        wrapper.vm.handleUpdateEntityType("HaButton");
       };
 
       expect(fn).not.toThrow();
@@ -125,7 +128,7 @@ describe("VisualEditorView - Phase 3: Simplified Integration Tests", () => {
       await wrapper.vm.$nextTick();
 
       expect(store.dashboardConfig.views[0].entities[0].attributes).toEqual(
-        newAttributes
+        newAttributes,
       );
     });
 
@@ -171,7 +174,7 @@ describe("VisualEditorView - Phase 3: Simplified Integration Tests", () => {
       expect(fn).not.toThrow();
       // Attributes should NOT change since no entity is selected
       expect(store.dashboardConfig.views[0].entities[0].attributes.label).toBe(
-        "Living Room Light"
+        "Living Room Light",
       );
     });
   });
@@ -186,7 +189,9 @@ describe("VisualEditorView - Phase 3: Simplified Integration Tests", () => {
       wrapper.vm.handleUpdateEntityAttributes({ newAttr: "value" });
       await wrapper.vm.$nextTick();
 
-      expect(store.dashboardConfig.views[0].entities[0].type).toBe(originalType);
+      expect(store.dashboardConfig.views[0].entities[0].type).toBe(
+        originalType,
+      );
     });
 
     it("maintains attributes when updating type", async () => {
@@ -201,22 +206,20 @@ describe("VisualEditorView - Phase 3: Simplified Integration Tests", () => {
       await wrapper.vm.$nextTick();
 
       expect(store.dashboardConfig.views[0].entities[0].attributes).toEqual(
-        originalAttributes
+        originalAttributes,
       );
     });
   });
 
   describe("Multiple Entities", () => {
     beforeEach(() => {
-      store.dashboardConfig.views[0].entities.push(
-        {
-          entity: "light.bedroom",
-          type: "HaLight",
-          attributes: {
-            label: "Bedroom Light",
-          },
-        }
-      );
+      store.dashboardConfig.views[0].entities.push({
+        entity: "light.bedroom",
+        type: "HaLight",
+        attributes: {
+          label: "Bedroom Light",
+        },
+      });
     });
 
     it("updates correct entity when multiple exist", async () => {
@@ -230,12 +233,12 @@ describe("VisualEditorView - Phase 3: Simplified Integration Tests", () => {
 
       // First entity should be unchanged
       expect(store.dashboardConfig.views[0].entities[0].attributes.label).toBe(
-        "Living Room Light"
+        "Living Room Light",
       );
 
       // Second entity should be updated
       expect(store.dashboardConfig.views[0].entities[1].attributes.label).toBe(
-        "Updated Bedroom"
+        "Updated Bedroom",
       );
     });
 
@@ -291,9 +294,8 @@ describe("VisualEditorView - Phase 3: Simplified Integration Tests", () => {
       expect(fn).not.toThrow();
       // Store should remain unchanged since view doesn't exist
       expect(store.dashboardConfig.views[0].entities[0].attributes.label).toBe(
-        "Living Room Light"
+        "Living Room Light",
       );
     });
   });
 });
-

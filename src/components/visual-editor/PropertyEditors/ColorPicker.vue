@@ -18,7 +18,10 @@
           :title="color.name"
           @click="$emit('update:modelValue', color.hex)"
         >
-          <i v-if="modelValue === color.hex" class="mdi mdi-check text-white"></i>
+          <i
+            v-if="modelValue === color.hex"
+            class="mdi mdi-check text-white"
+          ></i>
         </button>
       </div>
 
@@ -44,7 +47,10 @@
 
       <!-- Current color display -->
       <div v-if="modelValue" class="mt-2">
-        <div class="current-color" :style="{ backgroundColor: modelValue }"></div>
+        <div
+          class="current-color"
+          :style="{ backgroundColor: modelValue }"
+        ></div>
       </div>
     </div>
 
@@ -58,7 +64,7 @@
 const props = defineProps({
   modelValue: {
     type: String,
-    default: '',
+    default: "",
   },
   label: {
     type: String,
@@ -66,7 +72,7 @@ const props = defineProps({
   },
   help: {
     type: String,
-    default: '',
+    default: "",
   },
   required: {
     type: Boolean,
@@ -74,29 +80,29 @@ const props = defineProps({
   },
   error: {
     type: String,
-    default: '',
+    default: "",
   },
 });
 
-defineEmits(['update:modelValue']);
+defineEmits(["update:modelValue"]);
 
 const colorPalette = [
-  { name: 'Primary', hex: '#0d6efd' },
-  { name: 'Secondary', hex: '#6c757d' },
-  { name: 'Success', hex: '#198754' },
-  { name: 'Danger', hex: '#dc3545' },
-  { name: 'Warning', hex: '#ffc107' },
-  { name: 'Info', hex: '#0dcaf0' },
-  { name: 'Light', hex: '#f8f9fa' },
-  { name: 'Dark', hex: '#212529' },
-  { name: 'Red', hex: '#e74c3c' },
-  { name: 'Orange', hex: '#e67e22' },
-  { name: 'Yellow', hex: '#f1c40f' },
-  { name: 'Green', hex: '#27ae60' },
-  { name: 'Blue', hex: '#3498db' },
-  { name: 'Purple', hex: '#9b59b6' },
-  { name: 'Pink', hex: '#e91e63' },
-  { name: 'Cyan', hex: '#00bcd4' },
+  { name: "Primary", hex: "#0d6efd" },
+  { name: "Secondary", hex: "#6c757d" },
+  { name: "Success", hex: "#198754" },
+  { name: "Danger", hex: "#dc3545" },
+  { name: "Warning", hex: "#ffc107" },
+  { name: "Info", hex: "#0dcaf0" },
+  { name: "Light", hex: "#f8f9fa" },
+  { name: "Dark", hex: "#212529" },
+  { name: "Red", hex: "#e74c3c" },
+  { name: "Orange", hex: "#e67e22" },
+  { name: "Yellow", hex: "#f1c40f" },
+  { name: "Green", hex: "#27ae60" },
+  { name: "Blue", hex: "#3498db" },
+  { name: "Purple", hex: "#9b59b6" },
+  { name: "Pink", hex: "#e91e63" },
+  { name: "Cyan", hex: "#00bcd4" },
 ];
 </script>
 

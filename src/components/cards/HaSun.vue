@@ -9,53 +9,50 @@
       !resolvedEntity ? 'border-warning' : cardBorderClass,
     ]"
   >
-      <div
-        :class="[
-          'card-body',
-          !resolvedEntity ? 'text-center text-warning' : 'py-2',
-        ]"
-      >
-        <i
-          v-if="!resolvedEntity"
-          class="mdi mdi-alert-circle mdi-24px mb-2"
-        ></i>
-        <div v-if="!resolvedEntity">
-          Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
-          not found
-        </div>
-        <template v-else>
-          <div class="d-flex align-items-center">
-            <div class="flex-grow-1 text-start">
-              <h6 class="card-title mb-1">{{ name }}</h6>
-              <div class="d-flex align-items-center mb-1">
-                <i :class="sunIcon" class="sun-icon me-2"></i>
-                <div class="sun-condition fw-bold">
-                  {{ formatStateText(state) }}
-                </div>
-              </div>
-            </div>
-            <div class="text-end small">
-              <div class="mb-1">
-                <span class="text-muted"
-                  >{{
-                    state === "above_horizon" ? "Sunrise" : "Next Sunrise"
-                  }}:</span
-                >
-                <span class="fw-bold">{{ formatTime24h(nextRising) }}</span>
-              </div>
-              <div>
-                <span class="text-muted"
-                  >{{
-                    state === "above_horizon" ? "Sunset" : "Next Sunset"
-                  }}:</span
-                >
-                <span class="fw-bold">{{ formatTime24h(nextSetting) }}</span>
+    <div
+      :class="[
+        'card-body',
+        !resolvedEntity ? 'text-center text-warning' : 'py-2',
+      ]"
+    >
+      <i v-if="!resolvedEntity" class="mdi mdi-alert-circle mdi-24px mb-2"></i>
+      <div v-if="!resolvedEntity">
+        Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
+        not found
+      </div>
+      <template v-else>
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1 text-start">
+            <h6 class="card-title mb-1">{{ name }}</h6>
+            <div class="d-flex align-items-center mb-1">
+              <i :class="sunIcon" class="sun-icon me-2"></i>
+              <div class="sun-condition fw-bold">
+                {{ formatStateText(state) }}
               </div>
             </div>
           </div>
-        </template>
-      </div>
+          <div class="text-end small">
+            <div class="mb-1">
+              <span class="text-muted"
+                >{{
+                  state === "above_horizon" ? "Sunrise" : "Next Sunrise"
+                }}:</span
+              >
+              <span class="fw-bold">{{ formatTime24h(nextRising) }}</span>
+            </div>
+            <div>
+              <span class="text-muted"
+                >{{
+                  state === "above_horizon" ? "Sunset" : "Next Sunset"
+                }}:</span
+              >
+              <span class="fw-bold">{{ formatTime24h(nextSetting) }}</span>
+            </div>
+          </div>
+        </div>
+      </template>
     </div>
+  </div>
 </template>
 
 <script setup>

@@ -9,37 +9,34 @@
       !resolvedEntity ? 'border-warning' : cardBorderClass,
     ]"
   >
-      <div
-        :class="[
-          'card-body',
-          !resolvedEntity
-            ? 'text-center text-warning'
-            : 'd-flex align-items-center',
-        ]"
-      >
-        <i
-          v-if="!resolvedEntity"
-          class="mdi mdi-alert-circle mdi-24px mb-2"
-        ></i>
-        <div v-if="!resolvedEntity">
-          Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
-          not found
-        </div>
+    <div
+      :class="[
+        'card-body',
+        !resolvedEntity
+          ? 'text-center text-warning'
+          : 'd-flex align-items-center',
+      ]"
+    >
+      <i v-if="!resolvedEntity" class="mdi mdi-alert-circle mdi-24px mb-2"></i>
+      <div v-if="!resolvedEntity">
+        Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
+        not found
+      </div>
 
-        <div v-else class="text-start flex-grow-1">
-          <h6 class="card-title mb-0">{{ name }}</h6>
-          <div class="mt-1 small text-muted">
-            <div><strong>Location:</strong> {{ location }}</div>
-            <div v-if="lastSeen">
-              <strong>Last Seen:</strong> {{ formattedLastSeen }}
-            </div>
+      <div v-else class="text-start flex-grow-1">
+        <h6 class="card-title mb-0">{{ name }}</h6>
+        <div class="mt-1 small text-muted">
+          <div><strong>Location:</strong> {{ location }}</div>
+          <div v-if="lastSeen">
+            <strong>Last Seen:</strong> {{ formattedLastSeen }}
           </div>
         </div>
-        <div class="d-flex align-items-center ms-2">
-          <i :class="iconClass" style="font-size: 2rem"></i>
-        </div>
+      </div>
+      <div class="d-flex align-items-center ms-2">
+        <i :class="iconClass" style="font-size: 2rem"></i>
       </div>
     </div>
+  </div>
 </template>
 
 <script setup>

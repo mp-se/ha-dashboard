@@ -1,7 +1,5 @@
 <template>
-  <div
-    v-if="entityList.length === 1 && !resolvedEntity"
-  >
+  <div v-if="entityList.length === 1 && !resolvedEntity">
     <div class="card card-display h-100 rounded-4 shadow-lg border-warning">
       <div class="card-body text-center text-warning">
         <i class="mdi mdi-alert-circle mdi-24px mb-2"></i>

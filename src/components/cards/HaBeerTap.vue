@@ -1,7 +1,5 @@
 <template>
-  <div
-    v-if="entityList.length === 0 || !hasValidEntities"
-  >
+  <div v-if="entityList.length === 0 || !hasValidEntities">
     <div
       class="ha-beer-tap card card-display h-100 rounded-4 shadow-lg border-warning"
     >

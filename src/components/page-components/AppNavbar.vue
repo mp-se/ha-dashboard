@@ -303,7 +303,11 @@ const menuItems = computed(() => {
 
   if (store.developerMode) {
     filtered.push(
-      { name: "editor", label: "Editor", icon: normalizeIcon("mdi-pencil-ruler") },
+      {
+        name: "editor",
+        label: "Editor",
+        icon: normalizeIcon("mdi-pencil-ruler"),
+      },
       { name: "dev", label: "Dev", icon: normalizeIcon("mdi-tools") },
       { name: "device", label: "Devices", icon: normalizeIcon("mdi-devices") },
       { name: "raw", label: "Raw", icon: normalizeIcon("mdi-code-json") },

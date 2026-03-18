@@ -9,7 +9,9 @@
           title="Toggle Static Components panel"
           @click="isExpanded = !isExpanded"
         >
-          <i :class="`mdi ${isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right'}`"></i>
+          <i
+            :class="`mdi ${isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right'}`"
+          ></i>
         </button>
         <h6 class="mb-0">Static Components</h6>
       </div>
@@ -83,10 +85,13 @@ const staticComponents = ref([
 const handleDragStart = (event, component) => {
   // Store component type in application/json format (same as EntityPalette)
   event.dataTransfer.effectAllowed = "copy";
-  event.dataTransfer.setData("application/json", JSON.stringify({
-    type: component.type,
-    isStatic: true, // Flag to indicate this is a static component
-  }));
+  event.dataTransfer.setData(
+    "application/json",
+    JSON.stringify({
+      type: component.type,
+      isStatic: true, // Flag to indicate this is a static component
+    }),
+  );
   event.dataTransfer.setData("text/plain", component.type);
   const img = new Image();
   event.dataTransfer.setDragImage(img, 0, 0);

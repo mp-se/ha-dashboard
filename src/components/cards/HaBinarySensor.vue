@@ -9,43 +9,40 @@
       !resolvedEntity ? 'border-warning' : cardBorderClass,
     ]"
   >
-      <div
-        :class="[
-          'card-body',
-          resolvedEntity
-            ? 'd-flex align-items-center'
-            : 'text-center text-warning',
-        ]"
-      >
-        <i
-          v-if="!resolvedEntity"
-          class="mdi mdi-alert-circle mdi-24px mb-2"
-        ></i>
-        <div v-if="!resolvedEntity">
-          Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
-          not found
-        </div>
+    <div
+      :class="[
+        'card-body',
+        resolvedEntity
+          ? 'd-flex align-items-center'
+          : 'text-center text-warning',
+      ]"
+    >
+      <i v-if="!resolvedEntity" class="mdi mdi-alert-circle mdi-24px mb-2"></i>
+      <div v-if="!resolvedEntity">
+        Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
+        not found
+      </div>
 
-        <div v-if="resolvedEntity" class="text-start flex-grow-1">
-          <h6 class="ha-entity-name mb-0">{{ name }}</h6>
-          <!-- Display requested attributes if provided -->
-          <EntityAttributeList :attributes="requestedAttributes" />
-        </div>
-        <div v-if="resolvedEntity" class="d-flex align-items-center ms-2">
-          <div
-            class="binary-state-indicator"
-            :class="{
-              'state-on': getActiveState(),
-              'state-off': !getActiveState() && !isUnavailable,
-              'state-unavailable': isUnavailable,
-            }"
-            :title="displayStateLabel"
-          >
-            <i :class="stateIcon" class="state-icon"></i>
-          </div>
+      <div v-if="resolvedEntity" class="text-start flex-grow-1">
+        <h6 class="ha-entity-name mb-0">{{ name }}</h6>
+        <!-- Display requested attributes if provided -->
+        <EntityAttributeList :attributes="requestedAttributes" />
+      </div>
+      <div v-if="resolvedEntity" class="d-flex align-items-center ms-2">
+        <div
+          class="binary-state-indicator"
+          :class="{
+            'state-on': getActiveState(),
+            'state-off': !getActiveState() && !isUnavailable,
+            'state-unavailable': isUnavailable,
+          }"
+          :title="displayStateLabel"
+        >
+          <i :class="stateIcon" class="state-icon"></i>
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script setup>

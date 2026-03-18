@@ -10,70 +10,67 @@
       isOn && !isDisabled ? 'card-active' : '',
     ]"
   >
-      <div
-        :class="[
-          'card-body',
-          !resolvedEntity ? 'text-center text-warning' : 'd-flex flex-column',
-        ]"
-      >
-        <i
-          v-if="!resolvedEntity"
-          class="mdi mdi-alert-circle mdi-24px mb-2"
-        ></i>
-        <div v-if="!resolvedEntity">
-          Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
-          not found
-        </div>
-
-        <template v-else>
-          <div
-            :class="[
-              'd-flex',
-              requestedAttributes.length > 0
-                ? 'align-items-start'
-                : 'align-items-center',
-              'justify-content-between',
-              'mb-3',
-            ]"
-          >
-            <div class="text-start flex-grow-1">
-              <h6 class="ha-entity-name mb-0">
-                {{
-                  resolvedEntity.attributes?.friendly_name ||
-                  resolvedEntity.entity_id
-                }}
-              </h6>
-              <!-- Display requested attributes if provided -->
-              <EntityAttributeList :attributes="requestedAttributes" />
-            </div>
-            <button
-              class="ha-control-button"
-              :class="{ 'control-button-on': isOn && !isDisabled }"
-              :disabled="isDisabled || isLoading"
-              :title="isOn ? 'Turn off' : 'Turn on'"
-              :aria-label="isOn ? 'Turn off switch' : 'Turn on switch'"
-              @click="isOn = !isOn"
-            >
-              <div class="ha-control-circle-wrapper">
-                <svg
-                  width="50"
-                  height="50"
-                  viewBox="0 0 50 50"
-                  class="ha-control-circle"
-                >
-                  <circle cx="25" cy="25" r="22" :fill="controlCircleColor" />
-                </svg>
-                <i
-                  :class="switchIconClass"
-                  class="ha-control-icon"
-                  :style="{ color: iconColor }"
-                ></i>
-              </div>
-            </button>
-          </div>
-        </template>
+    <div
+      :class="[
+        'card-body',
+        !resolvedEntity ? 'text-center text-warning' : 'd-flex flex-column',
+      ]"
+    >
+      <i v-if="!resolvedEntity" class="mdi mdi-alert-circle mdi-24px mb-2"></i>
+      <div v-if="!resolvedEntity">
+        Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
+        not found
       </div>
+
+      <template v-else>
+        <div
+          :class="[
+            'd-flex',
+            requestedAttributes.length > 0
+              ? 'align-items-start'
+              : 'align-items-center',
+            'justify-content-between',
+            'mb-3',
+          ]"
+        >
+          <div class="text-start flex-grow-1">
+            <h6 class="ha-entity-name mb-0">
+              {{
+                resolvedEntity.attributes?.friendly_name ||
+                resolvedEntity.entity_id
+              }}
+            </h6>
+            <!-- Display requested attributes if provided -->
+            <EntityAttributeList :attributes="requestedAttributes" />
+          </div>
+          <button
+            class="ha-control-button"
+            :class="{ 'control-button-on': isOn && !isDisabled }"
+            :disabled="isDisabled || isLoading"
+            :title="isOn ? 'Turn off' : 'Turn on'"
+            :aria-label="isOn ? 'Turn off switch' : 'Turn on switch'"
+            @click="isOn = !isOn"
+          >
+            <div class="ha-control-circle-wrapper">
+              <svg
+                width="50"
+                height="50"
+                viewBox="0 0 50 50"
+                class="ha-control-circle"
+              >
+                <circle cx="25" cy="25" r="22" :fill="controlCircleColor" />
+              </svg>
+              <i
+                :class="switchIconClass"
+                class="ha-control-icon"
+                :style="{ color: iconColor }"
+              ></i>
+            </div>
+          </button>
+        </div>
+      </template>
     </div>
+  </div>
 </template>
 
 <script setup>

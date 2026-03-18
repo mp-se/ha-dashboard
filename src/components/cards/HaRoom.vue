@@ -1,86 +1,83 @@
 <template>
   <div class="card card-display h-100 rounded-4 shadow-lg border-info">
-      <div
-        class="card-body p-3 d-flex justify-content-between h-100 text-start"
-      >
-        <!-- Left Side: Room Info -->
-        <div class="room-left d-flex flex-column text-start">
-          <!-- Room Header -->
-          <div class="room-header mb-3">
-            <h6 class="ha-entity-name">{{ roomName }}</h6>
-            <!-- Temperature and Humidity on same row -->
-            <div
-              v-if="temperatureEntity || humidityEntity"
-              class="d-flex gap-3 align-items-baseline"
-            >
-              <div v-if="temperatureEntity" class="small">
-                <span class="fw-bold">{{ temperatureValue }}</span>
-                <small class="ha-entity-unit ms-1">{{ temperatureUnit }}</small>
-              </div>
-              <div v-if="humidityEntity" class="small">
-                <span class="fw-bold">{{ humidityValue }}</span>
-                <small class="ha-entity-unit ms-1">{{ humidityUnit }}</small>
-              </div>
+    <div class="card-body p-3 d-flex justify-content-between h-100 text-start">
+      <!-- Left Side: Room Info -->
+      <div class="room-left d-flex flex-column text-start">
+        <!-- Room Header -->
+        <div class="room-header mb-3">
+          <h6 class="ha-entity-name">{{ roomName }}</h6>
+          <!-- Temperature and Humidity on same row -->
+          <div
+            v-if="temperatureEntity || humidityEntity"
+            class="d-flex gap-3 align-items-baseline"
+          >
+            <div v-if="temperatureEntity" class="small">
+              <span class="fw-bold">{{ temperatureValue }}</span>
+              <small class="ha-entity-unit ms-1">{{ temperatureUnit }}</small>
             </div>
-          </div>
-
-          <!-- Icon Circle: Bottom Left -->
-          <div class="mt-auto">
-            <div class="room-icon-wrapper ha-icon-circle-large">
-              <svg
-                width="80"
-                height="80"
-                viewBox="0 0 80 80"
-                class="ha-icon-circle"
-              >
-                <circle cx="40" cy="40" r="40" :fill="circleColor" />
-              </svg>
-              <i :class="roomIconClass" class="ha-icon-overlay"></i>
+            <div v-if="humidityEntity" class="small">
+              <span class="fw-bold">{{ humidityValue }}</span>
+              <small class="ha-entity-unit ms-1">{{ humidityUnit }}</small>
             </div>
           </div>
         </div>
 
-        <!-- Right Side: Control Objects -->
-        <div v-if="controlObjects.length > 0" class="room-right">
-          <div class="room-controls-grid">
-            <div
-              v-for="(obj, index) in controlObjects"
-              :key="index"
-              class="control-object"
-              :class="{
-                'control-object-disabled': isEntityUnavailable(obj.entity_id),
-              }"
-              :title="getEntityLabel(obj.entity_id)"
-              @click="
-                !isEntityUnavailable(obj.entity_id) &&
-                toggleEntity(obj.entity_id)
-              "
+        <!-- Icon Circle: Bottom Left -->
+        <div class="mt-auto">
+          <div class="room-icon-wrapper ha-icon-circle-large">
+            <svg
+              width="80"
+              height="80"
+              viewBox="0 0 80 80"
+              class="ha-icon-circle"
             >
-              <div class="ha-control-circle-wrapper">
-                <svg
-                  width="50"
-                  height="50"
-                  viewBox="0 0 50 50"
-                  class="ha-control-circle"
-                >
-                  <circle
-                    cx="25"
-                    cy="25"
-                    r="22"
-                    :fill="getObjectColor(obj.entity_id)"
-                  />
-                </svg>
-                <i
-                  :class="getObjectIcon(obj.entity_id)"
-                  class="ha-control-icon"
-                  :style="{ color: getIconColor(obj.entity_id) }"
-                ></i>
-              </div>
+              <circle cx="40" cy="40" r="40" :fill="circleColor" />
+            </svg>
+            <i :class="roomIconClass" class="ha-icon-overlay"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side: Control Objects -->
+      <div v-if="controlObjects.length > 0" class="room-right">
+        <div class="room-controls-grid">
+          <div
+            v-for="(obj, index) in controlObjects"
+            :key="index"
+            class="control-object"
+            :class="{
+              'control-object-disabled': isEntityUnavailable(obj.entity_id),
+            }"
+            :title="getEntityLabel(obj.entity_id)"
+            @click="
+              !isEntityUnavailable(obj.entity_id) && toggleEntity(obj.entity_id)
+            "
+          >
+            <div class="ha-control-circle-wrapper">
+              <svg
+                width="50"
+                height="50"
+                viewBox="0 0 50 50"
+                class="ha-control-circle"
+              >
+                <circle
+                  cx="25"
+                  cy="25"
+                  r="22"
+                  :fill="getObjectColor(obj.entity_id)"
+                />
+              </svg>
+              <i
+                :class="getObjectIcon(obj.entity_id)"
+                class="ha-control-icon"
+                :style="{ color: getIconColor(obj.entity_id) }"
+              ></i>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script setup>
@@ -129,7 +126,7 @@ const roomEntityId = computed(() => {
   const areaEntity = entities.find(
     (e) => typeof e === "string" && e.startsWith("area."),
   );
-  return areaEntity || (entities[0] || "");
+  return areaEntity || entities[0] || "";
 });
 
 // Helper to check if entity is temperature or humidity sensor

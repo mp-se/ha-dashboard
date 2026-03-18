@@ -171,7 +171,9 @@ export const useConfigStore = defineStore("config", () => {
     if (!config || !Array.isArray(config.views)) return;
 
     // Check if view already exists
-    if (config.views.some((v: Record<string, unknown>) => v.name === newView.name)) {
+    if (
+      config.views.some((v: Record<string, unknown>) => v.name === newView.name)
+    ) {
       logger.warn(`View "${newView.name}" already exists`);
       return;
     }

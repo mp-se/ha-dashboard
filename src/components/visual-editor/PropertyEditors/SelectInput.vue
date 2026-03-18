@@ -11,7 +11,11 @@
       @change="$emit('update:modelValue', $event.target.value)"
     >
       <option value="">-- Select {{ label }} --</option>
-      <option v-for="option in optionsList" :key="optionValue(option)" :value="optionValue(option)">
+      <option
+        v-for="option in optionsList"
+        :key="optionValue(option)"
+        :value="optionValue(option)"
+      >
         {{ optionLabel(option) }}
       </option>
     </select>
@@ -21,12 +25,12 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed } from "vue";
 
 const props = defineProps({
   modelValue: {
     type: [String, Number],
-    default: '',
+    default: "",
   },
   label: {
     type: String,
@@ -38,7 +42,7 @@ const props = defineProps({
   },
   help: {
     type: String,
-    default: '',
+    default: "",
   },
   required: {
     type: Boolean,
@@ -46,23 +50,25 @@ const props = defineProps({
   },
   error: {
     type: String,
-    default: '',
+    default: "",
   },
 });
 
-defineEmits(['update:modelValue']);
+defineEmits(["update:modelValue"]);
 
-const selectId = computed(() => `select-input-${Math.random().toString(36).substr(2, 9)}`);
+const selectId = computed(
+  () => `select-input-${Math.random().toString(36).substr(2, 9)}`,
+);
 
 const optionsList = computed(() => props.options);
 
 const optionValue = (option) => {
-  if (typeof option === 'string') return option;
+  if (typeof option === "string") return option;
   return option.value;
 };
 
 const optionLabel = (option) => {
-  if (typeof option === 'string') return option;
+  if (typeof option === "string") return option;
   return option.label;
 };
 </script>

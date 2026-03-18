@@ -9,41 +9,38 @@
       !resolvedEntity ? 'border-warning' : 'border-info',
     ]"
   >
-      <div
-        :class="[
-          'card-body',
-          !resolvedEntity
-            ? 'text-center text-warning p-2'
-            : 'd-flex align-items-center justify-content-center p-2',
-        ]"
-      >
-        <i
-          v-if="!resolvedEntity"
-          class="mdi mdi-alert-circle mdi-24px mb-1"
-        ></i>
-        <div v-if="!resolvedEntity" class="small">Entity not found</div>
+    <div
+      :class="[
+        'card-body',
+        !resolvedEntity
+          ? 'text-center text-warning p-2'
+          : 'd-flex align-items-center justify-content-center p-2',
+      ]"
+    >
+      <i v-if="!resolvedEntity" class="mdi mdi-alert-circle mdi-24px mb-1"></i>
+      <div v-if="!resolvedEntity" class="small">Entity not found</div>
 
-        <div v-else class="d-flex align-items-center">
-          <div class="ha-icon-circle-wrapper">
-            <svg
-              width="40"
-              height="40"
-              viewBox="0 0 40 40"
-              class="ha-icon-circle"
-            >
-              <circle cx="20" cy="20" r="18" :fill="iconCircleColor" />
-            </svg>
-            <i v-if="iconClass" :class="iconClass" class="ha-icon-overlay"></i>
-          </div>
-          <div class="ms-2">
-            <div class="fw-bold small">
-              {{ formattedValue }}
-              <small v-if="unit" class="text-muted">{{ unit }}</small>
-            </div>
+      <div v-else class="d-flex align-items-center">
+        <div class="ha-icon-circle-wrapper">
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 40 40"
+            class="ha-icon-circle"
+          >
+            <circle cx="20" cy="20" r="18" :fill="iconCircleColor" />
+          </svg>
+          <i v-if="iconClass" :class="iconClass" class="ha-icon-overlay"></i>
+        </div>
+        <div class="ms-2">
+          <div class="fw-bold small">
+            {{ formattedValue }}
+            <small v-if="unit" class="text-muted">{{ unit }}</small>
           </div>
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script setup>

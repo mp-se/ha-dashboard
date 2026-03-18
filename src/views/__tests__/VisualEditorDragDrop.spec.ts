@@ -71,16 +71,16 @@ describe("VisualEditorView.vue - Reordering Integration (Phase 2)", () => {
       ];
 
       wrapper.vm.handleReorderEntities(newOrder);
-      
+
       // Verify the store was updated
       expect(haStore.dashboardConfig.views[0].entities[0].entity).toBe(
-        "light.living_room"
+        "light.living_room",
       );
     });
 
     it("should trigger auto-save on reorder", async () => {
       vi.useFakeTimers();
-      
+
       const newOrder = [
         { entity: "switch.garage", type: "HaSwitch" },
         { entity: "sensor.temperature", type: "HaSensor" },
@@ -88,13 +88,13 @@ describe("VisualEditorView.vue - Reordering Integration (Phase 2)", () => {
       ];
 
       wrapper.vm.handleReorderEntities(newOrder);
-      
+
       // Debounce delay
       expect(wrapper.vm.saveStatus).toBe("Saving...");
-      
+
       vi.runAllTimers();
       await wrapper.vm.$nextTick();
-      
+
       vi.useRealTimers();
     });
 
@@ -120,20 +120,12 @@ describe("VisualEditorView.vue - Reordering Integration (Phase 2)", () => {
       let currentOrder = [...haStore.dashboardConfig.views[0].entities];
 
       // First reorder: move second to first
-      const firstReorder = [
-        currentOrder[1],
-        currentOrder[0],
-        currentOrder[2],
-      ];
+      const firstReorder = [currentOrder[1], currentOrder[0], currentOrder[2]];
       wrapper.vm.handleReorderEntities(firstReorder);
       currentOrder = [...haStore.dashboardConfig.views[0].entities];
 
       // Second reorder: move first to last
-      const secondReorder = [
-        currentOrder[1],
-        currentOrder[2],
-        currentOrder[0],
-      ];
+      const secondReorder = [currentOrder[1], currentOrder[2], currentOrder[0]];
       wrapper.vm.handleReorderEntities(secondReorder);
       currentOrder = [...haStore.dashboardConfig.views[0].entities];
 
@@ -167,38 +159,38 @@ describe("VisualEditorView.vue - Reordering Integration (Phase 2)", () => {
 
       // Should have the last reorder applied
       expect(haStore.dashboardConfig.views[0].entities[0].entity).toBe(
-        "switch.garage"
+        "switch.garage",
       );
     });
 
     it("should not lose entities during reorder", () => {
       const originalCount = haStore.dashboardConfig.views[0].entities.length;
-      
+
       const newOrder = [
         haStore.dashboardConfig.views[0].entities[2],
         haStore.dashboardConfig.views[0].entities[0],
         haStore.dashboardConfig.views[0].entities[1],
       ];
-      
+
       wrapper.vm.handleReorderEntities(newOrder);
-      
+
       expect(haStore.dashboardConfig.views[0].entities).toHaveLength(
-        originalCount
+        originalCount,
       );
     });
 
     it("should update selection state appropriately", async () => {
       wrapper.vm.selectedEntityId = 0;
-      
+
       const newOrder = [
         haStore.dashboardConfig.views[0].entities[1],
         haStore.dashboardConfig.views[0].entities[0],
         haStore.dashboardConfig.views[0].entities[2],
       ];
-      
+
       wrapper.vm.handleReorderEntities(newOrder);
       await wrapper.vm.$nextTick();
-      
+
       // Selection remains but points to potentially different entity
       // This is expected behavior as the indices may have changed
     });

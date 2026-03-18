@@ -10,76 +10,70 @@
     ]"
   >
     <div
-      :class="[
-        'card-body',
-        !resolvedEntity ? 'text-center text-warning' : '',
-      ]"
+      :class="['card-body', !resolvedEntity ? 'text-center text-warning' : '']"
     >
-        <i
-          v-if="!resolvedEntity"
-          class="mdi mdi-alert-circle mdi-24px mb-2"
-        ></i>
-        <div v-if="!resolvedEntity">
-          Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
-          not found
-        </div>
+      <i v-if="!resolvedEntity" class="mdi mdi-alert-circle mdi-24px mb-2"></i>
+      <div v-if="!resolvedEntity">
+        Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
+        not found
+      </div>
 
-        <div v-else>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="card-title mb-0">{{ name }}</h6>
-            <span :class="stateBadgeClass">{{ displayState }}</span>
-          </div>
-          <form @submit.prevent>
-            <input type="text" autocomplete="username" style="display: none" />
-            <div class="mb-2 text-start">
-              <label for="alarm-code" class="form-label small">Code</label>
-              <div class="input-group input-group-sm">
-                <input
-                  id="alarm-code"
-                  v-model="code"
-                  :type="inputType"
-                  class="form-control"
-                  placeholder="Enter code"
-                  autocomplete="current-password"
-                />
-                <button
-                  class="btn btn-outline-secondary"
-                  type="button"
-                  @click="togglePasswordVisibility"
-                >
-                  <i
-                    :class="passwordVisible ? 'mdi mdi-eye-off' : 'mdi mdi-eye'"
-                  ></i>
-                </button>
-              </div>
-            </div>
-            <div class="d-flex gap-2">
-              <button
-                class="btn btn-sm btn-success"
-                :disabled="!canArm || isLoading"
-                @click="armHome"
-              >
-                Arm Home
-              </button>
-              <button
-                class="btn btn-sm btn-primary"
-                :disabled="!canArm || isLoading"
-                @click="armAway"
-              >
-                Arm Away
-              </button>
-              <button
-                class="btn btn-sm btn-secondary"
-                :disabled="!canDisarm || isLoading"
-                @click="disarm"
-              >
-                Disarm
-              </button>
-            </div>
-          </form>
+      <div v-else>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="card-title mb-0">{{ name }}</h6>
+          <span :class="stateBadgeClass">{{ displayState }}</span>
         </div>
+        <form @submit.prevent>
+          <input type="text" autocomplete="username" style="display: none" />
+          <div class="mb-2 text-start">
+            <label for="alarm-code" class="form-label small">Code</label>
+            <div class="input-group input-group-sm">
+              <input
+                id="alarm-code"
+                v-model="code"
+                :type="inputType"
+                class="form-control"
+                placeholder="Enter code"
+                autocomplete="current-password"
+              />
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                @click="togglePasswordVisibility"
+              >
+                <i
+                  :class="passwordVisible ? 'mdi mdi-eye-off' : 'mdi mdi-eye'"
+                ></i>
+              </button>
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <button
+              class="btn btn-sm btn-success"
+              :disabled="!canArm || isLoading"
+              @click="armHome"
+            >
+              Arm Home
+            </button>
+            <button
+              class="btn btn-sm btn-primary"
+              :disabled="!canArm || isLoading"
+              @click="armAway"
+            >
+              Arm Away
+            </button>
+            <button
+              class="btn btn-sm btn-secondary"
+              :disabled="!canDisarm || isLoading"
+              @click="disarm"
+            >
+              Disarm
+            </button>
+          </div>
+        </form>
       </div>
     </div>
+  </div>
 </template>
 
 <script setup>

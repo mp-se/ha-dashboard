@@ -17,6 +17,7 @@ The Visual Editor is an interactive component within the Home Assistant Dashboar
 ### ✅ Completed Features (Phases 1-6)
 
 #### Phase 1: Core Editor UI
+
 - **Three-panel layout**:
   - Left Panel: Entity Palette (available &discoverable entities)
   - Middle Panel: Canvas (selected view with draggable cards)
@@ -25,12 +26,12 @@ The Visual Editor is an interactive component within the Home Assistant Dashboar
 - **Tab Navigation**: Editor vs Preview modes
 
 #### Phase 2: Entity Management
+
 - **Entity Palette** (Left):
   - Search and filter entities by type
   - Add/remove entities from current view
   - Visual toggle: Blue (+) for "Add to view", Green (✓) for "Remove from view"
   - Disabled state when entity already in view (old UI)
-  
 - **Editor Canvas** (Middle):
   - Display all entities in selected view as cards
   - Drag-and-drop reordering (via vue-draggable-next)
@@ -50,10 +51,11 @@ The Visual Editor is an interactive component within the Home Assistant Dashboar
   - **N/A sections hidden** for cleaner display when entity/getter not set
 
 #### Phase 3: Component & Attribute Configuration
+
 - **Component Type Selector**:
   - Auto-detect based on entity class
   - Recommended type highlighted
-  - Full list of 27 available Ha* components (HaAlarmPanel, HaBeerTap, HaBinarySensor, HaButton, HaChip, HaEnergy, HaError, HaEntityList, HaGauge, HaGlance, HaHeader, HaImage, HaLight, HaLink, HaMediaPlayer, HaPerson, HaPrinter, HaRoom, HaRowSpacer, HaSelect, HaSensor, HaSensorGraph, HaSpacer, HaSun, HaSwitch, HaWarning, HaWeather)
+  - Full list of 27 available Ha\* components (HaAlarmPanel, HaBeerTap, HaBinarySensor, HaButton, HaChip, HaEnergy, HaError, HaEntityList, HaGauge, HaGlance, HaHeader, HaImage, HaLight, HaLink, HaMediaPlayer, HaPerson, HaPrinter, HaRoom, HaRowSpacer, HaSelect, HaSensor, HaSensorGraph, HaSpacer, HaSun, HaSwitch, HaWarning, HaWeather)
   - Updates component rendering dynamically
 
 - **Attributes Management**:
@@ -64,6 +66,7 @@ The Visual Editor is an interactive component within the Home Assistant Dashboar
   - Type badges (str, num, bool, obj, arr) for clarity
 
 #### Phase 4: Enhanced Entity Management
+
 - **Property Editors**: Full suite of input components for different data types
   - TextInput: String values
   - NumberInput: Numeric values with step control
@@ -74,10 +77,12 @@ The Visual Editor is an interactive component within the Home Assistant Dashboar
   - ColorPicker: Color selection with hex display
 
 #### Phase 5: (Not Yet Implemented)
+
 - **Goal**: Persistence & Auto-Save to server
 - **Status**: Currently saves to in-memory store only
 
 #### Phase 6: View Management (CRUD) ✅ COMPLETED
+
 - **View Selector & Management**:
   - Create new views via modal dialog
   - Edit view name and icon via modal with IconPicker component
@@ -109,13 +114,13 @@ VisualEditorView (selectedViewName, selectedEntityId)
     ├─ currentViewEntities (view.entities array)
     ├─ availableAttributes (from entityMap in store)
     └─ selectedEntity (entity at selectedEntityId index)
-    
+
     ├─→ EntityPalette
     │    ├─ allEntities (from store.entityMap)
     │    ├─ filteredEntities (search + type filter)
     │    └─ entitiesInView (current view entity IDs)
     │
-    ├─→ EditorCanvas  
+    ├─→ EditorCanvas
     │    ├─ localEntities (v-for, draggable)
     │    ├─ isEntitySelected(index)
     │    └─ getEntityName(entity) - friendly name resolution
@@ -191,6 +196,7 @@ VisualEditorView (selectedViewName, selectedEntityId)
 ## Workflow
 
 ### Adding an Entity
+
 1. User scrolls Entity Palette (left)
 2. Finds entity with blue (+) button
 3. Clicks to add to current view
@@ -198,17 +204,20 @@ VisualEditorView (selectedViewName, selectedEntityId)
 5. User can immediately configure in inspector (right)
 
 ### Removing an Entity
+
 1. **Via Palette**: Click green (✓) button on entity in left panel
 2. **Via Inspector**: Select entity, click Remove button on right
 3. Entity removed from view instantly
 
 ### Reordering Entities
+
 1. Click and drag entity card in middle panel
 2. Visual feedback shows drag position
 3. Release to drop
 4. Order updates in store (saved with debounce)
 
 ### Configuring Entity
+
 1. Click entity card in middle panel
 2. Inspector appears on right
 3. Change component type if needed
@@ -219,6 +228,7 @@ VisualEditorView (selectedViewName, selectedEntityId)
 ## Planned Phases (Future Enhancements)
 
 ### Phase 5: Persistence & Auto-Save (PLANNED)
+
 - **Goal**: Save configuration changes back to system
 - **Features**:
   - HTTP endpoint integration
@@ -227,6 +237,7 @@ VisualEditorView (selectedViewName, selectedEntityId)
   - Optional undo/redo
 
 ### Phase 7: Edge Cases & Polish
+
 - **Goal**: Improve robustness and UX
 - **Features**:
   - Bulk operations (select multiple)
@@ -239,11 +250,13 @@ VisualEditorView (selectedViewName, selectedEntityId)
 ## Technical Details
 
 ### Key Composables Used
+
 - `useEntityResolver()`: Resolve entity IDs to friendly names
 - `useDefaultComponentType()`: Auto-detect component type
 - `useHaStore()`: Access Home Assistant store
 
 ### Vue 3 Patterns
+
 - `<script setup>` with Composition API
 - Computed properties for derived state
 - Watchers for side effects
@@ -254,11 +267,9 @@ VisualEditorView (selectedViewName, selectedEntityId)
 1. **Draggable Slot Rendering**:
    - Issue: `v-else` on custom components with slots unreliable
    - Solution: Use `v-if` instead for explicit condition checking
-   
 2. **Entity Selection at Index 0**:
    - Issue: Falsy check `if (!value)` fails for index 0
    - Solution: Use `if (value == null)` for null-safe comparison
-   
 3. **Race Condition on Mount**:
    - Issue: `onMounted` fires before config loads from store
    - Solution: Use `watch` with `immediate: true` on data dependency
@@ -270,7 +281,8 @@ VisualEditorView (selectedViewName, selectedEntityId)
 ## Testing Strategy
 
 ### Test Coverage
-- **Current**: 2,148 tests across 81 test files (88.97% line coverage) ✅ *Exceeds 85% target*
+
+- **Current**: 2,148 tests across 81 test files (88.97% line coverage) ✅ _Exceeds 85% target_
 - **Components Test Files**:
   - EntityPalette.spec.ts: Entity list, filtering
   - EditorCanvas.spec.ts: Selection, drag, removal
@@ -293,6 +305,7 @@ VisualEditorView (selectedViewName, selectedEntityId)
   - Utils: 84.67% statements
 
 ### Testing Libraries
+
 - Vitest
 - @vue/test-utils
 - Pinia (store mocking)

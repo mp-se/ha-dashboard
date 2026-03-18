@@ -8,7 +8,9 @@
           title="Toggle Views panel"
           @click="isExpanded = !isExpanded"
         >
-          <i :class="`mdi ${isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right'}`"></i>
+          <i
+            :class="`mdi ${isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right'}`"
+          ></i>
         </button>
         <h6 class="mb-0">Views</h6>
       </div>
@@ -24,7 +26,11 @@
     </div>
 
     <!-- Views List -->
-    <div v-if="isExpanded" class="views-list" style="max-height: 300px; overflow-y: auto">
+    <div
+      v-if="isExpanded"
+      class="views-list"
+      style="max-height: 300px; overflow-y: auto"
+    >
       <div
         v-for="view in views"
         :key="view.name"
@@ -35,7 +41,9 @@
           <i :class="`mdi ${view.icon} me-2`"></i>
           <div class="flex-grow-1">
             <div class="small">{{ view.label }}</div>
-            <div class="text-muted" style="font-size: 0.75rem">{{ view.name }}</div>
+            <div class="text-muted" style="font-size: 0.75rem">
+              {{ view.name }}
+            </div>
           </div>
           <span
             v-if="view.hidden"
@@ -117,7 +125,9 @@
                 :disabled="editingView"
                 @blur="validateName"
               />
-              <small v-if="nameError" class="text-danger">{{ nameError }}</small>
+              <small v-if="nameError" class="text-danger">{{
+                nameError
+              }}</small>
               <small class="text-muted d-block mt-1"
                 >Lowercase letters, numbers, and hyphens only</small
               >
@@ -145,11 +155,7 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              @click="closeModal"
-            >
+            <button type="button" class="btn btn-secondary" @click="closeModal">
               Cancel
             </button>
             <button
@@ -185,8 +191,8 @@
           <div class="modal-body">
             <p>
               Are you sure you want to delete the view
-              <strong>{{ viewToDelete?.label }}</strong>? This action cannot be
-              undone.
+              <strong>{{ viewToDelete?.label }}</strong
+              >? This action cannot be undone.
             </p>
           </div>
           <div class="modal-footer">
@@ -197,11 +203,7 @@
             >
               Cancel
             </button>
-            <button
-              type="button"
-              class="btn btn-danger"
-              @click="deleteView"
-            >
+            <button type="button" class="btn btn-danger" @click="deleteView">
               Delete
             </button>
           </div>
@@ -269,7 +271,8 @@ const validateName = () => {
 
   // Check if name is valid format
   if (!/^[a-z0-9-]+$/.test(name)) {
-    nameError.value = "Name must contain only lowercase letters, numbers, and hyphens";
+    nameError.value =
+      "Name must contain only lowercase letters, numbers, and hyphens";
     return;
   }
 

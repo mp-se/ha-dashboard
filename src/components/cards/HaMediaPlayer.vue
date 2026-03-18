@@ -10,171 +10,165 @@
       !resolvedEntity ? 'border-warning' : cardBorderClass,
     ]"
   >
-      <div
-        :class="[
-          'card-body',
-          !resolvedEntity ? 'text-center text-warning' : '',
-        ]"
-      >
-        <i
-          v-if="!resolvedEntity"
-          class="mdi mdi-alert-circle mdi-24px mb-2"
-        ></i>
-        <div v-if="!resolvedEntity">
-          Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
-          not found
-        </div>
+    <div
+      :class="['card-body', !resolvedEntity ? 'text-center text-warning' : '']"
+    >
+      <i v-if="!resolvedEntity" class="mdi mdi-alert-circle mdi-24px mb-2"></i>
+      <div v-if="!resolvedEntity">
+        Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
+        not found
+      </div>
 
-        <template v-else>
-          <!-- Header: Entity Icon | Title/Subtitle | Source -->
-          <div class="d-flex align-items-center gap-3 mb-3">
-            <!-- Entity Icon -->
-            <div class="icon-bg-wrapper">
-              <div
-                class="icon-bg"
-                :style="{ backgroundColor: iconBackgroundColor }"
-              >
-                <i
-                  class="mdi mdi-speaker"
-                  :style="{ fontSize: '1.5rem', color: iconColor }"
-                ></i>
-              </div>
-            </div>
-
-            <!-- Title and Subtitle -->
-            <div style="flex: 1; min-width: 0" class="text-start">
-              <h6 class="card-title mb-1">{{ name }}</h6>
-              <p
-                class="text-muted mb-0"
-                style="
-                  font-size: 0.875rem;
-                  white-space: nowrap;
-                  overflow: hidden;
-                  text-overflow: ellipsis;
-                "
-              >
-                {{ mediaSubtitle }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Middle Row: Volume + Playback Controls + Power -->
-          <div class="d-flex align-items-center gap-3 mb-3">
-            <!-- Volume Control (Left) - Always show -->
-            <div class="d-flex align-items-center gap-2" style="flex: 1">
-              <i
-                class="mdi mdi-volume-high"
-                style="font-size: 1.2rem; color: #666; flex-shrink: 0"
-              ></i>
-              <input
-                type="range"
-                class="form-range"
-                style="flex: 1"
-                min="0"
-                max="1"
-                step="0.01"
-                :value="volumeLevel || 0"
-                @input="setVolume($event.target.value)"
-              />
-            </div>
-
-            <!-- Playback Controls (Center) -->
-            <div class="d-flex align-items-center gap-2" style="flex-shrink: 0">
-              <!-- Skip Previous -->
-              <button
-                class="btn btn-outline-secondary btn-sm"
-                :disabled="!isOn"
-                title="Previous Track"
-                aria-label="Previous track"
-                @click="callService('media_previous_track')"
-              >
-                <i class="mdi mdi-skip-previous"></i>
-              </button>
-
-              <!-- Play/Pause -->
-              <button
-                class="btn btn-primary btn-sm"
-                :disabled="!isOn"
-                title="Play/Pause"
-                aria-label="Play or pause"
-                @click="callService('media_play_pause')"
-              >
-                <i
-                  :class="[isPlaying ? 'mdi mdi-pause' : 'mdi mdi-play']"
-                  style="color: white"
-                ></i>
-              </button>
-
-              <!-- Skip Next -->
-              <button
-                class="btn btn-outline-secondary btn-sm"
-                :disabled="!isOn"
-                title="Next Track"
-                aria-label="Next track"
-                @click="callService('media_next_track')"
-              >
-                <i class="mdi mdi-skip-next"></i>
-              </button>
-
-              <!-- Power Button (Right, after playback controls) -->
-              <button
-                class="btn btn-outline-secondary btn-sm"
-                style="margin-left: 0.5rem"
-                title="Power Toggle"
-                aria-label="Power toggle"
-                @click="callService(isOn ? 'turn_off' : 'turn_on')"
-              >
-                <i class="mdi mdi-power"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Bottom: Progress Bar -->
-          <div
-            v-if="mediaPosition !== undefined && mediaDuration"
-            class="progress-container"
-          >
+      <template v-else>
+        <!-- Header: Entity Icon | Title/Subtitle | Source -->
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <!-- Entity Icon -->
+          <div class="icon-bg-wrapper">
             <div
-              :class="{
-                'progress-indeterminate':
-                  isPlaying && mediaPosition === 0 && mediaDuration > 0,
-              }"
+              class="icon-bg"
+              :style="{ backgroundColor: iconBackgroundColor }"
+            >
+              <i
+                class="mdi mdi-speaker"
+                :style="{ fontSize: '1.5rem', color: iconColor }"
+              ></i>
+            </div>
+          </div>
+
+          <!-- Title and Subtitle -->
+          <div style="flex: 1; min-width: 0" class="text-start">
+            <h6 class="card-title mb-1">{{ name }}</h6>
+            <p
+              class="text-muted mb-0"
               style="
-                background-color: #e9ecef;
-                height: 8px;
-                border-radius: 4px;
+                font-size: 0.875rem;
+                white-space: nowrap;
                 overflow: hidden;
-                position: relative;
-                cursor: pointer;
+                text-overflow: ellipsis;
               "
             >
-              <div
-                :style="{ width: progressWidth }"
-                style="
-                  background-color: #0078d4;
-                  height: 100%;
-                  transition: width 0.1s linear;
-                "
-              ></div>
-              <!-- Draggable handle -->
-              <div
-                :style="{ left: progressWidth }"
-                style="
-                  position: absolute;
-                  top: 50%;
-                  transform: translate(-50%, -50%);
-                  width: 16px;
-                  height: 16px;
-                  background-color: #0078d4;
-                  border-radius: 50%;
-                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-                "
-              ></div>
-            </div>
+              {{ mediaSubtitle }}
+            </p>
           </div>
-        </template>
-      </div>
+        </div>
+
+        <!-- Middle Row: Volume + Playback Controls + Power -->
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <!-- Volume Control (Left) - Always show -->
+          <div class="d-flex align-items-center gap-2" style="flex: 1">
+            <i
+              class="mdi mdi-volume-high"
+              style="font-size: 1.2rem; color: #666; flex-shrink: 0"
+            ></i>
+            <input
+              type="range"
+              class="form-range"
+              style="flex: 1"
+              min="0"
+              max="1"
+              step="0.01"
+              :value="volumeLevel || 0"
+              @input="setVolume($event.target.value)"
+            />
+          </div>
+
+          <!-- Playback Controls (Center) -->
+          <div class="d-flex align-items-center gap-2" style="flex-shrink: 0">
+            <!-- Skip Previous -->
+            <button
+              class="btn btn-outline-secondary btn-sm"
+              :disabled="!isOn"
+              title="Previous Track"
+              aria-label="Previous track"
+              @click="callService('media_previous_track')"
+            >
+              <i class="mdi mdi-skip-previous"></i>
+            </button>
+
+            <!-- Play/Pause -->
+            <button
+              class="btn btn-primary btn-sm"
+              :disabled="!isOn"
+              title="Play/Pause"
+              aria-label="Play or pause"
+              @click="callService('media_play_pause')"
+            >
+              <i
+                :class="[isPlaying ? 'mdi mdi-pause' : 'mdi mdi-play']"
+                style="color: white"
+              ></i>
+            </button>
+
+            <!-- Skip Next -->
+            <button
+              class="btn btn-outline-secondary btn-sm"
+              :disabled="!isOn"
+              title="Next Track"
+              aria-label="Next track"
+              @click="callService('media_next_track')"
+            >
+              <i class="mdi mdi-skip-next"></i>
+            </button>
+
+            <!-- Power Button (Right, after playback controls) -->
+            <button
+              class="btn btn-outline-secondary btn-sm"
+              style="margin-left: 0.5rem"
+              title="Power Toggle"
+              aria-label="Power toggle"
+              @click="callService(isOn ? 'turn_off' : 'turn_on')"
+            >
+              <i class="mdi mdi-power"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bottom: Progress Bar -->
+        <div
+          v-if="mediaPosition !== undefined && mediaDuration"
+          class="progress-container"
+        >
+          <div
+            :class="{
+              'progress-indeterminate':
+                isPlaying && mediaPosition === 0 && mediaDuration > 0,
+            }"
+            style="
+              background-color: #e9ecef;
+              height: 8px;
+              border-radius: 4px;
+              overflow: hidden;
+              position: relative;
+              cursor: pointer;
+            "
+          >
+            <div
+              :style="{ width: progressWidth }"
+              style="
+                background-color: #0078d4;
+                height: 100%;
+                transition: width 0.1s linear;
+              "
+            ></div>
+            <!-- Draggable handle -->
+            <div
+              :style="{ left: progressWidth }"
+              style="
+                position: absolute;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 16px;
+                height: 16px;
+                background-color: #0078d4;
+                border-radius: 50%;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+              "
+            ></div>
+          </div>
+        </div>
+      </template>
     </div>
+  </div>
 </template>
 
 <script setup>

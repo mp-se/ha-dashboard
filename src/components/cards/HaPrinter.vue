@@ -9,115 +9,109 @@
       !resolvedEntity ? 'border-warning' : cardBorderClass,
     ]"
   >
-      <div
-        :class="[
-          'card-body',
-          !resolvedEntity ? 'text-center text-warning' : '',
-        ]"
-      >
-        <i
-          v-if="!resolvedEntity"
-          class="mdi mdi-alert-circle mdi-24px mb-2"
-        ></i>
-        <div v-if="!resolvedEntity">
-          Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
-          not found
-        </div>
+    <div
+      :class="['card-body', !resolvedEntity ? 'text-center text-warning' : '']"
+    >
+      <i v-if="!resolvedEntity" class="mdi mdi-alert-circle mdi-24px mb-2"></i>
+      <div v-if="!resolvedEntity">
+        Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
+        not found
+      </div>
 
-        <div v-else>
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <div>
-              <h6 class="card-title mb-0">{{ name }}</h6>
+      <div v-else>
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <h6 class="card-title mb-0">{{ name }}</h6>
+          </div>
+          <div class="text-end">
+            <span class="badge bg-success">{{ resolvedEntity.state }}</span>
+          </div>
+        </div>
+        <!-- Toner Progress Bars with Labels -->
+        <div style="display: flex; flex-direction: column; gap: 0.25rem">
+          <div>
+            <div
+              style="
+                font-size: 0.75rem;
+                color: #666;
+                margin-bottom: 0.25rem;
+                text-align: left;
+              "
+            >
+              Black
             </div>
-            <div class="text-end">
-              <span class="badge bg-success">{{ resolvedEntity.state }}</span>
+            <div class="progress" style="height: 12px">
+              <div
+                class="ha-progress-bar bg-dark"
+                :style="{ width: blackLevel + '%' }"
+                :title="'Black: ' + blackLevel + '%'"
+              ></div>
             </div>
           </div>
-          <!-- Toner Progress Bars with Labels -->
-          <div style="display: flex; flex-direction: column; gap: 0.25rem">
-            <div>
-              <div
-                style="
-                  font-size: 0.75rem;
-                  color: #666;
-                  margin-bottom: 0.25rem;
-                  text-align: left;
-                "
-              >
-                Black
-              </div>
-              <div class="progress" style="height: 12px">
-                <div
-                  class="ha-progress-bar bg-dark"
-                  :style="{ width: blackLevel + '%' }"
-                  :title="'Black: ' + blackLevel + '%'"
-                ></div>
-              </div>
+          <div>
+            <div
+              style="
+                font-size: 0.75rem;
+                color: #666;
+                margin-bottom: 0.25rem;
+                text-align: left;
+              "
+            >
+              Cyan
             </div>
-            <div>
+            <div class="progress" style="height: 12px">
               <div
-                style="
-                  font-size: 0.75rem;
-                  color: #666;
-                  margin-bottom: 0.25rem;
-                  text-align: left;
-                "
-              >
-                Cyan
-              </div>
-              <div class="progress" style="height: 12px">
-                <div
-                  class="ha-progress-bar bg-info"
-                  :style="{ width: cyanLevel + '%' }"
-                  :title="'Cyan: ' + cyanLevel + '%'"
-                ></div>
-              </div>
+                class="ha-progress-bar bg-info"
+                :style="{ width: cyanLevel + '%' }"
+                :title="'Cyan: ' + cyanLevel + '%'"
+              ></div>
             </div>
-            <div>
-              <div
-                style="
-                  font-size: 0.75rem;
-                  color: #666;
-                  margin-bottom: 0.25rem;
-                  text-align: left;
-                "
-              >
-                Magenta
-              </div>
-              <div class="progress" style="height: 12px">
-                <div
-                  class="ha-progress-bar"
-                  :style="{
-                    width: magentaLevel + '%',
-                    backgroundColor: '#e700d9',
-                  }"
-                  :title="'Magenta: ' + magentaLevel + '%'"
-                ></div>
-              </div>
+          </div>
+          <div>
+            <div
+              style="
+                font-size: 0.75rem;
+                color: #666;
+                margin-bottom: 0.25rem;
+                text-align: left;
+              "
+            >
+              Magenta
             </div>
-            <div>
+            <div class="progress" style="height: 12px">
               <div
-                style="
-                  font-size: 0.75rem;
-                  color: #666;
-                  margin-bottom: 0.25rem;
-                  text-align: left;
-                "
-              >
-                Yellow
-              </div>
-              <div class="progress" style="height: 12px">
-                <div
-                  class="ha-progress-bar bg-warning"
-                  :style="{ width: yellowLevel + '%' }"
-                  :title="'Yellow: ' + yellowLevel + '%'"
-                ></div>
-              </div>
+                class="ha-progress-bar"
+                :style="{
+                  width: magentaLevel + '%',
+                  backgroundColor: '#e700d9',
+                }"
+                :title="'Magenta: ' + magentaLevel + '%'"
+              ></div>
+            </div>
+          </div>
+          <div>
+            <div
+              style="
+                font-size: 0.75rem;
+                color: #666;
+                margin-bottom: 0.25rem;
+                text-align: left;
+              "
+            >
+              Yellow
+            </div>
+            <div class="progress" style="height: 12px">
+              <div
+                class="ha-progress-bar bg-warning"
+                :style="{ width: yellowLevel + '%' }"
+                :title="'Yellow: ' + yellowLevel + '%'"
+              ></div>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script setup>

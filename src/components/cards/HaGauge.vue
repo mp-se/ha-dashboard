@@ -9,96 +9,91 @@
       !resolvedEntity ? 'border-warning' : 'border-info',
     ]"
   >
-      <div v-if="!resolvedEntity" class="card-body text-center text-warning">
-        <i class="mdi mdi-alert-circle mdi-24px mb-2"></i>
-        <div>
-          Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
-          not found
-        </div>
-      </div>
-      <div v-else class="card-body d-flex flex-column">
-        <!-- Title and Icon Row -->
-        <div class="d-flex align-items-center mb-3">
-          <div class="text-start flex-grow-1">
-            <h6 class="card-title mb-0">{{ entityName }}</h6>
-          </div>
-          <i v-if="iconClass" :class="iconClass" style="font-size: 1.5rem"></i>
-        </div>
-
-        <!-- Gauge -->
-        <div class="d-flex justify-content-center flex-grow-1">
-          <svg
-            :width="160"
-            :height="160"
-            viewBox="0 0 160 160"
-            class="gauge-svg"
-          >
-            <!-- Background circle -->
-            <circle
-              cx="80"
-              cy="80"
-              :r="radius"
-              stroke="#e9ecef"
-              stroke-width="6"
-              fill="none"
-              class="gauge-background"
-            />
-
-            <!-- Gauge arc -->
-            <path
-              :d="gaugeArc"
-              stroke="#dee2e6"
-              stroke-width="6"
-              fill="none"
-              stroke-linecap="round"
-              class="gauge-arc"
-            />
-
-            <!-- Value arc -->
-            <path
-              :d="valueArc"
-              stroke="#007bff"
-              stroke-width="10"
-              fill="none"
-              stroke-linecap="round"
-              class="gauge-value"
-            />
-
-            <!-- Value display in center -->
-            <text
-              x="80"
-              y="80"
-              text-anchor="middle"
-              dominant-baseline="middle"
-              font-size="14"
-              font-weight="bold"
-              fill="#212529"
-              class="gauge-center-value"
-            >
-              {{ formattedValue }}
-              <tspan v-if="entityUnit" font-size="10" fill="#6c757d">
-                {{ entityUnit }}
-              </tspan>
-            </text>
-          </svg>
-        </div>
-
-        <!-- Min/Max labels aligned with bottom of gauge -->
-        <div
-          class="d-flex justify-content-between px-2 text-muted small"
-          style="margin-top: -1.5rem"
-        >
-          <span
-            >{{ min
-            }}<span v-if="entityUnit" class="ms-1">{{ entityUnit }}</span></span
-          >
-          <span
-            >{{ max
-            }}<span v-if="entityUnit" class="ms-1">{{ entityUnit }}</span></span
-          >
-        </div>
+    <div v-if="!resolvedEntity" class="card-body text-center text-warning">
+      <i class="mdi mdi-alert-circle mdi-24px mb-2"></i>
+      <div>
+        Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
+        not found
       </div>
     </div>
+    <div v-else class="card-body d-flex flex-column">
+      <!-- Title and Icon Row -->
+      <div class="d-flex align-items-center mb-3">
+        <div class="text-start flex-grow-1">
+          <h6 class="card-title mb-0">{{ entityName }}</h6>
+        </div>
+        <i v-if="iconClass" :class="iconClass" style="font-size: 1.5rem"></i>
+      </div>
+
+      <!-- Gauge -->
+      <div class="d-flex justify-content-center flex-grow-1">
+        <svg :width="160" :height="160" viewBox="0 0 160 160" class="gauge-svg">
+          <!-- Background circle -->
+          <circle
+            cx="80"
+            cy="80"
+            :r="radius"
+            stroke="#e9ecef"
+            stroke-width="6"
+            fill="none"
+            class="gauge-background"
+          />
+
+          <!-- Gauge arc -->
+          <path
+            :d="gaugeArc"
+            stroke="#dee2e6"
+            stroke-width="6"
+            fill="none"
+            stroke-linecap="round"
+            class="gauge-arc"
+          />
+
+          <!-- Value arc -->
+          <path
+            :d="valueArc"
+            stroke="#007bff"
+            stroke-width="10"
+            fill="none"
+            stroke-linecap="round"
+            class="gauge-value"
+          />
+
+          <!-- Value display in center -->
+          <text
+            x="80"
+            y="80"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-size="14"
+            font-weight="bold"
+            fill="#212529"
+            class="gauge-center-value"
+          >
+            {{ formattedValue }}
+            <tspan v-if="entityUnit" font-size="10" fill="#6c757d">
+              {{ entityUnit }}
+            </tspan>
+          </text>
+        </svg>
+      </div>
+
+      <!-- Min/Max labels aligned with bottom of gauge -->
+      <div
+        class="d-flex justify-content-between px-2 text-muted small"
+        style="margin-top: -1.5rem"
+      >
+        <span
+          >{{ min
+          }}<span v-if="entityUnit" class="ms-1">{{ entityUnit }}</span></span
+        >
+        <span
+          >{{ max
+          }}<span v-if="entityUnit" class="ms-1">{{ entityUnit }}</span></span
+        >
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>

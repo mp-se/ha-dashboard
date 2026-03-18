@@ -9,42 +9,42 @@
       'shadow-lg',
     ]"
   >
-      <div class="card-body">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-          <h6 class="card-title mb-0">{{ name }}</h6>
-          <i :class="selectIcon" class="select-icon"></i>
-        </div>
+    <div class="card-body">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h6 class="card-title mb-0">{{ name }}</h6>
+        <i :class="selectIcon" class="select-icon"></i>
+      </div>
 
-        <div v-if="options && options.length > 0" class="d-flex flex-wrap">
-          <div class="btn-group" role="group">
-            <template v-for="option in options" :key="option">
-              <input
-                :id="`${resolvedEntity.value?.entity_id}-${option}`"
-                v-model="selectedOption"
-                type="radio"
-                :name="`${resolvedEntity.value?.entity_id}-select`"
-                class="btn-check"
-                :value="option"
-                :disabled="isUnavailable"
-              />
-              <label
-                :for="`${resolvedEntity.value?.entity_id}-${option}`"
-                :class="[
-                  'btn',
-                  'btn-sm',
-                  isUnavailable ? 'disabled' : '',
-                  selectedOption === option
-                    ? 'btn-primary'
-                    : 'btn-outline-primary',
-                ]"
-              >
-                {{ option }}
-              </label>
-            </template>
-          </div>
+      <div v-if="options && options.length > 0" class="d-flex flex-wrap">
+        <div class="btn-group" role="group">
+          <template v-for="option in options" :key="option">
+            <input
+              :id="`${resolvedEntity.value?.entity_id}-${option}`"
+              v-model="selectedOption"
+              type="radio"
+              :name="`${resolvedEntity.value?.entity_id}-select`"
+              class="btn-check"
+              :value="option"
+              :disabled="isUnavailable"
+            />
+            <label
+              :for="`${resolvedEntity.value?.entity_id}-${option}`"
+              :class="[
+                'btn',
+                'btn-sm',
+                isUnavailable ? 'disabled' : '',
+                selectedOption === option
+                  ? 'btn-primary'
+                  : 'btn-outline-primary',
+              ]"
+            >
+              {{ option }}
+            </label>
+          </template>
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script setup>

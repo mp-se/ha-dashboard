@@ -9,9 +9,7 @@
       'border-info',
     ]"
   >
-    <div
-      class="card-body d-flex align-items-center justify-content-center p-0"
-    >
+    <div class="card-body d-flex align-items-center justify-content-center p-0">
       <img :src="resolvedUrl" :alt="title" class="ha-image-img" />
     </div>
   </div>

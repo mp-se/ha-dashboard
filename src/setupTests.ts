@@ -18,7 +18,7 @@ const localStorageStore: Record<string, string> = {};
 const mockStorage = new Proxy(Object.create(Storage.prototype), {
   get(target: any, prop: string | symbol) {
     // Check if it's a method that might be spied on
-    if (prop === 'getItem') {
+    if (prop === "getItem") {
       // First check if Storage.prototype.getItem is a spy (has mock properties)
       const protoMethod = Storage.prototype.getItem;
       if (protoMethod && (protoMethod as any).mock) {
@@ -28,7 +28,7 @@ const mockStorage = new Proxy(Object.create(Storage.prototype), {
       // Otherwise use our implementation
       return (key: string) => localStorageStore[key] ?? null;
     }
-    if (prop === 'setItem') {
+    if (prop === "setItem") {
       const protoMethod = Storage.prototype.setItem;
       if (protoMethod && (protoMethod as any).mock) {
         return protoMethod.bind(target);
@@ -37,7 +37,7 @@ const mockStorage = new Proxy(Object.create(Storage.prototype), {
         localStorageStore[key] = String(value);
       };
     }
-    if (prop === 'removeItem') {
+    if (prop === "removeItem") {
       const protoMethod = Storage.prototype.removeItem;
       if (protoMethod && (protoMethod as any).mock) {
         return protoMethod.bind(target);
@@ -46,25 +46,25 @@ const mockStorage = new Proxy(Object.create(Storage.prototype), {
         delete localStorageStore[key];
       };
     }
-    if (prop === 'clear') {
+    if (prop === "clear") {
       const protoMethod = Storage.prototype.clear;
       if (protoMethod && (protoMethod as any).mock) {
         return protoMethod.bind(target);
       }
       return () => {
-        Object.keys(localStorageStore).forEach(key => {
+        Object.keys(localStorageStore).forEach((key) => {
           delete localStorageStore[key];
         });
       };
     }
-    if (prop === 'key') {
+    if (prop === "key") {
       const protoMethod = Storage.prototype.key;
       if (protoMethod && (protoMethod as any).mock) {
         return protoMethod.bind(target);
       }
       return (index: number) => Object.keys(localStorageStore)[index] ?? null;
     }
-    if (prop === 'length') {
+    if (prop === "length") {
       return Object.keys(localStorageStore).length;
     }
     return Reflect.get(target, prop);
@@ -75,7 +75,7 @@ global.localStorage = mockStorage as unknown as Storage;
 
 beforeEach(() => {
   // Clear localStorage before each test
-  Object.keys(localStorageStore).forEach(key => {
+  Object.keys(localStorageStore).forEach((key) => {
     delete localStorageStore[key];
   });
 });

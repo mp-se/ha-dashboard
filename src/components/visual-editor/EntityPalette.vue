@@ -9,7 +9,9 @@
           title="Toggle Available Entities panel"
           @click="isExpanded = !isExpanded"
         >
-          <i :class="`mdi ${isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right'}`"></i>
+          <i
+            :class="`mdi ${isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right'}`"
+          ></i>
         </button>
         <h6 class="mb-0">Available Entities</h6>
       </div>
@@ -67,7 +69,10 @@
       </div>
 
       <!-- Search/filter matched no results (but entities exist) -->
-      <div v-else-if="filteredEntities.length === 0" class="alert alert-success mb-0">
+      <div
+        v-else-if="filteredEntities.length === 0"
+        class="alert alert-success mb-0"
+      >
         <small>
           <i class="mdi mdi-check-circle me-2\"></i>
           All entities are already in this view!
@@ -92,7 +97,10 @@
             <div class="flex-grow-1">
               <div class="small">
                 <i class="mdi mdi-drag-vertical me-1"></i>
-                {{ entity.attributes?.friendly_name || entity.entity_id.split(".")[1] }}
+                {{
+                  entity.attributes?.friendly_name ||
+                  entity.entity_id.split(".")[1]
+                }}
               </div>
               <small class="text-muted d-block">
                 {{ entity.entity_id }}
@@ -124,9 +132,16 @@ const searchText = ref("");
 const selectedType = ref("");
 
 const entitiesInViewIds = computed(() => {
-  console.log("[EntityPalette] entitiesInViewIds - entitiesInView:", props.entitiesInView, "isArray:", Array.isArray(props.entitiesInView));
+  console.log(
+    "[EntityPalette] entitiesInViewIds - entitiesInView:",
+    props.entitiesInView,
+    "isArray:",
+    Array.isArray(props.entitiesInView),
+  );
   if (!Array.isArray(props.entitiesInView)) {
-    console.warn("[EntityPalette] entitiesInViewIds - entitiesInView is not an array!");
+    console.warn(
+      "[EntityPalette] entitiesInViewIds - entitiesInView is not an array!",
+    );
     return [];
   }
   return props.entitiesInView
@@ -145,7 +160,7 @@ const allEntities = computed(() => {
 
 const entityTypes = computed(() => {
   const types = new Set(
-    allEntities.value.map((e) => e.entity_id.split(".")[0]).sort()
+    allEntities.value.map((e) => e.entity_id.split(".")[0]).sort(),
   );
   return Array.from(types);
 });
@@ -167,7 +182,7 @@ const filteredEntities = computed(() => {
     result = result.filter(
       (e) =>
         e.entity_id.toLowerCase().includes(search) ||
-        (e.attributes?.friendly_name || "").toLowerCase().includes(search)
+        (e.attributes?.friendly_name || "").toLowerCase().includes(search),
     );
   }
 
@@ -188,10 +203,13 @@ const isEntityInView = (entityId) => {
 const handleDragStart = (event, entity) => {
   event.dataTransfer.effectAllowed = "copy";
   // Set both JSON format (for canvas) and plain text (for inspector)
-  event.dataTransfer.setData("application/json", JSON.stringify({
-    entity: entity.entity_id,
-    type: "auto",
-  }));
+  event.dataTransfer.setData(
+    "application/json",
+    JSON.stringify({
+      entity: entity.entity_id,
+      type: "auto",
+    }),
+  );
   event.dataTransfer.setData("text/plain", entity.entity_id);
   const img = new Image();
   event.dataTransfer.setDragImage(img, 0, 0);
@@ -274,7 +292,9 @@ const handleDragEnd = () => {
   background-color: #e0f2fe !important;
   color: #0369a1 !important;
   border: 2px solid #0284c7 !important;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(2, 132, 199, 0.25) !important;
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.08),
+    0 2px 6px rgba(2, 132, 199, 0.25) !important;
   transform: translateY(1px);
   font-weight: 600;
 }
@@ -282,11 +302,15 @@ const handleDragEnd = () => {
 .entity-button-selected:hover {
   background-color: #cffafe !important;
   border-color: #0284c7 !important;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08), 0 3px 8px rgba(2, 132, 199, 0.3) !important;
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.08),
+    0 3px 8px rgba(2, 132, 199, 0.3) !important;
 }
 
 .entity-button-selected:active {
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), inset 0 -1px 1px rgba(255, 255, 255, 0.5) !important;
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.5) !important;
   transform: translateY(2px);
 }
 

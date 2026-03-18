@@ -92,7 +92,7 @@ describe("EditorCanvas.vue - Drag and Drop (Phase 2)", () => {
       ];
       wrapper.vm.localEntities = reordered;
       wrapper.vm.handleDragEnd();
-      
+
       const emitted = wrapper.emitted("reorder-entities");
       expect(emitted).toBeTruthy();
       expect(emitted[0][0]).toEqual(reordered);

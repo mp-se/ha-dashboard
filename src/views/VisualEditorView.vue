@@ -20,7 +20,10 @@
   <div class="editor-container">
     <div class="row g-0" style="min-height: calc(100vh - 200px)">
       <!-- Entity Palette (Left) -->
-      <div class="col-lg-3 border-end" style="overflow-y: auto; max-height: calc(100vh - 200px)">
+      <div
+        class="col-lg-3 border-end"
+        style="overflow-y: auto; max-height: calc(100vh - 200px)"
+      >
         <ViewManager
           :selected-view-name="selectedViewName"
           @view-created="handleViewCreated"
@@ -36,7 +39,10 @@
       </div>
 
       <!-- Canvas (Center) -->
-      <div class="col-lg-6" style="overflow-y: auto; max-height: calc(100vh - 200px)">
+      <div
+        class="col-lg-6"
+        style="overflow-y: auto; max-height: calc(100vh - 200px)"
+      >
         <EditorCanvas
           :entities="currentViewEntities"
           :selected-entity-id="selectedEntityId"
@@ -49,7 +55,10 @@
       </div>
 
       <!-- Inspector (Right) -->
-      <div class="col-lg-3 border-start" style="overflow-y: auto; max-height: calc(100vh - 200px)">
+      <div
+        class="col-lg-3 border-start"
+        style="overflow-y: auto; max-height: calc(100vh - 200px)"
+      >
         <EntityInspector
           v-if="selectedEntity"
           :entity="selectedEntity"
@@ -101,17 +110,26 @@ watch(
       logger.log("Auto-selected first view:", views[0].name);
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 const currentView = computed(() => {
-  const view = availableViews.value.find((v) => v.name === selectedViewName.value);
+  const view = availableViews.value.find(
+    (v) => v.name === selectedViewName.value,
+  );
   return view;
 });
 
 const currentViewEntities = computed(() => {
   const entities = currentView.value?.entities;
-  console.log("[VisualEditorView] currentViewEntities computed - currentView:", currentView.value, "entities:", entities, "isArray:", Array.isArray(entities));
+  console.log(
+    "[VisualEditorView] currentViewEntities computed - currentView:",
+    currentView.value,
+    "entities:",
+    entities,
+    "isArray:",
+    Array.isArray(entities),
+  );
   // Ensure entities is always an array
   if (!Array.isArray(entities)) {
     return [];
@@ -122,9 +140,18 @@ const currentViewEntities = computed(() => {
 const selectedEntity = computed(() => {
   if (selectedEntityId.value == null) return null;
   const entities = currentViewEntities.value;
-  console.log("[VisualEditorView] selectedEntity computed - entities:", entities, "isArray:", Array.isArray(entities), "selectedEntityId:", selectedEntityId.value);
+  console.log(
+    "[VisualEditorView] selectedEntity computed - entities:",
+    entities,
+    "isArray:",
+    Array.isArray(entities),
+    "selectedEntityId:",
+    selectedEntityId.value,
+  );
   if (!Array.isArray(entities)) {
-    console.warn("[VisualEditorView] selectedEntity - entities is not an array!");
+    console.warn(
+      "[VisualEditorView] selectedEntity - entities is not an array!",
+    );
     return null;
   }
   return entities.find((_, idx) => idx === selectedEntityId.value);
@@ -210,7 +237,11 @@ const handleAddEntity = (entityIdOrComponent) => {
       entity: entityIdOrComponent,
       type: undefined, // Will auto-detect based on entity type
     };
-  } else if (entityIdOrComponent && typeof entityIdOrComponent === "object" && entityIdOrComponent.type) {
+  } else if (
+    entityIdOrComponent &&
+    typeof entityIdOrComponent === "object" &&
+    entityIdOrComponent.type
+  ) {
     // Static component - create entry with just the type
     newEntity = {
       type: entityIdOrComponent.type,
@@ -246,7 +277,11 @@ const handleAddEntityAtIndex = (payload) => {
       entity: entityIdOrComponent,
       type: undefined, // Will auto-detect based on entity type
     };
-  } else if (entityIdOrComponent && typeof entityIdOrComponent === "object" && entityIdOrComponent.type) {
+  } else if (
+    entityIdOrComponent &&
+    typeof entityIdOrComponent === "object" &&
+    entityIdOrComponent.type
+  ) {
     // Static component - create entry with just the type
     newEntity = {
       type: entityIdOrComponent.type,
@@ -256,7 +291,10 @@ const handleAddEntityAtIndex = (payload) => {
   }
 
   // Clamp the index to valid range [0, array.length]
-  const clampedIndex = Math.max(0, Math.min(index, currentView.value.entities.length));
+  const clampedIndex = Math.max(
+    0,
+    Math.min(index, currentView.value.entities.length),
+  );
   currentView.value.entities.splice(clampedIndex, 0, newEntity);
   debouncedSave();
 };
@@ -281,12 +319,12 @@ const handleRemoveEntityByEntityId = (entityId) => {
   if (entityIndex === -1) return;
 
   currentView.value.entities.splice(entityIndex, 1);
-  
+
   // Deselect if this entity was selected
   if (selectedEntityId.value === entityIndex) {
     selectedEntityId.value = null;
   }
-  
+
   debouncedSave();
 };
 

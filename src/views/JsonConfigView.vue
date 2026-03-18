@@ -8,10 +8,7 @@
         :key="item.entity || item.entityId"
         :class="getComponentGridClasses(item.component)"
       >
-        <component
-          :is="item.component"
-          v-bind="getComponentProps(item)"
-        />
+        <component :is="item.component" v-bind="getComponentProps(item)" />
       </div>
     </div>
   </div>

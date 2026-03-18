@@ -4,9 +4,12 @@
 
     <div v-if="entity.entity || entity.getter" class="inspector-section mb-3">
       <label class="form-label small mb-1"><strong>Entity ID</strong></label>
-      
+
       <!-- Display array entities with EntityListEditor -->
-      <div v-if="isArrayEntity" class="form-control-static text-monospace small">
+      <div
+        v-if="isArrayEntity"
+        class="form-control-static text-monospace small"
+      >
         <EntityListEditor
           :model-value="entityArray"
           :lock-first-entity="shouldLockFirstEntity"
@@ -16,7 +19,7 @@
           @all-entities-removed="handleAllEntitiesRemoved"
         />
       </div>
-      
+
       <!-- Display single entity -->
       <div v-else class="form-control-static text-monospace small">
         {{ entity.entity || entity.getter }}
@@ -41,7 +44,11 @@
           </option>
         </optgroup>
         <optgroup label="Available Components">
-          <option v-for="type in availableComponentTypes" :key="type" :value="type">
+          <option
+            v-for="type in availableComponentTypes"
+            :key="type"
+            :value="type"
+          >
             {{ type }}
           </option>
         </optgroup>
@@ -64,20 +71,33 @@
     </div>
 
     <!-- Attributes Editor -->
-    <div v-if="entityFromStore && Object.keys(availableAttributes).length > 0" class="inspector-section mb-3">
+    <div
+      v-if="entityFromStore && Object.keys(availableAttributes).length > 0"
+      class="inspector-section mb-3"
+    >
       <label class="form-label small mb-2"><strong>Attributes</strong></label>
       <div class="attributes-form">
         <!-- Show message if no entity is selected -->
-        <div v-if="!props.entity?.entity" class="alert alert-info alert-sm mb-2">
+        <div
+          v-if="!props.entity?.entity"
+          class="alert alert-info alert-sm mb-2"
+        >
           <small>Select an entity to see available attributes</small>
         </div>
 
         <!-- List of configured attributes -->
-        <div v-for="(value, key, idx) in localAttributes" :key="`attr-${key}-${idx}`" class="mb-2">
+        <div
+          v-for="(value, key, idx) in localAttributes"
+          :key="`attr-${key}-${idx}`"
+          class="mb-2"
+        >
           <div class="attribute-row">
             <div class="attribute-key">
               <small class="text-monospace">{{ key }}</small>
-              <span class="badge bg-secondary ms-1" :title="`Value type: ${getAttributeType(value)}`">
+              <span
+                class="badge bg-secondary ms-1"
+                :title="`Value type: ${getAttributeType(value)}`"
+              >
                 {{ getAttributeTypeShort(value) }}
               </span>
             </div>
@@ -106,26 +126,47 @@
 
         <!-- Dropdown to add attributes from available list -->
         <div v-if="unusedAttributeNames.length > 0" class="mt-2">
-          <label class="form-label small mb-1"><strong>Add Attribute</strong></label>
+          <label class="form-label small mb-1"
+            ><strong>Add Attribute</strong></label
+          >
           <select
             class="form-select form-select-sm"
-            @change="addAttributeFromDropdown($event.target.value); $event.target.value = ''"
+            @change="
+              addAttributeFromDropdown($event.target.value);
+              $event.target.value = '';
+            "
           >
             <option value="">-- Select an attribute --</option>
-            <option v-for="attrName in unusedAttributeNames" :key="attrName" :value="attrName">
+            <option
+              v-for="attrName in unusedAttributeNames"
+              :key="attrName"
+              :value="attrName"
+            >
               {{ attrName }}
             </option>
           </select>
         </div>
 
         <!-- Message when all attributes are added -->
-        <div v-else-if="Object.keys(availableAttributes).length > 0" class="alert alert-success alert-sm mt-2 mb-0">
-          <small><i class="mdi mdi-check-circle me-1"></i>All available attributes added</small>
+        <div
+          v-else-if="Object.keys(availableAttributes).length > 0"
+          class="alert alert-success alert-sm mt-2 mb-0"
+        >
+          <small
+            ><i class="mdi mdi-check-circle me-1"></i>All available attributes
+            added</small
+          >
         </div>
 
         <!-- Message when no attributes available -->
-        <div v-else-if="props.entity?.entity && !entityFromStore" class="alert alert-warning alert-sm mt-2 mb-0">
-          <small><i class="mdi mdi-alert-circle me-1"></i>Entity not found in Home Assistant</small>
+        <div
+          v-else-if="props.entity?.entity && !entityFromStore"
+          class="alert alert-warning alert-sm mt-2 mb-0"
+        >
+          <small
+            ><i class="mdi mdi-alert-circle me-1"></i>Entity not found in Home
+            Assistant</small
+          >
         </div>
       </div>
     </div>
@@ -158,7 +199,10 @@
 import { ref, computed, watch } from "vue";
 import { useHaStore } from "../../stores/haStore";
 import { getDefaultComponentType } from "../../composables/useDefaultComponentType";
-import { getCardProperties, validateProperty } from "../../utils/cardPropertyMetadata";
+import {
+  getCardProperties,
+  validateProperty,
+} from "../../utils/cardPropertyMetadata";
 import PropertyEditorFactory from "./PropertyEditors/PropertyEditorFactory.vue";
 import EntityListEditor from "./PropertyEditors/EntityListEditor.vue";
 
@@ -173,7 +217,13 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["update-type", "update-attributes", "update-properties", "remove-entity", "deselect"]);
+const emit = defineEmits([
+  "update-type",
+  "update-attributes",
+  "update-properties",
+  "remove-entity",
+  "deselect",
+]);
 
 const store = useHaStore();
 const localAttributes = ref({});
@@ -188,7 +238,7 @@ watch(
     localAttributes.value = { ...newAttributes };
     attributeErrors.value = {};
   },
-  { immediate: true, deep: true }
+  { immediate: true, deep: true },
 );
 
 // Sync local properties with prop
@@ -207,7 +257,7 @@ watch(
     localProperties.value = newProperties;
     propertyErrors.value = {};
   },
-  { immediate: true, deep: true }
+  { immediate: true, deep: true },
 );
 
 /** Get available attributes from the entity state in the store */
@@ -234,24 +284,21 @@ const recommendedType = computed(() => {
   if (props.entity?.getter) {
     return "HaEntityList";
   }
-  return getDefaultComponentType(
-    props.entity?.entity,
-    props.entity?.getter
-  );
+  return getDefaultComponentType(props.entity?.entity, props.entity?.getter);
 });
 
 /** Check if this card type should lock the first entity (e.g., HaRoom) */
 const shouldLockFirstEntity = computed(() => {
   // Only HaRoom requires locking the first entity
-  return props.entity?.type === 'HaRoom';
+  return props.entity?.type === "HaRoom";
 });
 
 /** Dynamic help text based on card type */
 const entityListHelp = computed(() => {
-  if (props.entity?.type === 'HaRoom') {
-    return 'Drag to reorder (except the first one). Drop entities from the left panel to add.';
+  if (props.entity?.type === "HaRoom") {
+    return "Drag to reorder (except the first one). Drop entities from the left panel to add.";
   }
-  return 'Drag to reorder. Drop entities from the left panel to add. If all are removed the component will be deleted.';
+  return "Drag to reorder. Drop entities from the left panel to add. If all are removed the component will be deleted.";
 });
 const isArrayEntity = computed(() => {
   return Array.isArray(props.entity?.entity);
@@ -279,8 +326,8 @@ const updateEntityArray = (newArray) => {
 /** Handle when all entities are removed from a card */
 const handleAllEntitiesRemoved = () => {
   // Only auto-remove for HaGlance, not for HaRoom
-  if (props.entity?.type === 'HaGlance') {
-    emit('remove-entity');
+  if (props.entity?.type === "HaGlance") {
+    emit("remove-entity");
   }
 };
 // List of available component types (can be imported from a constant)
@@ -333,7 +380,8 @@ const hasCardProperties = computed(() => {
  */
 const formatAttributeValue = (value) => {
   if (typeof value === "string") return value;
-  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (typeof value === "number" || typeof value === "boolean")
+    return String(value);
   // For objects/arrays, return JSON string
   try {
     return JSON.stringify(value);
@@ -377,18 +425,22 @@ const handleComponentTypeChange = (event) => {
 
 const updateProperty = (propName, value) => {
   // Validate the property
-  const validation = validateProperty(props.entity?.type || "", propName, value);
+  const validation = validateProperty(
+    props.entity?.type || "",
+    propName,
+    value,
+  );
   if (!validation.valid) {
     propertyErrors.value[propName] = validation.error;
     return;
   }
-  
+
   // Clear any previous error
   propertyErrors.value[propName] = "";
-  
+
   // Update local property
   localProperties.value[propName] = value;
-  
+
   // Emit all properties
   emit("update-properties", { ...localProperties.value });
 };
@@ -431,8 +483,10 @@ const parseAttributeValue = (valueStr) => {
   }
 
   // JSON values
-  if ((trimmed.startsWith("{") && trimmed.endsWith("}")) ||
-      (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
+  if (
+    (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
+    (trimmed.startsWith("[") && trimmed.endsWith("]"))
+  ) {
     try {
       return JSON.parse(trimmed);
     } catch {

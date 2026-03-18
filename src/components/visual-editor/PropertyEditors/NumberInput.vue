@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed } from "vue";
 
 // eslint-disable-next-line no-unused-vars
 const props = defineProps({
@@ -34,7 +34,7 @@ const props = defineProps({
   },
   help: {
     type: String,
-    default: '',
+    default: "",
   },
   required: {
     type: Boolean,
@@ -50,13 +50,15 @@ const props = defineProps({
   },
   error: {
     type: String,
-    default: '',
+    default: "",
   },
 });
 
-defineEmits(['update:modelValue']);
+defineEmits(["update:modelValue"]);
 
-const inputId = computed(() => `number-input-${Math.random().toString(36).substr(2, 9)}`);
+const inputId = computed(
+  () => `number-input-${Math.random().toString(36).substr(2, 9)}`,
+);
 </script>
 
 <style scoped>

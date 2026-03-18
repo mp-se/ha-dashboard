@@ -9,97 +9,89 @@
       !resolvedEntity ? 'border-warning' : cardBorderClass,
     ]"
   >
-      <div
-        :class="[
-          'card-body',
-          !resolvedEntity ? 'text-center text-warning' : 'py-2',
-        ]"
-      >
-        <i
-          v-if="!resolvedEntity"
-          class="mdi mdi-alert-circle mdi-24px mb-2"
-        ></i>
-        <div v-if="!resolvedEntity">
-          Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
-          not found
-        </div>
-        <template v-else>
-          <div class="d-flex align-items-center">
-            <div class="flex-grow-1 text-start">
-              <h6 class="card-title mb-1">{{ name }}</h6>
-              <div class="d-flex align-items-center mb-1">
-                <i
-                  v-if="weatherIcon"
-                  :class="weatherIcon"
-                  class="weather-icon me-1"
-                ></i>
-                <div class="weather-condition fw-bold me-2">
-                  {{ formatCondition(state) }}
-                </div>
-                <span v-if="windSpeedMs" class="text-primary me-2"
-                  >{{ windSpeedMs.toFixed(1) }} m/s</span
-                >
-                <span v-if="windBearing" class="text-primary">{{
-                  windDirectionArrow
-                }}</span>
-              </div>
-            </div>
-            <div class="text-end small">
-              <div v-if="humidity" class="mb-1">
-                <span class="text-muted">Humidity:</span>
-                <span class="fw-bold">{{ humidity }}%</span>
-              </div>
-              <div v-if="pressure" class="mb-1">
-                <span class="text-muted">Pressure:</span>
-                <span class="fw-bold">{{ pressure }} {{ pressureUnit }}</span>
-              </div>
-              <div v-if="visibility" class="mb-1">
-                <span class="text-muted">Visibility:</span>
-                <span class="fw-bold"
-                  >{{ visibility }} {{ visibilityUnit }}</span
-                >
-              </div>
-              <div v-if="temperature">
-                <span class="text-muted">Temp:</span>
-                <span class="fw-bold"
-                  >{{ temperature }} {{ temperatureUnit }}</span
-                >
-              </div>
-            </div>
-          </div>
-
-          <!-- Forecast Section -->
-          <div v-if="forecastData.length > 0 && forecast" class="mt-2 mb-2">
-            <div class="forecast-container">
-              <div
-                v-for="(item, index) in displayForecast"
-                :key="index"
-                class="forecast-item"
-              >
-                <div class="forecast-time">
-                  {{ formatDate(item.datetime) }}
-                </div>
-                <div class="forecast-temp">
-                  {{ Math.round(item.temperature) }}° /
-                  {{ Math.round(item.templow) }}°
-                </div>
-                <div class="forecast-condition">
-                  {{ formatCondition(item.condition) }}
-                </div>
-                <div v-if="item.wind_speed !== undefined" class="forecast-wind">
-                  <i
-                    class="mdi mdi-weather-windy"
-                    style="font-size: 0.75rem"
-                  ></i>
-                  {{ Math.round(convertToMs(item.wind_speed, windSpeedUnit)) }}
-                  m/s
-                </div>
-              </div>
-            </div>
-          </div>
-        </template>
+    <div
+      :class="[
+        'card-body',
+        !resolvedEntity ? 'text-center text-warning' : 'py-2',
+      ]"
+    >
+      <i v-if="!resolvedEntity" class="mdi mdi-alert-circle mdi-24px mb-2"></i>
+      <div v-if="!resolvedEntity">
+        Entity "{{ typeof entity === "string" ? entity : entity?.entity_id }}"
+        not found
       </div>
+      <template v-else>
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1 text-start">
+            <h6 class="card-title mb-1">{{ name }}</h6>
+            <div class="d-flex align-items-center mb-1">
+              <i
+                v-if="weatherIcon"
+                :class="weatherIcon"
+                class="weather-icon me-1"
+              ></i>
+              <div class="weather-condition fw-bold me-2">
+                {{ formatCondition(state) }}
+              </div>
+              <span v-if="windSpeedMs" class="text-primary me-2"
+                >{{ windSpeedMs.toFixed(1) }} m/s</span
+              >
+              <span v-if="windBearing" class="text-primary">{{
+                windDirectionArrow
+              }}</span>
+            </div>
+          </div>
+          <div class="text-end small">
+            <div v-if="humidity" class="mb-1">
+              <span class="text-muted">Humidity:</span>
+              <span class="fw-bold">{{ humidity }}%</span>
+            </div>
+            <div v-if="pressure" class="mb-1">
+              <span class="text-muted">Pressure:</span>
+              <span class="fw-bold">{{ pressure }} {{ pressureUnit }}</span>
+            </div>
+            <div v-if="visibility" class="mb-1">
+              <span class="text-muted">Visibility:</span>
+              <span class="fw-bold">{{ visibility }} {{ visibilityUnit }}</span>
+            </div>
+            <div v-if="temperature">
+              <span class="text-muted">Temp:</span>
+              <span class="fw-bold"
+                >{{ temperature }} {{ temperatureUnit }}</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Forecast Section -->
+        <div v-if="forecastData.length > 0 && forecast" class="mt-2 mb-2">
+          <div class="forecast-container">
+            <div
+              v-for="(item, index) in displayForecast"
+              :key="index"
+              class="forecast-item"
+            >
+              <div class="forecast-time">
+                {{ formatDate(item.datetime) }}
+              </div>
+              <div class="forecast-temp">
+                {{ Math.round(item.temperature) }}° /
+                {{ Math.round(item.templow) }}°
+              </div>
+              <div class="forecast-condition">
+                {{ formatCondition(item.condition) }}
+              </div>
+              <div v-if="item.wind_speed !== undefined" class="forecast-wind">
+                <i class="mdi mdi-weather-windy" style="font-size: 0.75rem"></i>
+                {{ Math.round(convertToMs(item.wind_speed, windSpeedUnit)) }}
+                m/s
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
     </div>
+  </div>
 </template>
 
 <script setup>
