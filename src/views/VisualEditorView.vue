@@ -29,6 +29,7 @@
           @view-created="handleViewCreated"
           @view-deleted="handleViewDeleted"
           @view-updated="handleViewUpdated"
+          @view-selected="selectedViewName = $event"
         />
         <EntityPalette
           :entities-in-view="currentViewEntities"
@@ -89,6 +90,13 @@ import StaticComponentPalette from "../components/visual-editor/StaticComponentP
 import { createLogger } from "../utils/logger";
 
 const logger = createLogger("VisualEditorView");
+defineProps({
+  viewName: {
+    type: String,
+    default: "editor",
+  },
+});
+
 const store = useHaStore();
 
 const selectedViewName = ref("");

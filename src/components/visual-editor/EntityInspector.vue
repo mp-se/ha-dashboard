@@ -33,14 +33,13 @@
       </label>
       <select
         id="componentType"
-        :value="entity.type || 'auto'"
+        :value="entity.type || recommendedType"
         class="form-select form-select-sm"
         @change="handleComponentTypeChange"
       >
-        <option value="auto">Auto-detect</option>
         <optgroup label="Recommended">
-          <option v-if="recommendedType" :value="recommendedType">
-            {{ recommendedType }} (Recommended)
+          <option :value="recommendedType">
+            {{ recommendedType }} (Default)
           </option>
         </optgroup>
         <optgroup label="Available Components">
@@ -420,7 +419,8 @@ const getAttributeTypeShort = (value) => {
 
 const handleComponentTypeChange = (event) => {
   const value = event.target.value;
-  emit("update-type", value === "auto" ? undefined : value);
+  // If the selected value is the recommended type, emit undefined to use the default
+  emit("update-type", value === recommendedType.value ? undefined : value);
 };
 
 const updateProperty = (propName, value) => {

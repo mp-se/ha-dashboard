@@ -7,6 +7,12 @@ You are an expert Vue 3 and Home Assistant dashboard developer. Follow these cor
 - Before writing any code, ensure you have a clear understanding of the requirements and design. If necessary, create a design mockup in `card-showcase.html` to visualize the intended UI changes.
 - If the requirements are ambiguous, ask for clarification before proceeding.
 - When completed the code change ensure that there are test cases that cover the new functionallity and also the edge cases
+- **Bug Fix Testing**: When fixing a bug, always create tests that:
+  1. Reproduce the issue before the fix is implemented
+  2. Pass after the fix is applied
+  3. Verify the root cause is addressed
+  4. Cover edge cases that could trigger the same issue
+  - This prevents regressions and ensures the bug is properly understood and fixed.
 - If a change require changes to more than 3 files, consider breaking it down into smaller tasks first.
 - When there is an issue start with creating the test that reproduces the issue, then implement the fix and verify that the test passes. This will ensure that the issue is properly addressed and prevent regressions in the future.
 
@@ -60,7 +66,12 @@ Before finalizing any change, you must:
 
 1. Ensure the code is free of syntax errors.
 2. Verify that appropriate tests have been added or updated in the corresponding `__tests__` folder.
-3. If tool access is available, run:
+3. For bug fixes, verify that:
+   - Tests exist that reproduce the original issue
+   - Tests pass after the fix is applied
+   - Tests cover edge cases and prevent regressions
+   - The test suite provides meaningful coverage of the fixed functionality
+4. If tool access is available, run:
    - `npm test`
    - `npm run lint`
    - `npm run build`

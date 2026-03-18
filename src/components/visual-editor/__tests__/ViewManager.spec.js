@@ -297,4 +297,32 @@ describe("ViewManager.vue", () => {
       expect(wrapper.vm.showDeleteConfirm).toBe(false);
     });
   });
+
+  describe("View Selection", () => {
+    it("emits view-selected event when clicking on a view item", async () => {
+      // Find the left part of the view item (which should be clickable)
+      const viewItem = wrapper.find(".view-item");
+      
+      // Click on the left side of the view item (the label area)
+      const leftPart = viewItem.find(".d-flex.align-items-center.flex-grow-1");
+      await leftPart.trigger("click");
+
+      // Should emit view-selected event with the view name
+      expect(wrapper.emitted("view-selected")).toBeTruthy();
+      expect(wrapper.emitted("view-selected")[0]).toEqual(["overview"]);
+    });
+
+    it("selects different view when clicking on it", async () => {
+      // Click on the second view (lights)
+      const viewItems = wrapper.findAll(".view-item");
+      const secondView = viewItems[1];
+      const leftPart = secondView.find(".d-flex.align-items-center.flex-grow-1");
+      
+      await leftPart.trigger("click");
+
+      // Should emit view-selected with 'lights' view name
+      expect(wrapper.emitted("view-selected")).toBeTruthy();
+      expect(wrapper.emitted("view-selected")[0]).toEqual(["lights"]);
+    });
+  });
 });

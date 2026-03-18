@@ -776,4 +776,37 @@ describe("DevicesView.vue", () => {
       vi.stubGlobal("navigator", originalNavigator);
     });
   });
+
+  describe("viewName prop", () => {
+    it("accepts viewName prop", () => {
+      const wrapper = mount(DevicesView, {
+        props: { viewName: "devices-test" },
+      });
+      expect(wrapper.props("viewName")).toBe("devices-test");
+    });
+
+    it("viewName prop defaults to 'device'", () => {
+      const wrapper = mount(DevicesView);
+      expect(wrapper.props("viewName")).toBe("device");
+    });
+
+    it("viewName prop is accessible via vm", () => {
+      const wrapper = mount(DevicesView, {
+        props: { viewName: "custom-devices-view" },
+      });
+      expect(wrapper.vm.viewName).toBe("custom-devices-view");
+    });
+
+    it("viewName prop can be updated reactively", async () => {
+      const wrapper = mount(DevicesView, {
+        props: { viewName: "initial-name" },
+      });
+
+      expect(wrapper.props("viewName")).toBe("initial-name");
+
+      await wrapper.setProps({ viewName: "updated-name" });
+
+      expect(wrapper.props("viewName")).toBe("updated-name");
+    });
+  });
 });

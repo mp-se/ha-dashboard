@@ -188,4 +188,33 @@ describe("DevelopmentView.vue", () => {
     const entityList = wrapper.findComponent(mockEntityList);
     expect(entityList.props("entities")).toHaveLength(0);
   });
+
+  it("accepts viewName prop", () => {
+    const wrapper = mount(DevelopmentView, {
+      props: { viewName: "development-test" },
+      global: {
+        components: { EntityList: mockEntityList },
+      },
+    });
+    expect(wrapper.props("viewName")).toBe("development-test");
+  });
+
+  it("viewName prop defaults to 'dev'", () => {
+    const wrapper = mount(DevelopmentView, {
+      global: {
+        components: { EntityList: mockEntityList },
+      },
+    });
+    expect(wrapper.props("viewName")).toBe("dev");
+  });
+
+  it("viewName prop is passed down and accessible", () => {
+    const wrapper = mount(DevelopmentView, {
+      props: { viewName: "custom-dev-view" },
+      global: {
+        components: { EntityList: mockEntityList },
+      },
+    });
+    expect(wrapper.vm.viewName).toBe("custom-dev-view");
+  });
 });

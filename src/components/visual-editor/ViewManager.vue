@@ -37,7 +37,14 @@
         class="view-item d-flex align-items-center justify-content-between p-2 mb-2 border rounded"
         :class="{ 'bg-light border-primary': isSelected(view.name) }"
       >
-        <div class="d-flex align-items-center flex-grow-1">
+        <div
+          class="d-flex align-items-center flex-grow-1"
+          style="cursor: pointer"
+          role="button"
+          tabindex="0"
+          @click="selectView(view.name)"
+          @keydown.enter="selectView(view.name)"
+        >
           <i :class="`mdi ${view.icon} me-2`"></i>
           <div class="flex-grow-1">
             <div class="small">{{ view.label }}</div>
@@ -218,7 +225,7 @@ import { ref, computed } from "vue";
 import { useHaStore } from "../../stores/haStore";
 import IconPicker from "./PropertyEditors/IconPicker.vue";
 
-const emit = defineEmits(["view-created", "view-deleted", "view-updated"]);
+const emit = defineEmits(["view-created", "view-deleted", "view-updated", "view-selected"]);
 
 const props = defineProps({
   selectedViewName: {
@@ -258,6 +265,10 @@ const isFormValid = computed(() => {
 
 const isSelected = (viewName) => {
   return viewName === props.selectedViewName;
+};
+
+const selectView = (viewName) => {
+  emit("view-selected", viewName);
 };
 
 const validateName = () => {

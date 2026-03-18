@@ -111,6 +111,13 @@ import useDebouncedRef from "@/composables/useDebouncedRef";
 import { useClipboard } from "@/composables/useClipboard";
 import { createLogger } from "@/utils/logger";
 
+defineProps({
+  viewName: {
+    type: String,
+    default: "device",
+  },
+});
+
 const store = useHaStore();
 const logger = createLogger("DevicesView");
 

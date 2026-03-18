@@ -8,7 +8,7 @@
         :key="item.entity || item.entityId"
         :class="getComponentGridClasses(item.component)"
       >
-        <component :is="item.component" v-bind="getComponentProps(item)" />
+        <component :is="componentMap[item.component]" v-bind="getComponentProps(item)" />
       </div>
     </div>
   </div>
@@ -20,6 +20,37 @@ import { useHaStore } from "../stores/haStore";
 import { getDefaultComponentType } from "../composables/useDefaultComponentType";
 import { getComponentLayoutClasses } from "../utils/componentLayouts";
 
+// Import all Ha* components
+import HaAlarmPanel from "../components/cards/HaAlarmPanel.vue";
+import HaBeerTap from "../components/cards/HaBeerTap.vue";
+import HaBinarySensor from "../components/cards/HaBinarySensor.vue";
+import HaButton from "../components/cards/HaButton.vue";
+import HaChip from "../components/cards/HaChip.vue";
+import HaEnergy from "../components/cards/HaEnergy.vue";
+import EntityAttributeList from "../components/sub-components/EntityAttributeList.vue";
+import EntityList from "../components/containers/EntityList.vue";
+import HaError from "../components/cards/HaError.vue";
+import HaGauge from "../components/cards/HaGauge.vue";
+import HaGlance from "../components/cards/HaGlance.vue";
+import HaHeader from "../components/cards/HaHeader.vue";
+import IconCircle from "../components/sub-components/IconCircle.vue";
+import HaImage from "../components/cards/HaImage.vue";
+import HaLight from "../components/cards/HaLight.vue";
+import HaLink from "../components/cards/HaLink.vue";
+import HaMediaPlayer from "../components/cards/HaMediaPlayer.vue";
+import HaPerson from "../components/cards/HaPerson.vue";
+import HaPrinter from "../components/cards/HaPrinter.vue";
+import HaRoom from "../components/cards/HaRoom.vue";
+import HaRowSpacer from "../components/cards/HaRowSpacer.vue";
+import HaSelect from "../components/cards/HaSelect.vue";
+import HaSensor from "../components/cards/HaSensor.vue";
+import HaSensorGraph from "../components/cards/HaSensorGraph.vue";
+import HaSpacer from "../components/cards/HaSpacer.vue";
+import HaSun from "../components/cards/HaSun.vue";
+import HaSwitch from "../components/cards/HaSwitch.vue";
+import HaWarning from "../components/cards/HaWarning.vue";
+import HaWeather from "../components/cards/HaWeather.vue";
+
 const props = defineProps({
   viewName: {
     type: String,
@@ -28,6 +59,39 @@ const props = defineProps({
 });
 
 const store = useHaStore();
+
+// Map component types to imported components
+const componentMap = {
+  HaAlarmPanel,
+  HaBeerTap,
+  HaBinarySensor,
+  HaButton,
+  HaChip,
+  HaEnergy,
+  EntityAttributeList,
+  EntityList,
+  HaError,
+  HaGauge,
+  HaGlance,
+  HaHeader,
+  IconCircle,
+  HaImage,
+  HaLight,
+  HaLink,
+  HaMediaPlayer,
+  HaPerson,
+  HaPrinter,
+  HaRoom,
+  HaRowSpacer,
+  HaSelect,
+  HaSensor,
+  HaSensorGraph,
+  HaSpacer,
+  HaSun,
+  HaSwitch,
+  HaWarning,
+  HaWeather,
+};
 
 // Filter out control props that shouldn't be passed to components
 const getComponentProps = (item) => {
@@ -79,9 +143,9 @@ const entitiesList = computed(() => {
         component: componentType,
       });
     }
-    // Special handling for HaEntityList - pass getter/entities array directly to component
-    else if (componentType === "HaEntityList") {
-      // For HaEntityList, we need to provide entities array in the format it expects
+    // Special handling for EntityList - pass getter/entities array directly to component
+    else if (componentType === "EntityList") {
+      // For EntityList, we need to provide entities array in the format it expects
       // If getter is specified, convert to entities array format
       let entitiesForList = entity.entities || [];
       if (entity.getter && !entitiesForList.length) {

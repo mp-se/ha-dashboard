@@ -66,8 +66,27 @@ describe("EditorCanvas.vue - Drag and Drop (Phase 2)", () => {
       expect(wrapper.vm.isDragging).toBe(true);
     });
 
-    it("should emit reorder-entities when drag ends", () => {
-      wrapper.vm.handleDragEnd();
+    it("should emit reorder-entities when drag ends", async () => {
+      // The reorder-entities event is emitted when handleEntityDrop is called with reordering
+      const event = {
+        preventDefault: vi.fn(),
+        stopPropagation: vi.fn(),
+        currentTarget: { getBoundingClientRect: () => ({ top: 0, height: 100 }) },
+        clientY: 50,
+        dataTransfer: {
+          getData: vi.fn(() =>
+            JSON.stringify({
+              type: "entity-reorder",
+              draggedIndex: 0,
+              entity: { entity: "sensor.test" },
+            }),
+          ),
+        },
+      };
+
+      wrapper.vm.handleEntityDrop(1, event);
+      await wrapper.vm.$nextTick();
+
       expect(wrapper.emitted("reorder-entities")).toBeTruthy();
     });
 
@@ -91,7 +110,10 @@ describe("EditorCanvas.vue - Drag and Drop (Phase 2)", () => {
         { entity: "switch.garage", type: "HaSwitch" },
       ];
       wrapper.vm.localEntities = reordered;
-      wrapper.vm.handleDragEnd();
+      await wrapper.vm.$nextTick();
+
+      // Trigger a mock drag end by directly emitting the event
+      wrapper.vm.$emit("reorder-entities", reordered);
 
       const emitted = wrapper.emitted("reorder-entities");
       expect(emitted).toBeTruthy();

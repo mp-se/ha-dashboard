@@ -91,8 +91,8 @@
 
 <script setup>
 import { ref, watch, computed } from "vue";
-import { useHaStore } from "../../stores/haStore";
 import { getComponentLayoutClasses } from "../../utils/componentLayouts";
+import { getDefaultComponentType } from "../../composables/useDefaultComponentType";
 
 // Import all Ha* components
 import HaAlarmPanel from "../cards/HaAlarmPanel.vue";
@@ -144,7 +144,6 @@ const emit = defineEmits([
   "add-entity-at-index",
 ]);
 
-const store = useHaStore();
 const isDragging = ref(false);
 const isDragOver = ref(false);
 const isDropping = ref(false);
@@ -233,35 +232,27 @@ const getComponentForEntity = (entity) => {
     return componentMap[entity.type];
   }
 
-  // Special cases for non-entity items
-  if (entity.type === "HaRowSpacer" || entity.type === "HaSpacer") {
-    return componentMap.HaSpacer;
-  }
-  if (entity.type === "HaHeader") {
-    return componentMap.HaHeader;
-  }
-  if (entity.type === "HaLink") {
-    return componentMap.HaLink;
+  // Special cases for non-entity items (when no entity ID is present)
+  if (!entity.entity && !entity.getter) {
+    if (entity.type === "HaRowSpacer" || entity.type === "HaSpacer") {
+      return componentMap.HaSpacer;
+    }
+    if (entity.type === "HaHeader") {
+      return componentMap.HaHeader;
+    }
+    if (entity.type === "HaLink") {
+      return componentMap.HaLink;
+    }
   }
 
-  // If no type, try to auto-detect from entity class
-  if (entity.entity && store.entityMap) {
-    const entityState = store.entityMap[entity.entity];
-    if (entityState?.attributes?.class) {
-      const entityClass = entityState.attributes.class;
-      // Map entity classes to component types
-      const classMap = {
-        light: "HaLight",
-        switch: "HaSwitch",
-        sensor: "HaSensor",
-        binary_sensor: "HaBinarySensor",
-        weather: "HaWeather",
-        climate: "HaSelect",
-      };
-      const componentType = classMap[entityClass];
-      if (componentType && componentMap[componentType]) {
-        return componentMap[componentType];
-      }
+  // If no explicit type, use getDefaultComponentType for auto-detection
+  if (!entity.type) {
+    const defaultType = getDefaultComponentType(
+      entity.entity || entity.getter,
+      entity.getter,
+    );
+    if (defaultType && componentMap[defaultType]) {
+      return componentMap[defaultType];
     }
   }
 
@@ -341,10 +332,6 @@ const getComponentCustomProps = (entity) => {
   return customProps;
 };
 
-const handleDragEnd = () => {
-  emit("reorder-entities", localEntities.value);
-};
-
 const handleSelectClick = (index) => {
   if (isEntitySelected(index)) {
     // Deselect if clicking the same entity
@@ -371,7 +358,7 @@ const getComponentClasses = (entity) => {
 const handleDragOver = (event) => {
   event.preventDefault();
   event.dataTransfer.dropEffect = "move";
-  dragOverIndex.value = localEntities.length;
+  dragOverIndex.value = localEntities.value.length;
   isDropping.value = true;
 };
 
