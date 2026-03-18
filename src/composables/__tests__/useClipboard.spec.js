@@ -22,8 +22,8 @@ describe("useClipboard", () => {
     expect(error.value).toBeNull();
   });
 
-  describe("writeToClipboard (navigator.clipboard success)", () => {
-    it("writes text to clipboard and returns true", async () => {
+  describe("writeToClipboard", () => {
+    it("writes text to clipboard using Clipboard API and returns true", async () => {
       const writeTextMock = vi.fn().mockResolvedValue(undefined);
       vi.stubGlobal("navigator", { clipboard: { writeText: writeTextMock } });
 
@@ -52,7 +52,7 @@ describe("useClipboard", () => {
     it("clears previous error on new write attempt", async () => {
       const { writeToClipboard, error } = useClipboard();
 
-      // First call succeeds; prime with a pre-existing error state
+      // Prime with a pre-existing error state
       error.value = "old error";
 
       vi.stubGlobal("navigator", {
@@ -62,66 +62,35 @@ describe("useClipboard", () => {
       await writeToClipboard("fresh text");
       expect(error.value).toBeNull();
     });
-  });
 
-  describe("writeToClipboard (navigator.clipboard fails, execCommand fallback)", () => {
-    it("succeeds via execCommand fallback when clipboard API is unavailable", async () => {
+    it("sets error and returns false when Clipboard API fails", async () => {
+      const clipboardError = new Error("Clipboard not available");
       vi.stubGlobal("navigator", {
         clipboard: {
-          writeText: vi.fn().mockRejectedValue(new Error("Permission denied")),
-        },
-      });
-
-      // Define execCommand on document for this test (not available in happy-dom)
-      Object.defineProperty(document, "execCommand", {
-        writable: true,
-        configurable: true,
-        value: vi.fn().mockReturnValue(true),
-      });
-
-      const { writeToClipboard, copied, error } = useClipboard();
-      const result = await writeToClipboard("fallback success");
-
-      expect(result).toBe(true);
-      expect(copied.value).toBe(true);
-      expect(error.value).toBeNull();
-
-      // Clean up
-      Object.defineProperty(document, "execCommand", {
-        writable: true,
-        configurable: true,
-        value: undefined,
-      });
-    });
-
-    it("returns false and sets error when both paths fail (happy-dom has no execCommand)", async () => {
-      vi.stubGlobal("navigator", {
-        clipboard: {
-          writeText: vi.fn().mockRejectedValue(new Error("Permission denied")),
+          writeText: vi.fn().mockRejectedValue(clipboardError),
         },
       });
 
       const { writeToClipboard, copied, error } = useClipboard();
-      // In happy-dom document.execCommand does not exist → TypeError thrown
-      const result = await writeToClipboard("fallback test");
+      const result = await writeToClipboard("should fail");
 
-      // Both clipboard API and execCommand fallback fail
       expect(result).toBe(false);
       expect(copied.value).toBe(false);
-      expect(error.value).toBeTruthy();
+      expect(error.value).toBe("Clipboard not available");
     });
-  });
 
-  describe("writeToClipboard (no navigator.clipboard)", () => {
-    it("falls back to execCommand when clipboard API is unavailable", async () => {
-      vi.stubGlobal("navigator", {});
+    it("sets error message for non-Error exceptions", async () => {
+      vi.stubGlobal("navigator", {
+        clipboard: {
+          writeText: vi.fn().mockRejectedValue("String error"),
+        },
+      });
 
       const { writeToClipboard, error } = useClipboard();
-      const result = await writeToClipboard("no clipboard api");
+      const result = await writeToClipboard("test");
 
-      // In happy-dom execCommand doesn't exist → fallback fails
       expect(result).toBe(false);
-      expect(error.value).toBeTruthy();
+      expect(error.value).toBe("Copy failed");
     });
   });
 });

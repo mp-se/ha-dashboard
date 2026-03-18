@@ -18,10 +18,11 @@ import {
 } from "@/utils/secureStorage";
 import { fetchWithTimeout } from "@/utils/fetchWithTimeout";
 import { TIMEOUT_SERVICE_CALL } from "@/utils/constants";
-
-interface ServiceCallData {
-  [key: string]: unknown;
-}
+import type {
+  ServiceCallData,
+  DashboardConfig,
+  Logger as LoggerInterface,
+} from "@/types";
 
 interface RequestOptions {
   method?: string;
@@ -48,6 +49,9 @@ export const useAuthStore = defineStore("auth", () => {
   const logger = createLogger("authStore");
 
   let connection: Connection | null = null;
+  let onReadyHandler: (() => void) | null = null;
+  let onDisconnectedHandler: (() => void) | null = null;
+  let onErrorHandler: ((error: unknown) => void) | null = null;
 
   const setError = (error: unknown): void => {
     lastError.value = String(error);
@@ -188,6 +192,17 @@ export const useAuthStore = defineStore("auth", () => {
     }
 
     try {
+      // Clean up existing listeners to prevent memory leak on reconnection
+      if (connection) {
+        if (onReadyHandler)
+          connection.removeEventListener("ready", onReadyHandler);
+        if (onDisconnectedHandler)
+          connection.removeEventListener("disconnected", onDisconnectedHandler);
+        if (onErrorHandler)
+          connection.removeEventListener("error", onErrorHandler);
+        connection.close();
+      }
+
       logger.log("Connecting to Home Assistant at:", haUrl.value);
       const auth: Auth = createLongLivedTokenAuth(
         haUrl.value,
@@ -200,17 +215,42 @@ export const useAuthStore = defineStore("auth", () => {
       isConnected.value = true;
       clearError();
 
-      connection.addEventListener("ready", () => {
-        logger.log("WebSocket ready (reconnected)");
-        isConnected.value = true;
-        clearError();
-      });
+      // Define handler functions as references to enable cleanup
+      onReadyHandler = () => {
+        try {
+          logger.log("WebSocket ready (reconnected)");
+          isConnected.value = true;
+          clearError();
+        } catch (error) {
+          logger.error("Error in WebSocket ready handler:", error);
+          setError(`Connection error: ${error}`);
+        }
+      };
 
-      connection.addEventListener("disconnected", () => {
-        logger.log("WebSocket disconnected");
-        isConnected.value = false;
-        setError("Disconnected from Home Assistant");
-      });
+      onDisconnectedHandler = () => {
+        try {
+          logger.log("WebSocket disconnected");
+          isConnected.value = false;
+          setError("Disconnected from Home Assistant");
+        } catch (error) {
+          logger.error("Error in WebSocket disconnected handler:", error);
+        }
+      };
+
+      onErrorHandler = (error: unknown) => {
+        try {
+          logger.error("WebSocket error event:", error);
+          const wrappedError = wrapLibraryError(error);
+          setError(wrappedError);
+          isConnected.value = false;
+        } catch (handlerError) {
+          logger.error("Error in WebSocket error handler:", handlerError);
+        }
+      };
+
+      connection.addEventListener("ready", onReadyHandler);
+      connection.addEventListener("disconnected", onDisconnectedHandler);
+      connection.addEventListener("error", onErrorHandler);
 
       return connection;
     } catch (error) {
@@ -232,14 +272,38 @@ export const useAuthStore = defineStore("auth", () => {
     }
     if (!haUrl.value || !accessToken.value) return;
     try {
+      const headers: Record<string, string> = {
+        Authorization: `Bearer ${accessToken.value}`,
+        "Content-Type": "application/json",
+      };
+
+      // Fetch and include CSRF token for security
+      try {
+        const csrfResponse = await fetchWithTimeout(
+          `${haUrl.value}/api/`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken.value}`,
+            },
+          },
+          TIMEOUT_SERVICE_CALL,
+        );
+        if (csrfResponse.ok) {
+          const config = (await csrfResponse.json()) as Record<string, unknown>;
+          if (config.csrf_token && typeof config.csrf_token === "string") {
+            headers["X-CSRF-Token"] = config.csrf_token;
+          }
+        }
+      } catch (csrfError) {
+        logger.warn("Failed to fetch CSRF token:", csrfError);
+        // Continue without CSRF token - not all Home Assistant setups require it
+      }
+
       const response = await fetchWithTimeout(
         `${haUrl.value}/api/services/${domain}/${service}`,
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken.value}`,
-            "Content-Type": "application/json",
-          },
+          headers,
           body: JSON.stringify(data),
         },
         TIMEOUT_SERVICE_CALL,

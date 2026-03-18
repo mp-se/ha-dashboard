@@ -76,12 +76,12 @@ import { SWIPE_MIN_DISTANCE } from "./utils/constants";
 import AppNavbar from "./components/page-components/AppNavbar.vue";
 import CredentialDialog from "./components/page-components/CredentialDialog.vue";
 import ErrorBoundary from "./components/page-components/ErrorBoundary.vue";
-import JsonConfigView from "./views/JsonConfigView.vue";
 
 import packageJson from "../package.json";
 
-// Lazy-loaded development views for better performance
-const devViewComponents = {
+// Lazy-loaded views for better performance
+const viewComponents = {
+  overview: defineAsyncComponent(() => import("./views/JsonConfigView.vue")),
   device: defineAsyncComponent(() => import("./views/DevicesView.vue")),
   dev: defineAsyncComponent(() => import("./views/DevelopmentView.vue")),
   raw: defineAsyncComponent(() => import("./views/RawEntityView.vue")),
@@ -110,10 +110,11 @@ const viewNames = computed(() => {
 
 /**
  * Returns the view component for the given view name.
- * Dev views are checked first; everything else uses JsonConfigView.
+ * All views are lazy-loaded to optimize initial bundle size.
+ * Falls back to overview view if view name not found.
  */
 const getViewComponent = (viewName) =>
-  devViewComponents[viewName] ?? JsonConfigView;
+  viewComponents[viewName] ?? viewComponents.overview;
 
 // Swipe gesture handling
 let touchStartX = 0;

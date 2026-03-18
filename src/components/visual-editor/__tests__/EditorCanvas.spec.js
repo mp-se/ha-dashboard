@@ -14,7 +14,11 @@ describe("EditorCanvas.vue", () => {
 
     // Mock various entity types with their domains
     store.entities = [
-      { entity_id: "light.kitchen", state: "on", attributes: { class: "light" } },
+      {
+        entity_id: "light.kitchen",
+        state: "on",
+        attributes: { class: "light" },
+      },
       { entity_id: "switch.bedroom", state: "off", attributes: {} },
       { entity_id: "sensor.temperature", state: "22", attributes: {} },
       { entity_id: "binary_sensor.motion", state: "on", attributes: {} },

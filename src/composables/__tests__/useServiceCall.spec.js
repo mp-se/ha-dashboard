@@ -309,4 +309,126 @@ describe("useServiceCall", () => {
       expect(isLoading.value).toBe(false);
     });
   });
+
+  describe("Race condition prevention", () => {
+    it("should clear pending error timeout on new call", async () => {
+      mockStore.callService.mockRejectedValueOnce(new Error("First error"));
+
+      const { callService, error } = useServiceCall();
+      await callService("light", "turn_on", {});
+      expect(error.value).toBe("First error");
+
+      // Make second successful call before first error timeout (5s)
+      mockStore.callService.mockResolvedValueOnce(undefined);
+      await callService("light", "turn_off", {});
+
+      // Error should be cleared immediately, not by first call's timeout
+      expect(error.value).toBeNull();
+
+      // Advance time and verify first call's timeout doesn't affect state
+      vi.advanceTimersByTime(5000);
+      expect(error.value).toBeNull();
+    });
+
+    it("should clear pending success timeout on new call", async () => {
+      const { callService, success } = useServiceCall();
+
+      // First successful call
+      await callService("light", "turn_on", {});
+      expect(success.value).toBe(true);
+
+      // Make second call before first success timeout (2s)
+      mockStore.callService.mockRejectedValueOnce(new Error("Failed"));
+      await callService("light", "turn_off", {});
+
+      // Success should be cleared immediately, not by first call's timeout
+      expect(success.value).toBe(false);
+
+      // Advance time and verify first call's timeout doesn't affect state
+      vi.advanceTimersByTime(2000);
+      expect(success.value).toBe(false);
+    });
+
+    it("should handle rapid sequential calls without timeout interference", async () => {
+      const { callService, error, success } = useServiceCall();
+
+      // Call 1: fails
+      mockStore.callService.mockRejectedValueOnce(new Error("Error 1"));
+      await callService("light", "turn_on", {});
+      expect(error.value).toBe("Error 1");
+
+      // Call 2: succeeds (before error timeout)
+      mockStore.callService.mockResolvedValueOnce(undefined);
+      await callService("light", "turn_off", {});
+      expect(error.value).toBeNull();
+      expect(success.value).toBe(true);
+
+      // Call 3: fails (before success timeout)
+      mockStore.callService.mockRejectedValueOnce(new Error("Error 3"));
+      await callService("switch", "toggle", {});
+      expect(success.value).toBe(false);
+      expect(error.value).toBe("Error 3");
+
+      // Advance time past all original timeouts
+      vi.advanceTimersByTime(5000);
+
+      // State should only reflect the last call, no interference from previous timeouts
+      expect(error.value).toBeNull(); // Error 3's timeout has cleared the error
+      expect(success.value).toBe(false);
+    });
+
+    it("should still set error even when showFeedback is false", async () => {
+      mockStore.callService.mockRejectedValueOnce(new Error("Test error"));
+
+      const { callService, error } = useServiceCall();
+      await callService("light", "turn_on", {}, { showFeedback: false });
+
+      // Error is still set internally, just not logged
+      expect(error.value).toBe("Test error");
+
+      // And it clears after the timeout
+      vi.advanceTimersByTime(5000);
+      expect(error.value).toBeNull();
+    });
+
+    it("should clean up timeouts on clearFeedback", async () => {
+      const { callService, clearFeedback, error } = useServiceCall();
+
+      mockStore.callService.mockRejectedValueOnce(new Error("Test error"));
+      await callService("light", "turn_on", {});
+      expect(error.value).toBe("Test error");
+
+      // Clear feedback manually (simulating component cleanup)
+      clearFeedback();
+      expect(error.value).toBeNull();
+
+      // Advance time - timeout should not execute again
+      vi.advanceTimersByTime(5000);
+      expect(error.value).toBeNull();
+    });
+
+    it("should prevent race condition when call succeeds after immediate retry", async () => {
+      const { callService, success, error } = useServiceCall();
+
+      // First call
+      await callService("light", "turn_on", {});
+      expect(success.value).toBe(true);
+
+      // Immediately retry with failure
+      mockStore.callService.mockRejectedValueOnce(new Error("Retry failed"));
+      await callService("light", "turn_on", {});
+      expect(success.value).toBe(false);
+      expect(error.value).toBe("Retry failed");
+
+      // Advance to original success timeout (2s)
+      vi.advanceTimersByTime(2000);
+      // Success should still be false from second call
+      expect(success.value).toBe(false);
+
+      // Advance to error timeout (5s from second call)
+      vi.advanceTimersByTime(3000);
+      // Error should be cleared
+      expect(error.value).toBeNull();
+    });
+  });
 });

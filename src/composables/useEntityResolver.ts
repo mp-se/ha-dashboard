@@ -1,14 +1,9 @@
 import { computed, unref, ComputedRef, Ref } from "vue";
 import { useHaStore } from "@/stores/haStore";
 import { createLogger } from "@/utils/logger";
+import type { Entity } from "@/types";
 
 const logger = createLogger("useEntityResolver");
-
-interface Entity {
-  entity_id: string;
-  state: string;
-  attributes?: Record<string, unknown>;
-}
 
 interface EntityResolverReturn {
   resolvedEntity: ComputedRef<Entity | null>;

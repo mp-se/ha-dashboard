@@ -394,11 +394,14 @@ const handleEntityDragStart = (index, event) => {
   isDragging.value = true;
   // Store the dragged entity info for reordering
   event.dataTransfer.effectAllowed = "move";
-  event.dataTransfer.setData("application/json", JSON.stringify({
-    type: "entity-reorder",
-    draggedIndex: index,
-    entity: localEntities.value[index],
-  }));
+  event.dataTransfer.setData(
+    "application/json",
+    JSON.stringify({
+      type: "entity-reorder",
+      draggedIndex: index,
+      entity: localEntities.value[index],
+    }),
+  );
 };
 
 const handleEntityDragEnd = () => {
@@ -509,7 +512,6 @@ const handleDrop = (event) => {
     console.error("[EditorCanvas] Error parsing dropped data:", error);
   }
 };
-
 </script>
 
 <style scoped>

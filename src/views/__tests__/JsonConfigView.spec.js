@@ -20,182 +20,364 @@ vi.mock("../../components/cards/HaAlarmPanel.vue", () => ({
   default: {
     name: "HaAlarmPanel",
     template: '<div class="ha-alarm-panel">HaAlarmPanel</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaBeerTap.vue", () => ({
   default: {
     name: "HaBeerTap",
     template: '<div class="ha-beer-tap">HaBeerTap</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaBinarySensor.vue", () => ({
   default: {
     name: "HaBinarySensor",
     template: '<div class="ha-binary-sensor">HaBinarySensor</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaButton.vue", () => ({
   default: {
     name: "HaButton",
     template: '<div class="ha-button">HaButton</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaChip.vue", () => ({
   default: {
     name: "HaChip",
     template: '<div class="ha-chip">HaChip</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaEnergy.vue", () => ({
   default: {
     name: "HaEnergy",
     template: '<div class="ha-energy">HaEnergy</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaError.vue", () => ({
   default: {
     name: "HaError",
     template: '<div class="ha-error">HaError</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaGauge.vue", () => ({
   default: {
     name: "HaGauge",
     template: '<div class="ha-gauge">HaGauge</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaGlance.vue", () => ({
   default: {
     name: "HaGlance",
     template: '<div class="ha-glance">HaGlance</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaHeader.vue", () => ({
   default: {
     name: "HaHeader",
     template: '<div class="ha-header">HaHeader</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaImage.vue", () => ({
   default: {
     name: "HaImage",
     template: '<div class="ha-image">HaImage</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaLight.vue", () => ({
   default: {
     name: "HaLight",
     template: '<div class="ha-light">HaLight</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaLink.vue", () => ({
   default: {
     name: "HaLink",
     template: '<div class="ha-link">HaLink</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaMediaPlayer.vue", () => ({
   default: {
     name: "HaMediaPlayer",
     template: '<div class="ha-media-player">HaMediaPlayer</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaPerson.vue", () => ({
   default: {
     name: "HaPerson",
     template: '<div class="ha-person">HaPerson</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaPrinter.vue", () => ({
   default: {
     name: "HaPrinter",
     template: '<div class="ha-printer">HaPrinter</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaRoom.vue", () => ({
   default: {
     name: "HaRoom",
     template: '<div class="ha-room">HaRoom</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaRowSpacer.vue", () => ({
   default: {
     name: "HaRowSpacer",
     template: '<div class="ha-row-spacer">HaRowSpacer</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaSelect.vue", () => ({
   default: {
     name: "HaSelect",
     template: '<div class="ha-select">HaSelect</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaSensor.vue", () => ({
   default: {
     name: "HaSensor",
     template: '<div class="ha-sensor">HaSensor</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaSensorGraph.vue", () => ({
   default: {
     name: "HaSensorGraph",
     template: '<div class="ha-sensor-graph">HaSensorGraph</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaSpacer.vue", () => ({
   default: {
     name: "HaSpacer",
     template: '<div class="ha-spacer">HaSpacer</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaSun.vue", () => ({
   default: {
     name: "HaSun",
     template: '<div class="ha-sun">HaSun</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaSwitch.vue", () => ({
   default: {
     name: "HaSwitch",
     template: '<div class="ha-switch">HaSwitch</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaWarning.vue", () => ({
   default: {
     name: "HaWarning",
     template: '<div class="ha-warning">HaWarning</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/cards/HaWeather.vue", () => ({
   default: {
     name: "HaWeather",
     template: '<div class="ha-weather">HaWeather</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 
@@ -204,14 +386,28 @@ vi.mock("../../components/sub-components/EntityAttributeList.vue", () => ({
   default: {
     name: "EntityAttributeList",
     template: '<div class="entity-attribute-list">EntityAttributeList</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 vi.mock("../../components/sub-components/IconCircle.vue", () => ({
   default: {
     name: "IconCircle",
     template: '<div class="icon-circle">IconCircle</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 
@@ -220,7 +416,14 @@ vi.mock("../../components/containers/EntityList.vue", () => ({
   default: {
     name: "EntityList",
     template: '<div class="entity-list">EntityList</div>',
-    props: { entity: [String, Array], entities: [Array, Object], componentMap: Object, attributes: [Array, Object], getter: String, type: String },
+    props: {
+      entity: [String, Array],
+      entities: [Array, Object],
+      componentMap: Object,
+      attributes: [Array, Object],
+      getter: String,
+      type: String,
+    },
   },
 }));
 

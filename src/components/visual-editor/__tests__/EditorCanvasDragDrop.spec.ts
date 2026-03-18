@@ -71,7 +71,9 @@ describe("EditorCanvas.vue - Drag and Drop (Phase 2)", () => {
       const event = {
         preventDefault: vi.fn(),
         stopPropagation: vi.fn(),
-        currentTarget: { getBoundingClientRect: () => ({ top: 0, height: 100 }) },
+        currentTarget: {
+          getBoundingClientRect: () => ({ top: 0, height: 100 }),
+        },
         clientY: 50,
         dataTransfer: {
           getData: vi.fn(() =>

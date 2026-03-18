@@ -302,7 +302,7 @@ describe("ViewManager.vue", () => {
     it("emits view-selected event when clicking on a view item", async () => {
       // Find the left part of the view item (which should be clickable)
       const viewItem = wrapper.find(".view-item");
-      
+
       // Click on the left side of the view item (the label area)
       const leftPart = viewItem.find(".d-flex.align-items-center.flex-grow-1");
       await leftPart.trigger("click");
@@ -316,8 +316,10 @@ describe("ViewManager.vue", () => {
       // Click on the second view (lights)
       const viewItems = wrapper.findAll(".view-item");
       const secondView = viewItems[1];
-      const leftPart = secondView.find(".d-flex.align-items-center.flex-grow-1");
-      
+      const leftPart = secondView.find(
+        ".d-flex.align-items-center.flex-grow-1",
+      );
+
       await leftPart.trigger("click");
 
       // Should emit view-selected with 'lights' view name

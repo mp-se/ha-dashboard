@@ -67,5 +67,169 @@ export default defineConfig(({ mode }) => {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            // Vendor chunks - prioritize splitting large libraries
+            if (id.includes("node_modules")) {
+              if (id.includes("vue")) {
+                return "vendor-vue";
+              }
+              if (id.includes("pinia")) {
+                return "vendor-pinia";
+              }
+              if (id.includes("bootstrap")) {
+                return "vendor-bootstrap";
+              }
+              if (id.includes("home-assistant-js-websocket")) {
+                return "vendor-ha";
+              }
+              if (id.includes("@mdi")) {
+                return "vendor-icons";
+              }
+              if (id.includes("vue-draggable")) {
+                return "vendor-draggable";
+              }
+              return "vendor-other";
+            }
+
+            // Split heavy utilities into separate chunks
+            if (id.includes("src/utils/")) {
+              if (id.includes("configValidator")) {
+                return "util-config";
+              }
+              if (id.includes("cardPropertyMetadata")) {
+                return "util-metadata";
+              }
+              if (id.includes("componentLayouts")) {
+                return "util-layouts";
+              }
+              return "utils";
+            }
+
+            if (id.includes("src/composables/")) {
+              return "composables";
+            }
+
+            // Component grouping by category - lazy loaded on demand
+            if (id.includes("src/components/cards/")) {
+              // Group input control cards
+              if (
+                id.includes("HaSwitch") ||
+                id.includes("HaSelect") ||
+                id.includes("HaButton")
+              ) {
+                return "cards-input";
+              }
+              // Group simple output display cards
+              if (
+                id.includes("HaSensor") ||
+                id.includes("HaBinarySensor") ||
+                id.includes("HaChip") ||
+                id.includes("HaPerson") ||
+                id.includes("HaSun") ||
+                id.includes("HaWeather") ||
+                id.includes("HaWarning") ||
+                id.includes("HaError") ||
+                id.includes("HaImage") ||
+                id.includes("HaLink")
+              ) {
+                return "cards-output";
+              }
+              // Group complex cards (graphs, energy, etc)
+              if (
+                id.includes("HaGauge") ||
+                id.includes("HaSensorGraph") ||
+                id.includes("HaEnergy") ||
+                id.includes("HaRoom") ||
+                id.includes("HaLight") ||
+                id.includes("HaMediaPlayer") ||
+                id.includes("HaPrinter") ||
+                id.includes("HaAlarmPanel") ||
+                id.includes("HaBeerTap")
+              ) {
+                return "cards-complex";
+              }
+              // Spacer and layout components
+              if (
+                id.includes("HaSpacer") ||
+                id.includes("HaRowSpacer") ||
+                id.includes("HaHeader") ||
+                id.includes("HaGlance")
+              ) {
+                return "cards-layout";
+              }
+              // Render and display utility cards
+              if (
+                id.includes("HaEntityList") ||
+                id.includes("HaEntityAttributeList") ||
+                id.includes("HaIconCircle")
+              ) {
+                return "cards-display";
+              }
+            }
+
+            // Page components that are always needed
+            if (
+              id.includes("src/components/page-components/") &&
+              (id.includes("AppNavbar") ||
+                id.includes("ErrorBoundary") ||
+                id.includes("CredentialDialog"))
+            ) {
+              return "page-core";
+            }
+
+            // View chunks - these are lazy loaded based on navigation
+            if (id.includes("src/views/")) {
+              if (id.includes("JsonConfigView")) {
+                return "views-config";
+              }
+              if (
+                id.includes("DevelopmentView") ||
+                id.includes("RawEntityView")
+              ) {
+                return "views-dev";
+              }
+              if (id.includes("VisualEditorView")) {
+                return "views-editor";
+              }
+              if (id.includes("DevicesView")) {
+                return "views-devices";
+              }
+              return "views-other";
+            }
+
+            // Visual editor chunk (complex, lazy loaded)
+            if (id.includes("src/components/visual-editor/")) {
+              return "visual-editor";
+            }
+
+            // Stores chunk - necessary for state management
+            if (id.includes("src/stores/")) {
+              return "stores";
+            }
+
+            // Page layout components
+            if (id.includes("src/components/page-components/")) {
+              return "page-components";
+            }
+
+            // Sub-components used by cards
+            if (id.includes("src/components/sub-components/")) {
+              return "sub-components";
+            }
+          },
+        },
+      },
+      chunkSizeWarningLimit: 600,
+      minify: "terser",
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          pure_funcs: ["console.log", "console.info", "console.warn"],
+        },
+      },
+    },
   };
 });

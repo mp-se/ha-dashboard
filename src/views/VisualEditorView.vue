@@ -18,11 +18,18 @@
 
   <!-- Editor Container -->
   <div class="editor-container">
-    <div class="row g-0 resizable-layout" style="min-height: calc(100vh - 200px)">
+    <div
+      class="row g-0 resizable-layout"
+      style="min-height: calc(100vh - 200px)"
+    >
       <!-- Entity Palette (Left) -->
       <div
         class="border-end resizable-panel"
-        :style="{ width: leftPanelWidth + '%', height: '100%', overflow: 'auto' }"
+        :style="{
+          width: leftPanelWidth + '%',
+          height: '100%',
+          overflow: 'auto',
+        }"
       >
         <ViewManager
           :selected-view-name="selectedViewName"
@@ -50,7 +57,11 @@
       <!-- Canvas (Center) -->
       <div
         class="resizable-panel"
-        :style="{ width: centerPanelWidth + '%', height: '100%', overflow: 'auto' }"
+        :style="{
+          width: centerPanelWidth + '%',
+          height: '100%',
+          overflow: 'auto',
+        }"
       >
         <EditorCanvas
           :entities="currentViewEntities"
@@ -74,7 +85,11 @@
       <!-- Inspector (Right) -->
       <div
         class="border-start resizable-panel"
-        :style="{ width: rightPanelWidth + '%', height: '100%', overflow: 'auto' }"
+        :style="{
+          width: rightPanelWidth + '%',
+          height: '100%',
+          overflow: 'auto',
+        }"
       >
         <EntityInspector
           v-if="selectedEntity"
@@ -528,14 +543,20 @@ const handleMouseMove = (event) => {
   if (resizeMode.value === "left") {
     // Resizing between left and center panels
     // Dragging right (positive delta) grows left, shrinks center
-    const newLeft = Math.max(15, Math.min(55, startWidths.value.left + percentDelta));
+    const newLeft = Math.max(
+      15,
+      Math.min(55, startWidths.value.left + percentDelta),
+    );
     const diff = newLeft - startWidths.value.left;
     leftPanelWidth.value = newLeft;
     centerPanelWidth.value = startWidths.value.center - diff;
   } else if (resizeMode.value === "right") {
     // Resizing between center and right panels
     // Dragging right (positive delta) grows center, shrinks right
-    const newCenter = Math.max(20, Math.min(70, startWidths.value.center + percentDelta));
+    const newCenter = Math.max(
+      20,
+      Math.min(70, startWidths.value.center + percentDelta),
+    );
     const diff = newCenter - startWidths.value.center;
     centerPanelWidth.value = newCenter;
     rightPanelWidth.value = startWidths.value.right - diff;

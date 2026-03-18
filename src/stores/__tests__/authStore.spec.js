@@ -163,10 +163,17 @@ describe("useAuthStore", () => {
       store.haUrl = "http://ha-url:8123";
       store.accessToken = "token";
 
-      global.fetch.mockResolvedValueOnce({ ok: true });
+      // Mock CSRF token fetch and service call
+      global.fetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ csrf_token: "csrf-token" }),
+        })
+        .mockResolvedValueOnce({ ok: true });
 
       await store.callService("light", "turn_on", { entity_id: "light.test" });
 
+      // Verify service call includes the path and method
       expect(global.fetch).toHaveBeenCalledWith(
         "http://ha-url:8123/api/services/light/turn_on",
         expect.objectContaining({
@@ -181,11 +188,17 @@ describe("useAuthStore", () => {
       store.haUrl = "http://ha-url:8123";
       store.accessToken = "token";
 
-      global.fetch.mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        statusText: "Unauthorized",
-      });
+      // Mock CSRF token fetch (successful) and failed service call
+      global.fetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ csrf_token: "csrf-token" }),
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 401,
+          statusText: "Unauthorized",
+        });
 
       await expect(store.callService("light", "turn_on", {})).rejects.toThrow(
         "Authentication failed",
@@ -359,6 +372,132 @@ describe("useAuthStore", () => {
       expect(store.isConnected).toBe(false);
       expect(store.lastError).toBeTruthy();
     });
+
+    it("handles errors gracefully in ready event listener", async () => {
+      const { createConnection } = await import("home-assistant-js-websocket");
+      const listeners = {};
+      const mockConn = {
+        addEventListener: vi.fn((event, handler) => {
+          listeners[event] = handler;
+        }),
+        close: vi.fn(),
+      };
+      createConnection.mockResolvedValueOnce(mockConn);
+
+      const store = useAuthStore();
+      store.isLocalMode = false;
+      store.haUrl = "http://ha:8123";
+      store.accessToken = "tok";
+
+      await store.connectWebSocket();
+
+      // Simulate error in ready handler - should not throw unhandled rejection
+      expect(() => {
+        // Force an error by making clearError throw
+        const originalClearError = store.clearError;
+        store.clearError = () => {
+          throw new Error("Handler error");
+        };
+        listeners["ready"]?.();
+        store.clearError = originalClearError;
+      }).not.toThrow();
+    });
+
+    it("handles errors gracefully in disconnected event listener", async () => {
+      const { createConnection } = await import("home-assistant-js-websocket");
+      const listeners = {};
+      const mockConn = {
+        addEventListener: vi.fn((event, handler) => {
+          listeners[event] = handler;
+        }),
+        close: vi.fn(),
+      };
+      createConnection.mockResolvedValueOnce(mockConn);
+
+      const store = useAuthStore();
+      store.isLocalMode = false;
+      store.haUrl = "http://ha:8123";
+      store.accessToken = "tok";
+
+      await store.connectWebSocket();
+
+      // Simulate error in disconnected handler - should not throw unhandled rejection
+      expect(() => {
+        const originalSetError = store.setError;
+        store.setError = () => {
+          throw new Error("Handler error");
+        };
+        listeners["disconnected"]?.();
+        store.setError = originalSetError;
+      }).not.toThrow();
+    });
+
+    it("registers error event listener and handles errors", async () => {
+      const { createConnection } = await import("home-assistant-js-websocket");
+      const listeners = {};
+      const mockConn = {
+        addEventListener: vi.fn((event, handler) => {
+          listeners[event] = handler;
+        }),
+        close: vi.fn(),
+      };
+      createConnection.mockResolvedValueOnce(mockConn);
+
+      const store = useAuthStore();
+      store.isLocalMode = false;
+      store.haUrl = "http://ha:8123";
+      store.accessToken = "tok";
+
+      await store.connectWebSocket();
+
+      // Verify error listener is registered
+      expect(listeners["error"]).toBeDefined();
+
+      // Simulate error event
+      listeners["error"]?.(new Error("Connection error"));
+      expect(store.isConnected).toBe(false);
+      expect(store.lastError).toBeTruthy();
+    });
+
+    it("cleans up old event listeners on reconnection", async () => {
+      const { createConnection } = await import("home-assistant-js-websocket");
+      const mockConn1 = {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        close: vi.fn(),
+      };
+      const mockConn2 = {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        close: vi.fn(),
+      };
+
+      createConnection
+        .mockResolvedValueOnce(mockConn1)
+        .mockResolvedValueOnce(mockConn2);
+
+      const store = useAuthStore();
+      store.isLocalMode = false;
+      store.haUrl = "http://ha:8123";
+      store.accessToken = "tok";
+
+      // First connection
+      await store.connectWebSocket();
+      expect(mockConn1.addEventListener).toHaveBeenCalledTimes(3); // ready, disconnected, error
+
+      // Simulate disconnection to allow reconnection
+      store.isConnected = false;
+
+      // Reconnect (should clean up old listeners)
+      await store.connectWebSocket();
+
+      // Verify old listeners were removed
+      expect(mockConn1.removeEventListener).toHaveBeenCalledTimes(3);
+      expect(mockConn1.close).toHaveBeenCalled();
+
+      // Verify new listeners were added to new connection
+      expect(mockConn2.addEventListener).toHaveBeenCalledTimes(3);
+    });
   });
 
   describe("callService extended", () => {
@@ -384,11 +523,16 @@ describe("useAuthStore", () => {
       const store = useAuthStore();
       store.haUrl = "http://ha:8123";
       store.accessToken = "tok";
-      global.fetch.mockResolvedValueOnce({
-        ok: false,
-        status: 403,
-        statusText: "Forbidden",
-      });
+      global.fetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ csrf_token: "csrf-token" }),
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 403,
+          statusText: "Forbidden",
+        });
       await expect(store.callService("light", "turn_on", {})).rejects.toThrow(
         "Access forbidden",
       );
@@ -398,11 +542,16 @@ describe("useAuthStore", () => {
       const store = useAuthStore();
       store.haUrl = "http://ha:8123";
       store.accessToken = "tok";
-      global.fetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: "Not Found",
-      });
+      global.fetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ csrf_token: "csrf-token" }),
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 404,
+          statusText: "Not Found",
+        });
       await expect(store.callService("light", "turn_on", {})).rejects.toThrow(
         "Service not found",
       );
@@ -412,10 +561,60 @@ describe("useAuthStore", () => {
       const store = useAuthStore();
       store.haUrl = "http://ha:8123";
       store.accessToken = "tok";
-      global.fetch.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+      // CSRF fetch fails, then service call fetch fails
+      global.fetch
+        .mockRejectedValueOnce(new TypeError("Failed to fetch"))
+        .mockRejectedValueOnce(new TypeError("Failed to fetch"));
       await expect(store.callService("light", "turn_on", {})).rejects.toThrow(
         "CORS error",
       );
+    });
+
+    it("fetches CSRF token and includes it in service call headers", async () => {
+      const store = useAuthStore();
+      store.haUrl = "http://ha:8123";
+      store.accessToken = "tok";
+
+      // Mock CSRF token fetch
+      global.fetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ csrf_token: "csrf-token-123" }),
+        })
+        .mockResolvedValueOnce({ ok: true }); // Service call response
+
+      await store.callService("light", "turn_on", { entity_id: "light.test" });
+
+      // Verify CSRF token was fetched
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        1,
+        "http://ha:8123/api/",
+        expect.any(Object),
+      );
+
+      // Verify service call includes CSRF token in headers
+      const serviceCallArgs = global.fetch.mock.calls[1];
+      const headers = serviceCallArgs[1].headers;
+      expect(headers["X-CSRF-Token"]).toBe("csrf-token-123");
+    });
+
+    it("continues service call even if CSRF token fetch fails", async () => {
+      const store = useAuthStore();
+      store.haUrl = "http://ha:8123";
+      store.accessToken = "tok";
+
+      // Mock CSRF token fetch failure, then successful service call
+      global.fetch
+        .mockRejectedValueOnce(new Error("CSRF fetch failed"))
+        .mockResolvedValueOnce({ ok: true }); // Service call response
+
+      await store.callService("light", "turn_on", { entity_id: "light.test" });
+
+      // Service call should still succeed without CSRF token
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      const serviceCallArgs = global.fetch.mock.calls[1];
+      const headers = serviceCallArgs[1].headers;
+      expect(headers["X-CSRF-Token"]).toBeUndefined();
     });
   });
 

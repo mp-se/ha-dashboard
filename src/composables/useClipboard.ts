@@ -8,8 +8,8 @@ interface ClipboardReturn {
 
 /**
  * Composable for writing text to the clipboard.
- * Handles both the modern Clipboard API and a legacy execCommand fallback
- * so clipboard operations work across all target browsers.
+ * Uses the modern Clipboard API available in all target browsers (2020+).
+ * The deprecated execCommand fallback has been removed.
  *
  * @returns Object with writeToClipboard method and state refs
  */
@@ -18,7 +18,7 @@ export const useClipboard = (): ClipboardReturn => {
   const error = ref<string | null>(null);
 
   /**
-   * Write text to the system clipboard.
+   * Write text to the system clipboard using the modern Clipboard API.
    * @param text - The text to copy
    * @returns True on success, false on failure
    */
@@ -32,30 +32,10 @@ export const useClipboard = (): ClipboardReturn => {
         copied.value = false;
       }, 2000);
       return true;
-    } catch {
-      // Fallback for older browsers / non-secure contexts
-      try {
-        const textarea = document.createElement("textarea");
-        textarea.value = text;
-        textarea.style.position = "fixed";
-        textarea.style.opacity = "0";
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textarea);
-        copied.value = true;
-        setTimeout(() => {
-          copied.value = false;
-        }, 2000);
-        return true;
-      } catch (fallbackError) {
-        const errorMsg =
-          fallbackError instanceof Error
-            ? fallbackError.message
-            : "Copy failed";
-        error.value = errorMsg;
-        return false;
-      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "Copy failed";
+      error.value = errorMsg;
+      return false;
     }
   };
 

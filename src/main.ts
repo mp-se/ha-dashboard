@@ -1,4 +1,4 @@
-import { createApp, App as VueApp } from "vue";
+import { createApp, App as VueApp, defineAsyncComponent } from "vue";
 import { createPinia } from "pinia";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
@@ -45,16 +45,23 @@ app.config.warnHandler = (
   }
 };
 
-// Auto-register all components globally
-// Any component file in src/components folder is picked up automatically
-const allComponents = import.meta.glob<{ default: unknown }>(
+// Auto-register all components globally with lazy loading
+// Components are imported dynamically to enable code-splitting
+const allComponentModules = import.meta.glob<{ default: unknown }>(
   "./components/**/*.vue",
-  { eager: true },
 );
-for (const [path, mod] of Object.entries(allComponents)) {
+
+for (const [path, modulePromise] of Object.entries(allComponentModules)) {
   // Extract component name from file path (e.g., "HaSensor" from "components/cards/HaSensor.vue")
   const name = path.split("/").pop()?.replace(".vue", "") || "";
-  app.component(name, mod.default);
+
+  // Define component lazily - it will be loaded only when needed
+  app.component(
+    name,
+    defineAsyncComponent(
+      () => modulePromise() as Promise<{ default: unknown }>,
+    ),
+  );
 }
 
 app.mount("#app");

@@ -225,7 +225,12 @@ import { ref, computed } from "vue";
 import { useHaStore } from "../../stores/haStore";
 import IconPicker from "./PropertyEditors/IconPicker.vue";
 
-const emit = defineEmits(["view-created", "view-deleted", "view-updated", "view-selected"]);
+const emit = defineEmits([
+  "view-created",
+  "view-deleted",
+  "view-updated",
+  "view-selected",
+]);
 
 const props = defineProps({
   selectedViewName: {

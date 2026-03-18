@@ -1,4 +1,4 @@
-import { ref, Ref } from "vue";
+import { ref, Ref, onBeforeUnmount } from "vue";
 import { useHaStore } from "@/stores/haStore";
 import { createLogger } from "@/utils/logger";
 
@@ -34,6 +34,24 @@ export const useServiceCall = (): ServiceCallReturn => {
   const error = ref<string | null>(null);
   const success = ref(false);
 
+  // Track timeout IDs for cleanup
+  let errorTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  let successTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+  /**
+   * Clear any pending timeouts
+   */
+  const clearPendingTimeouts = (): void => {
+    if (errorTimeoutId !== null) {
+      clearTimeout(errorTimeoutId);
+      errorTimeoutId = null;
+    }
+    if (successTimeoutId !== null) {
+      clearTimeout(successTimeoutId);
+      successTimeoutId = null;
+    }
+  };
+
   /**
    * Call a Home Assistant service with built-in error handling and feedback
    * @param domain - Service domain (e.g., 'light', 'switch')
@@ -49,6 +67,9 @@ export const useServiceCall = (): ServiceCallReturn => {
     options: ServiceCallOptions = {},
   ): Promise<boolean> => {
     const { timeout = 5000, showFeedback = true } = options;
+
+    // Clear any pending timeouts from previous calls
+    clearPendingTimeouts();
 
     isLoading.value = true;
     error.value = null;
@@ -79,7 +100,7 @@ export const useServiceCall = (): ServiceCallReturn => {
 
         // Clear success feedback after 2 seconds
         if (showFeedback) {
-          setTimeout(() => {
+          successTimeoutId = setTimeout(() => {
             success.value = false;
           }, 2000);
         }
@@ -99,7 +120,7 @@ export const useServiceCall = (): ServiceCallReturn => {
         }
 
         // Clear error after 5 seconds
-        setTimeout(() => {
+        errorTimeoutId = setTimeout(() => {
           error.value = null;
         }, 5000);
 
@@ -117,9 +138,15 @@ export const useServiceCall = (): ServiceCallReturn => {
 
   // Clear all feedback
   const clearFeedback = (): void => {
+    clearPendingTimeouts();
     error.value = null;
     success.value = false;
   };
+
+  // Clean up timeouts on component unmount
+  onBeforeUnmount(() => {
+    clearPendingTimeouts();
+  });
 
   return {
     callService,
