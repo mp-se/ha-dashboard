@@ -22,7 +22,7 @@
       <!-- Entity Palette (Left) -->
       <div
         class="border-end resizable-panel"
-        :style="{ width: leftPanelWidth + '%', overflow: 'auto', maxHeight: 'calc(100vh - 200px)' }"
+        :style="{ width: leftPanelWidth + '%', height: '100%', overflow: 'auto' }"
       >
         <ViewManager
           :selected-view-name="selectedViewName"
@@ -41,15 +41,16 @@
 
       <!-- Resize Handle (Left-Center) -->
       <div
-        title="Drag to resize panels"
         class="resize-handle resize-handle-left"
-        @mousedown="startResize('left')"
-      ></div>
+        @mousedown="startResize('left', $event)"
+      >
+        <div class="resize-handle-icon">⋮</div>
+      </div>
 
       <!-- Canvas (Center) -->
       <div
         class="resizable-panel"
-        :style="{ width: centerPanelWidth + '%', overflow: 'auto', maxHeight: 'calc(100vh - 200px)' }"
+        :style="{ width: centerPanelWidth + '%', height: '100%', overflow: 'auto' }"
       >
         <EditorCanvas
           :entities="currentViewEntities"
@@ -64,15 +65,16 @@
 
       <!-- Resize Handle (Center-Right) -->
       <div
-        title="Drag to resize panels"
         class="resize-handle resize-handle-right"
-        @mousedown="startResize('right')"
-      ></div>
+        @mousedown="startResize('right', $event)"
+      >
+        <div class="resize-handle-icon">⋮</div>
+      </div>
 
       <!-- Inspector (Right) -->
       <div
         class="border-start resizable-panel"
-        :style="{ width: rightPanelWidth + '%', overflow: 'auto', maxHeight: 'calc(100vh - 200px)' }"
+        :style="{ width: rightPanelWidth + '%', height: '100%', overflow: 'auto' }"
       >
         <EntityInspector
           v-if="selectedEntity"
@@ -458,13 +460,13 @@ const handleViewUpdated = (updatedView) => {
 };
 
 // Resizable panel state
-const leftPanelWidth = ref(25);
+const leftPanelWidth = ref(24);
 const centerPanelWidth = ref(50);
-const rightPanelWidth = ref(25);
+const rightPanelWidth = ref(24);
 const isResizing = ref(false);
 const resizeMode = ref(null); // 'left' or 'right'
 const startX = ref(0);
-const startWidths = ref({ left: 25, center: 50, right: 25 });
+const startWidths = ref({ left: 24, center: 50, right: 24 });
 
 /**
  * Initialize panel widths from localStorage
@@ -474,9 +476,9 @@ const initializePanelWidths = () => {
   if (saved) {
     try {
       const widths = JSON.parse(saved);
-      leftPanelWidth.value = widths.left || 25;
-      centerPanelWidth.value = widths.center || 50;
-      rightPanelWidth.value = widths.right || 25;
+      leftPanelWidth.value = widths.left ?? 24;
+      centerPanelWidth.value = widths.center ?? 50;
+      rightPanelWidth.value = widths.right ?? 24;
     } catch {
       // Use defaults if parsing fails
     }
@@ -500,10 +502,10 @@ const savePanelWidths = () => {
 /**
  * Start resizing panels
  */
-const startResize = (mode) => {
+const startResize = (mode, mouseEvent) => {
   isResizing.value = true;
   resizeMode.value = mode;
-  startX.value = event.clientX;
+  startX.value = mouseEvent.clientX;
   startWidths.value = {
     left: leftPanelWidth.value,
     center: centerPanelWidth.value,
@@ -525,16 +527,18 @@ const handleMouseMove = (event) => {
 
   if (resizeMode.value === "left") {
     // Resizing between left and center panels
-    const newLeft = Math.max(15, Math.min(60, startWidths.value.left + percentDelta));
+    // Dragging right (positive delta) grows left, shrinks center
+    const newLeft = Math.max(15, Math.min(55, startWidths.value.left + percentDelta));
     const diff = newLeft - startWidths.value.left;
     leftPanelWidth.value = newLeft;
     centerPanelWidth.value = startWidths.value.center - diff;
   } else if (resizeMode.value === "right") {
     // Resizing between center and right panels
-    const newRight = Math.max(15, Math.min(60, startWidths.value.right - percentDelta));
-    const diff = startWidths.value.right - newRight;
-    rightPanelWidth.value = newRight;
-    centerPanelWidth.value = startWidths.value.center - diff;
+    // Dragging right (positive delta) grows center, shrinks right
+    const newCenter = Math.max(20, Math.min(70, startWidths.value.center + percentDelta));
+    const diff = newCenter - startWidths.value.center;
+    centerPanelWidth.value = newCenter;
+    rightPanelWidth.value = startWidths.value.right - diff;
   }
 };
 
@@ -567,36 +571,48 @@ onMounted(() => {
 .resizable-layout {
   display: flex;
   gap: 0;
+  min-width: 0;
+  height: calc(100vh - 200px);
 }
 
 .resizable-panel {
   display: flex;
   flex-direction: column;
   min-width: 100px;
+  min-height: 0;
   transition: width 0.1s ease;
 }
 
 .resize-handle {
-  width: 4px;
-  height: 100%;
-  background-color: var(--bs-border-color, #dee2e6);
-  cursor: col-resize;
-  flex-shrink: 0;
-  transition: background-color 0.2s ease;
-  user-select: none;
-}
-
-.resize-handle:hover,
-.resize-handle:active {
-  background-color: var(--bs-primary, #0d6efd);
   width: 6px;
+  height: 100%;
+  background-color: #ccc;
+  cursor: col-resize !important;
+  flex-shrink: 0;
+  user-select: none;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid #999;
+  border-right: 1px solid #999;
+  transition: background-color 0.2s ease;
 }
 
-.resize-handle-left {
-  border-right: 1px solid var(--bs-border-color, #dee2e6);
+.resize-handle:hover {
+  background-color: #0d6efd;
+  width: 8px;
 }
 
-.resize-handle-right {
-  border-left: 1px solid var(--bs-border-color, #dee2e6);
+.resize-handle-icon {
+  color: #666;
+  font-size: 12px;
+  letter-spacing: -2px;
+  font-weight: bold;
+  cursor: col-resize !important;
+}
+
+.resize-handle:hover .resize-handle-icon {
+  color: white;
 }
 </style>

@@ -57,11 +57,6 @@
           }"
           @click.stop="onCardClick(index)"
         >
-          <!-- Drag handle -->
-          <div class="drag-handle" title="Drag to reorder">
-            <i class="mdi mdi-drag-vertical"></i>
-          </div>
-
           <!-- Component preview -->
           <div class="component-wrapper">
             <component
@@ -549,26 +544,6 @@ const handleDrop = (event) => {
 .editor-overlay.border-3 {
   border-width: 3px !important;
   box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
-}
-
-.drag-handle {
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  cursor: grab;
-  padding: 0.25rem 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 4px;
-  font-size: 1rem;
-  color: #6c757d;
-}
-
-.drag-handle:active {
-  cursor: grabbing;
 }
 
 .editor-component {

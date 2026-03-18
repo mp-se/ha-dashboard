@@ -156,9 +156,10 @@ describe("EditorCanvas.vue - Drag and Drop (Phase 2)", () => {
       expect(wrapper.vm.isDragging).toBe(true);
     });
 
-    it("should show drag handle", () => {
-      // Verify drag handle is visible in the component
-      expect(wrapper.find(".drag-handle").exists()).toBe(true);
+    it("should render entity in editor overlay", () => {
+      // Verify the editor overlay contains the component
+      const overlay = wrapper.find(".editor-overlay");
+      expect(overlay.exists()).toBe(true);
     });
   });
 
