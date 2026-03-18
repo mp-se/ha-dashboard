@@ -16,90 +16,81 @@
       add them by clicking.
     </div>
 
-    <!-- Draggable grid layout - matches main view structure -->
-    <draggable
+    <!-- Grid layout for draggable entities -->
+    <div
       v-if="entityCount > 0"
-      v-model="localEntities"
-      tag="div"
       class="row g-3"
-      ghost-class="ghost-entity"
-      animation="200"
-      group="entities"
-      @change="handleDragEnd"
-      @add="handleEntityAdded"
-      @start="isDragging = true"
-      @end="isDragging = false"
       @dragover="handleDragOver"
       @drop="handleDrop"
       @dragenter="handleDragEnter"
       @dragleave="handleDragLeave"
     >
-      <template #default>
-        <!-- Grid wrapper with layout from componentLayouts constants -->
+      <!-- Grid wrapper with layout from componentLayouts constants -->
+      <div
+        v-for="(entity, index) in localEntities"
+        :key="`entity-${index}`"
+        :class="[
+          getComponentClasses(entity),
+          { 'drop-before': dragOverIndex === index && isDropping },
+        ]"
+        draggable="true"
+        @dragstart="handleEntityDragStart(index, $event)"
+        @dragover.prevent="handleEntityDragOver(index, $event)"
+        @dragleave="handleEntityDragLeave(index)"
+        @drop.prevent="handleEntityDrop(index, $event)"
+        @dragend="handleEntityDragEnd"
+      >
+        <!-- Drop indicator line (before this item) -->
         <div
-          v-for="(entity, index) in localEntities"
-          :key="`entity-${index}`"
-          :class="[
-            getComponentClasses(entity),
-            { 'drop-before': dragOverIndex === index && isDropping },
-          ]"
-          @dragover.prevent="handleEntityDragOver(index, $event)"
-          @dragleave="handleEntityDragLeave(index)"
-          @drop.prevent="handleEntityDrop(index, $event)"
+          v-if="dragOverIndex === index && isDropping"
+          class="drop-indicator drop-indicator-before"
+        ></div>
+
+        <!-- Editor overlay for edit controls -->
+        <div
+          class="editor-overlay"
+          :class="{
+            'border-3 border-primary': isEntitySelected(index),
+            'border-1 border-light': !isEntitySelected(index),
+            'editor-spacer': isSpacer(entity),
+            'editor-conditional': isConditionalComponent(entity),
+          }"
+          @click.stop="onCardClick(index)"
         >
-          <!-- Drop indicator line (before this item) -->
-          <div
-            v-if="dragOverIndex === index && isDropping"
-            class="drop-indicator drop-indicator-before"
-          ></div>
+          <!-- Drag handle -->
+          <div class="drag-handle" title="Drag to reorder">
+            <i class="mdi mdi-drag-vertical"></i>
+          </div>
 
-          <!-- Editor overlay for edit controls -->
-          <div
-            class="editor-overlay"
-            :class="{
-              'border-3 border-primary': isEntitySelected(index),
-              'border-1 border-light': !isEntitySelected(index),
-              'editor-spacer': isSpacer(entity),
-              'editor-conditional': isConditionalComponent(entity),
-            }"
-            @click.stop="onCardClick(index)"
-          >
-            <!-- Drag handle -->
-            <div class="drag-handle" title="Drag to reorder">
-              <i class="mdi mdi-drag-vertical"></i>
-            </div>
-
-            <!-- Component preview -->
-            <div class="component-wrapper">
-              <component
-                :is="getComponentForEntity(entity)"
-                v-if="getComponentForEntity(entity)"
-                :entity="getEntityDataForComponent(entity)"
-                v-bind="getComponentCustomProps(entity)"
-                :editor-mode="isConditionalComponent(entity)"
-                class="editor-component"
-                :class="{
-                  'editor-conditional': isConditionalComponent(entity),
-                }"
-              />
-            </div>
+          <!-- Component preview -->
+          <div class="component-wrapper">
+            <component
+              :is="getComponentForEntity(entity)"
+              v-if="getComponentForEntity(entity)"
+              :entity="getEntityDataForComponent(entity)"
+              v-bind="getComponentCustomProps(entity)"
+              :editor-mode="isConditionalComponent(entity)"
+              class="editor-component"
+              :class="{
+                'editor-conditional': isConditionalComponent(entity),
+              }"
+            />
           </div>
         </div>
+      </div>
 
-        <!-- Drop indicator at the end -->
-        <div
-          v-if="dragOverIndex === localEntities.length && isDropping"
-          class="drop-indicator drop-indicator-end"
-          style="grid-column: 1 / -1; height: 3px"
-        ></div>
-      </template>
-    </draggable>
+      <!-- Drop indicator at the end -->
+      <div
+        v-if="dragOverIndex === localEntities.length && isDropping"
+        class="drop-indicator drop-indicator-end"
+        style="grid-column: 1 / -1; height: 3px"
+      ></div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, watch, computed } from "vue";
-import { VueDraggableNext as draggable } from "vue-draggable-next";
 import { useHaStore } from "../../stores/haStore";
 import { getComponentLayoutClasses } from "../../utils/componentLayouts";
 
@@ -379,7 +370,9 @@ const getComponentClasses = (entity) => {
 
 const handleDragOver = (event) => {
   event.preventDefault();
-  event.dataTransfer.dropEffect = "copy";
+  event.dataTransfer.dropEffect = "move";
+  dragOverIndex.value = localEntities.length;
+  isDropping.value = true;
 };
 
 const handleDragEnter = () => {
@@ -400,7 +393,7 @@ const handleDragLeave = () => {
 
 const handleEntityDragOver = (index, event) => {
   event.preventDefault();
-  event.dataTransfer.dropEffect = "copy";
+  event.dataTransfer.dropEffect = "move";
 
   // Track the vertical position to determine if dropping before or after
   const rect = event.currentTarget.getBoundingClientRect();
@@ -415,6 +408,23 @@ const handleEntityDragOver = (index, event) => {
   }
 };
 
+const handleEntityDragStart = (index, event) => {
+  isDragging.value = true;
+  // Store the dragged entity info for reordering
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("application/json", JSON.stringify({
+    type: "entity-reorder",
+    draggedIndex: index,
+    entity: localEntities.value[index],
+  }));
+};
+
+const handleEntityDragEnd = () => {
+  isDragging.value = false;
+  dragOverIndex.value = null;
+  isDropping.value = false;
+};
+
 const handleEntityDragLeave = (index) => {
   // Only reset if we're leaving this specific entity without entering another
   if (dragOverIndex.value === index || dragOverIndex.value === index + 1) {
@@ -425,19 +435,41 @@ const handleEntityDragLeave = (index) => {
 const handleEntityDrop = (index, event) => {
   event.preventDefault();
   event.stopPropagation();
+  isDropping.value = false;
 
   try {
     const data = event.dataTransfer.getData("application/json");
     if (data) {
       const parsedData = JSON.parse(data);
 
-      // Determine the actual insertion index based on mouse position
-      const rect = event.currentTarget.getBoundingClientRect();
-      const midpoint = rect.top + rect.height / 2;
-      const insertIndex = event.clientY < midpoint ? index : index + 1;
+      // Handle entity reordering (from another entity in the same canvas)
+      if (parsedData.type === "entity-reorder") {
+        const draggedIndex = parsedData.draggedIndex;
+        const draggedEntity = parsedData.entity;
 
-      // Handle static component
+        // Determine the actual insertion index based on mouse position
+        const rect = event.currentTarget.getBoundingClientRect();
+        const midpoint = rect.top + rect.height / 2;
+        let insertIndex = event.clientY < midpoint ? index : index + 1;
+
+        // If dragging from above, adjust the insert index
+        if (draggedIndex < insertIndex) {
+          insertIndex--;
+        }
+
+        // Move the entity in the local array
+        localEntities.value.splice(draggedIndex, 1);
+        localEntities.value.splice(insertIndex, 0, draggedEntity);
+        emit("reorder-entities", localEntities.value);
+        return;
+      }
+
+      // Handle static component (from palette)
       if (parsedData.isStatic && parsedData.type) {
+        const rect = event.currentTarget.getBoundingClientRect();
+        const midpoint = rect.top + rect.height / 2;
+        const insertIndex = event.clientY < midpoint ? index : index + 1;
+
         emit("add-entity-at-index", {
           entity: { type: parsedData.type },
           index: insertIndex,
@@ -445,8 +477,12 @@ const handleEntityDrop = (index, event) => {
         return;
       }
 
-      // Handle entity (original behavior)
+      // Handle entity from palette
       if (parsedData.entity) {
+        const rect = event.currentTarget.getBoundingClientRect();
+        const midpoint = rect.top + rect.height / 2;
+        const insertIndex = event.clientY < midpoint ? index : index + 1;
+
         emit("add-entity-at-index", {
           entity: parsedData.entity,
           index: insertIndex,
@@ -456,7 +492,6 @@ const handleEntityDrop = (index, event) => {
   } catch (error) {
     console.error("[EditorCanvas] Error handling entity drop:", error);
   } finally {
-    isDropping.value = false;
     dragOverIndex.value = null;
   }
 };
@@ -493,11 +528,6 @@ const handleDrop = (event) => {
   }
 };
 
-const handleEntityAdded = () => {
-  // This is called by vue-draggable when an item is added via external drag
-  // After the entity is added, emit the reorder event to sync with parent
-  emit("reorder-entities", localEntities.value);
-};
 </script>
 
 <style scoped>
