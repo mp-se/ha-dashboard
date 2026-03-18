@@ -4,7 +4,19 @@
 
     <div class="inspector-section mb-3">
       <label class="form-label small mb-1"><strong>Entity ID</strong></label>
-      <div class="form-control-static text-monospace small">
+      
+      <!-- Display array entities with EntityListEditor -->
+      <div v-if="isArrayEntity" class="form-control-static text-monospace small">
+        <EntityListEditor
+          :model-value="entityArray"
+          label="Entities"
+          help="Drag to reorder (except the first one). Drop entities from the left panel to add."
+          @update:model-value="updateEntityArray"
+        />
+      </div>
+      
+      <!-- Display single entity -->
+      <div v-else class="form-control-static text-monospace small">
         {{ entity.entity || entity.getter || "N/A" }}
       </div>
     </div>
@@ -146,6 +158,7 @@ import { useHaStore } from "../../stores/haStore";
 import { getDefaultComponentType } from "../../composables/useDefaultComponentType";
 import { getCardProperties, validateProperty } from "../../utils/cardPropertyMetadata";
 import PropertyEditorFactory from "./PropertyEditors/PropertyEditorFactory.vue";
+import EntityListEditor from "./PropertyEditors/EntityListEditor.vue";
 
 const props = defineProps({
   entity: {
@@ -224,6 +237,31 @@ const recommendedType = computed(() => {
     props.entity?.getter
   );
 });
+
+/** Check if entity is an array (for multi-entity cards like HaRoom, HaGlance, etc.) */
+const isArrayEntity = computed(() => {
+  return Array.isArray(props.entity?.entity);
+});
+
+/** Get entity array for EntityListEditor */
+const entityArray = computed({
+  get: () => {
+    if (Array.isArray(props.entity?.entity)) {
+      return props.entity.entity;
+    }
+    return [];
+  },
+  set: () => {
+    // Handled by updateEntityArray method
+  },
+});
+
+/** Update entity array and emit changes */
+const updateEntityArray = (newArray) => {
+  if (!props.entity) return;
+  // Emit update through properties since entity structure might change
+  emit("update-properties", { entity: newArray });
+};
 
 // List of available component types (can be imported from a constant)
 const availableComponentTypes = computed(() => {

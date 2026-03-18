@@ -95,7 +95,7 @@ const props = defineProps({
     type: [Array, String],
     required: true,
     description:
-      "Entity ID or array of entity IDs (first is room/area, rest are control objects)",
+      "Entity ID of the room/area, or array of entity IDs (first is room/area, rest are control objects)",
   },
   color: {
     type: String,
@@ -108,6 +108,11 @@ const store = useHaStore();
 const normalizeIcon = useNormalizeIcon();
 const { callService } = useServiceCall();
 const logger = createLogger("HaRoom");
+
+// Debug: log when color prop changes
+if (props.color && props.color !== "blue") {
+  console.log("[HaRoom] Received color prop:", props.color);
+}
 
 // Normalize entity to always be an array
 const entityArray = computed(() => {
@@ -124,7 +129,7 @@ const roomEntityId = computed(() => {
   const areaEntity = entities.find(
     (e) => typeof e === "string" && e.startsWith("area."),
   );
-  return areaEntity || "";
+  return areaEntity || (entities[0] || "");
 });
 
 // Helper to check if entity is temperature or humidity sensor
@@ -253,7 +258,11 @@ const roomIconClass = computed(() => {
 });
 
 const circleColor = computed(() => {
-  return props.color || "blue";
+  const color = props.color || "blue";
+  if (color !== "blue") {
+    console.log("[HaRoom] circleColor computed:", color);
+  }
+  return color;
 });
 
 // Get icon for control object

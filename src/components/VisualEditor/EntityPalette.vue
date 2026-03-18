@@ -173,10 +173,12 @@ const isEntityInView = (entityId) => {
 
 const handleDragStart = (event, entity) => {
   event.dataTransfer.effectAllowed = "copy";
+  // Set both JSON format (for canvas) and plain text (for inspector)
   event.dataTransfer.setData("application/json", JSON.stringify({
     entity: entity.entity_id,
     type: "auto",
   }));
+  event.dataTransfer.setData("text/plain", entity.entity_id);
   const img = new Image();
   event.dataTransfer.setDragImage(img, 0, 0);
 };

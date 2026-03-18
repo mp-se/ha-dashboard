@@ -58,6 +58,7 @@
                 :is="getComponentForEntity(entity)"
                 v-if="getComponentForEntity(entity)"
                 :entity="getEntityDataForComponent(entity)"
+                v-bind="getComponentCustomProps(entity)"
                 :editor-mode="isConditionalComponent(entity)"
                 class="editor-component"
                 :class="{ 'editor-conditional': isConditionalComponent(entity) }"
@@ -271,6 +272,28 @@ const getEntityDataForComponent = (entity) => {
   // Safety fallback: if we have no valid entity data, return empty string to prevent errors
   console.warn("[EditorCanvas] Warning: entity config has no entity or entities property:", entity);
   return "";
+};
+
+const getComponentCustomProps = (entity) => {
+  if (!entity) return {};
+  
+  // List of standard config properties that shouldn't be passed as component props
+  const standardProps = ["entity", "entities", "type", "attributes", "getter", "layout"];
+  
+  // Extract custom properties (like color, operator, message, etc.) 
+  const customProps = {};
+  for (const [key, value] of Object.entries(entity)) {
+    if (!standardProps.includes(key) && value !== undefined && value !== null) {
+      customProps[key] = value;
+    }
+  }
+  
+  // Debug logging for HaRoom color property
+  if (entity.type === "HaRoom" && customProps.color) {
+    console.log("[EditorCanvas] HaRoom custom props:", customProps, "color:", customProps.color);
+  }
+  
+  return customProps;
 };
 
 const handleDragEnd = () => {
