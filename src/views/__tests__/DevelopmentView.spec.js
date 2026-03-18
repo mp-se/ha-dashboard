@@ -5,8 +5,8 @@ import { createPinia, setActivePinia } from "pinia";
 import { useHaStore } from "@/stores/haStore";
 
 // Mock HaEntityList component
-const mockHaEntityList = {
-  name: "HaEntityList",
+const mockEntityList = {
+  name: "EntityList",
   template: '<div class="ha-entity-list"><slot /></div>',
   props: ["entities"],
 };
@@ -19,7 +19,7 @@ describe("DevelopmentView.vue", () => {
   it("renders the view title", () => {
     const wrapper = mount(DevelopmentView, {
       global: {
-        components: { HaEntityList: mockHaEntityList },
+        components:  { EntityList:  mockEntityList },
       },
     });
     expect(wrapper.text()).toContain("Component Development View");
@@ -33,11 +33,11 @@ describe("DevelopmentView.vue", () => {
 
     const wrapper = mount(DevelopmentView, {
       global: {
-        components: { HaEntityList: mockHaEntityList },
+        components:  { EntityList:  mockEntityList },
       },
     });
 
-    const entityList = wrapper.findComponent(mockHaEntityList);
+    const entityList = wrapper.findComponent(mockEntityList);
     expect(entityList.exists()).toBe(true);
   });
 
@@ -50,11 +50,11 @@ describe("DevelopmentView.vue", () => {
 
     const wrapper = mount(DevelopmentView, {
       global: {
-        components: { HaEntityList: mockHaEntityList },
+        components:  { EntityList:  mockEntityList },
       },
     });
 
-    const entityList = wrapper.findComponent(mockHaEntityList);
+    const entityList = wrapper.findComponent(mockEntityList);
     expect(entityList.props("entities")).toHaveLength(2);
     expect(entityList.props("entities")[0].entityId).toBe("sensor.temp");
     expect(entityList.props("entities")[1].entityId).toBe("sensor.humidity");
@@ -95,11 +95,11 @@ describe("DevelopmentView.vue", () => {
 
     const wrapper = mount(DevelopmentView, {
       global: {
-        components: { HaEntityList: mockHaEntityList },
+        components:  { EntityList:  mockEntityList },
       },
     });
 
-    const entityList = wrapper.findComponent(mockHaEntityList);
+    const entityList = wrapper.findComponent(mockEntityList);
     const entityIds = entityList.props("entities").map((e) => e.entityId);
 
     expect(entityIds).toContain("sensor.temp");
@@ -134,11 +134,11 @@ describe("DevelopmentView.vue", () => {
 
     const wrapper = mount(DevelopmentView, {
       global: {
-        components: { HaEntityList: mockHaEntityList },
+        components:  { EntityList:  mockEntityList },
       },
     });
 
-    const entityList = wrapper.findComponent(mockHaEntityList);
+    const entityList = wrapper.findComponent(mockEntityList);
     const entityIds = entityList.props("entities").map((e) => e.entityId);
 
     expect(entityIds).toEqual([
@@ -156,11 +156,11 @@ describe("DevelopmentView.vue", () => {
 
     const wrapper = mount(DevelopmentView, {
       global: {
-        components: { HaEntityList: mockHaEntityList },
+        components:  { EntityList:  mockEntityList },
       },
     });
 
-    let entityList = wrapper.findComponent(mockHaEntityList);
+    let entityList = wrapper.findComponent(mockEntityList);
     expect(entityList.props("entities")).toHaveLength(1);
 
     // Add a new sensor
@@ -171,7 +171,7 @@ describe("DevelopmentView.vue", () => {
 
     await wrapper.vm.$nextTick();
 
-    entityList = wrapper.findComponent(mockHaEntityList);
+    entityList = wrapper.findComponent(mockEntityList);
     expect(entityList.props("entities")).toHaveLength(2);
   });
 
@@ -181,11 +181,11 @@ describe("DevelopmentView.vue", () => {
 
     const wrapper = mount(DevelopmentView, {
       global: {
-        components: { HaEntityList: mockHaEntityList },
+        components:  { EntityList:  mockEntityList },
       },
     });
 
-    const entityList = wrapper.findComponent(mockHaEntityList);
+    const entityList = wrapper.findComponent(mockEntityList);
     expect(entityList.props("entities")).toHaveLength(0);
   });
 });

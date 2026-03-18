@@ -1,12 +1,12 @@
 import { config } from "@vue/test-utils";
 import { vi, beforeEach } from "vitest";
-import HaIconCircle from "./components/HaIconCircle.vue";
-import HaEntityAttributeList from "./components/HaEntityAttributeList.vue";
+import IconCircle from "./components/IconCircle.vue";
+import EntityAttributeList from "./components/EntityAttributeList.vue";
 
 // Register global components for all tests
 config.global.components = {
-  HaIconCircle,
-  HaEntityAttributeList,
+  IconCircle,
+  EntityAttributeList,
 };
 
 // Mock localStorage for tests

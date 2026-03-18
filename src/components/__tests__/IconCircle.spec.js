@@ -2,9 +2,9 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { useHaStore } from "@/stores/haStore";
-import HaIconCircle from "../HaIconCircle.vue";
+import IconCircle from "../IconCircle.vue";
 
-describe("HaIconCircle.vue", () => {
+describe("IconCircle.vue", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     useHaStore();
@@ -24,7 +24,7 @@ describe("HaIconCircle.vue", () => {
 
   describe("Rendering", () => {
     it("renders wrapper div when entity has an icon", () => {
-      const wrapper = mount(HaIconCircle, {
+      const wrapper = mount(IconCircle, {
         props: { entityId: "light.bedroom", resolvedEntity: lightEntity },
       });
       expect(wrapper.find(".ha-icon-circle-wrapper").exists()).toBe(true);
@@ -32,7 +32,7 @@ describe("HaIconCircle.vue", () => {
 
     it("renders nothing when iconClass is empty (null entity with unknown domain)", () => {
       // entity is null, entityId has no known domain mapping
-      const wrapper = mount(HaIconCircle, {
+      const wrapper = mount(IconCircle, {
         props: { entityId: "xyz.nothing", resolvedEntity: null },
       });
       // useIconClass returns null for unknown entity kinds
@@ -40,14 +40,14 @@ describe("HaIconCircle.vue", () => {
     });
 
     it("renders icon-bg div", () => {
-      const wrapper = mount(HaIconCircle, {
+      const wrapper = mount(IconCircle, {
         props: { entityId: "light.bedroom", resolvedEntity: lightEntity },
       });
       expect(wrapper.find(".icon-bg").exists()).toBe(true);
     });
 
     it("applies backgroundColor style to icon-bg", () => {
-      const wrapper = mount(HaIconCircle, {
+      const wrapper = mount(IconCircle, {
         props: { entityId: "light.bedroom", resolvedEntity: lightEntity },
       });
       expect(wrapper.find(".icon-bg").attributes("style")).toContain(
@@ -56,14 +56,14 @@ describe("HaIconCircle.vue", () => {
     });
 
     it("renders icon element with mdi class", () => {
-      const wrapper = mount(HaIconCircle, {
+      const wrapper = mount(IconCircle, {
         props: { entityId: "sensor.temperature", resolvedEntity: sensorEntity },
       });
       expect(wrapper.find("i").classes()).toContain("mdi");
     });
 
     it("renders thermometer icon for temperature sensor", () => {
-      const wrapper = mount(HaIconCircle, {
+      const wrapper = mount(IconCircle, {
         props: { entityId: "sensor.temperature", resolvedEntity: sensorEntity },
       });
       expect(wrapper.find("i").classes()).toContain("mdi-thermometer");
@@ -72,14 +72,14 @@ describe("HaIconCircle.vue", () => {
 
   describe("Size prop", () => {
     it("applies flex-shrink-0 class for default (medium) size", () => {
-      const wrapper = mount(HaIconCircle, {
+      const wrapper = mount(IconCircle, {
         props: { entityId: "light.bedroom", resolvedEntity: lightEntity },
       });
       expect(wrapper.find(".flex-shrink-0").exists()).toBe(true);
     });
 
     it("applies icon-bg-small for small size", () => {
-      const wrapper = mount(HaIconCircle, {
+      const wrapper = mount(IconCircle, {
         props: {
           entityId: "light.bedroom",
           resolvedEntity: lightEntity,
@@ -90,7 +90,7 @@ describe("HaIconCircle.vue", () => {
     });
 
     it("applies icon-overlay-small for small size", () => {
-      const wrapper = mount(HaIconCircle, {
+      const wrapper = mount(IconCircle, {
         props: {
           entityId: "light.bedroom",
           resolvedEntity: lightEntity,
@@ -101,7 +101,7 @@ describe("HaIconCircle.vue", () => {
     });
 
     it("applies ha-icon-overlay for medium size", () => {
-      const wrapper = mount(HaIconCircle, {
+      const wrapper = mount(IconCircle, {
         props: {
           entityId: "light.bedroom",
           resolvedEntity: lightEntity,
@@ -112,7 +112,7 @@ describe("HaIconCircle.vue", () => {
     });
 
     it("applies mb-3 class for large size", () => {
-      const wrapper = mount(HaIconCircle, {
+      const wrapper = mount(IconCircle, {
         props: {
           entityId: "light.bedroom",
           resolvedEntity: lightEntity,
@@ -125,7 +125,7 @@ describe("HaIconCircle.vue", () => {
     });
 
     it("uses icon-bg (not icon-bg-small) for large size", () => {
-      const wrapper = mount(HaIconCircle, {
+      const wrapper = mount(IconCircle, {
         props: {
           entityId: "light.bedroom",
           resolvedEntity: lightEntity,
@@ -137,7 +137,7 @@ describe("HaIconCircle.vue", () => {
     });
 
     it("uses ha-icon-overlay for large size", () => {
-      const wrapper = mount(HaIconCircle, {
+      const wrapper = mount(IconCircle, {
         props: {
           entityId: "light.bedroom",
           resolvedEntity: lightEntity,
@@ -151,13 +151,13 @@ describe("HaIconCircle.vue", () => {
   describe("Props", () => {
     it("accepts entityId as required string", () => {
       expect(
-        mount(HaIconCircle, { props: { entityId: "switch.fan" } }).exists(),
+        mount(IconCircle, { props: { entityId: "switch.fan" } }).exists(),
       ).toBe(true);
     });
 
     it("resolvedEntity defaults to null without error", () => {
       expect(
-        mount(HaIconCircle, {
+        mount(IconCircle, {
           props: { entityId: "light.x", resolvedEntity: null },
         }).exists(),
       ).toBe(true);
@@ -165,7 +165,7 @@ describe("HaIconCircle.vue", () => {
 
     it("renders icon for switch entity", () => {
       const entity = { entity_id: "switch.fan", state: "on", attributes: {} };
-      const wrapper = mount(HaIconCircle, {
+      const wrapper = mount(IconCircle, {
         props: { entityId: "switch.fan", resolvedEntity: entity },
       });
       expect(wrapper.find("i").exists()).toBe(true);
@@ -178,7 +178,7 @@ describe("HaIconCircle.vue", () => {
         attributes: { device_class: "door" },
       };
       expect(
-        mount(HaIconCircle, {
+        mount(IconCircle, {
           props: { entityId: "binary_sensor.door", resolvedEntity: entity },
         }).exists(),
       ).toBe(true);
@@ -190,7 +190,7 @@ describe("HaIconCircle.vue", () => {
         state: "5",
         attributes: { icon: "mdi:star" },
       };
-      const wrapper = mount(HaIconCircle, {
+      const wrapper = mount(IconCircle, {
         props: { entityId: "sensor.custom", resolvedEntity: entity },
       });
       expect(wrapper.find("i").classes()).toContain("mdi-star");

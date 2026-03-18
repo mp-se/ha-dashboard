@@ -80,13 +80,6 @@ export const COMPONENT_LAYOUTS = {
     mobile: "col-12",
     description: "3-column card",
   },
-  HaIconCircle: {
-    classes: "col-lg-4 col-md-6",
-    desktop: "col-lg-4",
-    tablet: "col-md-6",
-    mobile: "col-12",
-    description: "3-column card",
-  },
   HaImage: {
     classes: "col-lg-4 col-md-6",
     desktop: "col-lg-4",

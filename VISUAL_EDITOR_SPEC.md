@@ -53,7 +53,7 @@ The Visual Editor is an interactive component within the Home Assistant Dashboar
 - **Component Type Selector**:
   - Auto-detect based on entity class
   - Recommended type highlighted
-  - Full list of 27 available Ha* components
+  - Full list of 27 available Ha* components (HaAlarmPanel, HaBeerTap, HaBinarySensor, HaButton, HaChip, HaEnergy, HaError, HaEntityList, HaGauge, HaGlance, HaHeader, HaImage, HaLight, HaLink, HaMediaPlayer, HaPerson, HaPrinter, HaRoom, HaRowSpacer, HaSelect, HaSensor, HaSensorGraph, HaSpacer, HaSun, HaSwitch, HaWarning, HaWeather)
   - Updates component rendering dynamically
 
 - **Attributes Management**:

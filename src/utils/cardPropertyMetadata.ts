@@ -214,8 +214,6 @@ export const CARD_PROPERTY_METADATA: Record<string, CardPropertiesDefinition> = 
   HaAlarmPanel: {},
   HaBeerTap: {},
   HaChip: {},
-  HaEntityAttributeList: {},
-  HaIconCircle: {},
 };
 
 /**

@@ -87,13 +87,13 @@ import HaBinarySensor from "../HaBinarySensor.vue";
 import HaButton from "../HaButton.vue";
 import HaChip from "../HaChip.vue";
 import HaEnergy from "../HaEnergy.vue";
-import HaEntityAttributeList from "../HaEntityAttributeList.vue";
-import HaEntityList from "../HaEntityList.vue";
+import EntityAttributeList from "../EntityAttributeList.vue";
+import EntityList from "../EntityList.vue";
 import HaError from "../HaError.vue";
 import HaGauge from "../HaGauge.vue";
 import HaGlance from "../HaGlance.vue";
 import HaHeader from "../HaHeader.vue";
-import HaIconCircle from "../HaIconCircle.vue";
+import IconCircle from "../IconCircle.vue";
 import HaImage from "../HaImage.vue";
 import HaLight from "../HaLight.vue";
 import HaLink from "../HaLink.vue";
@@ -145,13 +145,13 @@ const componentMap = {
   HaButton,
   HaChip,
   HaEnergy,
-  HaEntityAttributeList,
-  HaEntityList,
+  EntityAttributeList,
+  EntityList,
   HaError,
   HaGauge,
   HaGlance,
   HaHeader,
-  HaIconCircle,
+  IconCircle,
   HaImage,
   HaLight,
   HaLink,

@@ -29,7 +29,7 @@
         <div v-if="resolvedEntity" class="text-start flex-grow-1">
           <h6 class="ha-entity-name mb-0">{{ name }}</h6>
           <!-- Display requested attributes if provided -->
-          <HaEntityAttributeList :attributes="requestedAttributes" />
+          <EntityAttributeList :attributes="requestedAttributes" />
         </div>
         <div v-if="resolvedEntity" class="d-flex align-items-center ms-2">
           <div

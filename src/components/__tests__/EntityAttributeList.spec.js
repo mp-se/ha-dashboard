@@ -1,18 +1,18 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
-import HaEntityAttributeList from "../HaEntityAttributeList.vue";
+import EntityAttributeList from "../EntityAttributeList.vue";
 
-describe("HaEntityAttributeList.vue", () => {
+describe("EntityAttributeList.vue", () => {
   describe("Rendering", () => {
     it("renders nothing when attributes array is empty", () => {
-      const wrapper = mount(HaEntityAttributeList, {
+      const wrapper = mount(EntityAttributeList, {
         props: { attributes: [] },
       });
       expect(wrapper.find(".ha-attribute-list-container").exists()).toBe(false);
     });
 
     it("renders container when attributes are provided", () => {
-      const wrapper = mount(HaEntityAttributeList, {
+      const wrapper = mount(EntityAttributeList, {
         props: {
           attributes: [["Temperature", "22°C"]],
         },
@@ -21,7 +21,7 @@ describe("HaEntityAttributeList.vue", () => {
     });
 
     it("renders one row per attribute pair", () => {
-      const wrapper = mount(HaEntityAttributeList, {
+      const wrapper = mount(EntityAttributeList, {
         props: {
           attributes: [
             ["Temperature", "22°C"],
@@ -35,7 +35,7 @@ describe("HaEntityAttributeList.vue", () => {
     });
 
     it("displays label text for each attribute", () => {
-      const wrapper = mount(HaEntityAttributeList, {
+      const wrapper = mount(EntityAttributeList, {
         props: {
           attributes: [
             ["Temperature", "22.5°C"],
@@ -48,7 +48,7 @@ describe("HaEntityAttributeList.vue", () => {
     });
 
     it("displays value text for each attribute", () => {
-      const wrapper = mount(HaEntityAttributeList, {
+      const wrapper = mount(EntityAttributeList, {
         props: {
           attributes: [
             ["Battery", "85%"],
@@ -61,7 +61,7 @@ describe("HaEntityAttributeList.vue", () => {
     });
 
     it("uses label as key to uniquely identify rows", () => {
-      const wrapper = mount(HaEntityAttributeList, {
+      const wrapper = mount(EntityAttributeList, {
         props: {
           attributes: [
             ["A Label", "val1"],
@@ -76,7 +76,7 @@ describe("HaEntityAttributeList.vue", () => {
 
   describe("Styling", () => {
     it("applies ha-attribute-key class to label element", () => {
-      const wrapper = mount(HaEntityAttributeList, {
+      const wrapper = mount(EntityAttributeList, {
         props: {
           attributes: [["State", "on"]],
         },
@@ -85,7 +85,7 @@ describe("HaEntityAttributeList.vue", () => {
     });
 
     it("applies ha-attribute-value class to value element", () => {
-      const wrapper = mount(HaEntityAttributeList, {
+      const wrapper = mount(EntityAttributeList, {
         props: {
           attributes: [["State", "on"]],
         },
@@ -96,7 +96,7 @@ describe("HaEntityAttributeList.vue", () => {
 
   describe("Edge cases", () => {
     it("renders a single attribute correctly", () => {
-      const wrapper = mount(HaEntityAttributeList, {
+      const wrapper = mount(EntityAttributeList, {
         props: {
           attributes: [["Power", "1200W"]],
         },
@@ -106,7 +106,7 @@ describe("HaEntityAttributeList.vue", () => {
     });
 
     it("handles numeric values as strings", () => {
-      const wrapper = mount(HaEntityAttributeList, {
+      const wrapper = mount(EntityAttributeList, {
         props: {
           attributes: [["Count", "42"]],
         },
@@ -115,7 +115,7 @@ describe("HaEntityAttributeList.vue", () => {
     });
 
     it("handles hyphen values (unavailable)", () => {
-      const wrapper = mount(HaEntityAttributeList, {
+      const wrapper = mount(EntityAttributeList, {
         props: {
           attributes: [["Last Updated", "-"]],
         },

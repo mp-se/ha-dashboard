@@ -34,12 +34,12 @@
           'gap-3',
         ]"
       >
-        <HaIconCircle :entity-id="entityId" :resolved-entity="resolvedEntity" />
+        <IconCircle :entity-id="entityId" :resolved-entity="resolvedEntity" />
         <div class="flex-grow-1">
           <div class="text-start">
             <h6 class="ha-entity-name">{{ name }}</h6>
             <!-- Display requested attributes if provided -->
-            <HaEntityAttributeList :attributes="requestedAttributes" />
+            <EntityAttributeList :attributes="requestedAttributes" />
           </div>
         </div>
         <div class="flex-shrink-0">
@@ -70,7 +70,7 @@
           class="mb-2"
         >
           <div class="d-flex align-items-center gap-2">
-            <HaIconCircle
+            <IconCircle
               size="small"
               :entity-id="typeof ent === 'string' ? ent : ent.entity_id"
               :resolved-entity="getResolved(ent)"

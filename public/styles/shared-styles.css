@@ -728,7 +728,7 @@ button:active {
   display: block;
 }
 
-/* HaEntityAttributeList Component */
+/* EntityAttributeList Component */
 .ha-attribute-key {
   color: var(--bs-secondary-color, #6c757d);
   font-weight: 500;

@@ -44,7 +44,7 @@
                 }}
               </h6>
               <!-- Display requested attributes if provided -->
-              <HaEntityAttributeList :attributes="requestedAttributes" />
+              <EntityAttributeList :attributes="requestedAttributes" />
             </div>
             <button
               class="ha-control-button"

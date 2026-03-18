@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { mount } from "@vue/test-utils";
-import HaEntityList from "../HaEntityList.vue";
+import EntityList from "../EntityList.vue";
 import { createPinia, setActivePinia } from "pinia";
 import { useHaStore } from "@/stores/haStore";
 
-describe("HaEntityList.vue", () => {
+describe("EntityList.vue", () => {
   let store;
   let pinia;
 
@@ -58,7 +58,7 @@ describe("HaEntityList.vue", () => {
 
   describe("Basic rendering", () => {
     it("should mount successfully with empty entities", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [] },
         global: {
           plugins: [pinia],
@@ -77,7 +77,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should render container element", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [] },
         global: {
           plugins: [pinia],
@@ -90,7 +90,7 @@ describe("HaEntityList.vue", () => {
 
   describe("Props", () => {
     it("should accept entities prop as array", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [{ entityId: "sensor.temp" }] },
         global: { plugins: [pinia], stubs: { HaSpacer: true, HaSensor: true } },
       });
@@ -100,7 +100,7 @@ describe("HaEntityList.vue", () => {
 
     it("should accept componentMap prop", () => {
       const componentMap = { sensor: "CustomComponent" };
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [], componentMap },
         global: { plugins: [pinia], stubs: { HaSpacer: true, HaSensor: true } },
       });
@@ -108,7 +108,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should have default empty componentMap", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [] },
         global: { plugins: [pinia], stubs: { HaSpacer: true, HaSensor: true } },
       });
@@ -116,7 +116,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should accept attributes prop", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [], attributes: ["temp", "humidity"] },
         global: { plugins: [pinia], stubs: { HaSpacer: true, HaSensor: true } },
       });
@@ -126,7 +126,7 @@ describe("HaEntityList.vue", () => {
 
   describe("Domain mapping", () => {
     it("should map switch domain to HaSwitch", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [{ entityId: "switch.outlet" }] },
         global: {
           plugins: [pinia],
@@ -139,7 +139,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should map binary_sensor domain to HaBinarySensor", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [] },
         global: { plugins: [pinia], stubs: { HaSpacer: true } },
       });
@@ -149,7 +149,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should map sensor domain to HaSensor", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [] },
         global: { plugins: [pinia], stubs: { HaSpacer: true } },
       });
@@ -157,7 +157,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should map light domain to HaLight", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [] },
         global: { plugins: [pinia], stubs: { HaSpacer: true } },
       });
@@ -165,7 +165,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should map alarm_control_panel domain to HaAlarmPanel", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [] },
         global: { plugins: [pinia], stubs: { HaSpacer: true } },
       });
@@ -175,7 +175,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should map weather domain to HaWeather", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [] },
         global: { plugins: [pinia], stubs: { HaSpacer: true } },
       });
@@ -185,7 +185,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should map update domain to HaBinarySensor", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [] },
         global: { plugins: [pinia], stubs: { HaSpacer: true } },
       });
@@ -195,7 +195,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should map sun domain to HaSun", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [] },
         global: { plugins: [pinia], stubs: { HaSpacer: true } },
       });
@@ -203,7 +203,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should map device_tracker domain to HaSensor", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [] },
         global: { plugins: [pinia], stubs: { HaSpacer: true } },
       });
@@ -213,7 +213,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should map fan domain to HaLight", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [] },
         global: { plugins: [pinia], stubs: { HaSpacer: true } },
       });
@@ -221,7 +221,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should map media_player domain to HaMediaPlayer", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [] },
         global: { plugins: [pinia], stubs: { HaSpacer: true } },
       });
@@ -231,7 +231,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should map select domain to HaSelect", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [] },
         global: { plugins: [pinia], stubs: { HaSpacer: true } },
       });
@@ -239,7 +239,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should map button domain to HaButton", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [] },
         global: { plugins: [pinia], stubs: { HaSpacer: true } },
       });
@@ -249,7 +249,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should return HaSensor for unknown domain", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [] },
         global: { plugins: [pinia], stubs: { HaSpacer: true } },
       });
@@ -259,7 +259,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should use custom componentMap to override default domain mapping", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: {
           entities: [],
           componentMap: { switch: "CustomSwitch" },
@@ -274,7 +274,7 @@ describe("HaEntityList.vue", () => {
 
   describe("Entity processing - direct entityId", () => {
     it("should render entity with directentityId from store", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [{ entityId: "sensor.temp" }] },
         global: { plugins: [pinia], stubs: { HaSpacer: true, HaSensor: true } },
       });
@@ -285,7 +285,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should create fallback entity if not found in store", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [{ entityId: "sensor.nonexistent" }] },
         global: { plugins: [pinia], stubs: { HaSpacer: true, HaSensor: true } },
       });
@@ -297,7 +297,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should skip invalid entities without entityId or getter", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [{ invalid: "data" }] },
         global: { plugins: [pinia], stubs: { HaSpacer: true } },
       });
@@ -306,7 +306,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should render spacer for explicitly whitespace-only entityId", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [{ entityId: "   " }] },
         global: { plugins: [pinia], stubs: { HaSpacer: true } },
       });
@@ -316,7 +316,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should support custom component override for entityId", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: {
           entities: [{ entityId: "sensor.temp", component: "CustomComponent" }],
         },
@@ -326,7 +326,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should process multiple entities with mixed custom components", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: {
           entities: [
             { entityId: "sensor.temp" },
@@ -358,7 +358,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should call getter function and render returned entities", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [{ getter: "getBatterySensors" }] },
         global: { plugins: [pinia], stubs: { HaSpacer: true, HaSensor: true } },
       });
@@ -382,7 +382,7 @@ describe("HaEntityList.vue", () => {
           attributes: { friendly_name: "Battery 2" },
         },
       ]);
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: {
           entities: [
             { getter: "getBatterySensors", component: "BatteryComponent" },
@@ -400,7 +400,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should skip invalid getter (not a function)", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [{ getter: "nonexistentGetter" }] },
         global: { plugins: [pinia], stubs: { HaSpacer: true, HaSensor: true } },
       });
@@ -409,7 +409,7 @@ describe("HaEntityList.vue", () => {
 
     it("should skip getter that is not a function", () => {
       store.notAFunction = "string";
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [{ getter: "notAFunction" }] },
         global: { plugins: [pinia], stubs: { HaSpacer: true, HaSensor: true } },
       });
@@ -419,7 +419,7 @@ describe("HaEntityList.vue", () => {
 
   describe("Spacer handling", () => {
     it("should skip entities with empty entityId (falsy)", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [{ entityId: "" }] },
         global: { plugins: [pinia], stubs: { HaSpacer: true } },
       });
@@ -428,7 +428,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should keep spacers in filtered output", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: {
           entities: [
             { entityId: "sensor.temp" },
@@ -451,7 +451,7 @@ describe("HaEntityList.vue", () => {
 
   describe("Error handling and filtering", () => {
     it("should handle error in displayedEntities and return empty array", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [{ invalid: "data" }] },
         global: { plugins: [pinia], stubs: { HaSpacer: true, HaSensor: true } },
       });
@@ -460,7 +460,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should filter out null entities", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [{ entityId: "sensor.temp" }] },
         global: { plugins: [pinia], stubs: { HaSpacer: true, HaSensor: true } },
       });
@@ -472,7 +472,7 @@ describe("HaEntityList.vue", () => {
 
     it("should filter out entities without entity_id", () => {
       // This is an edge case - entities should always have entity_id
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [{ entityId: "sensor.temp" }] },
         global: { plugins: [pinia], stubs: { HaSpacer: true, HaSensor: true } },
       });
@@ -488,7 +488,7 @@ describe("HaEntityList.vue", () => {
         state: "on",
         attributes: null,
       });
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [{ entityId: "sensor.broken" }] },
         global: { plugins: [pinia], stubs: { HaSpacer: true, HaSensor: true } },
       });
@@ -506,7 +506,7 @@ describe("HaEntityList.vue", () => {
           attributes: { friendly_name: "Battery" },
         },
       ]);
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: {
           entities: [
             { entityId: "sensor.temp" },
@@ -530,7 +530,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should handle mix of entities with and without spacers", () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: {
           entities: [
             { entityId: "sensor.temp" },
@@ -557,7 +557,7 @@ describe("HaEntityList.vue", () => {
 
   describe("Update prop reactivity", () => {
     it("should update displayed entities when prop changes", async () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [{ entityId: "sensor.temp" }] },
         global: { plugins: [pinia], stubs: { HaSpacer: true, HaSensor: true } },
       });
@@ -573,7 +573,7 @@ describe("HaEntityList.vue", () => {
     });
 
     it("should reactively update when store.entities changes", async () => {
-      const wrapper = mount(HaEntityList, {
+      const wrapper = mount(EntityList, {
         props: { entities: [{ entityId: "sensor.newentity" }] },
         global: { plugins: [pinia], stubs: { HaSpacer: true, HaSensor: true } },
       });
