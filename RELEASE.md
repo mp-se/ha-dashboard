@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- **Visual Editor**: Complete drag-and-drop dashboard editor with three-panel layout (entity palette, canvas, inspector), view management (create/edit/delete), drag-reorder entities, component type selection, and attribute configuration. Features icon picker in modals, HaGlance/HaRoom entity rules, and comprehensive property editor system
+- **Visual Editor**: Complete drag-and-drop dashboard editor with three-panel layout (entity palette, canvas, inspector), view management (create/edit/delete), drag-reorder entities, component type selection, and attribute configuration. Features icon picker in modals, HaGlance/HaRoom entity rules, comprehensive property editor system, and **resizable panels with draggable dividers** (widths persisted in localStorage for user preference)
 - Test Coverage: 88.97% line coverage (2,148 tests) - exceeds 85% target
 
 ## February 2026 - v0.6.0

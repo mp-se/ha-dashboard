@@ -18,11 +18,11 @@
 
   <!-- Editor Container -->
   <div class="editor-container">
-    <div class="row g-0" style="min-height: calc(100vh - 200px)">
+    <div class="row g-0 resizable-layout" style="min-height: calc(100vh - 200px)">
       <!-- Entity Palette (Left) -->
       <div
-        class="col-lg-3 border-end"
-        style="overflow-y: auto; max-height: calc(100vh - 200px)"
+        class="border-end resizable-panel"
+        :style="{ width: leftPanelWidth + '%', overflow: 'auto', maxHeight: 'calc(100vh - 200px)' }"
       >
         <ViewManager
           :selected-view-name="selectedViewName"
@@ -39,10 +39,17 @@
         <StaticComponentPalette />
       </div>
 
+      <!-- Resize Handle (Left-Center) -->
+      <div
+        title="Drag to resize panels"
+        class="resize-handle resize-handle-left"
+        @mousedown="startResize('left')"
+      ></div>
+
       <!-- Canvas (Center) -->
       <div
-        class="col-lg-6"
-        style="overflow-y: auto; max-height: calc(100vh - 200px)"
+        class="resizable-panel"
+        :style="{ width: centerPanelWidth + '%', overflow: 'auto', maxHeight: 'calc(100vh - 200px)' }"
       >
         <EditorCanvas
           :entities="currentViewEntities"
@@ -55,10 +62,17 @@
         />
       </div>
 
+      <!-- Resize Handle (Center-Right) -->
+      <div
+        title="Drag to resize panels"
+        class="resize-handle resize-handle-right"
+        @mousedown="startResize('right')"
+      ></div>
+
       <!-- Inspector (Right) -->
       <div
-        class="col-lg-3 border-start"
-        style="overflow-y: auto; max-height: calc(100vh - 200px)"
+        class="border-start resizable-panel"
+        :style="{ width: rightPanelWidth + '%', overflow: 'auto', maxHeight: 'calc(100vh - 200px)' }"
       >
         <EntityInspector
           v-if="selectedEntity"
@@ -80,7 +94,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useHaStore } from "../stores/haStore";
 import EditorCanvas from "../components/visual-editor/EditorCanvas.vue";
 import EntityPalette from "../components/visual-editor/EntityPalette.vue";
@@ -442,6 +456,105 @@ const handleViewUpdated = (updatedView) => {
     saveStatus.value = "";
   }, 2000);
 };
+
+// Resizable panel state
+const leftPanelWidth = ref(25);
+const centerPanelWidth = ref(50);
+const rightPanelWidth = ref(25);
+const isResizing = ref(false);
+const resizeMode = ref(null); // 'left' or 'right'
+const startX = ref(0);
+const startWidths = ref({ left: 25, center: 50, right: 25 });
+
+/**
+ * Initialize panel widths from localStorage
+ */
+const initializePanelWidths = () => {
+  const saved = localStorage.getItem("editor-panel-widths");
+  if (saved) {
+    try {
+      const widths = JSON.parse(saved);
+      leftPanelWidth.value = widths.left || 25;
+      centerPanelWidth.value = widths.center || 50;
+      rightPanelWidth.value = widths.right || 25;
+    } catch {
+      // Use defaults if parsing fails
+    }
+  }
+};
+
+/**
+ * Save panel widths to localStorage
+ */
+const savePanelWidths = () => {
+  localStorage.setItem(
+    "editor-panel-widths",
+    JSON.stringify({
+      left: leftPanelWidth.value,
+      center: centerPanelWidth.value,
+      right: rightPanelWidth.value,
+    }),
+  );
+};
+
+/**
+ * Start resizing panels
+ */
+const startResize = (mode) => {
+  isResizing.value = true;
+  resizeMode.value = mode;
+  startX.value = event.clientX;
+  startWidths.value = {
+    left: leftPanelWidth.value,
+    center: centerPanelWidth.value,
+    right: rightPanelWidth.value,
+  };
+  document.addEventListener("mousemove", handleMouseMove);
+  document.addEventListener("mouseup", handleMouseUp);
+  document.body.style.userSelect = "none";
+};
+
+/**
+ * Handle mouse move during resize
+ */
+const handleMouseMove = (event) => {
+  if (!isResizing.value) return;
+
+  const delta = event.clientX - startX.value;
+  const percentDelta = (delta / window.innerWidth) * 100;
+
+  if (resizeMode.value === "left") {
+    // Resizing between left and center panels
+    const newLeft = Math.max(15, Math.min(60, startWidths.value.left + percentDelta));
+    const diff = newLeft - startWidths.value.left;
+    leftPanelWidth.value = newLeft;
+    centerPanelWidth.value = startWidths.value.center - diff;
+  } else if (resizeMode.value === "right") {
+    // Resizing between center and right panels
+    const newRight = Math.max(15, Math.min(60, startWidths.value.right - percentDelta));
+    const diff = startWidths.value.right - newRight;
+    rightPanelWidth.value = newRight;
+    centerPanelWidth.value = startWidths.value.center - diff;
+  }
+};
+
+/**
+ * Handle mouse up to end resize
+ */
+const handleMouseUp = () => {
+  if (isResizing.value) {
+    document.removeEventListener("mousemove", handleMouseMove);
+    document.removeEventListener("mouseup", handleMouseUp);
+    document.body.style.userSelect = "auto";
+    isResizing.value = false;
+    savePanelWidths();
+  }
+};
+
+// Initialize panel widths on mount
+onMounted(() => {
+  initializePanelWidths();
+});
 </script>
 
 <style scoped>
@@ -449,5 +562,41 @@ const handleViewUpdated = (updatedView) => {
   display: flex;
   flex-direction: column;
   min-height: calc(100vh - 200px);
+}
+
+.resizable-layout {
+  display: flex;
+  gap: 0;
+}
+
+.resizable-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 100px;
+  transition: width 0.1s ease;
+}
+
+.resize-handle {
+  width: 4px;
+  height: 100%;
+  background-color: var(--bs-border-color, #dee2e6);
+  cursor: col-resize;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease;
+  user-select: none;
+}
+
+.resize-handle:hover,
+.resize-handle:active {
+  background-color: var(--bs-primary, #0d6efd);
+  width: 6px;
+}
+
+.resize-handle-left {
+  border-right: 1px solid var(--bs-border-color, #dee2e6);
+}
+
+.resize-handle-right {
+  border-left: 1px solid var(--bs-border-color, #dee2e6);
 }
 </style>
