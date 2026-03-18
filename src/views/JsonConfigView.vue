@@ -2,12 +2,17 @@
   <div class="container-fluid overflow-hidden text-center">
     <p>&nbsp;</p>
     <div class="row g-3">
-      <component
-        :is="item.component"
+      <!-- Grid wrapper applying layout from componentLayouts constants -->
+      <div
         v-for="item in entitiesList"
         :key="item.entity || item.entityId"
-        v-bind="getComponentProps(item)"
-      />
+        :class="getComponentGridClasses(item.component)"
+      >
+        <component
+          :is="item.component"
+          v-bind="getComponentProps(item)"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -16,6 +21,7 @@
 import { computed } from "vue";
 import { useHaStore } from "../stores/haStore";
 import { getDefaultComponentType } from "../composables/useDefaultComponentType";
+import { getComponentLayoutClasses } from "../utils/componentLayouts";
 
 const props = defineProps({
   viewName: {
@@ -31,6 +37,14 @@ const getComponentProps = (item) => {
   // eslint-disable-next-line no-unused-vars
   const { component, ...props } = item;
   return props;
+};
+
+/**
+ * Get grid layout classes for a component
+ * Uses componentLayouts constants for consistency across views and editor
+ */
+const getComponentGridClasses = (componentType) => {
+  return getComponentLayoutClasses(componentType);
 };
 
 // Load entities from dashboard config for the specified view

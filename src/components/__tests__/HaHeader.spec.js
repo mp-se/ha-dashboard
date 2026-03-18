@@ -204,8 +204,8 @@ describe("HaHeader.vue", () => {
         },
       });
 
-      expect(wrapper.find(".row").exists()).toBe(true);
-      expect(wrapper.find(".col-md-12").exists()).toBe(true);
+      // Grid layout is now applied by container/view, not by component
+      expect(wrapper.find("h1").exists()).toBe(true);
     });
 
     it("should center text", () => {
@@ -378,8 +378,7 @@ describe("HaHeader.vue", () => {
         },
       });
 
-      expect(wrapper.find(".row").exists()).toBe(true);
-      expect(wrapper.find(".col-md-12").exists()).toBe(true);
+      // Grid layout is now applied by container/view, not by component
       expect(wrapper.find("h1").exists()).toBe(true);
       expect(wrapper.find("i").exists()).toBe(true);
     });
@@ -432,7 +431,7 @@ describe("HaHeader.vue", () => {
       });
 
       expect(wrapper.element.tagName).toBe("DIV");
-      expect(wrapper.findAll(".row").length).toBe(1);
+      expect(wrapper.find("h1").exists()).toBe(true);
     });
   });
 });

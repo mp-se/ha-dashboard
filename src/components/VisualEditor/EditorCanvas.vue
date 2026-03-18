@@ -18,17 +18,20 @@
       @end="isDragging = false"
     >
       <template #default>
+        <!-- Grid wrapper with layout from componentLayouts constants -->
         <div
           v-for="(entity, index) in localEntities"
           :key="`entity-${index}`"
           :class="getComponentClasses(entity)"
         >
-          <!-- Editor overlay wrapper -->
+          <!-- Editor overlay for edit controls -->
           <div
             class="editor-overlay"
             :class="{
               'border-3 border-primary': isEntitySelected(index),
               'border-1 border-light': !isEntitySelected(index),
+              'editor-spacer': isSpacer(entity),
+              'editor-conditional': isConditionalComponent(entity),
             }"
             @click.stop="onCardClick(index)"
           >
@@ -38,12 +41,16 @@
             </div>
             
             <!-- Component preview -->
-            <component
-              v-if="getComponentForEntity(entity)"
-              :is="getComponentForEntity(entity)"
-              :entity="getEntityDataForComponent(entity)"
-              class="editor-component"
-            />
+            <div class="component-wrapper">
+              <component
+                :is="getComponentForEntity(entity)"
+                v-if="getComponentForEntity(entity)"
+                :entity="getEntityDataForComponent(entity)"
+                :editor-mode="isConditionalComponent(entity)"
+                class="editor-component"
+                :class="{ 'editor-conditional': isConditionalComponent(entity) }"
+              />
+            </div>
           </div>
         </div>
       </template>
@@ -55,6 +62,7 @@
 import { ref, watch, computed } from "vue";
 import { VueDraggableNext as draggable } from "vue-draggable-next";
 import { useHaStore } from "../../stores/haStore";
+import { getComponentLayoutClasses } from "../../utils/componentLayouts";
 
 // Import all Ha* components
 import HaAlarmPanel from "../HaAlarmPanel.vue";
@@ -159,6 +167,14 @@ const isEntitySelected = (index) => {
   return props.selectedEntityId === index;
 };
 
+const isSpacer = (entity) => {
+  return entity?.type === "HaSpacer" || entity?.type === "HaRowSpacer";
+};
+
+const isConditionalComponent = (entity) => {
+  return entity?.type === "HaWarning" || entity?.type === "HaError";
+};
+
 /**
  * Get the component to render for an entity
  */
@@ -238,38 +254,6 @@ const getEntityDataForComponent = (entity) => {
   return "";
 };
 
-const getEntityName = (entity) => {
-  if (!entity) return "Unknown";
-
-  // Try to get entity name from store
-  if (entity.entity && typeof entity.entity === "string") {
-    const entityState = store.entityMap?.[entity.entity];
-    if (entityState?.attributes?.friendly_name) {
-      return entityState.attributes.friendly_name;
-    }
-    const parts = entity.entity.split(".");
-    return parts[1]?.toUpperCase() || entity.entity;
-  }
-
-  if (entity.getter) {
-    return `Getter: ${entity.getter}`;
-  }
-
-  if (entity.type === "HaRowSpacer" || entity.type === "HaSpacer") {
-    return "Spacer";
-  }
-
-  if (entity.type === "HaLink") {
-    return entity.label || "Link";
-  }
-
-  if (entity.type === "HaHeader") {
-    return entity.label || "Header";
-  }
-
-  return "Unknown";
-};
-
 const handleDragEnd = () => {
   emit("reorder-entities", localEntities.value);
 };
@@ -290,19 +274,11 @@ const onCardClick = (index) => {
 
 /**
  * Get Bootstrap grid classes for a component
- * Most components define their own col-* classes in their template,
- * so we get them from the root element
+ * Uses componentLayouts.js for consistent sizing across editor and views
  */
 const getComponentClasses = (entity) => {
-  // Default to col-lg-4 col-md-6 for most components
-  // Spacers, headers, links are full width
-  if (entity.type && ["HaRowSpacer", "HaSpacer", "HaHeader", "HaLink"].includes(entity.type)) {
-    return "col-12";
-  }
-  
-  // Most Ha* components use col-lg-4 col-md-6
-  // Individual components may override this pattern
-  return "col-lg-4 col-md-6";
+  if (!entity) return "col-lg-4 col-md-6";
+  return getComponentLayoutClasses(entity.type);
 };
 </script>
 
@@ -362,5 +338,53 @@ const getComponentClasses = (entity) => {
 .ghost-entity {
   opacity: 0.5;
   background-color: #e7f1ff;
+}
+
+.component-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.editor-spacer .component-wrapper {
+  min-height: 2rem;
+  background: repeating-linear-gradient(
+    45deg,
+    #f0f0f0,
+    #f0f0f0 10px,
+    #e8e8e8 10px,
+    #e8e8e8 20px
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.editor-spacer .component-wrapper::before {
+  content: "Spacer";
+}
+
+.editor-conditional {
+  position: relative;
+}
+
+.editor-conditional::after {
+  content: "Conditional";
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(255, 193, 7, 0.9);
+  color: #333;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 11;
+  pointer-events: none;
 }
 </style>

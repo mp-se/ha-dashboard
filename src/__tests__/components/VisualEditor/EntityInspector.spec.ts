@@ -1,14 +1,39 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
+import { nextTick } from "vue";
 import EntityInspector from "../../../components/VisualEditor/EntityInspector.vue";
 import { createPinia, setActivePinia } from "pinia";
+import { useEntitiesStore } from "../../../stores/entitiesStore";
+import { useHaStore } from "../../../stores/haStore";
 
 describe("EntityInspector.vue", () => {
   let wrapper;
+  let pinia;
+  let entitiesStore;
 
-  beforeEach(() => {
-    setActivePinia(createPinia());
+  beforeEach(async () => {
+    // Create pinia first
+    pinia = createPinia();
+    setActivePinia(pinia);
 
+    // Get stores from the active pinia instance
+    useHaStore();
+    entitiesStore = useEntitiesStore();
+
+    // Populate the store BEFORE creating the component
+    entitiesStore.entities = [
+      {
+        entity_id: "light.living_room",
+        state: "on",
+        attributes: {
+          friendly_name: "Living Room",
+          brightness: 200,
+          color_mode: "color_temp",
+        },
+      },
+    ];
+
+    // NOW mount the component with the same pinia instance
     wrapper = mount(EntityInspector, {
       props: {
         entity: {
@@ -19,9 +44,12 @@ describe("EntityInspector.vue", () => {
         entityId: 0,
       },
       global: {
-        plugins: [createPinia()],
+        plugins: [pinia],
       },
     });
+
+    // Wait for the component to fully update with the store data
+    await nextTick();
   });
 
   it("renders the inspector", () => {
@@ -44,8 +72,33 @@ describe("EntityInspector.vue", () => {
     expect(wrapper.emitted("update-type")[0]).toEqual(["HaSwitch"]);
   });
 
-  it("displays attributes section", () => {
-    expect(wrapper.find(".attributes-form").exists()).toBe(true);
+  it("displays attributes section", async () => {
+    // Verify the entities store has the entity data
+    expect(entitiesStore.entityMap.has("light.living_room")).toBe(true);
+    const storedEntity = entitiesStore.entityMap.get("light.living_room");
+    expect(storedEntity?.attributes).toBeDefined();
+    expect(Object.keys(storedEntity?.attributes || {}).length).toBeGreaterThan(0);
+
+    // Verify the haStore also has the entity data via delegation
+    const haStore = useHaStore();
+    expect(haStore.entityMap.has("light.living_room")).toBe(true);
+    const haStoredEntity = haStore.entityMap.get("light.living_room");
+    expect(haStoredEntity?.attributes).toBeDefined();
+
+    // Wait for wrapper to update
+    await nextTick();
+    await wrapper.vm.$nextTick();
+
+    // Check wrapper for entity inspector content
+    console.log("Wrapper HTML:", wrapper.html().substring(0, 500));
+    console.log("Wrapper text:", wrapper.text().substring(0, 500));
+    expect(wrapper.html()).toContain("light.living_room");
+
+    // Now check if the attributes section is visible
+    const attribForm = wrapper.find(".attributes-form");
+    console.log("Attributes form exists:", attribForm.exists());
+    console.log("Looking for inspector-section:", wrapper.findAll(".inspector-section").length);
+    expect(attribForm.exists()).toBe(true);
   });
 
   it("shows add attribute dropdown", () => {

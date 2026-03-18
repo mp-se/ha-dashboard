@@ -1,6 +1,5 @@
 <template>
-  <div class="col-lg-4 col-md-6">
-    <div class="card card-display h-100 rounded-4 shadow-lg border-info">
+  <div class="card card-display h-100 rounded-4 shadow-lg border-info">
       <div
         class="card-body p-3 d-flex justify-content-between h-100 text-start"
       >
@@ -82,7 +81,6 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup>

@@ -1,5 +1,5 @@
 <template>
-  <div class="col-lg-4 col-md-6">
+  <div>
     <!-- Invisible spacer -->
   </div>
 </template>

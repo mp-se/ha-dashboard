@@ -1,42 +1,40 @@
 <template>
-  <div class="col-lg-4 col-md-6">
-    <div
-      :class="[
-        'card',
-        'card-display',
-        'h-100',
-        'rounded-4',
-        'shadow-lg',
-        'border-info',
-      ]"
-    >
-      <div class="card-body">
-        <!-- Entities Grid -->
-        <div :class="['glance-grid', `glance-cols-${gridColumns}`]">
-          <div
-            v-for="ent in entityList"
-            :key="getEntityId(ent)"
-            class="glance-item"
-          >
-            <!-- Icon with circle background -->
-            <div v-if="getIconClass(ent)" class="glance-icon-wrapper">
-              <div
-                class="glance-icon-bg"
-                :style="{ backgroundColor: getIconCircleColor(ent) }"
-              >
-                <i :class="getIconClass(ent)" class="glance-icon-overlay"></i>
-              </div>
+  <div
+    :class="[
+      'card',
+      'card-display',
+      'h-100',
+      'rounded-4',
+      'shadow-lg',
+      'border-info',
+    ]"
+  >
+    <div class="card-body">
+      <!-- Entities Grid -->
+      <div :class="['glance-grid', `glance-cols-${gridColumns}`]">
+        <div
+          v-for="ent in entityList"
+          :key="getEntityId(ent)"
+          class="glance-item"
+        >
+          <!-- Icon with circle background -->
+          <div v-if="getIconClass(ent)" class="glance-icon-wrapper">
+            <div
+              class="glance-icon-bg"
+              :style="{ backgroundColor: getIconCircleColor(ent) }"
+            >
+              <i :class="getIconClass(ent)" class="glance-icon-overlay"></i>
             </div>
+          </div>
 
-            <!-- Name and State -->
-            <div class="glance-content">
-              <div class="ha-entity-name">{{ getName(ent) }}</div>
-              <div class="ha-entity-value">
-                {{ getFormattedValue(ent) }}
-                <small v-if="getUnit(ent)" class="ha-entity-unit ms-1">{{
-                  getUnit(ent)
-                }}</small>
-              </div>
+          <!-- Name and State -->
+          <div class="glance-content">
+            <div class="ha-entity-name">{{ getName(ent) }}</div>
+            <div class="ha-entity-value">
+              {{ getFormattedValue(ent) }}
+              <small v-if="getUnit(ent)" class="ha-entity-unit ms-1">{{
+                getUnit(ent)
+              }}</small>
             </div>
           </div>
         </div>

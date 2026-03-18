@@ -1,16 +1,15 @@
 <template>
-  <div class="col-lg-4 col-md-6">
-    <div
-      :class="[
-        'ha-media-player',
-        'card',
-        'card-control',
-        'h-100',
-        'rounded-4',
-        'shadow-lg',
-        !resolvedEntity ? 'border-warning' : cardBorderClass,
-      ]"
-    >
+  <div
+    :class="[
+      'ha-media-player',
+      'card',
+      'card-control',
+      'h-100',
+      'rounded-4',
+      'shadow-lg',
+      !resolvedEntity ? 'border-warning' : cardBorderClass,
+    ]"
+  >
       <div
         :class="[
           'card-body',
@@ -176,7 +175,6 @@
         </template>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup>

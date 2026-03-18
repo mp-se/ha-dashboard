@@ -379,8 +379,8 @@ describe("HaPrinter.vue", () => {
         },
         global: { plugins: [pinia] },
       });
-      const column = wrapper.find(".col-lg-4");
-      expect(column.classes()).toContain("col-md-6");
+      // Grid layout is now applied by container/view, not by component
+      expect(wrapper.find(".card").exists()).toBe(true);
     });
 
     it("should have correct card classes", () => {

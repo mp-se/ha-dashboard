@@ -1,5 +1,5 @@
 <template>
-  <div class="col-lg-4 col-md-6 ha-energy">
+  <div class="ha-energy">
     <!-- Error state: no consumption sensors found -->
     <div
       v-if="!energySensor"

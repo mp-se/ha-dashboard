@@ -1,15 +1,14 @@
 <template>
-  <div class="col-6 col-sm-4 col-md-2">
-    <div
-      :class="[
-        'card',
-        'card-display',
-        'h-100',
-        'rounded-4',
-        'shadow-lg',
-        !resolvedEntity ? 'border-warning' : 'border-info',
-      ]"
-    >
+  <div
+    :class="[
+      'card',
+      'card-display',
+      'h-100',
+      'rounded-4',
+      'shadow-lg',
+      !resolvedEntity ? 'border-warning' : 'border-info',
+    ]"
+  >
       <div
         :class="[
           'card-body',
@@ -45,7 +44,6 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup>

@@ -67,14 +67,13 @@ describe("VisualEditorView.vue", () => {
     expect(wrapper.exists()).toBe(true);
   });
 
-  it("has tab buttons", () => {
+  it("displays editor canvas without tab selection", () => {
+    // With the new setup, there are no editor/preview tabs
+    const editorContainer = wrapper.find(".editor-container");
+    expect(editorContainer.exists()).toBe(true);
+    // Verify no tab buttons exist (removed in new setup)
     const buttons = wrapper.findAll(".btn-group button");
-    // Should have Editor and Preview buttons
-    expect(buttons.length).toBeGreaterThanOrEqual(2);
-    // Check for tab button content
-    const buttonTexts = buttons.map((b) => b.text());
-    expect(buttonTexts.some((t) => t.includes("Editor"))).toBe(true);
-    expect(buttonTexts.some((t) => t.includes("Preview"))).toBe(true);
+    expect(buttons.length).toBe(0);
   });
 
   it("loads first view by default", async () => {

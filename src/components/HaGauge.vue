@@ -1,15 +1,14 @@
 <template>
-  <div class="col-md-4">
-    <div
-      :class="[
-        'card',
-        'card-display',
-        'h-100',
-        'rounded-4',
-        'shadow-lg',
-        !resolvedEntity ? 'border-warning' : 'border-info',
-      ]"
-    >
+  <div
+    :class="[
+      'card',
+      'card-display',
+      'h-100',
+      'rounded-4',
+      'shadow-lg',
+      !resolvedEntity ? 'border-warning' : 'border-info',
+    ]"
+  >
       <div v-if="!resolvedEntity" class="card-body text-center text-warning">
         <i class="mdi mdi-alert-circle mdi-24px mb-2"></i>
         <div>
@@ -100,7 +99,6 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup>

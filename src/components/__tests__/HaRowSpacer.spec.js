@@ -14,7 +14,8 @@ describe("HaRowSpacer.vue", () => {
         },
       });
 
-      expect(wrapper.find(".col-12").exists()).toBe(true);
+      // Grid layout is now applied by container/view, not by component
+      expect(wrapper.exists()).toBe(true);
     });
 
     it("should render as an empty div with full-width column class", () => {
@@ -28,8 +29,8 @@ describe("HaRowSpacer.vue", () => {
       });
 
       const div = wrapper.find("div");
+      // Grid layout is now applied by container/view, not by component
       expect(div.exists()).toBe(true);
-      expect(div.classes()).toContain("col-12");
     });
 
     it("should be a layout spacer with no visible content", () => {
@@ -89,7 +90,8 @@ describe("HaRowSpacer.vue", () => {
         },
       });
 
-      expect(wrapper.find(".col-12").exists()).toBe(true);
+      // Grid layout is now applied by container/view, not by component
+      expect(wrapper.find("div").exists()).toBe(true);
     });
 
     it("should create space for layout separation", () => {
@@ -102,8 +104,9 @@ describe("HaRowSpacer.vue", () => {
         },
       });
 
+      // Grid layout is now applied by container/view, not by component
       const div = wrapper.element;
-      expect(div.className).toContain("col-12");
+      expect(div.tagName).toBe("DIV");
     });
   });
 });

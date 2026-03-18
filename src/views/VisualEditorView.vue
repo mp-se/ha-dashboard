@@ -6,36 +6,6 @@
         <div class="col-auto">
           <h5 class="mb-0">Visual Editor</h5>
         </div>
-        <div class="col-auto ms-3">
-          <div class="btn-group" role="tablist">
-            <button
-              :class="[
-                'btn',
-                activeTab === 'editor'
-                  ? 'btn-primary'
-                  : 'btn-outline-primary',
-              ]"
-              type="button"
-              :aria-pressed="activeTab === 'editor'"
-              @click="activeTab = 'editor'"
-            >
-              <i class="mdi mdi-pencil me-2"></i>Editor
-            </button>
-            <button
-              :class="[
-                'btn',
-                activeTab === 'preview'
-                  ? 'btn-primary'
-                  : 'btn-outline-primary',
-              ]"
-              type="button"
-              :aria-pressed="activeTab === 'preview'"
-              @click="activeTab = 'preview'"
-            >
-              <i class="mdi mdi-eye me-2"></i>Preview
-            </button>
-          </div>
-        </div>
         <div class="col-auto ms-auto">
           <div class="input-group" style="max-width: 250px">
             <label class="input-group-text" for="viewSelector">View:</label>
@@ -61,8 +31,8 @@
     </div>
   </div>
 
-  <!-- Editor Tab -->
-  <div v-if="activeTab === 'editor'" class="editor-container">
+  <!-- Editor Container -->
+  <div class="editor-container">
     <div class="row g-0" style="min-height: calc(100vh - 200px)">
       <!-- Entity Palette (Left) -->
       <div class="col-lg-3 border-end" style="overflow-y: auto; max-height: calc(100vh - 200px)">
@@ -102,11 +72,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Preview Tab -->
-  <div v-if="activeTab === 'preview'">
-    <JsonConfigView :view-name="selectedViewName" />
-  </div>
 </template>
 
 <script setup>
@@ -115,13 +80,11 @@ import { useHaStore } from "../stores/haStore";
 import EditorCanvas from "../components/VisualEditor/EditorCanvas.vue";
 import EntityPalette from "../components/VisualEditor/EntityPalette.vue";
 import EntityInspector from "../components/VisualEditor/EntityInspector.vue";
-import JsonConfigView from "./JsonConfigView.vue";
 import { createLogger } from "../utils/logger";
 
 const logger = createLogger("VisualEditorView");
 const store = useHaStore();
 
-const activeTab = ref("editor");
 const selectedViewName = ref("");
 const selectedEntityId = ref(null);
 const saveStatus = ref("");

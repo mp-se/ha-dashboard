@@ -1,15 +1,14 @@
 <template>
-  <div class="col-lg-4 col-md-6">
-    <div
-      :class="[
-        'card',
-        'card-control',
-        cardBorderClass,
-        'h-100',
-        'rounded-4',
-        'shadow-lg',
-      ]"
-    >
+  <div
+    :class="[
+      'card',
+      'card-control',
+      cardBorderClass,
+      'h-100',
+      'rounded-4',
+      'shadow-lg',
+    ]"
+  >
       <div class="card-body d-flex align-items-center">
         <div class="text-start flex-grow-1">
           <h6 class="card-title mb-0">{{ name }}</h6>
@@ -27,7 +26,6 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup>

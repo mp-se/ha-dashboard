@@ -136,7 +136,7 @@ describe("EditorCanvas.vue - Drag and Drop (Phase 2)", () => {
 
     it("should show drag handle", () => {
       // Verify drag handle is visible in the component
-      expect(wrapper.vm.getEntityName).toBeDefined();
+      expect(wrapper.find(".drag-handle").exists()).toBe(true);
     });
   });
 

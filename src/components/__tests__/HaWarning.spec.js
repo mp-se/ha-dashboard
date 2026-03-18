@@ -374,8 +374,9 @@ describe("HaWarning.vue", () => {
         },
       });
 
-      expect(wrapper.find(".col-lg-4").exists()).toBe(true);
-      expect(wrapper.find(".col-md-6").exists()).toBe(true);
+      // Grid layout is now applied by container/view, not by component
+      // HaWarning renders a card-status element when shown
+      expect(wrapper.element).toBeDefined();
     });
 
     it("should have rounded corners", () => {
@@ -811,7 +812,7 @@ describe("HaWarning.vue", () => {
         },
       });
 
-      expect(wrapper.find(".col-lg-4").exists()).toBe(true);
+      // Grid layout is now applied by container/view, not by component
       expect(wrapper.find(".card-status").exists()).toBe(true);
       expect(wrapper.find(".card-body").exists()).toBe(true);
       expect(wrapper.find(".card-title").exists()).toBe(true);

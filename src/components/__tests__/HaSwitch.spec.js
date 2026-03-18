@@ -432,8 +432,8 @@ describe("HaSwitch.vue", () => {
         },
       });
 
-      expect(wrapper.find(".col-lg-4").exists()).toBe(true);
-      expect(wrapper.find(".col-md-6").exists()).toBe(true);
+      // Grid layout is now applied by container/view, not by component
+      expect(wrapper.find(".card").exists()).toBe(true);
     });
 
     it("should have form-switch class", () => {

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="shouldShowWarning" class="col-lg-4 col-md-6">
+  <div v-if="shouldShowWarning">
     <div
       :class="[
         'h-100',
@@ -82,6 +82,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  editorMode: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const store = useHaStore();
@@ -114,6 +118,9 @@ const currentValue = computed(() => {
 
 // Evaluate the condition
 const shouldShowWarning = computed(() => {
+  // Always show in editor mode for management
+  if (props.editorMode) return true;
+  
   if (!resolvedEntity.value || currentValue.value === null) return false;
 
   const current = currentValue.value;

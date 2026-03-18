@@ -1,21 +1,20 @@
 <template>
-  <div class="col-md-12">
+  <div
+    :class="[
+      'card',
+      'card-control',
+      'h-100',
+      'rounded-4',
+      'shadow-lg',
+      !resolvedEntity ? 'border-warning' : cardBorderClass,
+    ]"
+  >
     <div
       :class="[
-        'card',
-        'card-control',
-        'h-100',
-        'rounded-4',
-        'shadow-lg',
-        !resolvedEntity ? 'border-warning' : cardBorderClass,
+        'card-body',
+        !resolvedEntity ? 'text-center text-warning' : '',
       ]"
     >
-      <div
-        :class="[
-          'card-body',
-          !resolvedEntity ? 'text-center text-warning' : '',
-        ]"
-      >
         <i
           v-if="!resolvedEntity"
           class="mdi mdi-alert-circle mdi-24px mb-2"
@@ -81,7 +80,6 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup>

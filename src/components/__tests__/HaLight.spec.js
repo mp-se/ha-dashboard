@@ -790,8 +790,9 @@ describe("HaLight.vue", () => {
         },
       });
 
-      expect(wrapper.find(".col-lg-4").exists()).toBe(true);
-      expect(wrapper.find(".col-md-6").exists()).toBe(true);
+      // Grid layout is now applied by container/view, not by component
+      // Component should have the card element
+      expect(wrapper.find(".card").exists()).toBe(true);
     });
 
     it("should have rounded card class", () => {

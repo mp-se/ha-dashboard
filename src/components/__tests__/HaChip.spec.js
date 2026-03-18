@@ -388,9 +388,8 @@ describe("HaChip.vue", () => {
         },
       });
 
-      expect(wrapper.find(".col-6").exists()).toBe(true);
-      expect(wrapper.find(".col-sm-4").exists()).toBe(true);
-      expect(wrapper.find(".col-md-2").exists()).toBe(true);
+      // Grid layout is now applied by container/view, not by component
+      expect(wrapper.find(".card").exists()).toBe(true);
     });
   });
 
@@ -509,8 +508,8 @@ describe("HaChip.vue", () => {
         },
       });
 
-      const container = wrapper.find('[class*="col"]');
-      expect(container.classes()).toContain("col-6");
+      // Grid layout is now applied by container/view, not by component
+      expect(wrapper.find(".card").exists()).toBe(true);
     });
 
     it("should have proper tablet layout", () => {
@@ -534,8 +533,8 @@ describe("HaChip.vue", () => {
         },
       });
 
-      const container = wrapper.find('[class*="col"]');
-      expect(container.classes()).toContain("col-sm-4");
+      // Grid layout is now applied by container/view, not by component
+      expect(wrapper.find(".card").exists()).toBe(true);
     });
   });
 });

@@ -1,11 +1,9 @@
 <template>
-  <div class="row">
-    <div class="col-md-12">
-      <h1 class="h3 mb-4 text-center">
-        <i v-if="normalizedIcon" :class="normalizedIcon" class="me-2"></i>
-        {{ name }}
-      </h1>
-    </div>
+  <div>
+    <h1 class="h3 mb-4 text-center">
+      <i v-if="normalizedIcon" :class="normalizedIcon" class="me-2"></i>
+      {{ name }}
+    </h1>
   </div>
 </template>
 

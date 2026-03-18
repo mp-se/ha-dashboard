@@ -1,5 +1,5 @@
 <template>
-  <div v-if="entity" class="col-lg-4 col-md-6">
+  <div v-if="entity">
     <div class="ha-sensor-graph card card-display h-100 rounded-4 shadow-lg">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-2">

@@ -35,7 +35,7 @@
     </div>
 
     <!-- Attributes Editor -->
-    <div class="inspector-section mb-3">
+    <div v-if="entityFromStore && Object.keys(availableAttributes).length > 0" class="inspector-section mb-3">
       <label class="form-label small mb-2"><strong>Attributes</strong></label>
       <div class="attributes-form">
         <!-- Show message if no entity is selected -->
@@ -160,7 +160,7 @@ watch(
 /** Get available attributes from the entity state in the store */
 const entityFromStore = computed(() => {
   if (!props.entity?.entity) return null;
-  return store.entityMap?.[props.entity.entity];
+  return store.entityMap?.get(props.entity.entity);
 });
 
 /** Get all available attributes from the entity state */

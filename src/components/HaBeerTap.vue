@@ -1,7 +1,6 @@
 <template>
   <div
     v-if="entityList.length === 0 || !hasValidEntities"
-    class="col-lg-4 col-md-6"
   >
     <div
       class="ha-beer-tap card card-display h-100 rounded-4 shadow-lg border-warning"
@@ -13,7 +12,7 @@
     </div>
   </div>
 
-  <div v-else class="col-lg-4 col-md-6">
+  <div v-else>
     <div
       class="ha-beer-tap card card-display h-100 rounded-4 shadow-lg"
       :style="{ borderColor: beerColor, borderWidth: '2px' }"
