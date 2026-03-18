@@ -7,21 +7,6 @@
           <h5 class="mb-0">Visual Editor</h5>
         </div>
         <div class="col-auto ms-auto">
-          <div class="input-group" style="max-width: 250px">
-            <label class="input-group-text" for="viewSelector">View:</label>
-            <select
-              id="viewSelector"
-              v-model="selectedViewName"
-              class="form-select"
-              @change="handleViewChange"
-            >
-              <option v-for="view in availableViews" :key="view.name" :value="view.name">
-                {{ view.label }}
-              </option>
-            </select>
-          </div>
-        </div>
-        <div class="col-auto ms-2">
           <div v-if="saveStatus" class="badge" :class="saveStatusClass">
             <i :class="saveStatusIcon" class="me-1"></i>
             {{ saveStatus }}
@@ -36,11 +21,18 @@
     <div class="row g-0" style="min-height: calc(100vh - 200px)">
       <!-- Entity Palette (Left) -->
       <div class="col-lg-3 border-end" style="overflow-y: auto; max-height: calc(100vh - 200px)">
+        <ViewManager
+          :selected-view-name="selectedViewName"
+          @view-created="handleViewCreated"
+          @view-deleted="handleViewDeleted"
+          @view-updated="handleViewUpdated"
+        />
         <EntityPalette
           :entities-in-view="currentViewEntities"
           @add-entity="handleAddEntity"
           @remove-entity="handleRemoveEntityByEntityId"
         />
+        <StaticComponentPalette />
       </div>
 
       <!-- Canvas (Center) -->
@@ -83,6 +75,8 @@ import { useHaStore } from "../stores/haStore";
 import EditorCanvas from "../components/VisualEditor/EditorCanvas.vue";
 import EntityPalette from "../components/VisualEditor/EntityPalette.vue";
 import EntityInspector from "../components/VisualEditor/EntityInspector.vue";
+import ViewManager from "../components/VisualEditor/ViewManager.vue";
+import StaticComponentPalette from "../components/VisualEditor/StaticComponentPalette.vue";
 import { createLogger } from "../utils/logger";
 
 const logger = createLogger("VisualEditorView");
@@ -191,15 +185,11 @@ const handleSave = async () => {
   }
 };
 
-const handleViewChange = () => {
-  selectedEntityId.value = null;
-};
-
 const onSelectEntity = (entityId) => {
   selectedEntityId.value = entityId;
 };
 
-const handleAddEntity = (entityId) => {
+const handleAddEntity = (entityIdOrComponent) => {
   if (!currentView.value) return;
 
   const viewIndex = store.dashboardConfig.views.findIndex(
@@ -207,15 +197,26 @@ const handleAddEntity = (entityId) => {
   );
   if (viewIndex === -1) return;
 
-  // Create a new entity entry
-  const newEntity = {
-    entity: entityId,
-    type: undefined, // Will auto-detect based on entity type
-  };
-
   // Ensure entities is an array
   if (!Array.isArray(currentView.value.entities)) {
     currentView.value.entities = [];
+  }
+
+  // Handle both entity ID (string) and static component (object with type)
+  let newEntity;
+  if (typeof entityIdOrComponent === "string") {
+    // Entity ID - create entry with entity property
+    newEntity = {
+      entity: entityIdOrComponent,
+      type: undefined, // Will auto-detect based on entity type
+    };
+  } else if (entityIdOrComponent && typeof entityIdOrComponent === "object" && entityIdOrComponent.type) {
+    // Static component - create entry with just the type
+    newEntity = {
+      type: entityIdOrComponent.type,
+    };
+  } else {
+    return;
   }
 
   currentView.value.entities.push(newEntity);
@@ -225,22 +226,33 @@ const handleAddEntity = (entityId) => {
 const handleAddEntityAtIndex = (payload) => {
   if (!currentView.value || !payload) return;
 
-  const { entity: entityId, index } = payload;
+  const { entity: entityIdOrComponent, index } = payload;
 
   const viewIndex = store.dashboardConfig.views.findIndex(
     (v) => v.name === selectedViewName.value,
   );
   if (viewIndex === -1) return;
 
-  // Create a new entity entry
-  const newEntity = {
-    entity: entityId,
-    type: undefined, // Will auto-detect based on entity type
-  };
-
   // Ensure entities is an array
   if (!Array.isArray(currentView.value.entities)) {
     currentView.value.entities = [];
+  }
+
+  // Handle both entity ID (string) and static component (object with type)
+  let newEntity;
+  if (typeof entityIdOrComponent === "string") {
+    // Entity ID - create entry with entity property
+    newEntity = {
+      entity: entityIdOrComponent,
+      type: undefined, // Will auto-detect based on entity type
+    };
+  } else if (entityIdOrComponent && typeof entityIdOrComponent === "object" && entityIdOrComponent.type) {
+    // Static component - create entry with just the type
+    newEntity = {
+      type: entityIdOrComponent.type,
+    };
+  } else {
+    return;
   }
 
   // Clamp the index to valid range [0, array.length]
@@ -343,6 +355,46 @@ const handleUpdateEntityProperties = (properties) => {
   // Merge all properties into the entity
   Object.assign(currentView.value.entities[selectedEntityId.value], properties);
   debouncedSave();
+};
+
+/**
+ * Handle view creation
+ */
+const handleViewCreated = (newView) => {
+  logger.log("View created:", newView);
+  saveStatus.value = "Saved";
+  setTimeout(() => {
+    saveStatus.value = "";
+  }, 2000);
+  // Auto-select the new view
+  selectedViewName.value = newView.name;
+};
+
+/**
+ * Handle view deletion
+ */
+const handleViewDeleted = (deletedView) => {
+  logger.log("View deleted:", deletedView);
+  // Auto-select first available view
+  const views = store.dashboardConfig?.views ?? [];
+  if (views.length > 0) {
+    selectedViewName.value = views[0].name;
+  }
+  saveStatus.value = "Saved";
+  setTimeout(() => {
+    saveStatus.value = "";
+  }, 2000);
+};
+
+/**
+ * Handle view update
+ */
+const handleViewUpdated = (updatedView) => {
+  logger.log("View updated:", updatedView);
+  saveStatus.value = "Saved";
+  setTimeout(() => {
+    saveStatus.value = "";
+  }, 2000);
 };
 </script>
 

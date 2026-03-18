@@ -2,22 +2,24 @@
   <div class="entity-inspector p-3">
     <h6 class="mb-3">Entity Inspector</h6>
 
-    <div class="inspector-section mb-3">
+    <div v-if="entity.entity || entity.getter" class="inspector-section mb-3">
       <label class="form-label small mb-1"><strong>Entity ID</strong></label>
       
       <!-- Display array entities with EntityListEditor -->
       <div v-if="isArrayEntity" class="form-control-static text-monospace small">
         <EntityListEditor
           :model-value="entityArray"
+          :lock-first-entity="shouldLockFirstEntity"
           label="Entities"
-          help="Drag to reorder (except the first one). Drop entities from the left panel to add."
+          :help="entityListHelp"
           @update:model-value="updateEntityArray"
+          @all-entities-removed="handleAllEntitiesRemoved"
         />
       </div>
       
       <!-- Display single entity -->
       <div v-else class="form-control-static text-monospace small">
-        {{ entity.entity || entity.getter || "N/A" }}
+        {{ entity.entity || entity.getter }}
       </div>
     </div>
 
@@ -238,7 +240,19 @@ const recommendedType = computed(() => {
   );
 });
 
-/** Check if entity is an array (for multi-entity cards like HaRoom, HaGlance, etc.) */
+/** Check if this card type should lock the first entity (e.g., HaRoom) */
+const shouldLockFirstEntity = computed(() => {
+  // Only HaRoom requires locking the first entity
+  return props.entity?.type === 'HaRoom';
+});
+
+/** Dynamic help text based on card type */
+const entityListHelp = computed(() => {
+  if (props.entity?.type === 'HaRoom') {
+    return 'Drag to reorder (except the first one). Drop entities from the left panel to add.';
+  }
+  return 'Drag to reorder. Drop entities from the left panel to add. If all are removed the component will be deleted.';
+});
 const isArrayEntity = computed(() => {
   return Array.isArray(props.entity?.entity);
 });
@@ -262,7 +276,13 @@ const updateEntityArray = (newArray) => {
   // Emit update through properties since entity structure might change
   emit("update-properties", { entity: newArray });
 };
-
+/** Handle when all entities are removed from a card */
+const handleAllEntitiesRemoved = () => {
+  // Only auto-remove for HaGlance, not for HaRoom
+  if (props.entity?.type === 'HaGlance') {
+    emit('remove-entity');
+  }
+};
 // List of available component types (can be imported from a constant)
 const availableComponentTypes = computed(() => {
   return [

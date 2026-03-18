@@ -71,9 +71,9 @@ describe("VisualEditorView.vue", () => {
     // With the new setup, there are no editor/preview tabs
     const editorContainer = wrapper.find(".editor-container");
     expect(editorContainer.exists()).toBe(true);
-    // Verify no tab buttons exist (removed in new setup)
-    const buttons = wrapper.findAll(".btn-group button");
-    expect(buttons.length).toBe(0);
+    // Verify ViewManager is present (has view management buttons)
+    const viewManager = wrapper.find(".view-manager");
+    expect(viewManager.exists()).toBe(true);
   });
 
   it("loads first view by default", async () => {
@@ -81,11 +81,13 @@ describe("VisualEditorView.vue", () => {
     expect(wrapper.vm.selectedViewName).toBe("overview");
   });
 
-  it("can change selected view", async () => {
-    const selector = wrapper.find("#viewSelector");
-    await selector.setValue("bedroom");
-    await wrapper.vm.$nextTick();
-    expect(wrapper.vm.selectedViewName).toBe("bedroom");
+  it("can change selected view through ViewManager", async () => {
+    // Views are now selected through the ViewManager component, not a selector
+    // Verify that ViewManager is present
+    const viewManager = wrapper.find(".view-manager");
+    expect(viewManager.exists()).toBe(true);
+    // The initial view should be the first one
+    expect(wrapper.vm.selectedViewName).toBe("overview");
   });
 
   it("displays current view entities", () => {

@@ -98,9 +98,13 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  lockFirstEntity: {
+    type: Boolean,
+    default: true,
+  },
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'all-entities-removed']);
 
 const store = useHaStore();
 const isDragOver = ref(false);
@@ -134,7 +138,7 @@ const getEntityLabel = (entityId) => {
 
 /** Check if an entity is the first one (room entity - locked) */
 const isFirstEntity = (index) => {
-  return index === 0 && entities.value.length > 0;
+  return props.lockFirstEntity && index === 0 && entities.value.length > 0;
 };
 
 /** Extract entity ID from drag event */
@@ -245,9 +249,13 @@ const endDrag = () => {
 };
 
 const removeEntity = (index) => {
-  // Don't allow removing first entity (room entity)
+  // Don't allow removing first entity (room entity) if lock is enabled
   if (isFirstEntity(index)) return;
-  entities.value = entities.value.filter((_, i) => i !== index);
+  const newArray = entities.value.filter((_, i) => i !== index);
+  if (newArray.length === 0) {
+    emit('all-entities-removed');
+  }
+  entities.value = newArray;
 };
 </script>
 

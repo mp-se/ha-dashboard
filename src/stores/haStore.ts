@@ -196,6 +196,10 @@ export const useHaStore = defineStore("ha", () => {
 
     // Actions from Config
     loadDashboardConfig: config.loadDashboardConfig,
+    addView: config.addView,
+    updateView: config.updateView,
+    deleteView: config.deleteView,
+    saveDashboardConfig: config.saveDashboardConfig,
 
     // Bridge logic
     init,

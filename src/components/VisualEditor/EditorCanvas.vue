@@ -375,15 +375,28 @@ const handleEntityDrop = (index, event) => {
   try {
     const data = event.dataTransfer.getData("application/json");
     if (data) {
-      const entityData = JSON.parse(data);
-      if (entityData.entity) {
-        // Determine the actual insertion index based on mouse position
-        const rect = event.currentTarget.getBoundingClientRect();
-        const midpoint = rect.top + rect.height / 2;
-        const insertIndex = event.clientY < midpoint ? index : index + 1;
-        
-        // Emit event with both the entity data and the insertion index
-        emit("add-entity-at-index", { entity: entityData.entity, index: insertIndex });
+      const parsedData = JSON.parse(data);
+      
+      // Determine the actual insertion index based on mouse position
+      const rect = event.currentTarget.getBoundingClientRect();
+      const midpoint = rect.top + rect.height / 2;
+      const insertIndex = event.clientY < midpoint ? index : index + 1;
+      
+      // Handle static component
+      if (parsedData.isStatic && parsedData.type) {
+        emit("add-entity-at-index", { 
+          entity: { type: parsedData.type }, 
+          index: insertIndex 
+        });
+        return;
+      }
+
+      // Handle entity (original behavior)
+      if (parsedData.entity) {
+        emit("add-entity-at-index", { 
+          entity: parsedData.entity, 
+          index: insertIndex 
+        });
       }
     }
   } catch (error) {
@@ -403,14 +416,23 @@ const handleDrop = (event) => {
   dragOverIndex.value = null;
 
   try {
+    // Check for data in application/json (handles both entities and static components)
     const data = event.dataTransfer.getData("application/json");
     if (data) {
-      const entityData = JSON.parse(data);
-      // Only add if it contains entity data
-      if (entityData.entity) {
-        // Add the entity to the view by emitting add-entity event
-        // The parent component (VisualEditorView) will handle this
-        emit("add-entity", entityData.entity);
+      const parsedData = JSON.parse(data);
+
+      // Handle static component
+      if (parsedData.isStatic && parsedData.type) {
+        emit("add-entity", {
+          type: parsedData.type,
+        });
+        return;
+      }
+
+      // Handle entity (original behavior)
+      if (parsedData.entity) {
+        emit("add-entity", parsedData.entity);
+        return;
       }
     }
   } catch (error) {

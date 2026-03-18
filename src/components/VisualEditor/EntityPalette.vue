@@ -1,9 +1,22 @@
 <template>
-  <div class="entity-palette p-3">
-    <h6 class="mb-3">Available Entities</h6>
+  <div class="entity-palette p-3 border-bottom">
+    <!-- Header with Toggle -->
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <div class="d-flex align-items-center">
+        <button
+          class="btn btn-link btn-sm p-0 text-decoration-none me-2"
+          :class="{ 'text-muted': !isExpanded }"
+          title="Toggle Available Entities panel"
+          @click="isExpanded = !isExpanded"
+        >
+          <i :class="`mdi ${isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right'}`"></i>
+        </button>
+        <h6 class="mb-0">Available Entities</h6>
+      </div>
+    </div>
 
-    <!-- Search and Filter -->
-    <div class="mb-3">
+    <!-- Search and Filter (only shown when expanded) -->
+    <div v-if="isExpanded" class="mb-3">
       <div class="input-group input-group-sm">
         <input
           v-model="searchText"
@@ -23,8 +36,8 @@
       </div>
     </div>
 
-    <!-- Entity Type Filter -->
-    <div class="mb-3">
+    <!-- Entity Type Filter (only shown when expanded) -->
+    <div v-if="isExpanded" class="mb-3">
       <select v-model="selectedType" class="form-select form-select-sm">
         <option value="">All Types</option>
         <option v-for="type in entityTypes" :key="type" :value="type">
@@ -33,8 +46,8 @@
       </select>
     </div>
 
-    <!-- Entities List -->
-    <div class="entities-list">
+    <!-- Entities List (only shown when expanded) -->
+    <div v-if="isExpanded" class="entities-list">
       <!-- No entities at all (usually means not connected or data not loaded) -->
       <div v-if="allEntities.length === 0" class="alert alert-warning mb-0">
         <small>
@@ -106,6 +119,7 @@ const props = defineProps({
 defineEmits(["add-entity", "remove-entity"]);
 
 const store = useHaStore();
+const isExpanded = ref(true);
 const searchText = ref("");
 const selectedType = ref("");
 

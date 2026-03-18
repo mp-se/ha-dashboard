@@ -157,11 +157,113 @@ export const useConfigStore = defineStore("config", () => {
     }
   };
 
+  /**
+   * Add a new view to the dashboard config
+   */
+  const addView = (newView: {
+    name: string;
+    label: string;
+    icon: string;
+    hidden?: boolean;
+    entities?: unknown[];
+  }): void => {
+    const config = dashboardConfig.value as Record<string, unknown> | null;
+    if (!config || !Array.isArray(config.views)) return;
+
+    // Check if view already exists
+    if (config.views.some((v: Record<string, unknown>) => v.name === newView.name)) {
+      logger.warn(`View "${newView.name}" already exists`);
+      return;
+    }
+
+    config.views.push({
+      name: newView.name,
+      label: newView.label,
+      icon: newView.icon,
+      hidden: newView.hidden || false,
+      entities: newView.entities || [],
+    });
+
+    logger.log(`View "${newView.name}" added`);
+  };
+
+  /**
+   * Update an existing view's properties
+   */
+  const updateView = (
+    viewName: string,
+    updates: Record<string, unknown>,
+  ): void => {
+    const config = dashboardConfig.value as Record<string, unknown> | null;
+    if (!config || !Array.isArray(config.views)) return;
+
+    const viewIndex = config.views.findIndex(
+      (v: Record<string, unknown>) => v.name === viewName,
+    );
+    if (viewIndex === -1) {
+      logger.warn(`View "${viewName}" not found`);
+      return;
+    }
+
+    Object.assign(config.views[viewIndex], updates);
+    logger.log(`View "${viewName}" updated`);
+  };
+
+  /**
+   * Delete a view from the dashboard config
+   */
+  const deleteView = (viewName: string): void => {
+    const config = dashboardConfig.value as Record<string, unknown> | null;
+    if (!config || !Array.isArray(config.views)) return;
+
+    const viewIndex = config.views.findIndex(
+      (v: Record<string, unknown>) => v.name === viewName,
+    );
+    if (viewIndex === -1) {
+      logger.warn(`View "${viewName}" not found`);
+      return;
+    }
+
+    // Prevent deleting the last view
+    if (config.views.length === 1) {
+      logger.warn("Cannot delete the last view");
+      return;
+    }
+
+    config.views.splice(viewIndex, 1);
+    logger.log(`View "${viewName}" deleted`);
+  };
+
+  /**
+   * Save the dashboard config to a JSON file
+   */
+  const saveDashboardConfig = (): void => {
+    try {
+      if (!dashboardConfig.value) return;
+
+      const jsonString = JSON.stringify(dashboardConfig.value, null, 2);
+      const blob = new Blob([jsonString], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "dashboard-config.json";
+      link.click();
+      URL.revokeObjectURL(url);
+      logger.log("Dashboard config downloaded");
+    } catch (error) {
+      logger.error("Error saving dashboard config:", error);
+    }
+  };
+
   return {
     dashboardConfig,
     configValidationError,
     configErrorCount,
     loadDashboardConfig,
     reloadConfig,
+    addView,
+    updateView,
+    deleteView,
+    saveDashboardConfig,
   };
 });

@@ -245,4 +245,234 @@ describe("useConfigStore", () => {
       expect(result.valid).toBe(false);
     });
   });
+
+  describe("View Management", () => {
+    beforeEach(() => {
+      const store = useConfigStore();
+      store.dashboardConfig = {
+        app: { title: "Dashboard" },
+        views: [
+          {
+            name: "overview",
+            label: "Overview",
+            icon: "mdi-home-outline",
+            hidden: false,
+            entities: [],
+          },
+          {
+            name: "lights",
+            label: "Lights",
+            icon: "mdi-lightbulb",
+            hidden: false,
+            entities: [],
+          },
+        ],
+      };
+    });
+
+    describe("addView", () => {
+      it("should add a new view to the config", () => {
+        const store = useConfigStore();
+        const newView = {
+          name: "new-view",
+          label: "New View",
+          icon: "mdi-new",
+          hidden: false,
+          entities: [],
+        };
+
+        store.addView(newView);
+
+        expect(store.dashboardConfig.views.length).toBe(3);
+        const addedView = store.dashboardConfig.views.find(
+          (v) => v.name === "new-view",
+        );
+        expect(addedView).toBeDefined();
+        expect(addedView.label).toBe("New View");
+      });
+
+      it("should prevent adding duplicate view names", () => {
+        const store = useConfigStore();
+        const originalLength = store.dashboardConfig.views.length;
+
+        const duplicateView = {
+          name: "overview",
+          label: "Overview Copy",
+          icon: "mdi-home",
+        };
+
+        store.addView(duplicateView);
+
+        expect(store.dashboardConfig.views.length).toBe(originalLength);
+      });
+
+      it("should set default entities array", () => {
+        const store = useConfigStore();
+        const newView = {
+          name: "test",
+          label: "Test",
+          icon: "mdi-test",
+        };
+
+        store.addView(newView);
+
+        const addedView = store.dashboardConfig.views.find(
+          (v) => v.name === "test",
+        );
+        expect(addedView.entities).toEqual([]);
+      });
+    });
+
+    describe("updateView", () => {
+      it("should update view properties", () => {
+        const store = useConfigStore();
+
+        store.updateView("overview", {
+          label: "Updated Overview",
+          icon: "mdi-updated",
+        });
+
+        const view = store.dashboardConfig.views.find(
+          (v) => v.name === "overview",
+        );
+        expect(view.label).toBe("Updated Overview");
+        expect(view.icon).toBe("mdi-updated");
+      });
+
+      it("should handle non-existent view gracefully", () => {
+        const store = useConfigStore();
+        const originalLength = store.dashboardConfig.views.length;
+
+        store.updateView("non-existent", { label: "New" });
+
+        expect(store.dashboardConfig.views.length).toBe(originalLength);
+      });
+
+      it("should preserve other properties when updating", () => {
+        const store = useConfigStore();
+        const originalEntities = store.dashboardConfig.views[0].entities;
+
+        store.updateView("overview", { label: "New Label" });
+
+        const view = store.dashboardConfig.views.find(
+          (v) => v.name === "overview",
+        );
+        expect(view.entities).toBe(originalEntities);
+      });
+
+      it("should update hidden property", () => {
+        const store = useConfigStore();
+
+        store.updateView("overview", { hidden: true });
+
+        const view = store.dashboardConfig.views.find(
+          (v) => v.name === "overview",
+        );
+        expect(view.hidden).toBe(true);
+      });
+    });
+
+    describe("deleteView", () => {
+      it("should delete an existing view", () => {
+        const store = useConfigStore();
+        const originalLength = store.dashboardConfig.views.length;
+
+        store.deleteView("lights");
+
+        expect(store.dashboardConfig.views.length).toBe(originalLength - 1);
+        expect(
+          store.dashboardConfig.views.find((v) => v.name === "lights"),
+        ).toBeUndefined();
+      });
+
+      it("should handle non-existent view gracefully", () => {
+        const store = useConfigStore();
+        const originalLength = store.dashboardConfig.views.length;
+
+        store.deleteView("non-existent");
+
+        expect(store.dashboardConfig.views.length).toBe(originalLength);
+      });
+
+      it("should prevent deleting the last view", () => {
+        const store = useConfigStore();
+        store.dashboardConfig.views = [store.dashboardConfig.views[0]];
+
+        store.deleteView("overview");
+
+        expect(store.dashboardConfig.views.length).toBe(1);
+      });
+    });
+
+    describe("saveDashboardConfig", () => {
+      it("should create a download for the config", () => {
+        const store = useConfigStore();
+
+        const createElement = vi.spyOn(document, "createElement");
+        const createObjectURL = vi.spyOn(URL, "createObjectURL");
+
+        store.saveDashboardConfig();
+
+        expect(createElement).toHaveBeenCalledWith("a");
+        expect(createObjectURL).toHaveBeenCalled();
+
+        createElement.mockRestore();
+        createObjectURL.mockRestore();
+      });
+
+      it("should handle null config gracefully", () => {
+        const store = useConfigStore();
+        store.dashboardConfig = null;
+
+        expect(() => store.saveDashboardConfig()).not.toThrow();
+      });
+    });
+
+    describe("View Management Integration", () => {
+      it("should handle create, update, and delete in sequence", () => {
+        const store = useConfigStore();
+
+        // Create
+        store.addView({
+          name: "workflow-test",
+          label: "Workflow Test",
+          icon: "mdi-test",
+        });
+
+        let view = store.dashboardConfig.views.find(
+          (v) => v.name === "workflow-test",
+        );
+        expect(view).toBeDefined();
+
+        // Update
+        store.updateView("workflow-test", { label: "Updated Test" });
+
+        view = store.dashboardConfig.views.find(
+          (v) => v.name === "workflow-test",
+        );
+        expect(view.label).toBe("Updated Test");
+
+        // Delete
+        store.deleteView("workflow-test");
+
+        view = store.dashboardConfig.views.find(
+          (v) => v.name === "workflow-test",
+        );
+        expect(view).toBeUndefined();
+      });
+
+      it("should maintain view order when manipulating views", () => {
+        const store = useConfigStore();
+
+        store.addView({
+          name: "new",
+          label: "New",
+          icon: "mdi-new",
+        });
+
+        const names = store.dashboardConfig.views.map((v) => v.name);
+        expect(names[names.length - 1]).toBe("new");
+      });
+    });
+  });
 });

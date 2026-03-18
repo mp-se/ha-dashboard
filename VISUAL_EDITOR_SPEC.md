@@ -14,7 +14,7 @@ The Visual Editor is an interactive component within the Home Assistant Dashboar
 
 ## Current Implementation Status
 
-### ✅ Completed Features (Phases 1-3)
+### ✅ Completed Features (Phases 1-6)
 
 #### Phase 1: Core Editor UI
 - **Three-panel layout**:
@@ -47,6 +47,7 @@ The Visual Editor is an interactive component within the Home Assistant Dashboar
   - Edit attribute values directly
   - Remove entity button
   - Deselect button
+  - **N/A sections hidden** for cleaner display when entity/getter not set
 
 #### Phase 3: Component & Attribute Configuration
 - **Component Type Selector**:
@@ -61,6 +62,39 @@ The Visual Editor is an interactive component within the Home Assistant Dashboar
   - Edit values as text (smart parsing for numbers, booleans, JSON)
   - Remove individual attributes
   - Type badges (str, num, bool, obj, arr) for clarity
+
+#### Phase 4: Enhanced Entity Management
+- **Property Editors**: Full suite of input components for different data types
+  - TextInput: String values
+  - NumberInput: Numeric values with step control
+  - TextAreaInput: Multi-line string content
+  - SelectInput: Dropdown selection from options
+  - BooleanToggle: Checkbox for true/false
+  - IconPicker: MDI icon selection with search
+  - ColorPicker: Color selection with hex display
+
+#### Phase 5: (Not Yet Implemented)
+- **Goal**: Persistence & Auto-Save to server
+- **Status**: Currently saves to in-memory store only
+
+#### Phase 6: View Management (CRUD) ✅ COMPLETED
+- **View Selector & Management**:
+  - Create new views via modal dialog
+  - Edit view name and icon via modal with IconPicker component
+  - Delete views with confirmation
+  - Reorder views via drag-and-drop
+  - View icons display correctly with 'mdi' base class
+
+- **Enhanced Entity Management for Different Card Types**:
+  - **HaRoom cards**: First entity locked (cannot be removed, requires at least one)
+  - **HaGlance cards**: All entities removable; auto-removes component when list becomes empty
+  - **Other cards**: Standard entity management
+  - Dynamic help text based on card type in inspector
+
+- **Static Components Palette**:
+  - Display static components (Header, Link, Row Spacer, Spacer) for drag-drop
+  - Icons display correctly with proper 'mdi' prefix handling
+  - Drag-drop support with consistent UI
 
 ### 🔄 Data Flow
 
@@ -182,30 +216,15 @@ VisualEditorView (selectedViewName, selectedEntityId)
 5. Edit attribute values as needed
 6. Changes auto-save to store
 
-## Planned Phases
+## Planned Phases (Future Enhancements)
 
-### Phase 4: Preview Tab Real-Time Sync
-- **Goal**: Show live preview of dashboard while editing
-- **Features**:
-  - Side-by-side editor/preview
-  - Real-time sync of changes
-  - Responsive layout testing
-
-### Phase 5: Persistence & Auto-Save
+### Phase 5: Persistence & Auto-Save (PLANNED)
 - **Goal**: Save configuration changes back to system
 - **Features**:
   - HTTP endpoint integration
   - Save status indicator
   - Error handling and retry
   - Optional undo/redo
-
-### Phase 6: View Management (CRUD)
-- **Goal**: Create, rename, delete, reorder views
-- **Features**:
-  - New view dialog
-  - Rename view modal
-  - Delete with confirmation
-  - Drag-reorder views
 
 ### Phase 7: Edge Cases & Polish
 - **Goal**: Improve robustness and UX
@@ -251,12 +270,27 @@ VisualEditorView (selectedViewName, selectedEntityId)
 ## Testing Strategy
 
 ### Test Coverage
-- **Current**: 1,922 tests across 69 test files (~98% coverage)
-- **Components**:
-  - EntityPalette.spec.ts: 8 tests (entity list, filtering)
-  - EditorCanvas.spec.ts: 8 tests (selection, drag, removal)
-  - EntityInspector.spec.ts: 12 tests (type, attributes, deselect)
-  - VisualEditorView integration tests: 16 tests
+- **Current**: 2,148 tests across 81 test files (88.97% line coverage) ✅ *Exceeds 85% target*
+- **Components Test Files**:
+  - EntityPalette.spec.ts: Entity list, filtering
+  - EditorCanvas.spec.ts: Selection, drag, removal
+  - EntityInspector.spec.ts: Type selection, attributes, deselect
+  - VisualEditorView.spec.ts: Integration tests
+  - PropertyEditorFactory.spec.js: 100% coverage - all 8 editor types
+  - TextInput.spec.js: 100% coverage - text input validation
+  - NumberInput.spec.js: 100% coverage - numeric input handling
+  - TextAreaInput.spec.js: 100% coverage - multi-line text
+  - SelectInput.spec.js: 88.88% coverage - dropdown selection
+  - BooleanToggle.spec.js: 100% coverage - checkbox behavior
+  - IconPicker.spec.js: 95.45% coverage - MDI icon selection
+  - ColorPicker.spec.js: 84.61% coverage - color selection
+  - cardPropertyMetadata.spec.ts: 36 tests - metadata validation
+- **Coverage by Area**:
+  - Components: 91.47% statements, 93.11% lines
+  - PropertyEditors: 89.74% statements, 90.11% lines
+  - Composables: 97.94% statements
+  - Stores: 95.48% statements
+  - Utils: 84.67% statements
 
 ### Testing Libraries
 - Vitest
@@ -344,5 +378,13 @@ VisualEditorView (selectedViewName, selectedEntityId)
 - ✅ No manual value entry required for attributes
 - ✅ Intuitive three-panel layout
 - ✅ Zero console errors
+- ✅ Users can create, edit (with icon picker), and delete views
+- ✅ Users can remove all entities from HaGlance cards
+- ✅ Users cannot remove first entity from HaRoom cards
+- ✅ N/A sections hidden in inspector for cleaner display
+- ✅ Icon picker integrated in view edit modal
+- ✅ Icons display correctly throughout editor (mdi base class)
+- ✅ Comprehensive test coverage: 88.97% lines (2,148 tests)
+- ✅ All PropertyEditor components fully tested
 - ⏳ Persistence to server (Phase 5)
-- ⏳ Real-time preview (Phase 4)
+- ⏳ Real-time preview tab (future)
