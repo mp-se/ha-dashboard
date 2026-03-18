@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
-import ViewManager from "@/components/VisualEditor/ViewManager.vue";
+import ViewManager from "@/components/visual-editor/ViewManager.vue";
 import { createPinia, setActivePinia } from "pinia";
 import { useConfigStore } from "@/stores/configStore";
 

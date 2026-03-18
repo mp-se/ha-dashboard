@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import { nextTick } from "vue";
-import EntityInspector from "../../../components/VisualEditor/EntityInspector.vue";
+import EntityInspector from "../../../components/visual-editor/EntityInspector.vue";
 import { createPinia, setActivePinia } from "pinia";
 import { useEntitiesStore } from "../../../stores/entitiesStore";
 import { useHaStore } from "../../../stores/haStore";

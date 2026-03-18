@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
-import EntityPalette from "../../../components/VisualEditor/EntityPalette.vue";
+import EntityPalette from "../../../components/visual-editor/EntityPalette.vue";
 import { createPinia, setActivePinia } from "pinia";
 import { useHaStore } from "../../../stores/haStore";
 

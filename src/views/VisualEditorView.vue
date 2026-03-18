@@ -72,11 +72,11 @@
 <script setup>
 import { ref, computed, watch } from "vue";
 import { useHaStore } from "../stores/haStore";
-import EditorCanvas from "../components/VisualEditor/EditorCanvas.vue";
-import EntityPalette from "../components/VisualEditor/EntityPalette.vue";
-import EntityInspector from "../components/VisualEditor/EntityInspector.vue";
-import ViewManager from "../components/VisualEditor/ViewManager.vue";
-import StaticComponentPalette from "../components/VisualEditor/StaticComponentPalette.vue";
+import EditorCanvas from "../components/visual-editor/EditorCanvas.vue";
+import EntityPalette from "../components/visual-editor/EntityPalette.vue";
+import EntityInspector from "../components/visual-editor/EntityInspector.vue";
+import ViewManager from "../components/visual-editor/ViewManager.vue";
+import StaticComponentPalette from "../components/visual-editor/StaticComponentPalette.vue";
 import { createLogger } from "../utils/logger";
 
 const logger = createLogger("VisualEditorView");

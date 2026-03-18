@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
-import EditorCanvas from "../../../components/VisualEditor/EditorCanvas.vue";
+import EditorCanvas from "../../../components/visual-editor/EditorCanvas.vue";
 import { createPinia, setActivePinia } from "pinia";
 import { useHaStore } from "../../../stores/haStore";
 
