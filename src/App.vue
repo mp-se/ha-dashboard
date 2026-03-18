@@ -73,9 +73,9 @@ import { ref, computed, onMounted, watch, defineAsyncComponent } from "vue";
 import { useHaStore } from "./stores/haStore";
 import { createLogger } from "./utils/logger";
 import { SWIPE_MIN_DISTANCE } from "./utils/constants";
-import AppNavbar from "./components/AppNavbar.vue";
-import CredentialDialog from "./components/CredentialDialog.vue";
-import ErrorBoundary from "./components/ErrorBoundary.vue";
+import AppNavbar from "./components/page-components/AppNavbar.vue";
+import CredentialDialog from "./components/page-components/CredentialDialog.vue";
+import ErrorBoundary from "./components/page-components/ErrorBoundary.vue";
 import JsonConfigView from "./views/JsonConfigView.vue";
 
 import packageJson from "../package.json";

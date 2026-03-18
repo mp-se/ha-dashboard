@@ -1,7 +1,7 @@
 import { config } from "@vue/test-utils";
 import { vi, beforeEach } from "vitest";
-import IconCircle from "./components/IconCircle.vue";
-import EntityAttributeList from "./components/EntityAttributeList.vue";
+import IconCircle from "./components/sub-components/IconCircle.vue";
+import EntityAttributeList from "./components/sub-components/EntityAttributeList.vue";
 
 // Register global components for all tests
 config.global.components = {

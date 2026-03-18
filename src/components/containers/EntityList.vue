@@ -21,7 +21,7 @@
 <script setup>
 import { computed } from "vue";
 import { useHaStore } from "@/stores/haStore";
-import HaSpacer from "./HaSpacer.vue";
+import HaSpacer from "../cards/HaSpacer.vue";
 import { createLogger } from "@/utils/logger";
 
 const props = defineProps({
