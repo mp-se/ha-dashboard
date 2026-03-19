@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **Phase 7: Comprehensive E2E Test Suite** (162 tests across 9 Playwright test files)
+  - **visual-editor.spec.js** (14 tests): Editor navigation, mode switching, entity palette, view properties, save/exit functionality, responsive editing
+  - **developer-mode.spec.js** (12 tests): Password protection, modal interactions, password validation, accessibility, developer tools access
+  - **configuration-persistence.spec.js** (11 tests): Config loading/persistence, dark mode preservation, draft auto-save, page reload state, localStorage error handling
+  - **pwa.spec.js** (18 tests): Service worker registration, offline capability, web app manifest, install prompt, offline content serving, cache management
+  - **api-integration.spec.js** (23 tests): Config loading, data persistence, authentication, error handling, backup management, sync status, save queue overflow
+  - **accessibility.spec.js** (27 tests): Keyboard navigation, ARIA semantics, color contrast, touch targets, responsive layout (mobile/tablet/desktop), text sizing
+  - **component-rendering.spec.js** (36 tests): Component visibility, sensor/switch/button/light/media cards, weather/energy display, color schemes, interactions, error states, performance
+  - Plus 2 existing E2E test files (dashboard.spec.js, components.spec.js) with 21 tests
+  - **All E2E tests pass with Playwright** across 3 browsers (Chromium, Firefox, WebKit)
 - **Deployment & Server Configuration**: Comprehensive documentation for backend server setup, Docker deployment, environment variables, API endpoints, password management, backup retention, and production deployment patterns
 - **Backend Server API Documentation**: Complete REST API reference including `/api/health`, `/api/config` (with auth), `/api/data/local`, backup management, concurrent save queue, and error handling
 - **Backend Server API**: Complete server-side config persistence with Express.js API, Bearer token authentication, timestamped backups with automatic cleanup, CORS support, and Save Queue to prevent race conditions. Includes Docker multi-stage build, Nginx reverse proxy with SSL/TLS, and `/api/health`, `/api/config`, `/api/data/local` endpoints

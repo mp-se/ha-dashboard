@@ -1,0 +1,343 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - navigation [ref=e4]:
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - tab "󰚡" [ref=e8] [cursor=pointer]:
+            - generic [ref=e9]: 󰚡
+          - tab "󰖙" [ref=e10] [cursor=pointer]:
+            - generic [ref=e11]: 󰖙
+          - tab "󰳋" [ref=e12] [cursor=pointer]:
+            - generic [ref=e13]: 󰳋
+          - tab "󰛩" [ref=e14] [cursor=pointer]:
+            - generic [ref=e15]: 󰛩
+          - tab "󰒍" [ref=e16] [cursor=pointer]:
+            - generic [ref=e17]: 󰒍
+          - generic [ref=e19]:
+            - generic [ref=e20]:
+              - heading "󰀵 Install on iPhone/iPad" [level=5] [ref=e21]:
+                - generic [ref=e22]: 󰀵
+                - text: Install on iPhone/iPad
+              - button "Close" [ref=e23] [cursor=pointer]
+            - paragraph [ref=e26]:
+              - text: "To install on iPhone / iPad: Tap the"
+              - strong [ref=e27]: Share
+              - text: button in Safari and choose
+              - strong [ref=e28]: Add to Home Screen
+              - text: .
+            - button "Dismiss" [ref=e30] [cursor=pointer]
+        - generic [ref=e31]:
+          - generic "Connected to Home Assistant" [ref=e32]: 󰑊
+          - button "Toggle dark mode" [ref=e33] [cursor=pointer]:
+            - generic [ref=e34]: 󰽥
+          - button "󰃤" [ref=e36] [cursor=pointer]:
+            - generic [ref=e37]: 󰃤
+          - button "󰙙" [ref=e38] [cursor=pointer]:
+            - generic [ref=e39]: 󰙙
+  - generic [ref=e40]:
+    - generic [ref=e41]:
+      - paragraph [ref=e42]
+      - generic [ref=e43]:
+        - generic [ref=e47]:
+          - generic [ref=e50]: 󱡰
+          - heading "Postnord" [level=6] [ref=e53]
+          - generic [ref=e55]: "1.0"
+        - generic [ref=e59]:
+          - generic [ref=e62]: 󱡰
+          - heading "Citymail" [level=6] [ref=e65]
+          - generic [ref=e67]: "5.0"
+        - generic [ref=e71]:
+          - generic [ref=e72]:
+            - img [ref=e73]
+            - generic [ref=e75]: 󰥔
+          - generic [ref=e77]: 21:05
+        - generic [ref=e81]:
+          - generic [ref=e82]:
+            - heading "Sun" [level=6] [ref=e83]
+            - generic [ref=e84]:
+              - generic [ref=e85]: 󰖔
+              - generic [ref=e86]: Below Horizon
+          - generic [ref=e87]:
+            - generic [ref=e88]: Next Sunrise:06:11
+            - generic [ref=e89]: Next Sunset:18:22
+        - generic [ref=e93]:
+          - generic [ref=e94]:
+            - heading "Prognos Hemma" [level=6] [ref=e95]
+            - generic [ref=e96]:
+              - generic [ref=e97]: 󰖐
+              - generic [ref=e98]: Cloudy
+              - generic [ref=e99]: 2.8 m/s
+              - generic [ref=e100]: ↖
+          - generic [ref=e101]:
+            - generic [ref=e102]: Humidity:98%
+            - generic [ref=e103]: Pressure:1023.4 hPa
+            - generic [ref=e104]: Temp:5.9 °C
+        - generic [ref=e108]:
+          - generic [ref=e109]:
+            - heading "Prognos Stugan" [level=6] [ref=e110]
+            - generic [ref=e111]:
+              - generic [ref=e112]: 󰖑
+              - generic [ref=e113]: Fog
+              - generic [ref=e114]: 3.3 m/s
+              - generic [ref=e115]: ↖
+          - generic [ref=e116]:
+            - generic [ref=e117]: Humidity:100%
+            - generic [ref=e118]: Pressure:1023.4 hPa
+            - generic [ref=e119]: Temp:5.3 °C
+        - generic [ref=e122]:
+          - generic [ref=e123]:
+            - generic [ref=e124]:
+              - heading "Vardagsrum" [level=6] [ref=e125]
+              - generic [ref=e126]:
+                - generic [ref=e127]: 21.6°C
+                - generic [ref=e128]: 44%
+            - generic [ref=e130]:
+              - img [ref=e131]
+              - generic [ref=e133]: 󰒹
+          - generic [ref=e135]:
+            - generic "Fönsterlampor Vardagsrum" [ref=e136] [cursor=pointer]:
+              - generic [ref=e137]:
+                - img [ref=e138]
+                - generic [ref=e140]: 󱉓
+            - generic "LivingFloorLight" [ref=e141] [cursor=pointer]:
+              - generic [ref=e142]:
+                - img [ref=e143]
+                - generic [ref=e145]: 󰌵
+            - generic "Sonos Högtalare" [ref=e146] [cursor=pointer]:
+              - generic [ref=e147]:
+                - img [ref=e148]
+                - generic [ref=e150]: 󰐊
+            - generic "Stålampa vardagsrum" [ref=e151] [cursor=pointer]:
+              - generic [ref=e152]:
+                - img [ref=e153]
+                - generic [ref=e155]: 󰚥
+        - generic [ref=e158]:
+          - generic [ref=e159]:
+            - generic [ref=e160]:
+              - heading "Sällskapsrum" [level=6] [ref=e161]
+              - generic [ref=e162]:
+                - generic [ref=e163]: 22.2°C
+                - generic [ref=e164]: 41%
+            - generic [ref=e166]:
+              - img [ref=e167]
+              - generic [ref=e169]: 󰔂
+          - generic [ref=e171]:
+            - generic "Vitrinskåp" [ref=e172] [cursor=pointer]:
+              - generic [ref=e173]:
+                - img [ref=e174]
+                - generic [ref=e176]: 󱉓
+            - generic "TvWindowLight" [ref=e177] [cursor=pointer]:
+              - generic [ref=e178]:
+                - img [ref=e179]
+                - generic [ref=e181]: 󰌵
+            - generic "Apple TV" [ref=e182] [cursor=pointer]:
+              - generic [ref=e183]:
+                - img [ref=e184]
+                - generic [ref=e186]: 󰏤
+        - generic [ref=e189]:
+          - generic [ref=e190]:
+            - generic [ref=e191]:
+              - heading "Arvids rum" [level=6] [ref=e192]
+              - generic [ref=e193]:
+                - generic [ref=e194]: 22.2°C
+                - generic [ref=e195]: 40%
+            - generic [ref=e197]:
+              - img [ref=e198]
+              - generic [ref=e200]: 󰢠
+          - generic "ArvidLight" [ref=e203] [cursor=pointer]:
+            - generic [ref=e204]:
+              - img [ref=e205]
+              - generic [ref=e207]: 󰌵
+        - generic [ref=e210]:
+          - generic [ref=e211]:
+            - generic [ref=e212]:
+              - heading "Hall" [level=6] [ref=e213]
+              - generic [ref=e214]:
+                - generic [ref=e215]: 21.6°C
+                - generic [ref=e216]: 44%
+            - generic [ref=e218]:
+              - img [ref=e219]
+              - generic [ref=e221]: 󰋈
+          - generic [ref=e223]:
+            - generic "Taklampa Entre" [ref=e224] [cursor=pointer]:
+              - generic [ref=e225]:
+                - img [ref=e226]
+                - generic [ref=e228]: 󱉓
+            - generic "Taklamp Hall" [ref=e229] [cursor=pointer]:
+              - generic [ref=e230]:
+                - img [ref=e231]
+                - generic [ref=e233]: 󱉓
+        - generic [ref=e236]:
+          - generic [ref=e237]:
+            - generic [ref=e238]:
+              - heading "Sovrum" [level=6] [ref=e239]
+              - generic [ref=e240]:
+                - generic [ref=e241]: 21.7°C
+                - generic [ref=e242]: 41%
+            - generic [ref=e244]:
+              - img [ref=e245]
+              - generic [ref=e247]: 󰿒
+          - generic [ref=e249]:
+            - generic "Taklampa Sovrum" [ref=e250] [cursor=pointer]:
+              - generic [ref=e251]:
+                - img [ref=e252]
+                - generic [ref=e254]: 󱉓
+            - generic "AirCleaner" [ref=e255] [cursor=pointer]:
+              - generic [ref=e256]:
+                - img [ref=e257]
+                - generic [ref=e259]: 󰈐
+        - generic [ref=e263]:
+          - generic [ref=e264]:
+            - heading "Gästrum" [level=6] [ref=e265]
+            - generic [ref=e266]:
+              - generic [ref=e267]: 21.2°C
+              - generic [ref=e268]: 41%
+          - generic [ref=e270]:
+            - img [ref=e271]
+            - generic [ref=e273]: 󰢠
+        - generic [ref=e276]:
+          - generic [ref=e277]:
+            - generic [ref=e278]:
+              - heading "Kök" [level=6] [ref=e279]
+              - generic [ref=e280]:
+                - generic [ref=e281]: 21.6°C
+                - generic [ref=e282]: 44%
+            - generic [ref=e284]:
+              - img [ref=e285]
+              - generic [ref=e287]: 󱠜
+          - generic "Kök" [ref=e290] [cursor=pointer]:
+            - generic [ref=e291]:
+              - img [ref=e292]
+              - generic [ref=e294]: 󰌵
+        - generic [ref=e297]:
+          - generic [ref=e298]:
+            - generic [ref=e299]:
+              - heading "Garage" [level=6] [ref=e300]
+              - generic [ref=e302]: 10.8°C
+            - generic [ref=e304]:
+              - img [ref=e305]
+              - generic [ref=e307]: 󰄋
+          - generic [ref=e309]:
+            - generic "switch.outlet":
+              - generic:
+                - img
+                - generic: 󰋗
+        - generic [ref=e312]:
+          - generic [ref=e313]:
+            - generic [ref=e316]: 󰓃
+            - generic [ref=e317]:
+              - heading "Sonos Högtalare" [level=6] [ref=e318]
+              - paragraph
+          - generic [ref=e319]:
+            - generic [ref=e320]:
+              - generic [ref=e321]: 󰕾
+              - slider [ref=e322]: "0.19"
+            - generic [ref=e323]:
+              - button "Previous track" [ref=e324] [cursor=pointer]:
+                - generic [ref=e325]: 󰒮
+              - button "Play or pause" [ref=e326] [cursor=pointer]:
+                - generic [ref=e327]: 󰐊
+              - button "Next track" [ref=e328] [cursor=pointer]:
+                - generic [ref=e329]: 󰒭
+              - button "Power toggle" [ref=e330] [cursor=pointer]:
+                - generic [ref=e331]: 󰐥
+        - generic [ref=e334]:
+          - generic [ref=e335]:
+            - generic [ref=e338]: 󰓃
+            - generic [ref=e339]:
+              - heading "Apple TV" [level=6] [ref=e340]
+              - paragraph [ref=e341]: Shetland
+          - generic [ref=e342]:
+            - generic [ref=e343]:
+              - generic [ref=e344]: 󰕾
+              - slider [ref=e345]: "0"
+            - generic [ref=e346]:
+              - button "Previous track" [ref=e347] [cursor=pointer]:
+                - generic [ref=e348]: 󰒮
+              - button "Play or pause" [ref=e349] [cursor=pointer]:
+                - generic [ref=e350]: 󰏤
+              - button "Next track" [ref=e351] [cursor=pointer]:
+                - generic [ref=e352]: 󰒭
+              - button "Power toggle" [ref=e353] [cursor=pointer]:
+                - generic [ref=e354]: 󰐥
+        - generic [ref=e361]:
+          - generic [ref=e362]:
+            - generic [ref=e365]: 󰂘
+            - generic [ref=e367]:
+              - heading "Hard Seltzer (2024-11-23)" [level=6] [ref=e368]
+              - generic [ref=e369]:
+                - generic [ref=e371]: "ABV: -%"
+                - generic [ref=e373]: "EBC: -"
+                - generic [ref=e375]: "IBU: -"
+            - generic [ref=e377]: 0.43L
+          - progressbar [ref=e380]
+        - generic [ref=e383]:
+          - generic [ref=e384]:
+            - generic [ref=e387]: 󰂘
+            - generic [ref=e389]:
+              - heading "Imperial Stout 2024 - Licorice (2024-07-06)" [level=6] [ref=e390]
+              - generic [ref=e391]:
+                - generic [ref=e393]: "ABV: 8.9%"
+                - generic [ref=e395]: "EBC: 53"
+                - generic [ref=e397]: "IBU: 78"
+            - generic [ref=e399]: 1.04L
+          - progressbar [ref=e402]
+        - generic [ref=e406]:
+          - generic [ref=e407]:
+            - heading "Estimerad förbrukning - denna timme" [level=6] [ref=e408]:
+              - generic [ref=e409]: Estimerad förbrukning - denna timme
+            - generic [ref=e410]:
+              - generic [ref=e411]: kWh
+              - button "24h" [ref=e412] [cursor=pointer]
+          - generic [ref=e413]:
+            - img [ref=e414]
+            - generic [ref=e417]: "2.81"
+            - generic [ref=e418]: "0.45"
+        - generic [ref=e422]:
+          - generic [ref=e423]:
+            - generic [ref=e426]: 󰔏
+            - generic [ref=e427]:
+              - generic [ref=e428]: Båt
+              - generic [ref=e429]: 10.8 °C
+          - generic [ref=e430]:
+            - generic [ref=e433]: 󰄌
+            - generic [ref=e434]:
+              - generic [ref=e435]: Start
+              - generic [ref=e436]: 13.3 V
+          - generic [ref=e437]:
+            - generic [ref=e440]: 󰄌
+            - generic [ref=e441]:
+              - generic [ref=e442]: Vinsch
+              - generic [ref=e443]: 13.4 V
+        - generic [ref=e447]:
+          - generic [ref=e448]:
+            - generic [ref=e451]: 󰏰
+            - generic [ref=e452]:
+              - generic [ref=e453]: Charge
+              - generic [ref=e454]: "33.0"
+          - generic [ref=e455]:
+            - generic [ref=e458]: 󰉁
+            - generic [ref=e459]:
+              - generic [ref=e460]: Exide
+              - generic [ref=e461]: 12.9 V
+          - generic [ref=e462]:
+            - generic [ref=e465]: 󰔏
+            - generic [ref=e466]:
+              - generic [ref=e467]: Exide
+              - generic [ref=e468]: 10.9 °C
+        - generic [ref=e472]:
+          - generic [ref=e473]:
+            - heading "Bevattning växthus" [level=6] [ref=e474]
+            - generic [ref=e475]:
+              - generic [ref=e477]: "Activity: CLOSED"
+              - generic [ref=e479]: "Battery Level: 70"
+          - button "Turn on switch" [ref=e480] [cursor=pointer]:
+            - generic [ref=e481]:
+              - img [ref=e482]
+              - generic [ref=e484]: 󰐥
+    - contentinfo [ref=e485]:
+      - generic [ref=e486]: (c) 2026 Magnus Persson, v0.6.0
+```
