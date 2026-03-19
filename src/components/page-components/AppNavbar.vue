@@ -124,6 +124,9 @@
               ></i>
             </button>
 
+            <!-- Developer Mode Toggle -->
+            <DeveloperModeToggle />
+
             <!-- Manual open for PWA install dialog -->
             <button
               v-if="!isPwaInstalled() && isPwaSupported()"
@@ -257,6 +260,7 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useHaStore } from "@/stores/haStore";
 import { useNormalizeIcon } from "@/composables/useNormalizeIcon";
 import PwaInstallModal from "./PwaInstallModal.vue";
+import DeveloperModeToggle from "./DeveloperModeToggle.vue";
 
 const props = defineProps({
   /** The currently active view name */

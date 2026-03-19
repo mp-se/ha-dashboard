@@ -337,6 +337,39 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
+  /**
+   * Toggle developer mode with password protection
+   * Validates password against config and toggles developerMode state
+   * @param password - Password to validate
+   * @returns true if toggle successful, false if password invalid or not configured
+   */
+  const toggleDeveloperMode = (password: string): boolean => {
+    const configStore = useConfigStore();
+    const appConfig = (configStore.dashboardConfig as Record<string, unknown>)
+      ?.app as Record<string, unknown> | undefined;
+
+    // Check if password is configured
+    if (!appConfig?.password) {
+      logger.warn(
+        "Developer password not configured in dashboard config"
+      );
+      return false;
+    }
+
+    // Validate password
+    if (password !== String(appConfig.password)) {
+      logger.warn("Invalid developer password");
+      return false;
+    }
+
+    // Toggle mode
+    developerMode.value = !developerMode.value;
+    logger.log(
+      `✓ Developer mode ${developerMode.value ? "enabled" : "disabled"}`
+    );
+    return true;
+  };
+
   return {
     haUrl,
     accessToken,
@@ -358,5 +391,6 @@ export const useAuthStore = defineStore("auth", () => {
     wrapLibraryError,
     fetchWithTimeout,
     callService,
+    toggleDeveloperMode,
   };
 });

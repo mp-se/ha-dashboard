@@ -64,6 +64,8 @@ export interface HaConfigSettings {
  * Dashboard Configuration - App Settings
  */
 export interface AppSettings {
+  title?: string;
+  password?: string;
   developerMode?: boolean;
   localMode?: boolean;
 }
