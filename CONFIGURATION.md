@@ -16,6 +16,9 @@ All available card types are documented in the [Card Components](#card-component
 6. [Card Components](#card-components)
 7. [Configuration Examples](#configuration-examples)
 8. [Validation & Error Handling](#validation--error-handling)
+9. [Deployment & Server Configuration](#deployment--server-configuration)
+10. [Backend Server API](#backend-server-api)
+11. [Environment Variables](#environment-variables)
 
 ## Configuration File Structure
 
@@ -1727,7 +1730,345 @@ The following Home Assistant entity types are not yet supported by the dashboard
 
 This helps prioritize features based on user demand and ensures proper testing support.
 
-## Next Steps
+## Deployment & Server Configuration
+
+The dashboard includes an optional Node.js/Express backend server for configuration persistence. This server is built into the Docker container and provides REST API endpoints for saving and loading dashboard configurations with automatic backups.
+
+### Server Architecture
+
+**Components:**
+- **Express.js Server**: Runs on port 3000 (internal to container)
+- **Nginx Reverse Proxy**: Listens on port 8080 (external, exposes /api/* endpoints)
+- **File-based Storage**: JSON files in `/data/` directory with timestamped backups
+
+**For Development**: The server is optional. You can run the dashboard without a backend and manage configs manually.
+
+**For Production**: The server enables:
+- Save configurations from the visual editor
+- Password-protected editing (prevents accidental changes)
+- Automatic timestamped backups with configurable retention
+- Configuration versioning and recovery
+
+### Docker Deployment
+
+The dashboard runs as a single container with both frontend and backend integrated:
+
+```bash
+docker-compose up -d
+```
+
+This starts:
+1. Node.js app server (port 3000, internal)
+2. Nginx reverse proxy (port 8080, external)
+3. Service worker and PWA features
+
+The container structure:
+- **Stage 1 (Builder)**: Compiles Vue.js frontend to `/dist/`
+- **Stage 2 (Runtime)**: Node.js + Nginx, serves frontend + API
+
+### Volume Mounts
+
+In `docker-compose.yml`:
+
+```yaml
+volumes:
+  - ./public/data:/usr/share/nginx/html/data:rw
+```
+
+The `:rw` (read-write) flag allows the server to:
+- Save configuration updates
+- Create backup files
+- Manage the `/data/` directory
+
+**Warning**: Make sure `/data/` directory exists and is writable:
+
+```bash
+mkdir -p public/data
+chmod 755 public/data
+```
+
+## Backend Server API
+
+The server provides REST API endpoints for configuration management. All requests must include Bearer token authentication (derived from the dashboard password).
+
+### Authentication
+
+All protected endpoints require Bearer token authentication:
+
+```
+Authorization: Bearer {password}
+```
+
+The password comes from `dashboard-config.json`:
+
+```json
+{
+  "app": {
+    "password": "my-secure-password",
+    "title": "My Dashboard"
+  }
+}
+```
+
+**Example Request:**
+
+```bash
+curl -X POST http://localhost:8080/api/config \
+  -H "Authorization: Bearer my-secure-password" \
+  -H "Content-Type: application/json" \
+  -d '{"app": {"title": "Updated"}, "views": []}'
+```
+
+### API Endpoints
+
+#### GET /api/health
+
+Health check endpoint. Requires no authentication.
+
+**Request:**
+```bash
+GET /api/health
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "status": "ok",
+    "timestamp": "2026-03-19T20:00:00.000Z"
+  }
+}
+```
+
+#### POST /api/config
+
+Save dashboard configuration. **Requires authentication.**
+
+Before saving, the server:
+1. Creates timestamped backup of current config
+2. Enforces backup retention limit (default: 30 backups)
+3. Removes old backups beyond limit
+4. Saves new configuration
+
+**Request:**
+```bash
+POST /api/config
+Authorization: Bearer {password}
+Content-Type: application/json
+
+{
+  "app": { "title": "My Dashboard", "password": "..." },
+  "views": [...],
+  "haConfig": {...}
+}
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "saved": true,
+    "backupPath": "dashboard-config.json.backup.2026-03-19T20-00-00.000Z.json"
+  }
+}
+```
+
+**Errors:**
+- **401**: Missing or invalid authentication header
+- **400**: Invalid JSON in request body
+- **500**: File system error (permissions, disk space)
+
+#### GET /api/data/local
+
+Load local data for offline mode. Requires **no authentication**.
+
+This endpoint loads data from `public/data/local-data.json` if it exists. Used when the dashboard is in `localMode`.
+
+**Request:**
+```bash
+GET /api/data/local
+```
+
+**Response (200) - File exists:**
+```json
+{
+  "success": true,
+  "data": {
+    "entities": {
+      "light.living_room": { "state": "on", "attributes": {} },
+      "sensor.temperature": { "state": "23.5", "attributes": {} }
+    }
+  }
+}
+```
+
+**Response (200) - File doesn't exist:**
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+### Backup Management
+
+The server automatically creates timestamped backups before saving new configurations.
+
+**Backup File Naming:**
+```
+dashboard-config.json.backup.{ISO_TIMESTAMP}.json
+```
+
+Example:
+```
+dashboard-config.json.backup.2026-03-19T20-00-00.000Z.json
+```
+
+**Backup Location:**
+```
+/data/backups/
+```
+
+Nginx is configured to deny HTTP access to backups (always 403):
+```
+location /data/backups/ { deny all; }
+```
+
+**Backup Cleanup:**
+- Default limit: 30 backups per `/backup/` directory
+- Oldest backups are automatically deleted when limit is exceeded
+- Configurable via `BACKUP_LIMIT` environment variable
+
+**Manual Backup Retention:**
+```bash
+# Keep last 10 backups
+BACKUP_LIMIT=10 docker-compose up -d
+
+# In .env file
+BACKUP_LIMIT=10
+```
+
+**Restore from Backup:**
+```bash
+# List available backups
+ls -la public/data/backups/
+
+# Restore a specific backup
+cp public/data/backups/dashboard-config.json.backup.2026-03-19T20-00-00.000Z.json \
+   public/data/dashboard-config.json
+
+# Restart the service
+docker-compose restart
+```
+
+### Save Queue
+
+Multiple concurrent save requests are automatically queued:
+
+1. Client sends POST /api/config
+2. Request joins queue if save in progress
+3. Requests processed sequentially
+4. Prevents race conditions on file operations
+5. Each request gets full 200 response once processed
+
+This ensures data integrity even when multiple users or applications modify the config simultaneously.
+
+## Environment Variables
+
+Server configuration is controlled via environment variables. Create a `.env` file in the project root or pass to Docker:
+
+```bash
+# .env
+SERVER_PORT=3000
+DATA_DIR=/usr/share/nginx/html/data
+BACKUP_LIMIT=30
+VITE_API_URL=http://localhost:8080
+```
+
+### Available Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SERVER_PORT` | `3000` | Internal Express server port |
+| `DATA_DIR` | `/usr/share/nginx/html/data` | Path to config/data files |
+| `BACKUP_LIMIT` | `30` | Max backups to keep before cleanup |
+| `VITE_API_URL` | *(optional)* | Frontend API URL for config save requests. If not set, uses relative `/api/` path |
+| `VITE_BASE_URL` | `/` | Base URL for asset serving (set at build time) |
+
+### Docker Environment
+
+In `docker-compose.yml`:
+
+```yaml
+services:
+  dashboard:
+    environment:
+      NODE_ENV: production
+      SERVER_PORT: 3000
+      DATA_DIR: /usr/share/nginx/html/data
+      BACKUP_LIMIT: 30
+```
+
+Or in `.env` file (processed by Docker Compose):
+
+```bash
+NODE_ENV=production
+SERVER_PORT=3000
+DATA_DIR=/usr/share/nginx/html/data
+BACKUP_LIMIT=30
+```
+
+### Frontend Configuration
+
+The frontend auto-detects the API URL:
+
+1. Use `VITE_API_URL` environment variable if set
+2. Fall back to `BASE_URL` (Vite base path)
+3. Default to relative `/api/` path
+
+**For local development**, no configuration needed (uses relative paths).
+
+**For remote deployments**, explicitly set:
+
+```bash
+VITE_API_URL=https://dashboard.example.com docker-compose up -d
+```
+
+### Password Configuration
+
+Password for editor protection comes from `dashboard-config.json`:
+
+```json
+{
+  "app": {
+    "password": "demo-password",
+    "developerMode": false
+  }
+}
+```
+
+**To change the password:**
+
+1. Edit `public/data/dashboard-config.json`
+2. Update the `"password"` field
+3. Restart the container: `docker-compose restart`
+4. New password required for all POST /api/config requests
+
+**Password Requirements:**
+- Any string is valid (no minimum length enforced)
+- Empty string `""` disables editor protection
+- Password stored in plaintext (use HTTPS in production)
+- Recommended: 12+ character minimum, mixed alphanumeric + special chars
+
+**Security Notes:**
+- Always use HTTPS in production (Nginx SSL termination)
+- Keep password out of git repos (use `.gitignore` for `public/data/`)
+- Treat password like any other authentication credential
+- Consider using a secrets manager for production deployments
+
+
 
 After configuring your dashboard:
 

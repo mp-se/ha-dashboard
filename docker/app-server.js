@@ -1,9 +1,15 @@
-const express = require('express');
-const path = require('path');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const fs = require('fs');
-require('dotenv').config();
+import express from 'express';
+import path from 'path';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import fs from 'fs';
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load configuration with cached editor password
 function loadConfig() {
@@ -51,6 +57,12 @@ const app = express();
 // This prevents race conditions when multiple saves happen concurrently
 let saveInProgress = false;
 const saveQueue = [];
+
+// Helper function to create a configuration object
+// This allows tests to create fresh app instances with different data directories
+function createConfig() {
+  return loadConfig();
+}
 
 function enqueueSave(handler) {
   return new Promise((resolve, reject) => {
@@ -273,17 +285,19 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-app.listen(config.port, () => {
-  console.log(`✓ API server listening on port ${config.port}`);
-  console.log(`📁 Data directory: ${config.dataDir}`);
-  console.log(`🔒 Backup directory: ${config.backupDir}`);
-  console.log(
-    `🔐 Authentication: ${config.editorPassword ? 'Enabled' : 'Disabled (development mode)'}`
-  );
-  console.log(
-    `\n[INFO] Logs are output to stdout/stderr. Docker's log driver handles log rotation.\n`
-  );
-});
+// Start server only if run directly, not when imported for testing
+if (import.meta.url === `file://${process.argv[1]}`) {
+  app.listen(config.port, () => {
+    console.log(`✓ API server listening on port ${config.port}`);
+    console.log(`📁 Data directory: ${config.dataDir}`);
+    console.log(`🔒 Backup directory: ${config.backupDir}`);
+    console.log(
+      `🔐 Authentication: ${config.editorPassword ? 'Enabled' : 'Disabled (development mode)'}`
+    );
+    console.log(
+      `\n[INFO] Logs are output to stdout/stderr. Docker's log driver handles log rotation.\n`
+    );
+  });
+}
 
-module.exports = app;
+export default app;

@@ -2,8 +2,13 @@
 
 ## Unreleased
 
+- **Deployment & Server Configuration**: Comprehensive documentation for backend server setup, Docker deployment, environment variables, API endpoints, password management, backup retention, and production deployment patterns
+- **Backend Server API Documentation**: Complete REST API reference including `/api/health`, `/api/config` (with auth), `/api/data/local`, backup management, concurrent save queue, and error handling
+- **Backend Server API**: Complete server-side config persistence with Express.js API, Bearer token authentication, timestamped backups with automatic cleanup, CORS support, and Save Queue to prevent race conditions. Includes Docker multi-stage build, Nginx reverse proxy with SSL/TLS, and `/api/health`, `/api/config`, `/api/data/local` endpoints
+- **Developer Mode Protection**: Password-protected dashboard editor with DeveloperModeToggle component modal, persistent secure password storage in app config, and authentication middleware on all config modification endpoints
+- **Backend Unit Tests**: 17 comprehensive test cases for app-server.js covering: configuration loading, authentication, API endpoints, file operations, backup management, CORS headers, error handling, and concurrent save operations. All tests passing with 100% success rate
 - **Visual Editor**: Complete drag-and-drop dashboard editor with three-panel layout (entity palette, canvas, inspector), view management (create/edit/delete), drag-reorder entities, component type selection, and attribute configuration. Features icon picker in modals, HaGlance/HaRoom entity rules, comprehensive property editor system, and **resizable panels with draggable dividers** (widths persisted in localStorage for user preference)
-- Test Coverage: 88.97% line coverage (2,148 tests) - exceeds 85% target
+- Test Coverage: 88.97% line coverage (2,231 tests) - exceeds 85% target
 
 ## February 2026 - v0.6.0
 
