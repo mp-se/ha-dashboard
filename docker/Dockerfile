@@ -1,14 +1,40 @@
-# Use nginx alpine as base
-FROM nginx:alpine
+# Stage 1: Build frontend
+FROM node:20-alpine AS builder
 
-# Copy pre-built application
-COPY dist /usr/share/nginx/html
+WORKDIR /build
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+# Stage 2: Runtime with Nginx + Node.js
+FROM node:20-alpine
+
+# Install nginx
+RUN apk add --no-cache nginx
+
+# Create app directory
+WORKDIR /app
+
+# Copy built frontend from builder
+COPY --from=builder /build/dist /usr/share/nginx/html
+
+# Copy Node.js backend files
+COPY docker/app-server.js ./
+COPY package*.json ./
+
+RUN npm ci --omit=dev
 
 # Copy nginx configuration
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 
+# Create data directories with proper permissions
+RUN mkdir -p /usr/share/nginx/html/data/backups && \
+    chmod -R 755 /usr/share/nginx/html/data
+
 # Expose ports
 EXPOSE 80 443
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start both Nginx and Node.js server
+CMD ["sh", "-c", "nginx -g 'daemon off;' & node app-server.js"]
