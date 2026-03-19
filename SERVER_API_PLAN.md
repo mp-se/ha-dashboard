@@ -2,20 +2,20 @@
 
 ## Overview
 
-Create a Node.js/Express backend to serve and persist dashboard configuration and serve local entity data when needed. The backend will run in the same Docker container as Nginx, providing a REST API for loading/saving configs with token-based authentication and automatic backups. The backend will be protected by NGNIX to ensure that we have limited exposure of the backend. 
+Create a Node.js/Express backend to serve and persist dashboard configuration and serve local entity data when needed. The backend will run in the same Docker container as Nginx, providing a REST API for loading/saving configs with token-based authentication and automatic backups. The backend will be protected by NGNIX to ensure that we have limited exposure of the backend.
 
 ## Requirements Summary
 
-| Aspect | Decision |
-|--------|----------|
-| **Use Cases** | Load config, save config changes, load local entity data (offline mode) |
-| **Persistence** | File system (JSON) |
-| **API Style** | REST, write capability |
-| **Authentication** | Bearer token (password-protected updates) |
-| **Deployment** | Same container (Node.js + Nginx) |
-| **Versioning** | Automatic backup copies before overwrite |
-| **Validation** | Frontend-only (not backend) |
-| **Framework** | Express.js |
+| Aspect             | Decision                                                                |
+| ------------------ | ----------------------------------------------------------------------- |
+| **Use Cases**      | Load config, save config changes, load local entity data (offline mode) |
+| **Persistence**    | File system (JSON)                                                      |
+| **API Style**      | REST, write capability                                                  |
+| **Authentication** | Bearer token (password-protected updates)                               |
+| **Deployment**     | Same container (Node.js + Nginx)                                        |
+| **Versioning**     | Automatic backup copies before overwrite                                |
+| **Validation**     | Frontend-only (not backend)                                             |
+| **Framework**      | Express.js                                                              |
 
 ## Edge Case Behavior (Clarifications)
 
@@ -56,29 +56,31 @@ export interface ServerConfig {
   backupDir: string;
   backupLimit: number;
   corsOrigin: string;
-  editorPassword: string;  // Cached at startup, not from environment
+  editorPassword: string; // Cached at startup, not from environment
 }
 
 export function loadConfig(): ServerConfig {
-  const dataDir = process.env.DATA_DIR || '/usr/share/nginx/html/data';
-  
+  const dataDir = process.env.DATA_DIR || "/usr/share/nginx/html/data";
+
   // Load editor password from config file once at startup
-  let editorPassword = '';
+  let editorPassword = "";
   try {
-    const configPath = path.join(dataDir, 'dashboard-config.json');
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-    editorPassword = config.app?.password || '';
+    const configPath = path.join(dataDir, "dashboard-config.json");
+    const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+    editorPassword = config.app?.password || "";
   } catch (error) {
-    console.warn('Failed to load editor password from config:', error);
+    console.warn("Failed to load editor password from config:", error);
   }
 
   return {
     port: process.env.SERVER_PORT ? parseInt(process.env.SERVER_PORT) : 3000,
     dataDir: dataDir,
-    backupDir: process.env.BACKUP_DIR || '/usr/share/nginx/html/data/backups',
-    backupLimit: process.env.BACKUP_LIMIT ? parseInt(process.env.BACKUP_LIMIT) : 30,
-    corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
-    editorPassword: editorPassword  // Cached from dashboard-config.json
+    backupDir: process.env.BACKUP_DIR || "/usr/share/nginx/html/data/backups",
+    backupLimit: process.env.BACKUP_LIMIT
+      ? parseInt(process.env.BACKUP_LIMIT)
+      : 30,
+    corsOrigin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    editorPassword: editorPassword, // Cached from dashboard-config.json
   };
 }
 ```
@@ -86,6 +88,7 @@ export function loadConfig(): ServerConfig {
 ### Authentication Strategy
 
 **Single password from configuration file (cached at startup):**
+
 1. **Server startup** — Load password from `dashboard-config.json` `app.password` field once
 2. **Cache in memory** — Store in `config.editorPassword` for fast access to all requests
 3. **Developer mode toggle** — Validate password against config in `DeveloperModeToggle.vue`
@@ -93,6 +96,7 @@ export function loadConfig(): ServerConfig {
 5. **Frontend save calls** — Use password from loaded config object
 
 **Flow:**
+
 ```
 dashboard-config.json has: "app": { "password": "my-secret-password" }
 ↓ (on server startup)
@@ -104,6 +108,7 @@ Frontend uses password from loaded config for API calls and dev mode toggle
 ```
 
 **Benefits:**
+
 - Password loaded once at startup, not on every request
 - Fast authentication without repeated file I/O
 - Single source of truth: `dashboard-config.json` `app.password` field
@@ -118,6 +123,7 @@ All endpoints are prefixed with `/api/`
 #### Configuration Endpoints
 
 **POST /api/config**
+
 ```
 Description: Save dashboard configuration (creates backup of existing)
 Auth: Required (Bearer token)
@@ -136,6 +142,7 @@ Response: 200 OK
 #### Local Data (Read-Only)
 
 **GET /api/data/local**
+
 ```
 Description: Load local entity data (offline mode, read-only)
 Auth: None required
@@ -149,6 +156,7 @@ Response: 200 OK
 #### Health Check
 
 **GET /api/health**
+
 ```
 Description: Health check endpoint
 Auth: None required
@@ -165,6 +173,7 @@ Response: 200 OK
 ### Error Responses
 
 **401 Unauthorized**
+
 ```json
 {
   "success": false,
@@ -173,6 +182,7 @@ Response: 200 OK
 ```
 
 **400 Bad Request**
+
 ```json
 {
   "success": false,
@@ -181,6 +191,7 @@ Response: 200 OK
 ```
 
 **500 Internal Server Error**
+
 ```json
 {
   "success": false,
@@ -195,6 +206,7 @@ Response: 200 OK
 ### Backup Strategy (`src/server/utils/fileOps.ts`)
 
 **IMPORTANT: Only dashboard-config.json is backed up** (manual "Save to Backend" button, not auto-save):
+
 - Local data (`local-data.json`) is NOT backed up, only persisted
 - Prevents filesystem bloat from creating backups on every keystroke
 - User controls when changes are persisted
@@ -218,23 +230,23 @@ interface FileOpsResult {
 }
 
 // Read JSON file with error handling
-async function readJsonFile(filePath: string): Promise<FileOpsResult>
+async function readJsonFile(filePath: string): Promise<FileOpsResult>;
 
 // Write JSON file with backup creation
 async function writeJsonFile(
   filePath: string,
   data: unknown,
-  createBackup?: boolean
-): Promise<FileOpsResult>
+  createBackup?: boolean,
+): Promise<FileOpsResult>;
 
 // List backups for a file
-async function listBackups(filePath: string): Promise<string[]>
+async function listBackups(filePath: string): Promise<string[]>;
 
 // Cleanup old backups
 async function cleanupOldBackups(
   filePath: string,
-  limit: number
-): Promise<void>
+  limit: number,
+): Promise<void>;
 ```
 
 ### Example Backup Flow
@@ -264,17 +276,20 @@ Result: ~1-2 backups per editing session, not thousands per hour
 ### Save-on-Demand Pattern (IMPORTANT)
 
 **Why manual save?** To prevent filesystem bloat from backups:
+
 - Each `POST /api/config` creates a timestamped backup
 - If we saved on every change, we'd create dozens of backups per editing session
 - **Solution**: User explicitly clicks "Save to Backend" to persist changes and trigger backup
 
 **Loading Strategy - Static File Only:**
+
 - On app startup, load config from static `/data/dashboard-config.json`
 - Static file serves as the single source of truth for defaults
 - Changes are persisted through "Save to Backend" button to the API
 - Backend keeps backups of saved versions
 
 **Data Flow**:
+
 ```
 Loading:
 1. Fetch /data/dashboard-config.json (static file)
@@ -298,29 +313,32 @@ Saving:
 const saveConfigToBackend = async (config: unknown): Promise<boolean> => {
   try {
     const configStore = useConfigStore();
-    const password = (configStore.dashboardConfig as Record<string, any>)?.app?.password || '';
-    
+    const password =
+      (configStore.dashboardConfig as Record<string, any>)?.app?.password || "";
+
     if (!password) {
-      logger.warn('Editor password not configured in config, skipping save');
+      logger.warn("Editor password not configured in config, skipping save");
       return false;
     }
 
     // Development: VITE_API_URL env var points to localhost:3000
     // Production: Uses BASE_URL (app served with Nginx /api/ proxy to localhost:3000)
-    const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.BASE_URL || '/';
-    const apiUrl = apiBaseUrl + (apiBaseUrl.endsWith('/') ? 'api/config' : '/api/config');
-    
+    const apiBaseUrl =
+      import.meta.env.VITE_API_URL || import.meta.env.BASE_URL || "/";
+    const apiUrl =
+      apiBaseUrl + (apiBaseUrl.endsWith("/") ? "api/config" : "/api/config");
+
     const response = await fetch(apiUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${password}`
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${password}`,
       },
-      body: JSON.stringify(config)
+      body: JSON.stringify(config),
     });
 
     if (!response.ok) {
-      let errorMsg = 'Failed to save config';
+      let errorMsg = "Failed to save config";
       try {
         const errorData = await response.json();
         errorMsg = errorData.error || errorMsg;
@@ -331,14 +349,14 @@ const saveConfigToBackend = async (config: unknown): Promise<boolean> => {
     }
 
     const result = await response.json();
-    logger.log('✓ Dashboard config saved to server:', result.data.backupPath);
-    
+    logger.log("✓ Dashboard config saved to server:", result.data.backupPath);
+
     // Clear draft from local storage after successful save
-    localStorage.removeItem('dashboardConfigDraft');
-    
+    localStorage.removeItem("dashboardConfigDraft");
+
     return true;
   } catch (error) {
-    logger.error('Error saving dashboard config to server:', error);
+    logger.error("Error saving dashboard config to server:", error);
     return false;
   }
 };
@@ -349,21 +367,23 @@ const saveConfigToBackend = async (config: unknown): Promise<boolean> => {
 ```typescript
 const loadDashboardConfig = async (): Promise<ValidationResult> => {
   try {
-    const baseUrl = import.meta.env.BASE_URL || '/';
-    const staticUrl = baseUrl + 'data/dashboard-config.json';
-    
+    const baseUrl = import.meta.env.BASE_URL || "/";
+    const staticUrl = baseUrl + "data/dashboard-config.json";
+
     const response = await fetchWithTimeout(staticUrl, {}, TIMEOUT_CONFIG);
-    
+
     if (!response.ok) {
-      throw new Error(`Failed to load config from static file: ${response.statusText}`);
+      throw new Error(
+        `Failed to load config from static file: ${response.statusText}`,
+      );
     }
 
     const data = await response.json();
-    logger.log('✓ Loaded config from static file');
+    logger.log("✓ Loaded config from static file");
     // Process config...
     return validationResult;
   } catch (error) {
-    logger.error('Error loading config:', error);
+    logger.error("Error loading config:", error);
     throw error;
   }
 };
@@ -372,6 +392,7 @@ const loadDashboardConfig = async (): Promise<ValidationResult> => {
 ### UI Changes Required
 
 **Visual Editor Mode Control**:
+
 - Add "EDIT" button in toolbar (shown when NOT in edit mode)
   - Requires password validation via modal
   - On success: Enter edit mode, show saved draft if available in local storage
@@ -385,11 +406,12 @@ const loadDashboardConfig = async (): Promise<ValidationResult> => {
   - Returns to read-only dashboard view
 
 **Example buttons**:
+
 ```vue
 <!-- View mode: show EDIT button -->
-<button 
+<button
   v-if="!isEditMode"
-  @click="enterEditMode()" 
+  @click="enterEditMode()"
   class="btn btn-primary btn-sm"
 >
   <i class="mdi mdi-pencil"></i> Edit
@@ -397,17 +419,14 @@ const loadDashboardConfig = async (): Promise<ValidationResult> => {
 
 <!-- Edit mode: show SAVE and VIEW buttons -->
 <template v-else>
-  <button 
-    @click="saveConfig()" 
+  <button
+    @click="saveConfig()"
     :disabled="!hasChanges"
     class="btn btn-success btn-sm me-2"
   >
     <i class="mdi mdi-content-save"></i> Save
   </button>
-  <button 
-    @click="exitEditMode()" 
-    class="btn btn-secondary btn-sm"
-  >
+  <button @click="exitEditMode()" class="btn btn-secondary btn-sm">
     <i class="mdi mdi-eye"></i> View
   </button>
 </template>
@@ -416,12 +435,14 @@ const loadDashboardConfig = async (): Promise<ValidationResult> => {
 ### Error Handling & Local Storage Notes
 
 **Error Handling:**
+
 - If loading fails: Error is thrown (no fallback, config must be in static file)
 - If API fails with 401: User needs valid authentication for save operations
 - If save fails: Show error toast, allow user to retry
 - Generic error responses only (details logged server-side)
 
 **Local Storage (Draft Management):**
+
 - Store unsaved changes in `localStorage` with key `dashboardConfigDraft` (persists across browser sessions)
 - On entering edit mode: If draft exists, prompt user with "Resume editing previous draft?"
 - On successful save: Clear draft from local storage automatically
@@ -489,7 +510,7 @@ const fs = require('fs');
 function loadConfig() {
   const dataDir = process.env.DATA_DIR || '/usr/share/nginx/html/data';
   const configPath = path.join(dataDir, 'dashboard-config.json');
-  
+
   // FAIL if config file missing - required at startup
   let editorPassword = '';
   try {
@@ -502,7 +523,7 @@ function loadConfig() {
     console.error('[ERROR] Failed to load config:', error.message);
     process.exit(1);  // Exit if config file missing or invalid
   }
-  
+
   // Create backup directory if it doesn't exist at startup
   const backupDir = path.join(dataDir, 'backups');
   try {
@@ -541,10 +562,10 @@ function enqueueSave(handler) {
 
 async function processSaveQueue() {
   if (saveInProgress || saveQueue.length === 0) return;
-  
+
   saveInProgress = true;
   const { handler, resolve, reject } = saveQueue.shift();
-  
+
   try {
     const result = await handler();
     resolve(result);
@@ -580,12 +601,12 @@ function cleanupOldBackups(filePath) {
   const filename = path.basename(filePath);
   const backupDir = path.join(path.dirname(filePath), 'backups');
   const backupPattern = `${filename}.backup.`;
-  
+
   // Ensure backups directory exists
   if (!fs.existsSync(backupDir)) {
     return;
   }
-  
+
   try {
     const files = fs.readdirSync(backupDir);
     const backups = files
@@ -598,7 +619,7 @@ function cleanupOldBackups(filePath) {
           .replace(/-/g, (m, i) => i < 10 ? m : ':')
       }))
       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
+
     // Delete backups beyond the limit (keep most recent BACKUP_LIMIT=30)
     if (backups.length > config.backupLimit) {
       const toDelete = backups.slice(config.backupLimit);
@@ -661,7 +682,7 @@ app.post('/api/config', authenticate, async (req, res) => {
     // Enqueue save operation to serialize concurrent requests
     const result = await enqueueSave(async () => {
       const filePath = path.join(config.dataDir, 'dashboard-config.json');
-      
+
       // Create backup if file exists (in /backups/ subdirectory, Nginx protected)
       let backupPath = null;
       if (fs.existsSync(filePath)) {
@@ -672,7 +693,7 @@ app.post('/api/config', authenticate, async (req, res) => {
           .replace(/:/g, '-')
           .slice(0, -1);  // Keep .FFF, remove final Z, will add Z after
         const fullTimestamp = timestamp + 'Z';
-        
+
         backupPath = path.join(config.backupDir, `dashboard-config.json.backup.${fullTimestamp}`);
         fs.copyFileSync(filePath, backupPath);
         log.info(`Created backup: ${path.basename(backupPath)}`);
@@ -681,17 +702,17 @@ app.post('/api/config', authenticate, async (req, res) => {
       // Write new config
       fs.writeFileSync(filePath, JSON.stringify(req.body, null, 2));
       log.info('Config saved successfully');
-      
+
       // Cleanup old backups (enforces BACKUP_LIMIT=30)
       try {
         cleanupOldBackups(filePath);
       } catch (err) {
         log.warn('Error cleaning up backups (continuing):', err);
       }
-      
+
       return { backupPath };
     });
-    
+
     res.json({
       success: true,
       data: {
@@ -745,7 +766,7 @@ location /api/ {
   proxy_set_header X-Real-IP $remote_addr;
   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
   proxy_set_header X-Forwarded-Proto $scheme;
-  
+
   # Allow CORS headers from backend
   proxy_pass_request_headers on;
   add_header 'Access-Control-Allow-Origin' '*' always;
@@ -757,20 +778,21 @@ location / {
 }
 ```
 
-**Security**: 
+**Security**:
+
 - Nginx denies all direct HTTP access to `/data/backups/`
 - Backups are only accessible via authenticated API endpoints
 - Clients cannot browse or download backups directly
-
 
 ### Update `docker-compose.yml`
 
 No changes needed to `docker-compose.yml` — same container serves both frontend and API.
 
 **Volumes** remain as-is:
+
 ```yaml
 volumes:
-  - ./public/data:/usr/share/nginx/html/data:ro  # Changed to rw for API to write
+  - ./public/data:/usr/share/nginx/html/data:ro # Changed to rw for API to write
 ```
 
 Actually, change `:ro` to `:rw` so backend can write:
@@ -818,22 +840,25 @@ VITE_API_URL=http://localhost:3000/
 When developing the dashboard with separate frontend and backend servers:
 
 **1. Start the Backend Server:**
+
 ```bash
 # Option A: Run Node.js server directly
 node docker/app-server.js
 # Server runs on localhost:3000
 
-# Option B: Run via npm script  
+# Option B: Run via npm script
 npm run dev:server
 ```
 
 **2. Start the Frontend Dev Server (in another terminal):**
+
 ```bash
 npm run dev
 # Frontend runs on localhost:5173 with hot reload
 ```
 
 **3. Create .env.local:**
+
 ```bash
 cat > .env.local << EOF
 VITE_API_URL=http://localhost:3000/
@@ -841,12 +866,14 @@ EOF
 ```
 
 **4. Use the Dashboard:**
+
 - Open http://localhost:5173 in your browser
 - All API calls are routed to http://localhost:3000 backend
 - Save/load operations tested locally before Docker deployment
 - No Nginx proxy needed during development
 
 **Production Deployment:**
+
 ```bash
 # Build once, deploy with Docker
 npm run build
@@ -882,7 +909,7 @@ docker-compose up
 ```typescript
 export interface AppSettings {
   developerMode?: boolean;
-  password?: string;  // Password to toggle dev mode at runtime
+  password?: string; // Password to toggle dev mode at runtime
   localMode?: boolean;
 }
 ```
@@ -896,9 +923,9 @@ Add method to validate password and toggle developer mode:
 ```typescript
 const toggleDeveloperMode = (password: string): boolean => {
   const configStore = useConfigStore();
-  const appConfig = (configStore.dashboardConfig as Record<string, unknown>)?.app 
+  const appConfig = (configStore.dashboardConfig as Record<string, unknown>)?.app
     as Record<string, unknown> | undefined;
-  
+
   // Check if password is configured
   if (!appConfig?.password) {
     logger.warn('Developer password not configured in dashboard config');
@@ -935,9 +962,9 @@ const toggleDeveloperMode = (password: string): boolean => {
     </button>
 
     <!-- Password Modal -->
-    <div 
-      v-if="showModal" 
-      class="modal fade show d-block" 
+    <div
+      v-if="showModal"
+      class="modal fade show d-block"
       tabindex="-1"
       style="background-color: rgba(0, 0, 0, 0.5)"
     >
@@ -945,14 +972,14 @@ const toggleDeveloperMode = (password: string): boolean => {
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Developer Mode</h5>
-            <button 
-              type="button" 
-              class="btn-close" 
+            <button
+              type="button"
+              class="btn-close"
               @click="closeModal"
               aria-label="Close"
             ></button>
           </div>
-          
+
           <div class="modal-body">
             <div class="mb-3">
               <label class="form-label">Enter Developer Password</label>
@@ -965,24 +992,20 @@ const toggleDeveloperMode = (password: string): boolean => {
                 autocomplete="off"
               />
             </div>
-            
+
             <div v-if="error" class="alert alert-danger mb-0">
               <i class="mdi mdi-alert-circle me-2"></i>
               {{ error }}
             </div>
           </div>
-          
+
           <div class="modal-footer">
-            <button 
-              type="button" 
-              class="btn btn-secondary" 
-              @click="closeModal"
-            >
+            <button type="button" class="btn btn-secondary" @click="closeModal">
               Cancel
             </button>
-            <button 
-              type="button" 
-              class="btn btn-primary" 
+            <button
+              type="button"
+              class="btn btn-primary"
               @click="toggleMode"
               :disabled="!password"
             >
@@ -997,13 +1020,13 @@ const toggleDeveloperMode = (password: string): boolean => {
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useAuthStore } from '@/stores/authStore';
+import { ref } from "vue";
+import { useAuthStore } from "@/stores/authStore";
 
 const store = useAuthStore();
 const showModal = ref(false);
-const password = ref('');
-const error = ref('');
+const password = ref("");
+const error = ref("");
 
 const toggleMode = () => {
   const success = store.toggleDeveloperMode(password.value);
@@ -1012,15 +1035,15 @@ const toggleMode = () => {
     closeModal();
   } else {
     // Show error message
-    error.value = 'Invalid password';
-    password.value = '';
+    error.value = "Invalid password";
+    password.value = "";
   }
 };
 
 const closeModal = () => {
   showModal.value = false;
-  password.value = '';
-  error.value = '';
+  password.value = "";
+  error.value = "";
 };
 </script>
 ```
@@ -1036,15 +1059,15 @@ Add DeveloperModeToggle component in navbar (near other toolbar buttons):
   <!-- Navbar ... -->
   <nav class="navbar ...">
     <!-- ... existing navbar code ... -->
-    
+
     <!-- Right side toolbar -->
     <div class="navbar-collapse">
       <div class="ms-auto d-flex align-items-center">
         <!-- ... other buttons ... -->
-        
+
         <!-- Developer Mode Toggle -->
         <DeveloperModeToggle />
-        
+
         <!-- ... dark mode toggle, etc ... -->
       </div>
     </div>
@@ -1052,7 +1075,7 @@ Add DeveloperModeToggle component in navbar (near other toolbar buttons):
 </template>
 
 <script setup lang="ts">
-import DeveloperModeToggle from '@/components/DeveloperModeToggle.vue';
+import DeveloperModeToggle from "@/components/DeveloperModeToggle.vue";
 // ... other imports ...
 </script>
 ```
@@ -1076,6 +1099,7 @@ import DeveloperModeToggle from '@/components/DeveloperModeToggle.vue';
 ### Testing Strategy
 
 **Unit Tests** (`src/components/__tests__/DeveloperModeToggle.spec.js`):
+
 - Modal opens on button click
 - Modal closes on cancel
 - Password validation calls store method
@@ -1084,6 +1108,7 @@ import DeveloperModeToggle from '@/components/DeveloperModeToggle.vue';
 - Password field clears on close
 
 **Store Tests** (`src/stores/__tests__/authStore.spec.js`):
+
 - `toggleDeveloperMode()` validates password correctly
 - Returns true on correct password
 - Returns false on incorrect password
@@ -1095,7 +1120,7 @@ import DeveloperModeToggle from '@/components/DeveloperModeToggle.vue';
 
 Add section:
 
-```markdown
+````markdown
 ## Server API Configuration
 
 The dashboard API backend provides endpoints for persisting configuration changes. Authentication uses the password from your dashboard configuration file.
@@ -1117,6 +1142,7 @@ The API authentication password comes from `app.password` field in your dashboar
   }
 }
 ```
+````
 
 ### Example Docker Run
 
@@ -1131,7 +1157,8 @@ docker run -d \
 ### API Endpoints
 
 See SERVER_API_PLAN.md for complete endpoint documentation.
-```
+
+````
 
 ## Phase 7: Testing Strategy
 
@@ -1171,71 +1198,74 @@ describe('POST /api/config', () => {
     // Call twice to verify backup creation
     const config1 = { app: { title: 'Test1' } };
     const config2 = { app: { title: 'Test2' } };
-    
+
     await request(app)
       .post('/api/config')
       .set('Authorization', 'Bearer test-token')
       .send(config1);
-    
+
     const response = await request(app)
       .post('/api/config')
       .set('Authorization', 'Bearer test-token')
       .send(config2);
-    
+
     expect(response.body.data.backupPath).toMatch(/backup/);
   });
 });
-```
+````
 
 ### Frontend Integration Tests
 
 **Test updates to `configStore.ts`:**
 
 ```typescript
-describe('configStore — Config loading and saving', () => {
-  it('should load config from static file', async () => {
-    vi.mock('fetch', () => ({
+describe("configStore — Config loading and saving", () => {
+  it("should load config from static file", async () => {
+    vi.mock("fetch", () => ({
       default: vi.fn(() =>
         Promise.resolve({
           ok: true,
-          json: () => mockConfig
-        })
-      )
+          json: () => mockConfig,
+        }),
+      ),
     }));
 
     const result = await store.loadDashboardConfig();
     expect(result.valid).toBe(true);
   });
 
-  it('should save config via API with token', async () => {
+  it("should save config via API with token", async () => {
     const fetchMock = vi.fn(() =>
       Promise.resolve({
         ok: true,
-        json: () => ({ success: true, data: { saved: true } })
-      })
+        json: () => ({ success: true, data: { saved: true } }),
+      }),
     );
-    vi.stubGlobal('fetch', fetchMock);
+    vi.stubGlobal("fetch", fetchMock);
 
     const result = await store.saveDashboardConfig(mockConfig);
     expect(result).toBe(true);
     expect(fetchMock).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
-        method: 'POST',
+        method: "POST",
         headers: expect.objectContaining({
-          'Authorization': expect.stringContaining('Bearer')
-        })
-      })
+          Authorization: expect.stringContaining("Bearer"),
+        }),
+      }),
     );
   });
 
-  it('should handle save API errors gracefully', async () => {
-    vi.stubGlobal('fetch', vi.fn(() =>
-      Promise.resolve({
-        ok: false,
-        json: () => ({ success: false, error: 'Unauthorized' })
-      })
-    ));
+  it("should handle save API errors gracefully", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve({
+          ok: false,
+          json: () => ({ success: false, error: "Unauthorized" }),
+        }),
+      ),
+    );
 
     const result = await store.saveDashboardConfig(mockConfig);
     expect(result).toBe(false);
@@ -1248,22 +1278,27 @@ describe('configStore — Config loading and saving', () => {
 **Test full integration with Docker:**
 
 ```typescript
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('Dashboard Configuration & Persistence', () => {
-  test('should load static config and persist changes via API', async ({ page, browser }) => {
+test.describe("Dashboard Configuration & Persistence", () => {
+  test("should load static config and persist changes via API", async ({
+    page,
+    browser,
+  }) => {
     // Start with default config from static file
-    await page.goto('http://localhost:8443');
-    
+    await page.goto("http://localhost:8443");
+
     // Verify initial config loaded
-    const initialTitle = await page.locator('[data-config-title]').textContent();
+    const initialTitle = await page
+      .locator("[data-config-title]")
+      .textContent();
     expect(initialTitle).toBeDefined();
-    
+
     // Verify persistence after save
     // Simulate config save, check that changes persist
   });
 
-  test('should create backups when saving config', async ({ page }) => {
+  test("should create backups when saving config", async ({ page }) => {
     // This requires access to filesystem or server logs
     // Can verify backup creation by checking server logs
     // Configure backend to save and verify backup file creation
@@ -1310,22 +1345,22 @@ test.describe('Dashboard Configuration & Persistence', () => {
 
 ## Summary Table
 
-| File | Change | Priority |
-|------|--------|----------|
-| [package.json](package.json) | Add express, cors, body-parser, dotenv | Phase 1 |
-| **NEW** `docker/app-server.js` | Consolidated Express server with routes, auth, config, logging | Phase 1 |
-| [src/stores/configStore.ts](src/stores/configStore.ts) | Add `saveConfigToBackend()` method | Phase 2 |
-| [src/views/VisualEditorView.vue](src/views/VisualEditorView.vue) | Add EDIT/SAVE/VIEW buttons in toolbar | Phase 2 |
-| [docker/Dockerfile](docker/Dockerfile) | Multi-stage build, Node.js | Phase 3 |
-| [docker/nginx.conf](docker/nginx.conf) | Add /api/ proxy rule | Phase 3 |
-| [docker-compose.yml](docker-compose.yml) | Change volume `:ro` → `:rw` | Phase 3 |
-| [CONFIGURATION.md](CONFIGURATION.md) | Document API, env vars, save workflow | Phase 4 |
-| [src/types/index.ts](src/types/index.ts) | Add `password` to AppSettings | Phase 4 |
-| [src/stores/authStore.ts](src/stores/authStore.ts) | Add `toggleDeveloperMode()` method | Phase 4 |
-| **NEW** [src/components/DeveloperModeToggle.vue](src/components/DeveloperModeToggle.vue) | Password modal component | Phase 4 |
-| [src/components/AppNavbar.vue](src/components/AppNavbar.vue) | Add DeveloperModeToggle button | Phase 4 |
-| [public/data/dashboard-config.json](public/data/dashboard-config.json) | Add `password` field | Phase 4 |
-| **NEW** `src/server/__tests__/` | Backend unit & E2E tests | Phase 5 |
+| File                                                                                     | Change                                                         | Priority |
+| ---------------------------------------------------------------------------------------- | -------------------------------------------------------------- | -------- |
+| [package.json](package.json)                                                             | Add express, cors, body-parser, dotenv                         | Phase 1  |
+| **NEW** `docker/app-server.js`                                                           | Consolidated Express server with routes, auth, config, logging | Phase 1  |
+| [src/stores/configStore.ts](src/stores/configStore.ts)                                   | Add `saveConfigToBackend()` method                             | Phase 2  |
+| [src/views/VisualEditorView.vue](src/views/VisualEditorView.vue)                         | Add EDIT/SAVE/VIEW buttons in toolbar                          | Phase 2  |
+| [docker/Dockerfile](docker/Dockerfile)                                                   | Multi-stage build, Node.js                                     | Phase 3  |
+| [docker/nginx.conf](docker/nginx.conf)                                                   | Add /api/ proxy rule                                           | Phase 3  |
+| [docker-compose.yml](docker-compose.yml)                                                 | Change volume `:ro` → `:rw`                                    | Phase 3  |
+| [CONFIGURATION.md](CONFIGURATION.md)                                                     | Document API, env vars, save workflow                          | Phase 4  |
+| [src/types/index.ts](src/types/index.ts)                                                 | Add `password` to AppSettings                                  | Phase 4  |
+| [src/stores/authStore.ts](src/stores/authStore.ts)                                       | Add `toggleDeveloperMode()` method                             | Phase 4  |
+| **NEW** [src/components/DeveloperModeToggle.vue](src/components/DeveloperModeToggle.vue) | Password modal component                                       | Phase 4  |
+| [src/components/AppNavbar.vue](src/components/AppNavbar.vue)                             | Add DeveloperModeToggle button                                 | Phase 4  |
+| [public/data/dashboard-config.json](public/data/dashboard-config.json)                   | Add `password` field                                           | Phase 4  |
+| **NEW** `src/server/__tests__/`                                                          | Backend unit & E2E tests                                       | Phase 5  |
 
 ## Implementation Order
 
@@ -1364,6 +1399,7 @@ test.describe('Dashboard Configuration & Persistence', () => {
 ### File Permissions
 
 In Docker, ensure Node.js can write to `/usr/share/nginx/html/data/`:
+
 - Dockerfile sets `chmod -R 755` on data directory
 - May need to run Node.js as root or adjust group permissions
 

@@ -81,7 +81,7 @@ test.describe("API - Data Persistence", () => {
 
     await page.evaluate((marker) => {
       const config = JSON.parse(
-        localStorage.getItem("dashboard-config") || "{}"
+        localStorage.getItem("dashboard-config") || "{}",
       );
       config.testMarker = marker;
       localStorage.setItem("dashboard-config", JSON.stringify(config));
@@ -93,7 +93,7 @@ test.describe("API - Data Persistence", () => {
 
     const savedMarker = await page.evaluate(() => {
       const config = JSON.parse(
-        localStorage.getItem("dashboard-config") || "{}"
+        localStorage.getItem("dashboard-config") || "{}",
       );
       return config.testMarker;
     });
@@ -126,8 +126,10 @@ test.describe("API - Data Persistence", () => {
   test("should queue changes for backend sync", async ({ page }) => {
     // Check if app has save queue mechanism
     const saveQueueExists = await page.evaluate(() => {
-      return localStorage.getItem("save-queue") !== null ||
-        sessionStorage.getItem("save-queue") !== null;
+      return (
+        localStorage.getItem("save-queue") !== null ||
+        sessionStorage.getItem("save-queue") !== null
+      );
     });
 
     // Should either have queue or use direct persistence
@@ -144,7 +146,7 @@ test.describe("API - Data Persistence", () => {
         queue.push({
           type: "save",
           data: { id: i, timestamp: Date.now() },
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
       }
       localStorage.setItem("save-queue", JSON.stringify(queue));
@@ -194,8 +196,8 @@ test.describe("API - Authentication", () => {
       try {
         const response = await fetch("/api/config", {
           headers: {
-            Authorization: "Bearer invalid-token"
-          }
+            Authorization: "Bearer invalid-token",
+          },
         });
         return response.status;
       } catch (e) {
@@ -231,8 +233,10 @@ test.describe("API - Error Handling", () => {
     // Check if app has retry logic
     const hasRetry = await page.evaluate(() => {
       // Look for retry indicators (could be in localStorage, or check app state)
-      return localStorage.getItem("api-retry-count") !== null ||
-        localStorage.getItem("last-sync") !== null;
+      return (
+        localStorage.getItem("api-retry-count") !== null ||
+        localStorage.getItem("last-sync") !== null
+      );
     });
 
     // Should either show retry behavior or direct success
@@ -291,11 +295,11 @@ test.describe("API - Backup Management", () => {
   test("should support backup operations", async ({ page }) => {
     // Backup functionality might be in dev mode or admin area
     const backupButton = page.locator(
-      'button[aria-label*="backup" i], [class*="backup"]'
+      'button[aria-label*="backup" i], [class*="backup"]',
     );
 
     // Check if backup feature exists
-    if (await backupButton.count() > 0) {
+    if ((await backupButton.count()) > 0) {
       await expect(backupButton.first()).toBeVisible();
     }
   });
@@ -307,11 +311,9 @@ test.describe("API - Backup Management", () => {
     const backupCreated = await page.evaluate((timestamp) => {
       const backup = {
         timestamp: timestamp,
-        data: localStorage.getItem("dashboard-config")
+        data: localStorage.getItem("dashboard-config"),
       };
-      const backups = JSON.parse(
-        localStorage.getItem("backups") || "[]"
-      );
+      const backups = JSON.parse(localStorage.getItem("backups") || "[]");
       backups.push(backup);
       localStorage.setItem("backups", JSON.stringify(backups));
       return true;
@@ -326,8 +328,8 @@ test.describe("API - Backup Management", () => {
       const backups = [];
       for (let i = 0; i < 3; i++) {
         backups.push({
-          timestamp: Date.now() - (i * 100),
-          data: JSON.stringify({ version: i })
+          timestamp: Date.now() - i * 100,
+          data: JSON.stringify({ version: i }),
         });
       }
       localStorage.setItem("backups", JSON.stringify(backups));
@@ -335,9 +337,7 @@ test.describe("API - Backup Management", () => {
 
     // Get the list
     const backupList = await page.evaluate(() => {
-      const backups = JSON.parse(
-        localStorage.getItem("backups") || "[]"
-      );
+      const backups = JSON.parse(localStorage.getItem("backups") || "[]");
       return backups.length;
     });
 
@@ -352,16 +352,14 @@ test.describe("API - Backup Management", () => {
       const backups = [];
       backups.push({
         timestamp: Date.now(),
-        data: JSON.stringify(data)
+        data: JSON.stringify(data),
       });
       localStorage.setItem("backups", JSON.stringify(backups));
     }, originalData);
 
     // Simulate restore
     const restored = await page.evaluate(() => {
-      const backups = JSON.parse(
-        localStorage.getItem("backups") || "[]"
-      );
+      const backups = JSON.parse(localStorage.getItem("backups") || "[]");
       if (backups.length > 0) {
         const backup = backups[0];
         localStorage.setItem("dashboard-config", backup.data);
@@ -389,8 +387,8 @@ test.describe("API - Backup Management", () => {
       const backups = [];
       for (let i = 0; i < 50; i++) {
         backups.push({
-          timestamp: Date.now() - (i * 1000),
-          data: JSON.stringify({ index: i })
+          timestamp: Date.now() - i * 1000,
+          data: JSON.stringify({ index: i }),
         });
       }
 
@@ -401,9 +399,7 @@ test.describe("API - Backup Management", () => {
 
     // Check size
     const backupCount = await page.evaluate(() => {
-      const backups = JSON.parse(
-        localStorage.getItem("backups") || "[]"
-      );
+      const backups = JSON.parse(localStorage.getItem("backups") || "[]");
       return backups.length;
     });
 
@@ -446,11 +442,11 @@ test.describe("API - Sync Status", () => {
 
     // Look for sync status element
     const statusElement = page.locator(
-      '[class*="sync"], [aria-label*="sync" i]'
+      '[class*="sync"], [aria-label*="sync" i]',
     );
 
     // Status might or might not be visible
-    if (await statusElement.count() > 0) {
+    if ((await statusElement.count()) > 0) {
       const isVisible = await statusElement.first().isVisible();
       expect(typeof isVisible).toBe("boolean");
     }

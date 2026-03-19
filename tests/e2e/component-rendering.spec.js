@@ -22,7 +22,7 @@ test.describe("Component Rendering - Basic Cards", () => {
     const sensors = page.locator('[class*="sensor"], [class*="Sensor"]');
 
     // Sensor cards might not always be present
-    if (await sensors.count() > 0) {
+    if ((await sensors.count()) > 0) {
       const first = sensors.first();
       await expect(first).toBeVisible();
     }
@@ -31,10 +31,10 @@ test.describe("Component Rendering - Basic Cards", () => {
   test("should render switch cards", async ({ page }) => {
     // Look for switch components
     const switches = page.locator(
-      'button[class*="switch"], [class*="Switch"], input[type="checkbox"]'
+      'button[class*="switch"], [class*="Switch"], input[type="checkbox"]',
     );
 
-    if (await switches.count() > 0) {
+    if ((await switches.count()) > 0) {
       await expect(switches.first()).toBeVisible();
     }
   });
@@ -43,18 +43,16 @@ test.describe("Component Rendering - Basic Cards", () => {
     // Look for button components
     const buttons = page.locator("button");
 
-    if (await buttons.count() > 0) {
+    if ((await buttons.count()) > 0) {
       await expect(buttons.first()).toBeVisible();
     }
   });
 
   test("should render icon elements", async ({ page }) => {
     // Look for icon elements (SVG or material icons)
-    const icons = page.locator(
-      'i[class*="mdi"], svg, [class*="icon"]'
-    );
+    const icons = page.locator('i[class*="mdi"], svg, [class*="icon"]');
 
-    if (await icons.count() > 0) {
+    if ((await icons.count()) > 0) {
       await expect(icons.first()).toBeVisible();
     }
   });
@@ -75,7 +73,7 @@ test.describe("Component Rendering - Light Cards", () => {
   test("should render light component", async ({ page }) => {
     const lightCard = page.locator('[class*="light"], [class*="Light"]');
 
-    if (await lightCard.count() > 0) {
+    if ((await lightCard.count()) > 0) {
       await expect(lightCard.first()).toBeVisible();
     }
   });
@@ -83,27 +81,27 @@ test.describe("Component Rendering - Light Cards", () => {
   test("should display brightness slider", async ({ page }) => {
     const slider = page.locator('input[type="range"]');
 
-    if (await slider.count() > 0) {
+    if ((await slider.count()) > 0) {
       await expect(slider.first()).toBeVisible();
     }
   });
 
   test("should show color picker if supported", async ({ page }) => {
     const colorPicker = page.locator(
-      'input[type="color"], [class*="color-picker"]'
+      'input[type="color"], [class*="color-picker"]',
     );
 
-    if (await colorPicker.count() > 0) {
+    if ((await colorPicker.count()) > 0) {
       await expect(colorPicker.first()).toBeVisible();
     }
   });
 
   test("should display light on/off state", async ({ page }) => {
     const onOffButton = page.locator(
-      'button[class*="toggle"], [class*="switch"]'
+      'button[class*="toggle"], [class*="switch"]',
     );
 
-    if (await onOffButton.count() > 0) {
+    if ((await onOffButton.count()) > 0) {
       const isVisible = await onOffButton.first().isVisible();
       expect(isVisible).toBe(true);
     }
@@ -119,27 +117,27 @@ test.describe("Component Rendering - Media Player", () => {
   test("should render media player component", async ({ page }) => {
     const mediaPlayer = page.locator('[class*="media"], [class*="Media"]');
 
-    if (await mediaPlayer.count() > 0) {
+    if ((await mediaPlayer.count()) > 0) {
       await expect(mediaPlayer.first()).toBeVisible();
     }
   });
 
   test("should display play/pause controls", async ({ page }) => {
     const playButton = page.locator(
-      'button[aria-label*="play" i], [class*="play"]'
+      'button[aria-label*="play" i], [class*="play"]',
     );
 
-    if (await playButton.count() > 0) {
+    if ((await playButton.count()) > 0) {
       await expect(playButton.first()).toBeVisible();
     }
   });
 
   test("should show volume control", async ({ page }) => {
     const volumeControl = page.locator(
-      'input[class*="volume"], [aria-label*="volume" i]'
+      'input[class*="volume"], [aria-label*="volume" i]',
     );
 
-    if (await volumeControl.count() > 0) {
+    if ((await volumeControl.count()) > 0) {
       await expect(volumeControl.first()).toBeVisible();
     }
   });
@@ -154,7 +152,7 @@ test.describe("Component Rendering - Weather", () => {
   test("should render weather component", async ({ page }) => {
     const weather = page.locator('[class*="weather"], [class*="Weather"]');
 
-    if (await weather.count() > 0) {
+    if ((await weather.count()) > 0) {
       await expect(weather.first()).toBeVisible();
     }
   });
@@ -162,7 +160,7 @@ test.describe("Component Rendering - Weather", () => {
   test("should display weather icon", async ({ page }) => {
     const weatherIcon = page.locator('[class*="weather"] [class*="icon"]');
 
-    if (await weatherIcon.count() > 0) {
+    if ((await weatherIcon.count()) > 0) {
       await expect(weatherIcon.first()).toBeVisible();
     }
   });
@@ -183,17 +181,15 @@ test.describe("Component Rendering - Energy", () => {
   test("should render energy component", async ({ page }) => {
     const energy = page.locator('[class*="energy"], [class*="Energy"]');
 
-    if (await energy.count() > 0) {
+    if ((await energy.count()) > 0) {
       await expect(energy.first()).toBeVisible();
     }
   });
 
   test("should display energy chart", async ({ page }) => {
-    const chart = page.locator(
-      'canvas, svg[class*="chart"], [class*="graph"]'
-    );
+    const chart = page.locator('canvas, svg[class*="chart"], [class*="graph"]');
 
-    if (await chart.count() > 0) {
+    if ((await chart.count()) > 0) {
       await expect(chart.first()).toBeVisible();
     }
   });
@@ -303,11 +299,11 @@ test.describe("Component Interactions", () => {
   });
 
   test("should toggle switch state", async ({ page }) => {
-    const switchButton = page.locator(
-      'button[class*="toggle"], input[type="checkbox"]'
-    ).first();
+    const switchButton = page
+      .locator('button[class*="toggle"], input[type="checkbox"]')
+      .first();
 
-    if (await switchButton.count() > 0 && await switchButton.isVisible()) {
+    if ((await switchButton.count()) > 0 && (await switchButton.isVisible())) {
       const initialChecked = await switchButton.evaluate((el) => {
         return el.checked || el.getAttribute("aria-pressed");
       });
@@ -327,7 +323,7 @@ test.describe("Component Interactions", () => {
   test("should change slider value", async ({ page }) => {
     const slider = page.locator('input[type="range"]').first();
 
-    if (await slider.count() > 0 && await slider.isVisible()) {
+    if ((await slider.count()) > 0 && (await slider.isVisible())) {
       const initial = await slider.inputValue();
 
       await slider.fill("50");
@@ -342,7 +338,7 @@ test.describe("Component Interactions", () => {
   test("should handle button click", async ({ page }) => {
     const button = page.locator("button").first();
 
-    if (await button.count() > 0 && await button.isVisible()) {
+    if ((await button.count()) > 0 && (await button.isVisible())) {
       await button.click();
       await page.waitForTimeout(300);
 
@@ -355,10 +351,10 @@ test.describe("Component Interactions", () => {
   test("should show loading state", async ({ page }) => {
     // Some components might show loading indicator
     const spinner = page.locator(
-      '[class*="spinner"], [class*="loading"], .loader'
+      '[class*="spinner"], [class*="loading"], .loader',
     );
 
-    if (await spinner.count() > 0) {
+    if ((await spinner.count()) > 0) {
       const isVisible = await spinner.first().isVisible();
       expect(typeof isVisible).toBe("boolean");
     }
@@ -375,14 +371,18 @@ test.describe("Component Error States", () => {
     // Set invalid entity in configuration
     await page.evaluate(() => {
       const config = JSON.parse(
-        localStorage.getItem("dashboard-config") || "{}"
+        localStorage.getItem("dashboard-config") || "{}",
       );
-      config.views = [{
-        cards: [{
-          type: "sensor",
-          entity: "sensor.nonexistent.entity"
-        }]
-      }];
+      config.views = [
+        {
+          cards: [
+            {
+              type: "sensor",
+              entity: "sensor.nonexistent.entity",
+            },
+          ],
+        },
+      ];
       localStorage.setItem("dashboard-config", JSON.stringify(config));
     });
 
@@ -397,16 +397,18 @@ test.describe("Component Error States", () => {
   test("should show error component for invalid type", async ({ page }) => {
     const errorComponent = page.locator('[class*="error"], [class*="Error"]');
 
-    if (await errorComponent.count() > 0) {
+    if ((await errorComponent.count()) > 0) {
       const isVisible = await errorComponent.first().isVisible();
       expect(typeof isVisible).toBe("boolean");
     }
   });
 
   test("should display placeholder for loading state", async ({ page }) => {
-    const placeholder = page.locator('[class*="skeleton"], [class*="placeholder"]');
+    const placeholder = page.locator(
+      '[class*="skeleton"], [class*="placeholder"]',
+    );
 
-    if (await placeholder.count() > 0) {
+    if ((await placeholder.count()) > 0) {
       const isVisible = await placeholder.first().isVisible();
       expect(typeof isVisible).toBe("boolean");
     }
@@ -452,7 +454,7 @@ test.describe("Component Performance", () => {
 
     // Get initial memory (if available)
     const initialMemory = await page.evaluate(() => {
-      return (performance.memory?.usedJSHeapSize) ?? 0;
+      return performance.memory?.usedJSHeapSize ?? 0;
     });
 
     // Reload multiple times
@@ -463,7 +465,7 @@ test.describe("Component Performance", () => {
 
     // Final memory should be reasonable
     const finalMemory = await page.evaluate(() => {
-      return (performance.memory?.usedJSHeapSize) ?? 0;
+      return performance.memory?.usedJSHeapSize ?? 0;
     });
 
     // Should not increase dramatically

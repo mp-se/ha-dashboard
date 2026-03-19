@@ -265,12 +265,12 @@ export const useConfigStore = defineStore("config", () => {
   const saveConfigToBackend = async (config: unknown): Promise<boolean> => {
     try {
       const password =
-        ((dashboardConfig.value as Record<string, unknown>) || {})?.app?.password ||
-        ("" as string);
+        ((dashboardConfig.value as Record<string, unknown>) || {})?.app
+          ?.password || ("" as string);
 
       if (!password) {
         logger.warn(
-          "Editor password not configured in config, skipping backend save"
+          "Editor password not configured in config, skipping backend save",
         );
         return false;
       }
@@ -305,11 +305,9 @@ export const useConfigStore = defineStore("config", () => {
       }
 
       const result = (await response.json()) as Record<string, unknown>;
-      const backupPath = ((result.data as Record<string, unknown>)?.backupPath as string) || "";
-      logger.log(
-        "✓ Dashboard config saved to server:",
-        backupPath
-      );
+      const backupPath =
+        ((result.data as Record<string, unknown>)?.backupPath as string) || "";
+      logger.log("✓ Dashboard config saved to server:", backupPath);
 
       // Clear draft from local storage after successful save
       localStorage.removeItem("dashboardConfigDraft");

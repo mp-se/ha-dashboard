@@ -48,11 +48,7 @@
           </div>
 
           <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              @click="closeModal"
-            >
+            <button type="button" class="btn btn-secondary" @click="closeModal">
               Cancel
             </button>
             <button

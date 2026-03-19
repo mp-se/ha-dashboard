@@ -26,7 +26,9 @@
               @click="saveConfigToBackend()"
             >
               <i
-                :class="isSaving ? 'mdi mdi-loading mdi-spin' : 'mdi mdi-content-save'"
+                :class="
+                  isSaving ? 'mdi mdi-loading mdi-spin' : 'mdi mdi-content-save'
+                "
                 class="me-1"
               ></i>
               {{ isSaving ? "Saving..." : "Save" }}
@@ -309,7 +311,7 @@ const enterEditMode = async () => {
     const draft = loadDraftFromLocalStorage();
     if (draft) {
       const shouldResume = confirm(
-        "Resume editing previous draft? Click OK to restore, Cancel to start fresh."
+        "Resume editing previous draft? Click OK to restore, Cancel to start fresh.",
       );
       if (shouldResume) {
         store.dashboardConfig = draft;
@@ -355,15 +357,13 @@ const saveConfigToBackend = async () => {
     saveStatus.value = "Saving...";
 
     const success = await configStore.saveConfigToBackend(
-      store.dashboardConfig
+      store.dashboardConfig,
     );
 
     if (success) {
       saveStatus.value = "Saved!";
       hasChanges.value = false;
-      originalConfig.value = JSON.parse(
-        JSON.stringify(store.dashboardConfig)
-      );
+      originalConfig.value = JSON.parse(JSON.stringify(store.dashboardConfig));
       logger.log("Config saved to backend successfully");
 
       setTimeout(() => {

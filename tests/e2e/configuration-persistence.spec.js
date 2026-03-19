@@ -22,7 +22,7 @@ test.describe("Configuration Persistence - LocalStorage", () => {
     const config = await page.evaluate(() => {
       return localStorage.getItem("dashboardConfig");
     });
-    
+
     // Config should be either null or valid JSON
     if (config) {
       const parsed = JSON.parse(config);
@@ -32,10 +32,10 @@ test.describe("Configuration Persistence - LocalStorage", () => {
 
   test("should preserve dark mode preference", async ({ page }) => {
     const darkModeButton = page.locator(
-      'button[aria-label="Toggle dark mode"]'
+      'button[aria-label="Toggle dark mode"]',
     );
-    
-    if (!await darkModeButton.isVisible()) {
+
+    if (!(await darkModeButton.isVisible())) {
       test.skip();
     }
 
@@ -81,15 +81,15 @@ test.describe("Configuration Persistence - LocalStorage", () => {
 
   test("should save editor draft to localStorage", async ({ page }) => {
     const editorLink = page.locator('a:has-text("Visual Editor")');
-    
-    if (!await editorLink.isVisible()) {
+
+    if (!(await editorLink.isVisible())) {
       test.skip();
     }
 
     await editorLink.click();
-    
+
     const editButton = page.locator('button:has-text("EDIT")');
-    if (!await editButton.isVisible()) {
+    if (!(await editButton.isVisible())) {
       test.skip();
     }
 
@@ -107,22 +107,22 @@ test.describe("Configuration Persistence - LocalStorage", () => {
 
   test("should restore draft on editor reopening", async ({ page }) => {
     const editorLink = page.locator('a:has-text("Visual Editor")');
-    
-    if (!await editorLink.isVisible()) {
+
+    if (!(await editorLink.isVisible())) {
       test.skip();
     }
 
     await editorLink.click();
-    
+
     const editButton = page.locator('button:has-text("EDIT")');
-    if (!await editButton.isVisible()) {
+    if (!(await editButton.isVisible())) {
       test.skip();
     }
 
     // Enter edit mode and get draft
     await editButton.click();
     await page.waitForTimeout(500);
-    
+
     const draftBefore = await page.evaluate(() => {
       const draft = localStorage.getItem("dashboardDraft");
       return draft ? JSON.parse(draft) : null;
@@ -152,9 +152,7 @@ test.describe("Configuration Persistence - LocalStorage", () => {
 });
 
 test.describe("Configuration Persistence - Page Reload", () => {
-  test("should preserve configuration after page reload", async ({
-    page,
-  }) => {
+  test("should preserve configuration after page reload", async ({ page }) => {
     await page.goto("/");
     await page.waitForSelector("nav", { timeout: 10000 });
 
@@ -241,7 +239,7 @@ test.describe("Configuration Persistence - Multi-Tab", () => {
 test.describe("Configuration Persistence - Error Handling", () => {
   test("should handle corrupted localStorage", async ({ page }) => {
     await page.goto("/");
-    
+
     // Inject corrupted data
     await page.evaluate(() => {
       localStorage.setItem("dashboardConfig", "{ invalid json");
@@ -249,7 +247,7 @@ test.describe("Configuration Persistence - Error Handling", () => {
 
     // Reload
     await page.reload();
-    
+
     // App should still load without crashing
     await expect(page.locator("nav")).toBeVisible({ timeout: 10000 });
   });
@@ -257,7 +255,7 @@ test.describe("Configuration Persistence - Error Handling", () => {
   test("should handle missing configuration file", async ({ page }) => {
     // Try to load app with no config
     await page.goto("/");
-    
+
     // Should show loading or credential modal
     const content = page.locator("body");
     await expect(content).toBeVisible({ timeout: 10000 });
@@ -268,14 +266,16 @@ test.describe("Configuration Persistence - Error Handling", () => {
     context,
   }) => {
     await page.goto("/");
-    
+
     // This is a theoretical test - actual DOM not able to fill localStorage quota easily
     // But the app should handle gracefully if it happens
-    
+
     // Check that app declares handlers for storage errors
     const errorHandlers = await page.evaluate(() => {
-      return typeof window.onerror === "function" ||
-        typeof window.addEventListener === "function";
+      return (
+        typeof window.onerror === "function" ||
+        typeof window.addEventListener === "function"
+      );
     });
 
     expect(errorHandlers).toBe(true);

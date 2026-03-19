@@ -94,21 +94,19 @@ test.describe("PWA - Web App Manifest", () => {
   });
 
   test("should have web app manifest", async ({ page }) => {
-    const manifestLink = page.locator(
-      'link[rel="manifest"]'
-    );
+    const manifestLink = page.locator('link[rel="manifest"]');
 
     await expect(manifestLink).toBeAttached();
   });
 
   test("should have valid manifest content", async ({ page }) => {
-    const manifestUrl = await page.locator(
-      'link[rel="manifest"]'
-    ).getAttribute("href");
+    const manifestUrl = await page
+      .locator('link[rel="manifest"]')
+      .getAttribute("href");
 
     if (manifestUrl) {
       const manifestResponse = await page.goto(
-        new URL(manifestUrl, page.url()).toString()
+        new URL(manifestUrl, page.url()).toString(),
       );
       const manifestText = await manifestResponse?.text();
 
@@ -123,20 +121,16 @@ test.describe("PWA - Web App Manifest", () => {
   });
 
   test("should have app theme color", async ({ page }) => {
-    const themeColorMeta = page.locator(
-      'meta[name="theme-color"]'
-    );
+    const themeColorMeta = page.locator('meta[name="theme-color"]');
 
-    if (await themeColorMeta.count() > 0) {
+    if ((await themeColorMeta.count()) > 0) {
       const content = await themeColorMeta.getAttribute("content");
       expect(content).toBeTruthy();
     }
   });
 
   test("should have viewport meta tag", async ({ page }) => {
-    const viewportMeta = page.locator(
-      'meta[name="viewport"]'
-    );
+    const viewportMeta = page.locator('meta[name="viewport"]');
 
     await expect(viewportMeta).toBeAttached();
   });
@@ -166,18 +160,18 @@ test.describe("PWA - Install Prompt", () => {
   test("should show install prompt component", async ({ page }) => {
     // Look for install prompt button or component
     const installPrompt = page.locator(
-      '[class*="install"], button[aria-label*="install" i]'
+      '[class*="install"], button[aria-label*="install" i]',
     );
 
     // Install prompt might not always be visible
-    if (await installPrompt.count() > 0) {
+    if ((await installPrompt.count()) > 0) {
       await expect(installPrompt.first()).toBeVisible();
     }
   });
 
   test("should handle install button click", async ({ page }) => {
     const installButton = page.locator(
-      'button:has-text("Install"), [class*="install-button"]'
+      'button:has-text("Install"), [class*="install-button"]',
     );
 
     if (await installButton.isVisible()) {
@@ -185,7 +179,7 @@ test.describe("PWA - Install Prompt", () => {
       await page.evaluate(() => {
         window.deferredPrompt = {
           prompt: async () => {},
-          userChoice: Promise.resolve({ outcome: 'accepted' })
+          userChoice: Promise.resolve({ outcome: "accepted" }),
         };
       });
 
@@ -201,13 +195,13 @@ test.describe("PWA - Install Prompt", () => {
 
   test("should dismiss install prompt gracefully", async ({ page }) => {
     const installPrompt = page.locator(
-      '[class*="install"], button[aria-label*="install" i]'
+      '[class*="install"], button[aria-label*="install" i]',
     );
 
-    if (await installPrompt.count() > 0) {
+    if ((await installPrompt.count()) > 0) {
       // Look for dismiss button
       const dismissButton = page.locator(
-        'button[aria-label*="dismiss" i], .close'
+        'button[aria-label*="dismiss" i], .close',
       );
 
       if (await dismissButton.isVisible()) {
@@ -235,11 +229,11 @@ test.describe("PWA - Offline Mode", () => {
     try {
       // Check if app shows offline indicator
       const offlineIndicator = page.locator(
-        '[class*="offline"], [aria-label*="offline" i]'
+        '[class*="offline"], [aria-label*="offline" i]',
       );
 
       // May or may not have indicator
-      if (await offlineIndicator.count() > 0) {
+      if ((await offlineIndicator.count()) > 0) {
         await expect(offlineIndicator.first()).toBeVisible();
       }
     } finally {
@@ -247,14 +241,11 @@ test.describe("PWA - Offline Mode", () => {
     }
   });
 
-  test("should load cached content when offline", async ({
-    page,
-    context,
-  }) => {
+  test("should load cached content when offline", async ({ page, context }) => {
     // First load to cache
     await page.goto("/");
     await page.waitForSelector("nav", { timeout: 10000 });
-    
+
     const initialContent = await page.textContent("body");
 
     // Go offline
@@ -263,7 +254,7 @@ test.describe("PWA - Offline Mode", () => {
     try {
       // Reload
       const response = await page.reload().catch(() => null);
-      
+
       // Wait for any loading
       await page.waitForTimeout(500);
 
@@ -275,9 +266,7 @@ test.describe("PWA - Offline Mode", () => {
     }
   });
 
-  test("should handle service worker errors gracefully", async ({
-    page,
-  }) => {
+  test("should handle service worker errors gracefully", async ({ page }) => {
     await page.goto("/");
 
     // Simulate SW error by checking error handlers
@@ -325,7 +314,7 @@ test.describe("PWA - Performance", () => {
       const resources = performance.getEntriesByType("resource");
       return {
         count: resources.length,
-        totalSize: resources.reduce((sum, r) => sum + (r.transferSize || 0), 0)
+        totalSize: resources.reduce((sum, r) => sum + (r.transferSize || 0), 0),
       };
     });
 

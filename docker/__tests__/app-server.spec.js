@@ -45,7 +45,7 @@ function setupTestEnv() {
   };
   fs.writeFileSync(
     path.join(testDataDir, "dashboard-config.json"),
-    JSON.stringify(testConfig, null, 2)
+    JSON.stringify(testConfig, null, 2),
   );
 }
 
@@ -77,9 +77,7 @@ describe("Backend Server (app-server.js)", () => {
       const configPath = path.join(testDataDir, "dashboard-config.json");
       expect(fs.existsSync(configPath)).toBe(true);
 
-      const configData = JSON.parse(
-        fs.readFileSync(configPath, "utf-8")
-      );
+      const configData = JSON.parse(fs.readFileSync(configPath, "utf-8"));
       expect(configData.app.title).toBe("Test Dashboard");
       expect(configData.app.password).toBe("test-password");
     });
@@ -144,7 +142,10 @@ describe("Backend Server (app-server.js)", () => {
 
       // Verify config was saved
       const savedConfig = JSON.parse(
-        fs.readFileSync(path.join(testDataDir, "dashboard-config.json"), "utf-8")
+        fs.readFileSync(
+          path.join(testDataDir, "dashboard-config.json"),
+          "utf-8",
+        ),
       );
       expect(savedConfig.app.title).toBe("Updated Dashboard");
     });
@@ -195,7 +196,7 @@ describe("Backend Server (app-server.js)", () => {
       const testData = { entities: { "sensor.test": { state: "ok" } } };
       fs.writeFileSync(
         path.join(testDataDir, "local-data.json"),
-        JSON.stringify(testData)
+        JSON.stringify(testData),
       );
 
       const response = await request(app).get("/api/data/local");
@@ -229,8 +230,8 @@ describe("Backend Server (app-server.js)", () => {
       expect(backups.length).toBeGreaterThan(0);
 
       // Check ISO format in backup filename
-      const hasISOFormat = backups.some(backup =>
-        /\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}/.test(backup)
+      const hasISOFormat = backups.some((backup) =>
+        /\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}/.test(backup),
       );
       expect(hasISOFormat).toBe(true);
     });

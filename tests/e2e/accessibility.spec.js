@@ -29,9 +29,9 @@ test.describe("Accessibility - Keyboard Navigation", () => {
     // Should focus an interactive element
     expect(
       focusedElement === "BUTTON" ||
-      focusedElement === "A" ||
-      focusedElement === "INPUT" ||
-      focusedElement?.startsWith("HA-")
+        focusedElement === "A" ||
+        focusedElement === "INPUT" ||
+        focusedElement?.startsWith("HA-"),
     ).toBe(true);
   });
 
@@ -51,11 +51,7 @@ test.describe("Accessibility - Keyboard Navigation", () => {
       const boxShadow = style.boxShadow;
 
       // Should have some visible focus indicator
-      return (
-        outline !== "none" ||
-        border !== "none" ||
-        boxShadow !== "none"
-      );
+      return outline !== "none" || border !== "none" || boxShadow !== "none";
     });
 
     // Focus indicator should be visible (but test.skip if not implemented)
@@ -69,20 +65,18 @@ test.describe("Accessibility - Keyboard Navigation", () => {
   test("should support Skip to Content link", async ({ page }) => {
     // Look for skip link
     const skipLink = page.locator(
-      'a[href="#main"], a:has-text("Skip to content")'
+      'a[href="#main"], a:has-text("Skip to content")',
     );
 
     // Skip link is optional but good to have
-    if (await skipLink.count() > 0) {
+    if ((await skipLink.count()) > 0) {
       await expect(skipLink).toBeFocused();
     }
   });
 
   test("should close modals with Escape key", async ({ page }) => {
     // Open dev mode password modal
-    const devButton = page.locator(
-      'button[aria-label*="developer" i]'
-    );
+    const devButton = page.locator('button[aria-label*="developer" i]');
 
     if (await devButton.isVisible()) {
       await devButton.click();
@@ -91,7 +85,7 @@ test.describe("Accessibility - Keyboard Navigation", () => {
       // Look for modal/dialog
       const modal = page.locator('[role="dialog"]');
 
-      if (await modal.count() > 0) {
+      if ((await modal.count()) > 0) {
         // Press Escape
         await page.keyboard.press("Escape");
         await page.waitForTimeout(300);
@@ -105,9 +99,7 @@ test.describe("Accessibility - Keyboard Navigation", () => {
 
   test("should support Enter key submission", async ({ page }) => {
     // Open dev mode
-    const devButton = page.locator(
-      'button[aria-label*="developer" i]'
-    );
+    const devButton = page.locator('button[aria-label*="developer" i]');
 
     if (await devButton.isVisible()) {
       await devButton.click();
@@ -116,7 +108,7 @@ test.describe("Accessibility - Keyboard Navigation", () => {
       // Look for password input
       const passwordInput = page.locator('input[type="password"]');
 
-      if (await passwordInput.count() > 0) {
+      if ((await passwordInput.count()) > 0) {
         await passwordInput.fill("test-password");
 
         // Get submit button before pressing Enter
@@ -130,7 +122,9 @@ test.describe("Accessibility - Keyboard Navigation", () => {
         await page.waitForTimeout(300);
 
         // System should attempt to submit
-        expect(submitWasAttempted || await submitButton.isVisible()).toBeTruthy();
+        expect(
+          submitWasAttempted || (await submitButton.isVisible()),
+        ).toBeTruthy();
       }
     }
   });
@@ -138,7 +132,8 @@ test.describe("Accessibility - Keyboard Navigation", () => {
   test("should support arrow keys for navigation", async ({ page }) => {
     // Check for components that support arrow keys (radio groups, selects, etc)
     const supportsArrowKeys = await page.evaluate(() => {
-      const radioGroup = document.querySelector('[role="radiogroup"]') ||
+      const radioGroup =
+        document.querySelector('[role="radiogroup"]') ||
         document.querySelector('[role="listbox"]');
       return radioGroup !== null;
     });
@@ -167,9 +162,11 @@ test.describe("Accessibility - ARIA & Semantics", () => {
   test("should have semantic HTML structure", async ({ page }) => {
     const hasSemanticStructure = await page.evaluate(() => {
       const hasNav = document.querySelector("nav") !== null;
-      const hasHeader = document.querySelector("header") !== null ||
+      const hasHeader =
+        document.querySelector("header") !== null ||
         document.querySelector("h1") !== null;
-      const hasMain = document.querySelector("main") !== null ||
+      const hasMain =
+        document.querySelector("main") !== null ||
         document.querySelector('[role="main"]') !== null;
 
       return hasNav || hasHeader || hasMain;
@@ -180,8 +177,9 @@ test.describe("Accessibility - ARIA & Semantics", () => {
 
   test("should have proper heading hierarchy", async ({ page }) => {
     const headingHierarchy = await page.evaluate(() => {
-      const headings = Array.from(document.querySelectorAll("h1, h2, h3, h4, h5, h6"))
-        .map((h) => parseInt(h.tagName[1]));
+      const headings = Array.from(
+        document.querySelectorAll("h1, h2, h3, h4, h5, h6"),
+      ).map((h) => parseInt(h.tagName[1]));
 
       if (headings.length === 0) return true; // No headings is OK
 
@@ -240,9 +238,7 @@ test.describe("Accessibility - ARIA & Semantics", () => {
     for (let i = 0; i < Math.min(3, count); i++) {
       const input = inputs.nth(i);
       const hasLabel = await input.evaluate((el) => {
-        const label = document.querySelector(
-          `label[for="${el.id}"]`
-        );
+        const label = document.querySelector(`label[for="${el.id}"]`);
         return (
           label !== null ||
           el.placeholder !== "" ||
@@ -262,7 +258,7 @@ test.describe("Accessibility - ARIA & Semantics", () => {
   test("should have proper list structure for navigation", async ({ page }) => {
     const nav = page.locator("nav");
 
-    if (await nav.count() > 0) {
+    if ((await nav.count()) > 0) {
       const hasList = await nav.evaluate((el) => {
         return el.querySelector("ul, ol, [role='list']") !== null;
       });
@@ -278,7 +274,7 @@ test.describe("Accessibility - ARIA & Semantics", () => {
   test("should indicate current page in navigation", async ({ page }) => {
     const nav = page.locator("nav");
 
-    if (await nav.count() > 0) {
+    if ((await nav.count()) > 0) {
       const hasCurrent = await nav.evaluate((el) => {
         return !!(
           el.querySelector('[aria-current="page"]') ||
@@ -303,8 +299,11 @@ test.describe("Accessibility - Color Contrast", () => {
 
     // Only test light theme for now
     const darkModeActive = await page.evaluate(() => {
-      return document.documentElement.classList.contains("dark") ||
-        window.getComputedStyle(document.body).backgroundColor === "rgb(0, 0, 0)";
+      return (
+        document.documentElement.classList.contains("dark") ||
+        window.getComputedStyle(document.body).backgroundColor ===
+          "rgb(0, 0, 0)"
+      );
     });
 
     if (darkModeActive) {
@@ -313,8 +312,9 @@ test.describe("Accessibility - Color Contrast", () => {
 
     // Sample check - full color contrast validation would require external tool
     const contrastOk = await page.evaluate(() => {
-      const text = Array.from(document.querySelectorAll("body *"))
-        .find((el) => el.textContent?.trim().length ?? 0 > 10);
+      const text = Array.from(document.querySelectorAll("body *")).find(
+        (el) => el.textContent?.trim().length ?? 0 > 10,
+      );
 
       if (!text) return true;
 
@@ -385,12 +385,12 @@ test.describe("Responsive Design - Mobile", () => {
   test("should show mobile-specific UI elements", async ({ page }) => {
     // Check for hamburger menu or mobile nav
     const hamburger = page.locator(
-      'button[aria-label*="menu" i], [class*="hamburger"]'
+      'button[aria-label*="menu" i], [class*="hamburger"]',
     );
 
     const mobileNav = page.locator('[class*="mobile"], [class*="drawer"]');
 
-    if (await hamburger.count() > 0 || await mobileNav.count() > 0) {
+    if ((await hamburger.count()) > 0 || (await mobileNav.count()) > 0) {
       expect(true).toBe(true);
     }
   });
@@ -453,9 +453,7 @@ test.describe("Responsive Design - Desktop", () => {
 
   test("should show desktop navigation", async ({ page }) => {
     const nav = page.locator("nav");
-    expect(
-      await nav.isVisible()
-    ).toBe(true);
+    expect(await nav.isVisible()).toBe(true);
   });
 });
 
@@ -490,7 +488,10 @@ test.describe("Text & Font Sizing", () => {
     // Check if app respects prefers-contrast
     const hasContrastStyles = await page.evaluate(() => {
       const media = window.matchMedia("(prefers-contrast: more)");
-      return media.matches || document.documentElement.classList.contains("high-contrast");
+      return (
+        media.matches ||
+        document.documentElement.classList.contains("high-contrast")
+      );
     });
 
     // Should either support it or at least not break in high contrast

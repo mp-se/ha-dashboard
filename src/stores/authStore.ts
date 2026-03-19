@@ -350,9 +350,7 @@ export const useAuthStore = defineStore("auth", () => {
 
     // Check if password is configured
     if (!appConfig?.password) {
-      logger.warn(
-        "Developer password not configured in dashboard config"
-      );
+      logger.warn("Developer password not configured in dashboard config");
       return false;
     }
 
@@ -365,7 +363,7 @@ export const useAuthStore = defineStore("auth", () => {
     // Toggle mode
     developerMode.value = !developerMode.value;
     logger.log(
-      `✓ Developer mode ${developerMode.value ? "enabled" : "disabled"}`
+      `✓ Developer mode ${developerMode.value ? "enabled" : "disabled"}`,
     );
     return true;
   };
