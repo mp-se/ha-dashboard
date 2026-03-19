@@ -257,6 +257,70 @@ export const useConfigStore = defineStore("config", () => {
     }
   };
 
+  /**
+   * Save config to backend server via POST /api/config
+   * Creates timestamped backup of existing config
+   * @returns true if save successful, false otherwise
+   */
+  const saveConfigToBackend = async (config: unknown): Promise<boolean> => {
+    try {
+      const password =
+        ((dashboardConfig.value as Record<string, unknown>) || {})?.app?.password ||
+        ("" as string);
+
+      if (!password) {
+        logger.warn(
+          "Editor password not configured in config, skipping backend save"
+        );
+        return false;
+      }
+
+      // Development: VITE_API_URL env var points to localhost:3000
+      // Production: Uses BASE_URL (app served with Nginx /api/ proxy to localhost:3000)
+      const apiBaseUrl =
+        (import.meta.env.VITE_API_URL as string) ||
+        (import.meta.env.BASE_URL as string) ||
+        "/";
+      const apiUrl =
+        apiBaseUrl + (apiBaseUrl.endsWith("/") ? "api/config" : "/api/config");
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${password}`,
+        },
+        body: JSON.stringify(config),
+      });
+
+      if (!response.ok) {
+        let errorMsg = "Failed to save config";
+        try {
+          const errorData = (await response.json()) as Record<string, unknown>;
+          errorMsg = (errorData.error as string) || errorMsg;
+        } catch (parseError) {
+          // Response not JSON, use generic message
+        }
+        throw new Error(errorMsg);
+      }
+
+      const result = (await response.json()) as Record<string, unknown>;
+      const backupPath = ((result.data as Record<string, unknown>)?.backupPath as string) || "";
+      logger.log(
+        "✓ Dashboard config saved to server:",
+        backupPath
+      );
+
+      // Clear draft from local storage after successful save
+      localStorage.removeItem("dashboardConfigDraft");
+
+      return true;
+    } catch (error) {
+      logger.error("Error saving dashboard config to server:", error);
+      return false;
+    }
+  };
+
   return {
     dashboardConfig,
     configValidationError,
@@ -267,5 +331,6 @@ export const useConfigStore = defineStore("config", () => {
     updateView,
     deleteView,
     saveDashboardConfig,
+    saveConfigToBackend,
   };
 });

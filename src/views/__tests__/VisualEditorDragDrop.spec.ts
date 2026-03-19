@@ -89,8 +89,8 @@ describe("VisualEditorView.vue - Reordering Integration (Phase 2)", () => {
 
       wrapper.vm.handleReorderEntities(newOrder);
 
-      // Debounce delay
-      expect(wrapper.vm.saveStatus).toBe("Saving...");
+      // After reorder, hasChanges should be true
+      expect(wrapper.vm.hasChanges).toBe(true);
 
       vi.runAllTimers();
       await wrapper.vm.$nextTick();

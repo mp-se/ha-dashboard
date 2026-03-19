@@ -6,7 +6,41 @@
         <div class="col-auto">
           <h5 class="mb-0">Visual Editor</h5>
         </div>
-        <div class="col-auto ms-auto">
+        <div class="col-auto ms-auto d-flex align-items-center gap-2">
+          <!-- View Mode: show EDIT button -->
+          <button
+            v-if="!isEditMode"
+            class="btn btn-primary btn-sm"
+            title="Enter edit mode"
+            @click="enterEditMode()"
+          >
+            <i class="mdi mdi-pencil"></i> Edit
+          </button>
+
+          <!-- Edit Mode: show SAVE and VIEW buttons -->
+          <template v-else>
+            <button
+              :disabled="!hasChanges || isSaving"
+              class="btn btn-success btn-sm me-2"
+              title="Save changes to backend"
+              @click="saveConfigToBackend()"
+            >
+              <i
+                :class="isSaving ? 'mdi mdi-loading mdi-spin' : 'mdi mdi-content-save'"
+                class="me-1"
+              ></i>
+              {{ isSaving ? "Saving..." : "Save" }}
+            </button>
+            <button
+              class="btn btn-secondary btn-sm"
+              title="Exit edit mode (unsaved changes will be kept in draft)"
+              @click="exitEditMode()"
+            >
+              <i class="mdi mdi-eye"></i> View
+            </button>
+          </template>
+
+          <!-- Save Status Badge -->
           <div v-if="saveStatus" class="badge" :class="saveStatusClass">
             <i :class="saveStatusIcon" class="me-1"></i>
             {{ saveStatus }}
@@ -16,8 +50,8 @@
     </div>
   </div>
 
-  <!-- Editor Container -->
-  <div class="editor-container">
+  <!-- Editor Container (disabled when not in edit mode) -->
+  <div class="editor-container" :class="{ 'edit-disabled': !isEditMode }">
     <div
       class="row g-0 resizable-layout"
       style="min-height: calc(100vh - 200px)"
@@ -113,6 +147,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
 import { useHaStore } from "../stores/haStore";
+import { useConfigStore } from "../stores/configStore";
 import EditorCanvas from "../components/visual-editor/EditorCanvas.vue";
 import EntityPalette from "../components/visual-editor/EntityPalette.vue";
 import EntityInspector from "../components/visual-editor/EntityInspector.vue";
@@ -129,11 +164,18 @@ defineProps({
 });
 
 const store = useHaStore();
+const configStore = useConfigStore();
 
 const selectedViewName = ref("");
 const selectedEntityId = ref(null);
 const saveStatus = ref("");
 const saveTimeout = ref(null);
+
+// Edit mode and draft management
+const isEditMode = ref(false);
+const hasChanges = ref(false);
+const isSaving = ref(false);
+const originalConfig = ref(null);
 
 const availableViews = computed(() => {
   const views = store.dashboardConfig?.views ?? [];
@@ -218,36 +260,132 @@ const debouncedSave = () => {
     clearTimeout(saveTimeout.value);
   }
 
-  saveStatus.value = "Saving...";
+  hasChanges.value = true;
 
   saveTimeout.value = setTimeout(() => {
-    handleSave();
+    saveDraftToLocalStorage();
   }, 500);
 };
 
 /**
- * Save the current view config to the store
+ * Save draft to localStorage
  */
-const handleSave = async () => {
+const saveDraftToLocalStorage = () => {
   try {
-    if (!currentView.value) return;
+    if (!store.dashboardConfig) return;
 
-    saveStatus.value = "Saving...";
-    logger.log(`Saving view: ${selectedViewName.value}`, currentView.value);
-
-    // For now, just update the store - in Phase 5 we'll add persistence
-    // store.dashboardConfig.views[viewIndex].entities = currentView.value.entities;
-
-    saveStatus.value = "Saved";
-    setTimeout(() => {
-      saveStatus.value = "";
-    }, 2000);
+    const draft = JSON.stringify(store.dashboardConfig);
+    localStorage.setItem("dashboardConfigDraft", draft);
+    logger.log("Draft saved to localStorage");
   } catch (error) {
-    logger.error("Error saving view config:", error);
+    logger.error("Error saving draft to localStorage:", error);
+  }
+};
+
+/**
+ * Load draft from localStorage
+ */
+const loadDraftFromLocalStorage = () => {
+  try {
+    const draft = localStorage.getItem("dashboardConfigDraft");
+    if (draft) {
+      return JSON.parse(draft);
+    }
+  } catch (error) {
+    logger.error("Error loading draft from localStorage:", error);
+  }
+  return null;
+};
+
+/**
+ * Enter edit mode
+ */
+const enterEditMode = async () => {
+  try {
+    // Store original config snapshot for potential rollback
+    originalConfig.value = JSON.parse(JSON.stringify(store.dashboardConfig));
+
+    // Check if draft exists
+    const draft = loadDraftFromLocalStorage();
+    if (draft) {
+      const shouldResume = confirm(
+        "Resume editing previous draft? Click OK to restore, Cancel to start fresh."
+      );
+      if (shouldResume) {
+        store.dashboardConfig = draft;
+        logger.log("Resumed editing from draft");
+      }
+    }
+
+    isEditMode.value = true;
+    hasChanges.value = false;
+    logger.log("Entered edit mode");
+  } catch (error) {
+    logger.error("Error entering edit mode:", error);
+  }
+};
+
+/**
+ * Exit edit mode
+ */
+const exitEditMode = () => {
+  try {
+    // Keep draft in localStorage for next edit session
+    if (hasChanges.value) {
+      saveDraftToLocalStorage();
+      logger.log("Draft preserved in localStorage for next edit session");
+    }
+
+    isEditMode.value = false;
+    hasChanges.value = false;
+    logger.log("Exited edit mode");
+  } catch (error) {
+    logger.error("Error exiting edit mode:", error);
+  }
+};
+
+/**
+ * Save config to backend server
+ */
+const saveConfigToBackend = async () => {
+  try {
+    if (!store.dashboardConfig) return;
+
+    isSaving.value = true;
+    saveStatus.value = "Saving...";
+
+    const success = await configStore.saveConfigToBackend(
+      store.dashboardConfig
+    );
+
+    if (success) {
+      saveStatus.value = "Saved!";
+      hasChanges.value = false;
+      originalConfig.value = JSON.parse(
+        JSON.stringify(store.dashboardConfig)
+      );
+      logger.log("Config saved to backend successfully");
+
+      setTimeout(() => {
+        saveStatus.value = "";
+      }, 2000);
+    } else {
+      saveStatus.value = "Error saving";
+      logger.error("Failed to save config to backend");
+
+      setTimeout(() => {
+        saveStatus.value = "";
+      }, 3000);
+    }
+  } catch (error) {
+    logger.error("Error saving config to backend:", error);
     saveStatus.value = "Error saving";
+
     setTimeout(() => {
       saveStatus.value = "";
     }, 3000);
+  } finally {
+    isSaving.value = false;
   }
 };
 
@@ -587,6 +725,11 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   min-height: calc(100vh - 200px);
+}
+
+.editor-container.edit-disabled {
+  opacity: 0.6;
+  pointer-events: none;
 }
 
 .resizable-layout {
