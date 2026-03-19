@@ -185,10 +185,7 @@ export default defineConfig(({ mode }) => {
               if (id.includes("JsonConfigView")) {
                 return "views-config";
               }
-              if (
-                id.includes("DevelopmentView") ||
-                id.includes("RawEntityView")
-              ) {
+              if (id.includes("RawEntityView")) {
                 return "views-dev";
               }
               if (id.includes("VisualEditorView")) {

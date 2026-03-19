@@ -93,8 +93,6 @@ const handleDragStart = (event, component) => {
     }),
   );
   event.dataTransfer.setData("text/plain", component.type);
-  const img = new Image();
-  event.dataTransfer.setDragImage(img, 0, 0);
 };
 
 const handleDragEnd = (event) => {

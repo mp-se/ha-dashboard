@@ -3,15 +3,19 @@
     <!-- Bug Icon Button (in navbar) -->
     <button
       class="btn btn-sm btn-outline-secondary ms-2"
-      title="Toggle Developer Mode (password required)"
-      @click="showModal = true"
+      :title="
+        store.developerMode
+          ? 'Click to disable Developer Mode'
+          : 'Click to enable Developer Mode (password required)'
+      "
+      @click="handleClick"
     >
       <i class="mdi mdi-bug"></i>
     </button>
 
-    <!-- Password Modal -->
+    <!-- Password Modal (only shown when enabling) -->
     <div
-      v-if="showModal"
+      v-if="showModal && !store.developerMode"
       class="modal fade show d-block"
       tabindex="-1"
       style="background-color: rgba(0, 0, 0, 0.5)"
@@ -19,7 +23,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Developer Mode</h5>
+            <h5 class="modal-title">Enable Developer Mode</h5>
             <button
               type="button"
               class="btn-close"
@@ -58,7 +62,7 @@
               @click="toggleMode"
             >
               <i class="mdi mdi-shield-lock me-2"></i>
-              Toggle Developer Mode
+              Enable Developer Mode
             </button>
           </div>
         </div>
@@ -75,6 +79,16 @@ const store = useAuthStore();
 const showModal = ref(false);
 const password = ref("");
 const error = ref("");
+
+const handleClick = () => {
+  if (store.developerMode) {
+    // If already in developer mode, disable without needing password
+    toggleMode();
+  } else {
+    // If not in developer mode, show password dialog
+    showModal.value = true;
+  }
+};
 
 const toggleMode = () => {
   const success = store.toggleDeveloperMode(password.value);

@@ -312,7 +312,6 @@ const menuItems = computed(() => {
         label: "Editor",
         icon: normalizeIcon("mdi-pencil-ruler"),
       },
-      { name: "dev", label: "Dev", icon: normalizeIcon("mdi-tools") },
       { name: "device", label: "Devices", icon: normalizeIcon("mdi-devices") },
       { name: "raw", label: "Raw", icon: normalizeIcon("mdi-code-json") },
     );

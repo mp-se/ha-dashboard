@@ -83,7 +83,6 @@ import packageJson from "../package.json";
 const viewComponents = {
   overview: defineAsyncComponent(() => import("./views/JsonConfigView.vue")),
   device: defineAsyncComponent(() => import("./views/DevicesView.vue")),
-  dev: defineAsyncComponent(() => import("./views/DevelopmentView.vue")),
   raw: defineAsyncComponent(() => import("./views/RawEntityView.vue")),
   editor: defineAsyncComponent(() => import("./views/VisualEditorView.vue")),
 };
@@ -104,7 +103,7 @@ const viewNames = computed(() => {
     store.dashboardConfig?.views
       ?.filter((v) => v.hidden !== true)
       .map((v) => v.name) ?? [];
-  if (store.developerMode) views.push("dev", "device", "raw");
+  if (store.developerMode) views.push("device", "raw");
   return views;
 });
 

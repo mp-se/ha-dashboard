@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **Fixed Visual Editor Drag and Drop**: Resolved issue where dragging entities or static components to the center canvas would fail in certain browsers or configurations.
+  - Added fallback logic to handle entity IDs as plain text if `application/json` data is unavailable.
+  - Increased `EditorCanvas` minimum height to match viewport for better drop target accessibility.
+  - Improved diagnostic logging for drop events.
 - **Phase 7: Comprehensive E2E Test Suite** (162 tests across 9 Playwright test files)
   - **visual-editor.spec.js** (14 tests): Editor navigation, mode switching, entity palette, view properties, save/exit functionality, responsive editing
   - **developer-mode.spec.js** (12 tests): Password protection, modal interactions, password validation, accessibility, developer tools access

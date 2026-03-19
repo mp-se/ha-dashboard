@@ -211,8 +211,8 @@ const handleDragStart = (event, entity) => {
     }),
   );
   event.dataTransfer.setData("text/plain", entity.entity_id);
-  const img = new Image();
-  event.dataTransfer.setDragImage(img, 0, 0);
+  // Remove the invisible drag image that makes it look like nothing is being dragged
+  // The browser will use the default ghost image instead
 };
 
 const handleDragEnd = () => {

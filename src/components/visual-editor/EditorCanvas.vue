@@ -1,8 +1,8 @@
 <template>
   <div
     class="editor-canvas p-4"
-    @dragover="handleDragOver"
-    @drop="handleDrop"
+    @dragover.prevent="handleDragOver"
+    @drop.prevent="handleDrop"
     @dragenter="handleDragEnter"
     @dragleave="handleDragLeave"
   >
@@ -20,8 +20,8 @@
     <div
       v-if="entityCount > 0"
       class="row g-3"
-      @dragover="handleDragOver"
-      @drop="handleDrop"
+      @dragover.prevent="handleDragOver"
+      @drop.prevent="handleDrop"
       @dragenter="handleDragEnter"
       @dragleave="handleDragLeave"
     >
@@ -31,7 +31,7 @@
         :key="`entity-${index}`"
         :class="[
           getComponentClasses(entity),
-          { 'drop-before': dragOverIndex === index && isDropping },
+          { 'drop-indicator-active': dragOverIndex === index && isDropping },
         ]"
         draggable="true"
         @dragstart="handleEntityDragStart(index, $event)"
@@ -139,6 +139,13 @@ const emit = defineEmits([
   "add-entity-at-index",
 ]);
 
+// DEBUG: Listen for ALL drop events globally
+if (typeof window !== "undefined") {
+  window.addEventListener("drop", (e) => {
+    console.log("[GLOBAL] DROP event detected!", e.target);
+  }, true); // Use capture phase to catch events before Vue
+}
+
 const isDragging = ref(false);
 const isDragOver = ref(false);
 const isDropping = ref(false);
@@ -189,12 +196,6 @@ const componentMap = {
 watch(
   () => props.entities,
   (newEntities) => {
-    console.log(
-      "[EditorCanvas] Watch fired - newEntities:",
-      newEntities,
-      "isArray:",
-      Array.isArray(newEntities),
-    );
     if (Array.isArray(newEntities)) {
       localEntities.value = [...newEntities];
     } else {
@@ -286,10 +287,6 @@ const getEntityDataForComponent = (entity) => {
   }
 
   // Safety fallback: if we have no valid entity data, return empty string to prevent errors
-  console.warn(
-    "[EditorCanvas] Warning: entity config has no entity or entities property:",
-    entity,
-  );
   return "";
 };
 
@@ -316,12 +313,7 @@ const getComponentCustomProps = (entity) => {
 
   // Debug logging for HaRoom color property
   if (entity.type === "HaRoom" && customProps.color) {
-    console.log(
-      "[EditorCanvas] HaRoom custom props:",
-      customProps,
-      "color:",
-      customProps.color,
-    );
+    // Room color property detected
   }
 
   return customProps;
@@ -352,8 +344,19 @@ const getComponentClasses = (entity) => {
 
 const handleDragOver = (event) => {
   event.preventDefault();
-  event.dataTransfer.dropEffect = "move";
-  dragOverIndex.value = localEntities.value.length;
+  // Ensure we allow the drop effect matching the palette (copy)
+  event.dataTransfer.dropEffect = "copy";
+
+  // If there are no entities, or if we're dragging over the background (not specific entities)
+  // we set the drop index to the end.
+  if (localEntities.value.length === 0) {
+    dragOverIndex.value = 0;
+  } else {
+    // Only update to the end if we aren't already targeting a specific entity via handleEntityDragOver
+    if (dragOverIndex.value === null) {
+      dragOverIndex.value = localEntities.value.length;
+    }
+  }
   isDropping.value = true;
 };
 
@@ -368,22 +371,26 @@ const handleDragLeave = () => {
   if (dragOverCounter.value <= 0) {
     isDragOver.value = false;
     dragOverCounter.value = 0;
-    dragOverIndex.value = null;
+    // Don't reset dragOverIndex immediately to avoid flickering,
+    // handleEntityDragOver will take care of updating it.
     isDropping.value = false;
   }
 };
 
 const handleEntityDragOver = (index, event) => {
   event.preventDefault();
-  event.dataTransfer.dropEffect = "move";
+  event.stopPropagation(); // Prevent handleDragOver from overriding
+  event.dataTransfer.dropEffect = "copy";
 
-  // Track the vertical position to determine if dropping before or after
+  // Track the horizontal/vertical position to determine if dropping before or after
   const rect = event.currentTarget.getBoundingClientRect();
-  const midpoint = rect.top + rect.height / 2;
 
-  // If dragging in upper half, place before this index
-  // If dragging in lower half, place after (at next index)
-  if (event.clientY < midpoint) {
+  // For grid layouts (Bootstrap rows), we should ideally check both X and Y
+  // but most users expect "before" or "after" based on visual sequence.
+  const midpointX = rect.left + rect.width / 2;
+
+  // Use midpointX for horizontal flow, midpointY for vertical stack
+  if (event.clientX < midpointX) {
     dragOverIndex.value = index;
   } else {
     dragOverIndex.value = index + 1;
@@ -423,7 +430,16 @@ const handleEntityDrop = (index, event) => {
   isDropping.value = false;
 
   try {
-    const data = event.dataTransfer.getData("application/json");
+    let data = event.dataTransfer.getData("application/json");
+
+    // Fallback: If application/json is empty, try text/plain
+    if (!data) {
+      const textData = event.dataTransfer.getData("text/plain");
+      if (textData && textData.includes(".")) {
+        data = JSON.stringify({ entity: textData });
+      }
+    }
+
     if (data) {
       const parsedData = JSON.parse(data);
 
@@ -482,6 +498,7 @@ const handleEntityDrop = (index, event) => {
 };
 
 const handleDrop = (event) => {
+  console.log("[EditorCanvas] DROP event fired!", event);
   event.preventDefault();
   isDragOver.value = false;
   isDropping.value = false;
@@ -490,7 +507,19 @@ const handleDrop = (event) => {
 
   try {
     // Check for data in application/json (handles both entities and static components)
-    const data = event.dataTransfer.getData("application/json");
+    let data = event.dataTransfer.getData("application/json");
+
+    // Fallback: If application/json is empty, try text/plain (some browsers or drag sources)
+    if (!data) {
+      const textData = event.dataTransfer.getData("text/plain");
+      if (textData) {
+        // If it looks like an entity ID (contains a dot), wrap it in the expected JSON format
+        if (textData.includes(".")) {
+          data = JSON.stringify({ entity: textData });
+        }
+      }
+    }
+
     if (data) {
       const parsedData = JSON.parse(data);
 
@@ -516,9 +545,11 @@ const handleDrop = (event) => {
 
 <style scoped>
 .editor-canvas {
-  min-height: 400px;
+  min-height: calc(100vh - 250px);
   background-color: #f8f9fa;
   padding: 1rem;
+  position: relative;
+  pointer-events: auto;
 }
 
 .drop-zone-active {
@@ -549,7 +580,6 @@ const handleDrop = (event) => {
 }
 
 .editor-component {
-  pointer-events: none;
   user-select: none;
 }
 
@@ -607,25 +637,48 @@ const handleDrop = (event) => {
 }
 
 /* Drop indicator styling */
-.drop-before {
+.drop-indicator-active {
+  z-index: 30;
+}
+
+/* Grid items need position: relative for drop indicators to position correctly */
+[class*="col-"] {
   position: relative;
+  transition: transform 0.2s ease;
 }
 
 .drop-indicator {
   position: absolute;
-  left: -0.75rem;
-  right: -0.75rem;
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    #0d6efd 10%,
-    #0d6efd 90%,
-    transparent
-  );
+  top: 0;
+  bottom: 0px;
+  width: 4px;
+  background-color: var(--bs-primary);
+  box-shadow: 0 0 8px rgba(13, 110, 253, 0.6);
+  z-index: 50;
   border-radius: 2px;
-  z-index: 20;
-  box-shadow: 0 0 4px rgba(13, 110, 253, 0.5);
+  pointer-events: none;
+}
+
+.drop-indicator-before {
+  left: 0;
+}
+
+.drop-indicator-end {
+  top: auto;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  width: auto;
+}
+
+.editor-overlay {
+  position: relative;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  cursor: move;
+  z-index: 10;
 }
 
 .drop-indicator-before {

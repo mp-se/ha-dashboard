@@ -7,40 +7,21 @@
           <h5 class="mb-0">Visual Editor</h5>
         </div>
         <div class="col-auto ms-auto d-flex align-items-center gap-2">
-          <!-- View Mode: show EDIT button -->
+          <!-- Save button -->
           <button
-            v-if="!isEditMode"
-            class="btn btn-primary btn-sm"
-            title="Enter edit mode"
-            @click="enterEditMode()"
+            :disabled="!hasChanges || isSaving"
+            class="btn btn-success btn-sm me-2"
+            title="Save changes to backend"
+            @click="saveConfigToBackend()"
           >
-            <i class="mdi mdi-pencil"></i> Edit
+            <i
+              :class="
+                isSaving ? 'mdi mdi-loading mdi-spin' : 'mdi mdi-content-save'
+              "
+              class="me-1"
+            ></i>
+            {{ isSaving ? "Saving..." : "Save" }}
           </button>
-
-          <!-- Edit Mode: show SAVE and VIEW buttons -->
-          <template v-else>
-            <button
-              :disabled="!hasChanges || isSaving"
-              class="btn btn-success btn-sm me-2"
-              title="Save changes to backend"
-              @click="saveConfigToBackend()"
-            >
-              <i
-                :class="
-                  isSaving ? 'mdi mdi-loading mdi-spin' : 'mdi mdi-content-save'
-                "
-                class="me-1"
-              ></i>
-              {{ isSaving ? "Saving..." : "Save" }}
-            </button>
-            <button
-              class="btn btn-secondary btn-sm"
-              title="Exit edit mode (unsaved changes will be kept in draft)"
-              @click="exitEditMode()"
-            >
-              <i class="mdi mdi-eye"></i> View
-            </button>
-          </template>
 
           <!-- Save Status Badge -->
           <div v-if="saveStatus" class="badge" :class="saveStatusClass">
@@ -52,8 +33,8 @@
     </div>
   </div>
 
-  <!-- Editor Container (disabled when not in edit mode) -->
-  <div class="editor-container" :class="{ 'edit-disabled': !isEditMode }">
+  <!-- Editor Container -->
+  <div class="editor-container">
     <div
       class="row g-0 resizable-layout"
       style="min-height: calc(100vh - 200px)"
@@ -173,8 +154,7 @@ const selectedEntityId = ref(null);
 const saveStatus = ref("");
 const saveTimeout = ref(null);
 
-// Edit mode and draft management
-const isEditMode = ref(false);
+// Draft management
 const hasChanges = ref(false);
 const isSaving = ref(false);
 const originalConfig = ref(null);
@@ -205,14 +185,6 @@ const currentView = computed(() => {
 
 const currentViewEntities = computed(() => {
   const entities = currentView.value?.entities;
-  console.log(
-    "[VisualEditorView] currentViewEntities computed - currentView:",
-    currentView.value,
-    "entities:",
-    entities,
-    "isArray:",
-    Array.isArray(entities),
-  );
   // Ensure entities is always an array
   if (!Array.isArray(entities)) {
     return [];
@@ -223,18 +195,7 @@ const currentViewEntities = computed(() => {
 const selectedEntity = computed(() => {
   if (selectedEntityId.value == null) return null;
   const entities = currentViewEntities.value;
-  console.log(
-    "[VisualEditorView] selectedEntity computed - entities:",
-    entities,
-    "isArray:",
-    Array.isArray(entities),
-    "selectedEntityId:",
-    selectedEntityId.value,
-  );
   if (!Array.isArray(entities)) {
-    console.warn(
-      "[VisualEditorView] selectedEntity - entities is not an array!",
-    );
     return null;
   }
   return entities.find((_, idx) => idx === selectedEntityId.value);
@@ -281,68 +242,6 @@ const saveDraftToLocalStorage = () => {
     logger.log("Draft saved to localStorage");
   } catch (error) {
     logger.error("Error saving draft to localStorage:", error);
-  }
-};
-
-/**
- * Load draft from localStorage
- */
-const loadDraftFromLocalStorage = () => {
-  try {
-    const draft = localStorage.getItem("dashboardConfigDraft");
-    if (draft) {
-      return JSON.parse(draft);
-    }
-  } catch (error) {
-    logger.error("Error loading draft from localStorage:", error);
-  }
-  return null;
-};
-
-/**
- * Enter edit mode
- */
-const enterEditMode = async () => {
-  try {
-    // Store original config snapshot for potential rollback
-    originalConfig.value = JSON.parse(JSON.stringify(store.dashboardConfig));
-
-    // Check if draft exists
-    const draft = loadDraftFromLocalStorage();
-    if (draft) {
-      const shouldResume = confirm(
-        "Resume editing previous draft? Click OK to restore, Cancel to start fresh.",
-      );
-      if (shouldResume) {
-        store.dashboardConfig = draft;
-        logger.log("Resumed editing from draft");
-      }
-    }
-
-    isEditMode.value = true;
-    hasChanges.value = false;
-    logger.log("Entered edit mode");
-  } catch (error) {
-    logger.error("Error entering edit mode:", error);
-  }
-};
-
-/**
- * Exit edit mode
- */
-const exitEditMode = () => {
-  try {
-    // Keep draft in localStorage for next edit session
-    if (hasChanges.value) {
-      saveDraftToLocalStorage();
-      logger.log("Draft preserved in localStorage for next edit session");
-    }
-
-    isEditMode.value = false;
-    hasChanges.value = false;
-    logger.log("Exited edit mode");
-  } catch (error) {
-    logger.error("Error exiting edit mode:", error);
   }
 };
 
@@ -428,6 +327,8 @@ const handleAddEntity = (entityIdOrComponent) => {
   }
 
   currentView.value.entities.push(newEntity);
+  // Trigger reactivity by reassigning the array
+  currentView.value.entities = [...currentView.value.entities];
   debouncedSave();
 };
 
@@ -473,6 +374,8 @@ const handleAddEntityAtIndex = (payload) => {
     Math.min(index, currentView.value.entities.length),
   );
   currentView.value.entities.splice(clampedIndex, 0, newEntity);
+  // Trigger reactivity by reassigning the array
+  currentView.value.entities = [...currentView.value.entities];
   debouncedSave();
 };
 
@@ -725,11 +628,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   min-height: calc(100vh - 200px);
-}
-
-.editor-container.edit-disabled {
-  opacity: 0.6;
-  pointer-events: none;
 }
 
 .resizable-layout {

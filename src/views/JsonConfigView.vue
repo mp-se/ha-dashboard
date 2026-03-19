@@ -4,7 +4,7 @@
     <div class="row g-3">
       <!-- Grid wrapper applying layout from componentLayouts constants -->
       <div
-        v-for="item in entitiesList"
+        v-for="item in filteredEntitiesList"
         :key="item.entity || item.entityId"
         :class="getComponentGridClasses(item.component)"
       >
@@ -53,6 +53,7 @@ import HaSun from "../components/cards/HaSun.vue";
 import HaSwitch from "../components/cards/HaSwitch.vue";
 import HaWarning from "../components/cards/HaWarning.vue";
 import HaWeather from "../components/cards/HaWeather.vue";
+import { useConditionEvaluator } from "../composables/useConditionEvaluator";
 
 const props = defineProps({
   viewName: {
@@ -208,5 +209,25 @@ const entitiesList = computed(() => {
   }
 
   return entities;
+});
+
+// Filter the list based on evaluation of conditions
+const filteredEntitiesList = computed(() => {
+  return entitiesList.value.filter((item) => {
+    // Only filter HaWarning and HaError
+    if (item.component !== "HaWarning" && item.component !== "HaError") {
+      return true;
+    }
+
+    // Evaluate the condition
+    const { isConditionTrue } = useConditionEvaluator({
+      entity: item.entity,
+      attribute: item.attribute || "state",
+      operator: item.operator,
+      value: item.value,
+      editorMode: false,
+    });
+    return isConditionTrue.value;
+  });
 });
 </script>
