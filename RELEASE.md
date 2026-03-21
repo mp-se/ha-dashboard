@@ -1,5 +1,19 @@
 # Release Notes
 
+## March 2026 - v0.7.0
+
+- **HaImage Scaling Support**:
+  - Added `scale` property to `HaImage` card (0.1 to 1.0) for responsive width resizing.
+  - Implemented **SliderInput** property editor for range-based configurations in the Visual Editor.
+  - Cards now physically resize and center using `mx-auto` and CSS transitions.
+  - Integrated 5 new unit tests for `HaImage` scaling logic.
+  - Stabilized test environment with `localStorage` polyfill in `setupTests.js` to fix recurring Vitest failures.
+- AES-GCM-256 encrypted credential storage via Web Crypto API
+- Split AppNavbar into separate component
+- Added HaIconCircle, HaEntityAttributeList, useClipboard composable
+- HaEnergy shows period comparisons with trending indicators
+- Fixed v-for key patterns, weather forecast compatibility, dark mode issues
+
 ## February 2026 - v0.6.0
 
 - Updated vite-plugin-pwa 0.19.8→1.2.0 (Vite 7 support) and added npm override for serialize-javascript ^7.0.3 to fix RCE vulnerability (GHSA-5c6j-r48x-rmvq)
@@ -18,20 +32,6 @@
 - Migrated to ESLint v9 flat config; zero linting errors
 - All CSS consolidated to shared-styles.css
 - Enhanced nginx.conf: strict CSP (no 'unsafe-eval'), HSTS (1-year max-age), Permissions-Policy
-
-## Unreleased
-
-- **HaImage Scaling Support**:
-  - Added `scale` property to `HaImage` card (0.1 to 1.0) for responsive width resizing.
-  - Implemented **SliderInput** property editor for range-based configurations in the Visual Editor.
-  - Cards now physically resize and center using `mx-auto` and CSS transitions.
-  - Integrated 5 new unit tests for `HaImage` scaling logic.
-  - Stabilized test environment with `localStorage` polyfill in `setupTests.js` to fix recurring Vitest failures.
-- AES-GCM-256 encrypted credential storage via Web Crypto API
-- Split AppNavbar into separate component
-- Added HaIconCircle, HaEntityAttributeList, useClipboard composable
-- HaEnergy shows period comparisons with trending indicators
-- Fixed v-for key patterns, weather forecast compatibility, dark mode issues
 
 ## February 2026 - v0.5.0
 

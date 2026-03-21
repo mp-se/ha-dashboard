@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- House shape -->
-  <path d="M256 32L64 192v256h128v-96h96v96h128V192L256 32z" fill="#03a9f4"/>
-  <!-- Shield overlay -->
-  <path d="M192 160h128v64c0 35.3-28.7 64-64 64s-64-28.7-64-64v-64z" fill="#ffffff" opacity="0.8"/>
-  <!-- Shield lines -->
-  <path d="M224 192h64v32c0 17.7-14.3 32-32 32s-32-14.3-32-32v-32z" fill="#03a9f4"/>
-</svg>
