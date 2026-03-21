@@ -12,3 +12,4 @@ copy*.sh
 *.txt
 .DS_Store
 deploy.sh
+dist/

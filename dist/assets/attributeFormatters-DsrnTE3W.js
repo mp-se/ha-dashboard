@@ -1,1 +1,0 @@
-const e=r=>{if(r==null)return"-";if(Array.isArray(r))return r.join(", ");if(typeof r=="object")try{return JSON.stringify(r)}catch{return String(r)}return String(r)},i=r=>r.split("_").map(t=>t.charAt(0).toUpperCase()+t.slice(1)).join(" ");export{i as a,e as f};
