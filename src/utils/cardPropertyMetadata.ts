@@ -221,7 +221,36 @@ export const CARD_PROPERTY_METADATA: Record<string, CardPropertiesDefinition> =
     HaButton: {},
     HaGauge: {},
     HaPerson: {},
-    HaPrinter: {},
+    HaPrinter: {
+      black: {
+        type: "text",
+        label: "Black Toner Entity",
+        required: true,
+        placeholder: "sensor.printer_black_toner",
+        help: "Entity ID for black toner remaining",
+      },
+      cyan: {
+        type: "text",
+        label: "Cyan Toner Entity",
+        required: true,
+        placeholder: "sensor.printer_cyan_toner",
+        help: "Entity ID for cyan toner remaining",
+      },
+      magenta: {
+        type: "text",
+        label: "Magenta Toner Entity",
+        required: true,
+        placeholder: "sensor.printer_magenta_toner",
+        help: "Entity ID for magenta toner remaining",
+      },
+      yellow: {
+        type: "text",
+        label: "Yellow Toner Entity",
+        required: true,
+        placeholder: "sensor.printer_yellow_toner",
+        help: "Entity ID for yellow toner remaining",
+      },
+    },
     HaImage: {
       url: {
         type: "image",

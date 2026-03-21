@@ -231,4 +231,68 @@ describe("cardPropertyMetadata.ts", () => {
       expect(result).toBeDefined();
     });
   });
+
+  describe("HaPrinter Properties", () => {
+    it("HaPrinter has color properties", () => {
+      const printer = CARD_PROPERTY_METADATA.HaPrinter;
+      expect(printer.black).toBeDefined();
+      expect(printer.cyan).toBeDefined();
+      expect(printer.magenta).toBeDefined();
+      expect(printer.yellow).toBeDefined();
+    });
+
+    it("all color properties are of type text", () => {
+      const printer = CARD_PROPERTY_METADATA.HaPrinter;
+      expect(printer.black.type).toBe("text");
+      expect(printer.cyan.type).toBe("text");
+      expect(printer.magenta.type).toBe("text");
+      expect(printer.yellow.type).toBe("text");
+    });
+
+    it("all color properties are required", () => {
+      const printer = CARD_PROPERTY_METADATA.HaPrinter;
+      expect(printer.black.required).toBe(true);
+      expect(printer.cyan.required).toBe(true);
+      expect(printer.magenta.required).toBe(true);
+      expect(printer.yellow.required).toBe(true);
+    });
+
+    it("all color properties have helpful labels", () => {
+      const printer = CARD_PROPERTY_METADATA.HaPrinter;
+      expect(printer.black.label).toContain("Black");
+      expect(printer.cyan.label).toContain("Cyan");
+      expect(printer.magenta.label).toContain("Magenta");
+      expect(printer.yellow.label).toContain("Yellow");
+    });
+
+    it("all color properties have help text", () => {
+      const printer = CARD_PROPERTY_METADATA.HaPrinter;
+      expect(printer.black.help).toBeDefined();
+      expect(printer.cyan.help).toBeDefined();
+      expect(printer.magenta.help).toBeDefined();
+      expect(printer.yellow.help).toBeDefined();
+    });
+
+    it("all color properties have placeholders", () => {
+      const printer = CARD_PROPERTY_METADATA.HaPrinter;
+      expect(printer.black.placeholder).toBeDefined();
+      expect(printer.cyan.placeholder).toBeDefined();
+      expect(printer.magenta.placeholder).toBeDefined();
+      expect(printer.yellow.placeholder).toBeDefined();
+    });
+
+    it("validates HaPrinter black property with entity ID", () => {
+      const result = validateProperty(
+        "HaPrinter",
+        "black",
+        "sensor.printer_black_toner",
+      );
+      expect(result.valid).toBe(true);
+    });
+
+    it("rejects empty HaPrinter color property", () => {
+      const result = validateProperty("HaPrinter", "black", "");
+      expect(result.valid).toBe(false);
+    });
+  });
 });
