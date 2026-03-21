@@ -19,8 +19,8 @@
     <!-- Grid layout for draggable entities -->
     <div
       v-if="entityCount > 0"
-      class="row g-3"
       :key="`canvas-${JSON.stringify(localEntities)}`"
+      class="row g-3"
       @dragover.prevent="handleDragOver"
       @drop.prevent="handleDrop"
       @dragenter="handleDragEnter"
