@@ -2,9 +2,16 @@
   <div class="entity-inspector p-3">
     <h6 class="mb-3">Entity Inspector</h6>
 
-    <div v-if="entity.entity || entity.getter || entity.type === 'HaImage'" class="inspector-section mb-3">
-      <label v-if="entity.entity || entity.getter" class="form-label small mb-1"><strong>Entity ID</strong></label>
-      <label v-else class="form-label small mb-1"><strong>Static Component</strong></label>
+    <div
+      v-if="entity.entity || entity.getter || entity.type === 'HaImage'"
+      class="inspector-section mb-3"
+    >
+      <label v-if="entity.entity || entity.getter" class="form-label small mb-1"
+        ><strong>Entity ID</strong></label
+      >
+      <label v-else class="form-label small mb-1"
+        ><strong>Static Component</strong></label
+      >
 
       <!-- Display array entities with EntityListEditor -->
       <div
@@ -22,7 +29,10 @@
       </div>
 
       <!-- Display single entity -->
-      <div v-else-if="entity.entity || entity.getter" class="form-control-static text-monospace small">
+      <div
+        v-else-if="entity.entity || entity.getter"
+        class="form-control-static text-monospace small"
+      >
         {{ entity.entity || entity.getter }}
       </div>
 
@@ -33,7 +43,7 @@
     </div>
 
     <!-- Component Type Selector -->
-    <div class="inspector-section mb-3">
+    <div v-if="entity.type !== 'HaImage'" class="inspector-section mb-3">
       <label for="componentType" class="form-label small mb-1">
         <strong>Component Type</strong>
       </label>
