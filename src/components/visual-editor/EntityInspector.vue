@@ -72,7 +72,7 @@
 
     <!-- Card-Specific Properties -->
     <div v-if="hasCardProperties" class="inspector-section mb-3">
-      <label class="form-label small mb-2"><strong>Properties</strong></label>
+      <label v-if="entity.type !== 'HaImage'" class="form-label small mb-2"><strong>Properties</strong></label>
       <div class="properties-form">
         <PropertyEditorFactory
           v-for="(propertyDef, propName) in cardProperties"
