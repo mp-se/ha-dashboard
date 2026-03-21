@@ -302,7 +302,6 @@ const getComponentCustomProps = (entity) => {
     "entity",
     "entities",
     "type",
-    "attributes",
     "getter",
     "layout",
   ];
