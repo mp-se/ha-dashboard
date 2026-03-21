@@ -49,6 +49,7 @@
 import { computed } from "vue";
 import { useEntityResolver } from "@/composables/useEntityResolver";
 import { useAttributeResolver } from "@/composables/useAttributeResolver";
+import EntityAttributeList from "../sub-components/EntityAttributeList.vue";
 
 const props = defineProps({
   entity: {

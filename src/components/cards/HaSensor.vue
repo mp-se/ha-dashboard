@@ -95,6 +95,8 @@ import { useHaStore } from "@/stores/haStore";
 import { useEntityResolver } from "@/composables/useEntityResolver";
 import { useAttributeResolver } from "@/composables/useAttributeResolver";
 import { createLogger } from "@/utils/logger";
+import EntityAttributeList from "../sub-components/EntityAttributeList.vue";
+import IconCircle from "../sub-components/IconCircle.vue";
 
 const props = defineProps({
   entity: {

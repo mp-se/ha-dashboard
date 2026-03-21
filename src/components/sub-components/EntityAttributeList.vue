@@ -1,5 +1,5 @@
 <template>
-  <div v-if="attributes.length > 0" class="ha-attribute-list-container mt-1">
+  <div v-if="attributes && attributes.length > 0" class="ha-attribute-list-container mt-1">
     <div
       v-for="[label, value] in attributes"
       :key="label"
@@ -17,7 +17,7 @@
 defineProps({
   attributes: {
     type: Array, // Array of [label, value] pairs
-    required: true,
+    default: () => [],
   },
 });
 </script>

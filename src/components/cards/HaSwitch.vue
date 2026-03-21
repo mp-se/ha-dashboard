@@ -79,7 +79,7 @@ import { useEntityResolver } from "@/composables/useEntityResolver";
 import { useAttributeResolver } from "@/composables/useAttributeResolver";
 import { useServiceCall } from "@/composables/useServiceCall";
 import { useNormalizeIcon } from "@/composables/useNormalizeIcon";
-
+import EntityAttributeList from "../sub-components/EntityAttributeList.vue";
 const props = defineProps({
   entity: {
     type: [Object, String],
