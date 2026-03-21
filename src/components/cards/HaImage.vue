@@ -10,7 +10,9 @@
     ]"
   >
     <div class="card-body d-flex align-items-center justify-content-center p-0">
-      <img :src="resolvedUrl" :alt="title" class="ha-image-img" />
+      <div :style="{ transform: `scale(${scale})`, transformOrigin: 'center' }">
+        <img :src="resolvedUrl" :alt="title" class="ha-image-img" />
+      </div>
     </div>
   </div>
 </template>
@@ -27,7 +29,27 @@ const props = defineProps({
     type: String,
     default: "Image",
   },
+  scale: {
+    type: Number,
+    default: 1,
+  },
 });
+
+const getApiServerUrl = () => {
+  // Try to get API server from localStorage config
+  const stored = localStorage.getItem("ha-dashboard-server-config");
+  if (stored) {
+    try {
+      const config = JSON.parse(stored);
+      if (config.api_url) return config.api_url;
+    } catch (e) {
+      console.error("Error parsing server config", e);
+    }
+  }
+  // In development, the Vite proxy will handle /api/ requests
+  // In production, /api/ is proxied by Nginx
+  return "";
+};
 
 // Resolve relative URLs to absolute URLs for bundled assets or data directory
 const resolvedUrl = computed(() => {
@@ -41,7 +63,8 @@ const resolvedUrl = computed(() => {
 
   // Handle API endpoints (e.g., /api/images/)
   if (props.url.startsWith("/api/")) {
-    return props.url;
+    const apiServer = getApiServerUrl();
+    return apiServer ? apiServer + props.url : props.url;
   }
 
   // For relative paths, prepend the data/ directory base path

@@ -12,6 +12,14 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: baseUrl,
+    server: {
+      proxy: {
+        "/api": {
+          target: "http://localhost:3000",
+          changeOrigin: true,
+        },
+      },
+    },
     plugins: [
       vue(),
       VitePWA({
