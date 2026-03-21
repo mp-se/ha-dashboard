@@ -39,6 +39,11 @@ const resolvedUrl = computed(() => {
     return props.url;
   }
 
+  // Handle API endpoints (e.g., /api/images/)
+  if (props.url.startsWith("/api/")) {
+    return props.url;
+  }
+
   // For relative paths, prepend the data/ directory base path
   const baseUrl = import.meta.env.BASE_URL || "/";
   const dataBasePath = baseUrl + "data/";
