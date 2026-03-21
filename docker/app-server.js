@@ -91,10 +91,7 @@ app.use(bodyParser.json());
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
   if (req.method === "POST" || req.method === "PUT") {
-    // Basic body logging
-    if (req.body && typeof req.body === "object") {
-      console.log("  Body fields:", Object.keys(req.body).length);
-    }
+    console.log("  Body size:", Object.keys(req.body || {}).length, "fields");
   }
   next();
 });
@@ -316,47 +313,47 @@ app.post("/api/config", authenticate, async (req, res) => {
 });
 
 // Image upload endpoint
-app.post(
-  "/api/images/upload",
-  authenticate,
-  upload.array("images", 20),
-  async (req, res) => {
-    try {
-      if (!req.files || req.files.length === 0) {
-        return res.status(400).json({
-          success: false,
-          error: "No files provided",
-        });
-      }
-
-      const uploadedImages = req.files.map((file) => ({
-        id: file.filename,
-        url: `/api/images/${file.filename}`,
-        name: path.parse(file.filename).name,
-        size: file.size,
-      }));
-
-      log.info(`Uploaded ${uploadedImages.length} image(s)`);
-      res.json({
-        success: true,
-        data: {
-          images: uploadedImages,
-        },
-      });
-    } catch (error) {
-      log.error("Error uploading images:", error);
-      res.status(500).json({
+app.post("/api/images/upload", upload.array("images", 20), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
         success: false,
-        error: error.message || "Failed to upload images",
+        error: "No files provided",
       });
     }
-  },
-);
+
+    const uploadedImages = req.files.map((file) => ({
+      id: file.filename,
+      url: `/api/images/${file.filename}`,
+      name: path.parse(file.filename).name,
+      size: file.size,
+    }));
+
+    log.info(`Uploaded ${uploadedImages.length} image(s)`);
+    res.json({
+      success: true,
+      data: {
+        images: uploadedImages,
+      },
+    });
+  } catch (error) {
+    log.error("Error uploading images:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message || "Failed to upload images",
+    });
+  }
+});
 
 // Get list of available images
 app.get("/api/images", (req, res) => {
+  log.info("=== GET /api/images endpoint called ===");
+  log.info(`Images directory: ${config.imagesDir}`);
+  log.info(`Images directory exists: ${fs.existsSync(config.imagesDir)}`);
+
   try {
     if (!fs.existsSync(config.imagesDir)) {
+      log.info("Images directory does not exist, returning empty list");
       return res.json({
         success: true,
         data: {
@@ -366,6 +363,9 @@ app.get("/api/images", (req, res) => {
     }
 
     const files = fs.readdirSync(config.imagesDir);
+    log.info(`Found ${files.length} files in images directory`);
+    log.info(`Files: ${files.join(", ")}`);
+
     const images = files
       .filter((file) => {
         // Filter only image files
@@ -385,6 +385,7 @@ app.get("/api/images", (req, res) => {
       })
       .sort((a, b) => new Date(b.mtime) - new Date(a.mtime));
 
+    log.info(`Returning ${images.length} images`);
     res.json({
       success: true,
       data: {
@@ -401,6 +402,7 @@ app.get("/api/images", (req, res) => {
 });
 
 // Serve image with optional resizing
+// Usage: /api/images/filename.jpg or /api/images/filename.jpg?width=300&height=200&quality=80
 app.get("/api/images/:id", async (req, res) => {
   try {
     const filename = req.params.id;
@@ -423,12 +425,6 @@ app.get("/api/images/:id", async (req, res) => {
     }
 
     const { width, height, quality, format } = req.query;
-
-    // If no processing requested, serve directly
-    if (!width && !height && !quality && !format) {
-      return res.sendFile(filePath);
-    }
-
     let transform = sharp(filePath);
 
     // Apply resizing if requested
@@ -470,12 +466,22 @@ app.get("/api/images/:id", async (req, res) => {
       }
     }
 
-    // Set cache headers
+    // Set cache headers for public images
     res.set("Cache-Control", "public, max-age=31536000");
+    res.set("ETag", `"${filename}"`);
 
-    // Set content type
+    // Set content type based on actual format
     if (format) {
-      res.set("Content-Type", `image/${format === "jpg" ? "jpeg" : format}`);
+      const outFormat = format.toLowerCase();
+      if (outFormat === "jpeg" || outFormat === "jpg") {
+        res.set("Content-Type", "image/jpeg");
+      } else if (outFormat === "webp") {
+        res.set("Content-Type", "image/webp");
+      } else if (outFormat === "png") {
+        res.set("Content-Type", "image/png");
+      } else if (outFormat === "gif") {
+        res.set("Content-Type", "image/gif");
+      }
     } else {
       res.set(
         "Content-Type",
@@ -483,7 +489,15 @@ app.get("/api/images/:id", async (req, res) => {
       );
     }
 
-    transform.pipe(res);
+    transform.pipe(res).on("error", (err) => {
+      log.error("Error processing image:", err);
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          error: "Failed to process image",
+        });
+      }
+    });
   } catch (error) {
     log.error("Error serving image:", error);
     if (!res.headersSent) {
@@ -496,7 +510,7 @@ app.get("/api/images/:id", async (req, res) => {
 });
 
 // Delete image
-app.delete("/api/images/:id", authenticate, (req, res) => {
+app.delete("/api/images/:id", (req, res) => {
   try {
     const filename = req.params.id;
     // Prevent directory traversal
@@ -536,7 +550,7 @@ app.delete("/api/images/:id", authenticate, (req, res) => {
   }
 });
 
-// Error handler for multer/upload errors
+// Error handler for multer validation errors
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     return res.status(400).json({
@@ -552,6 +566,11 @@ app.use((err, req, res, next) => {
     });
   }
 
+  next(err);
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
   log.error("Unhandled error:", err);
   res.status(500).json({
     success: false,
