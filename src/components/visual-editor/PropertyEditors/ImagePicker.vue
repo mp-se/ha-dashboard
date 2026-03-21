@@ -16,8 +16,8 @@
       </div>
       <button
         class="btn btn-sm btn-primary"
-        @click="$refs.fileInput.click()"
         :disabled="isUploading"
+        @click="$refs.fileInput.click()"
       >
         <i v-if="isUploading" class="mdi mdi-loading mdi-spin me-1"></i>
         <i v-else class="mdi mdi-upload me-1"></i>
@@ -78,8 +78,8 @@
               </div>
               <button
                 class="btn btn-link btn-sm text-danger p-0 border-0 me-1 mb-1"
-                @click.stop="confirmDelete(image)"
                 title="Delete image"
+                @click.stop="confirmDelete(image)"
               >
                 <i class="mdi mdi-delete-outline"></i>
               </button>
