@@ -516,6 +516,64 @@ describe("HaImage.vue", () => {
     });
   });
 
+  describe("Scaling", () => {
+    it("should apply scaling width to the card element", () => {
+      const scale = 0.5;
+      const wrapper = mount(HaImage, {
+        props: {
+          url: "image.jpg",
+          scale,
+        },
+      });
+
+      const card = wrapper.find(".card");
+      expect(card.element.style.width).toBe("50%");
+    });
+
+    it("should apply full width (100%) by default", () => {
+      const wrapper = mount(HaImage, {
+        props: {
+          url: "image.jpg",
+        },
+      });
+
+      const card = wrapper.find(".card");
+      expect(card.element.style.width).toBe("100%");
+    });
+
+    it("should center the card using mx-auto", () => {
+      const wrapper = mount(HaImage, {
+        props: {
+          url: "image.jpg",
+          scale: 0.8,
+        },
+      });
+
+      expect(wrapper.find(".mx-auto").exists()).toBe(true);
+    });
+
+    it("should apply transition to width change", () => {
+      const wrapper = mount(HaImage, {
+        props: {
+          url: "image.jpg",
+        },
+      });
+
+      const card = wrapper.find(".card");
+      expect(card.element.style.transition).toContain("width");
+    });
+
+    it("should have w-100 class on the img element", () => {
+      const wrapper = mount(HaImage, {
+        props: {
+          url: "image.jpg",
+        },
+      });
+
+      expect(wrapper.find("img").classes()).toContain("w-100");
+    });
+  });
+
   describe("Breadth Coverage", () => {
     it("should render complete image structure", () => {
       const wrapper = mount(HaImage, {

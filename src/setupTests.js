@@ -22,3 +22,47 @@ console.warn = (...args) => {
   }
   originalWarn(...args);
 };
+
+// Mock localStorage which might be missing/incomplete in happy-dom
+if (typeof window !== "undefined") {
+  const mockStorage = (() => {
+    let store = {};
+    return {
+      getItem: (key) => store[key] || null,
+      setItem: (key, value) => {
+        if (value === undefined) value = "undefined";
+        if (value === null) value = "null";
+        store[key] = value.toString();
+      },
+      clear: () => {
+        store = {};
+      },
+      removeItem: (key) => {
+        delete store[key];
+      },
+      key: (index) => Object.keys(store)[index] || null,
+      get length() {
+        return Object.keys(store).length;
+      },
+    };
+  })();
+
+  // Use Object.defineProperty to bypass potential Proxy restrictions if present
+  try {
+    Object.defineProperty(window, "localStorage", {
+      value: mockStorage,
+      configurable: true,
+      writable: true,
+    });
+  } catch (e) {
+    // If window.localStorage is already there and we can't redefine it,
+    // just try to patch it. If that fails (Proxy), we might need another approach.
+    if (window.localStorage && !window.localStorage.clear) {
+      try {
+        window.localStorage.clear = mockStorage.clear;
+      } catch (err) {
+        // Fallback for tricky scenarios: manually patch each test file or use a vitest plugin
+      }
+    }
+  }
+}

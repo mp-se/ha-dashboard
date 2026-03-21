@@ -1162,6 +1162,7 @@ Displays an image from the local data directory or external URL. Images are resi
 
 - `url` (string, required): Path to image file relative to `/data/` directory, or full URL
 - `title` (string, optional, default: "Image"): Image title/alt text
+- `scale` (number, optional, default: 1.0): Scale of the card width (0.1 - 1.0)
 
 **Examples**:
 

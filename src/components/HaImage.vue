@@ -8,12 +8,17 @@
         'rounded-4',
         'shadow-lg',
         'border-info',
+        'mx-auto',
       ]"
+      :style="{
+        width: `${scale * 100}%`,
+        transition: 'width 0.2s ease-out',
+      }"
     >
       <div
         class="card-body d-flex align-items-center justify-content-center p-0"
       >
-        <img :src="resolvedUrl" :alt="title" class="ha-image-img" />
+        <img :src="resolvedUrl" :alt="title" class="ha-image-img w-100" />
       </div>
     </div>
   </div>
@@ -30,6 +35,11 @@ const props = defineProps({
   title: {
     type: String,
     default: "Image",
+  },
+  scale: {
+    type: Number,
+    default: 1,
+    validator: (value) => value > 0 && value <= 1,
   },
 });
 
