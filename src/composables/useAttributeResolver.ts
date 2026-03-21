@@ -32,6 +32,8 @@ export const useAttributeResolver = (
 
   const requestedAttributes = computed(() => {
     const attrs = unref(attributes);
+    // Handle invalid input: if attrs is not an array, return empty (defensive)
+    if (!Array.isArray(attrs)) return [];
     if (!attrs || attrs.length === 0) return [];
     if (!resolvedEntity.value) return [];
 
