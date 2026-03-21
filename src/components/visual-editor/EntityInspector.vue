@@ -43,7 +43,7 @@
     </div>
 
     <!-- Component Type Selector -->
-    <div v-if="entity.type !== 'HaImage'" class="inspector-section mb-3">
+    <div v-if="currentType !== 'HaImage'" class="inspector-section mb-3">
       <label for="componentType" class="form-label small mb-1">
         <strong>Component Type</strong>
       </label>
@@ -72,7 +72,7 @@
 
     <!-- Card-Specific Properties -->
     <div v-if="hasCardProperties" class="inspector-section mb-3">
-      <label v-if="entity.type !== 'HaImage'" class="form-label small mb-2"><strong>Properties</strong></label>
+      <label v-if="currentType !== 'HaImage'" class="form-label small mb-2"><strong>Properties</strong></label>
       <div class="properties-form">
         <PropertyEditorFactory
           v-for="(propertyDef, propName) in cardProperties"
@@ -87,7 +87,11 @@
 
     <!-- Attributes Editor -->
     <div
-      v-if="entityFromStore && Object.keys(availableAttributes).length > 0"
+      v-if="
+        entityFromStore &&
+        Object.keys(availableAttributes).length > 0 &&
+        supportsAttributes(currentType)
+      "
       class="inspector-section mb-3"
     >
       <label class="form-label small mb-2"><strong>Attributes</strong></label>
@@ -217,6 +221,7 @@ import { getDefaultComponentType } from "../../composables/useDefaultComponentTy
 import {
   getCardProperties,
   validateProperty,
+  supportsAttributes,
 } from "../../utils/cardPropertyMetadata";
 import PropertyEditorFactory from "./PropertyEditors/PropertyEditorFactory.vue";
 import EntityListEditor from "./PropertyEditors/EntityListEditor.vue";
@@ -261,8 +266,18 @@ watch(
   () => props.entity,
   (newEntity) => {
     if (!newEntity) return;
+    // Calculate the type (use explicit type or auto-detect)
+    let entityType = newEntity.type;
+    if (!entityType) {
+      // Auto-detect type based on entity ID
+      if (newEntity.getter) {
+        entityType = "HaEntityList";
+      } else {
+        entityType = getDefaultComponentType(newEntity.entity, newEntity.getter);
+      }
+    }
     // Extract all card-specific properties from entity
-    const propsDef = getCardProperties(newEntity.type || "");
+    const propsDef = getCardProperties(entityType || "");
     const newProperties = {};
     for (const propName of Object.keys(propsDef)) {
       if (propName in newEntity) {
@@ -305,15 +320,23 @@ const recommendedType = computed(() => {
   return getDefaultComponentType(props.entity?.entity, props.entity?.getter);
 });
 
+/**
+ * Current type: use explicit type if defined, otherwise use recommended (auto-detected) type
+ * This ensures the inspector shows correct options even for cards without explicit type in JSON
+ */
+const currentType = computed(() => {
+  return props.entity?.type || recommendedType.value;
+});
+
 /** Check if this card type should lock the first entity (e.g., HaRoom) */
 const shouldLockFirstEntity = computed(() => {
   // Only HaRoom requires locking the first entity
-  return props.entity?.type === "HaRoom";
+  return currentType.value === "HaRoom";
 });
 
 /** Dynamic help text based on card type */
 const entityListHelp = computed(() => {
-  if (props.entity?.type === "HaRoom") {
+  if (currentType.value === "HaRoom") {
     return "Drag to reorder (except the first one). Drop entities from the left panel to add.";
   }
   return "Drag to reorder. Drop entities from the left panel to add. If all are removed the component will be deleted.";
@@ -382,7 +405,7 @@ const availableComponentTypes = computed(() => {
 
 /** Get properties for the current component type */
 const cardProperties = computed(() => {
-  const type = props.entity?.type;
+  const type = currentType.value;
   if (!type) return {};
   return getCardProperties(type);
 });

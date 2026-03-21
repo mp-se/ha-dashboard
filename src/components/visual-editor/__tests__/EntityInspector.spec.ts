@@ -23,12 +23,12 @@ describe("EntityInspector.vue", () => {
     // Populate the store BEFORE creating the component
     entitiesStore.entities = [
       {
-        entity_id: "light.living_room",
-        state: "on",
+        entity_id: "sensor.temperature",
+        state: "22.5",
         attributes: {
-          friendly_name: "Living Room",
-          brightness: 200,
-          color_mode: "color_temp",
+          friendly_name: "Temperature",
+          unit_of_measurement: "°C",
+          device_class: "temperature",
         },
       },
     ];
@@ -37,9 +37,9 @@ describe("EntityInspector.vue", () => {
     wrapper = mount(EntityInspector, {
       props: {
         entity: {
-          entity: "light.living_room",
-          type: "HaLight",
-          attributes: { label: "Living Room" },
+          entity: "sensor.temperature",
+          type: "HaSensor",
+          attributes: { label: "Temperature" },
         },
         entityId: 0,
       },
@@ -57,7 +57,7 @@ describe("EntityInspector.vue", () => {
   });
 
   it("displays entity ID", () => {
-    expect(wrapper.text()).toContain("light.living_room");
+    expect(wrapper.text()).toContain("sensor.temperature");
   });
 
   it("shows component type selector", () => {
@@ -74,8 +74,8 @@ describe("EntityInspector.vue", () => {
 
   it("displays attributes section", async () => {
     // Verify the entities store has the entity data
-    expect(entitiesStore.entityMap.has("light.living_room")).toBe(true);
-    const storedEntity = entitiesStore.entityMap.get("light.living_room");
+    expect(entitiesStore.entityMap.has("sensor.temperature")).toBe(true);
+    const storedEntity = entitiesStore.entityMap.get("sensor.temperature");
     expect(storedEntity?.attributes).toBeDefined();
     expect(Object.keys(storedEntity?.attributes || {}).length).toBeGreaterThan(
       0,
@@ -83,8 +83,8 @@ describe("EntityInspector.vue", () => {
 
     // Verify the haStore also has the entity data via delegation
     const haStore = useHaStore();
-    expect(haStore.entityMap.has("light.living_room")).toBe(true);
-    const haStoredEntity = haStore.entityMap.get("light.living_room");
+    expect(haStore.entityMap.has("sensor.temperature")).toBe(true);
+    const haStoredEntity = haStore.entityMap.get("sensor.temperature");
     expect(haStoredEntity?.attributes).toBeDefined();
 
     // Wait for wrapper to update
@@ -94,7 +94,7 @@ describe("EntityInspector.vue", () => {
     // Check wrapper for entity inspector content
     console.log("Wrapper HTML:", wrapper.html().substring(0, 500));
     console.log("Wrapper text:", wrapper.text().substring(0, 500));
-    expect(wrapper.html()).toContain("light.living_room");
+    expect(wrapper.html()).toContain("sensor.temperature");
 
     // Now check if the attributes section is visible
     const attribForm = wrapper.find(".attributes-form");

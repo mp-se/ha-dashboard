@@ -347,3 +347,12 @@ export function validateProperty(
 export function getCardPropertyNames(cardType: string): string[] {
   return Object.keys(getCardProperties(cardType));
 }
+
+/**
+ * Check if a card type supports displaying attributes
+ * Only certain cards actually render the attributes in their template
+ */
+export function supportsAttributes(cardType: string): boolean {
+  const cardsWithAttributes = ["HaBinarySensor", "HaSensor", "HaSwitch"];
+  return cardsWithAttributes.includes(cardType);
+}
