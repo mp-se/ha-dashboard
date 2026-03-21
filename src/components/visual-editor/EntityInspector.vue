@@ -106,40 +106,31 @@
 
         <!-- List of configured attributes -->
         <div
-          v-for="(value, key, idx) in localAttributes"
-          :key="`attr-${key}-${idx}`"
+          v-for="(attrKey, idx) in localAttributes"
+          :key="`attr-${attrKey}-${idx}`"
           class="mb-2"
         >
           <div class="attribute-row">
             <div class="attribute-key">
-              <small class="text-monospace">{{ key }}</small>
+              <small class="text-monospace">{{ attrKey }}</small>
               <span
+                v-if="availableAttributes[attrKey]"
                 class="badge bg-secondary ms-1"
-                :title="`Value type: ${getAttributeType(value)}`"
+                :title="`Value type: ${getAttributeType(availableAttributes[attrKey])}`"
               >
-                {{ getAttributeTypeShort(value) }}
+                {{ getAttributeTypeShort(availableAttributes[attrKey]) }}
               </span>
             </div>
             <div class="input-group input-group-sm">
-              <input
-                type="text"
-                class="form-control form-control-sm attribute-input"
-                placeholder="Value"
-                :value="formatAttributeValue(value)"
-                @input="updateAttribute(key, $event.target.value)"
-              />
               <button
                 type="button"
                 class="btn btn-outline-danger btn-sm"
                 title="Remove attribute"
-                @click="removeAttribute(key)"
+                @click="removeAttribute(attrKey)"
               >
                 <i class="mdi mdi-trash-can"></i>
               </button>
             </div>
-            <small v-if="attributeErrors[key]" class="text-danger d-block mt-1">
-              {{ attributeErrors[key] }}
-            </small>
           </div>
         </div>
 
@@ -247,7 +238,7 @@ const emit = defineEmits([
 ]);
 
 const store = useHaStore();
-const localAttributes = ref({});
+const localAttributes = ref([]);
 const localProperties = ref({});
 const attributeErrors = ref({});
 const propertyErrors = ref({});
@@ -256,7 +247,7 @@ const propertyErrors = ref({});
 watch(
   () => props.entity?.attributes,
   (newAttributes) => {
-    localAttributes.value = { ...newAttributes };
+    localAttributes.value = Array.isArray(newAttributes) ? [...newAttributes] : [];
     attributeErrors.value = {};
   },
   { immediate: true, deep: true },
@@ -310,7 +301,7 @@ const availableAttributes = computed(() => {
 const unusedAttributeNames = computed(() => {
   if (!availableAttributes.value) return [];
   return Object.keys(availableAttributes.value)
-    .filter((key) => !(key in localAttributes.value))
+    .filter((key) => !localAttributes.value.includes(key))
     .sort();
 });
 
@@ -430,21 +421,6 @@ const hasCardProperties = computed(() => {
 });
 
 /**
- * Format attribute value for display in input field
- */
-const formatAttributeValue = (value) => {
-  if (typeof value === "string") return value;
-  if (typeof value === "number" || typeof value === "boolean")
-    return String(value);
-  // For objects/arrays, return JSON string
-  try {
-    return JSON.stringify(value);
-  } catch {
-    return String(value);
-  }
-};
-
-/**
  * Get the type of an attribute value
  */
 const getAttributeType = (value) => {
@@ -500,57 +476,21 @@ const updateProperty = (propName, value) => {
   emit("update-properties", { ...localProperties.value });
 };
 
-const updateAttribute = (key, valueStr) => {
-  const value = parseAttributeValue(valueStr);
-  localAttributes.value[key] = value;
-  emit("update-attributes", { ...localAttributes.value });
-};
-
 const removeAttribute = (key) => {
-  delete localAttributes.value[key];
+  const index = localAttributes.value.indexOf(key);
+  if (index > -1) {
+    localAttributes.value.splice(index, 1);
+  }
   delete attributeErrors.value[key];
-  emit("update-attributes", { ...localAttributes.value });
+  emit("update-attributes", [...localAttributes.value]);
 };
 
-/** Add attribute from dropdown - use value from store */
+/** Add attribute from dropdown - add key to array */
 const addAttributeFromDropdown = (attributeName) => {
-  const value = availableAttributes.value[attributeName];
-  localAttributes.value[attributeName] = value;
-  emit("update-attributes", { ...localAttributes.value });
-};
-
-/**
- * Parse attribute value from string input
- * Handles: strings, numbers, booleans, JSON objects/arrays
- */
-const parseAttributeValue = (valueStr) => {
-  if (!valueStr || typeof valueStr !== "string") return valueStr;
-
-  const trimmed = valueStr.trim();
-
-  // Boolean values
-  if (trimmed.toLowerCase() === "true") return true;
-  if (trimmed.toLowerCase() === "false") return false;
-
-  // Numeric values
-  if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
-    return parseFloat(trimmed);
+  if (!localAttributes.value.includes(attributeName)) {
+    localAttributes.value.push(attributeName);
   }
-
-  // JSON values
-  if (
-    (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
-    (trimmed.startsWith("[") && trimmed.endsWith("]"))
-  ) {
-    try {
-      return JSON.parse(trimmed);
-    } catch {
-      return trimmed; // Return as string if JSON parsing fails
-    }
-  }
-
-  // Default to string
-  return trimmed;
+  emit("update-attributes", [...localAttributes.value]);
 };
 </script>
 
