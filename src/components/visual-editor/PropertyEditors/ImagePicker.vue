@@ -169,7 +169,21 @@ const fileInput = ref(null);
 const isDragging = ref(false);
 
 const getEditorPassword = () => {
-  return (configStore.dashboardConfig?.app?.password as string) || "";
+  // 1. Try password from active dashboard config
+  const configPassword = configStore.dashboardConfig?.app?.password;
+  if (configPassword) return configPassword;
+
+  // 2. Fallback to legacy local storage config
+  const stored = localStorage.getItem("ha-dashboard-server-config");
+  if (stored) {
+    try {
+      const config = JSON.parse(stored);
+      return config.api_password || "";
+    } catch (e) {
+      console.error("Error parsing legacy server config", e);
+    }
+  }
+  return "";
 };
 
 const formatFileSize = (bytes) => {
