@@ -1,59 +1,57 @@
 <template>
-  <div
-    class="image-picker"
-    :class="{ 'dragging-over': isDragging }"
-    @dragover.prevent="onDragOver"
-    @dragleave.prevent="onDragLeave"
-    @drop.prevent="onDrop"
-  >
-    <div
-      v-if="isDragging"
-      class="drag-drop-overlay d-flex flex-column align-items-center justify-content-center"
-    >
-      <i class="mdi mdi-cloud-upload mdi-48px text-primary"></i>
-      <div class="fw-bold text-primary">Drop to upload images</div>
-    </div>
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <div class="search-container flex-grow-1 me-2">
+  <div class="image-picker">
+    <div class="mb-3">
+      <div class="search-container mb-3">
         <div class="input-group input-group-sm">
-          <span class="input-group-text bg-dark border-secondary text-light">
-            <i class="mdi mdi-magnify"></i>
-          </span>
           <input
             v-model="searchQuery"
             type="text"
-            class="form-control form-control-sm bg-dark border-secondary text-light shadow-none"
+            class="form-control bg-dark border-secondary text-light shadow-none"
             placeholder="Search images..."
           />
         </div>
       </div>
-      <button
-        class="btn btn-sm btn-primary"
-        :disabled="isUploading"
-        @click="$refs.fileInput.click()"
-      >
-        <i v-if="isUploading" class="mdi mdi-loading mdi-spin me-1"></i>
-        <i v-else class="mdi mdi-upload me-1"></i>
-        Upload
-      </button>
-      <input
-        ref="fileInput"
-        type="file"
-        class="d-none"
-        accept="image/*"
-        multiple
-        @change="handleUpload"
-      />
-    </div>
 
-    <!-- Upload Progress -->
-    <div v-if="isUploading" class="progress mb-3" style="height: 4px">
+      <!-- Drag & Drop Zone -->
       <div
-        class="progress-bar progress-bar-striped progress-bar-animated"
-        role="progressbar"
-        :style="{ width: uploadProgress + '%' }"
-      ></div>
+        class="upload-zone d-flex flex-column align-items-center justify-content-center p-4 mb-3 border border-secondary rounded"
+        :class="{ 'dragging-over': isDragging }"
+        @dragover.prevent="onDragOver"
+        @dragleave.prevent="onDragLeave"
+        @drop.prevent="onDrop"
+      >
+        <i class="mdi mdi-cloud-upload-outline mdi-48px mb-2"></i>
+        <div class="upload-text text-center">
+          <span class="fw-bold">Drag images here</span> or
+          <button
+            class="btn btn-link p-0 fw-bold border-0 text-decoration-none"
+            style="vertical-align: baseline"
+            @click="$refs.fileInput.click()"
+          >
+            click to browse
+          </button>
+        </div>
+        <div class="upload-hint text-muted mt-2">
+          Supported: JPEG, PNG, GIF, WebP, SVG (Max 50MB per file)
+        </div>
+        <input
+          ref="fileInput"
+          type="file"
+          class="d-none"
+          accept="image/*"
+          multiple
+          @change="handleUpload"
+        />
+      </div>
+
+      <!-- Upload Progress -->
+      <div v-if="isUploading" class="progress mb-3" style="height: 4px">
+        <div
+          class="progress-bar progress-bar-striped progress-bar-animated"
+          role="progressbar"
+          :style="{ width: uploadProgress + '%' }"
+        ></div>
+      </div>
     </div>
 
     <!-- Image Grid -->
@@ -75,41 +73,43 @@
       <div v-else class="row g-2">
         <div v-for="image in filteredImages" :key="image.id" class="col-4">
           <div
-            class="image-card position-relative overflow-hidden rounded border border-secondary"
+            class="image-card position-relative overflow-hidden rounded border border-secondary p-1"
             :class="{ 'border-primary shadow-sm': modelValue === image.url }"
             @click="selectImage(image.url)"
           >
-            <div class="ratio ratio-1x1 bg-dark">
+            <div class="ratio ratio-1x1 mb-1">
               <img
                 :src="getImageUrl(image)"
-                class="object-fit-contain"
+                class="object-fit-contain rounded-top"
                 loading="lazy"
                 :alt="image.name"
               />
             </div>
 
-            <div
-              class="image-overlay position-absolute bottom-0 start-0 end-0 p-1 d-flex justify-content-between align-items-end"
-            >
+            <div class="image-info border-top border-secondary pt-1 mt-1">
               <div
-                class="image-name text-truncate small text-light ps-1"
+                class="image-name text-truncate small fw-bold text-light"
                 :title="image.name"
               >
                 {{ image.name }}
               </div>
-              <button
-                class="btn btn-link btn-sm text-danger p-0 border-0 me-1 mb-1"
-                title="Delete image"
-                @click.stop="confirmDelete(image)"
-              >
-                <i class="mdi mdi-delete-outline"></i>
-              </button>
+              <div class="image-size text-muted" style="font-size: 0.6rem">
+                {{ formatFileSize(image.size) }}
+              </div>
             </div>
+
+            <button
+              class="btn btn-link btn-sm text-danger p-0 border-0 position-absolute top-0 end-0 m-1 delete-hidden"
+              title="Delete image"
+              @click.stop="confirmDelete(image)"
+            >
+              <i class="mdi mdi-delete-outline"></i>
+            </button>
 
             <!-- Selection indicator -->
             <div
               v-if="modelValue === image.url"
-              class="position-absolute top-0 end-0 p-1"
+              class="position-absolute top-0 start-0 p-1"
             >
               <i
                 class="mdi mdi-check-circle text-primary bg-white rounded-circle"
@@ -120,23 +120,24 @@
       </div>
     </div>
 
+    <!-- Instructions -->
+    <div class="text-muted small mt-3">
+      Select or upload an image from the server
+    </div>
+
     <!-- Selection Info -->
-    <div
-      v-if="modelValue"
-      class="mt-2 d-flex align-items-center justify-content-between border-top border-secondary pt-2"
-    >
-      <div
-        class="text-truncate small text-muted font-monospace"
-        :title="modelValue"
-      >
-        {{ modelValue }}
+    <div class="mt-3">
+      <div class="mb-2">
+        <label class="form-label small text-light mb-1">Title</label>
+        <input
+          type="text"
+          class="form-control form-control-sm bg-dark border-secondary text-light"
+          placeholder="Image"
+        />
+        <div class="form-text small text-muted">
+          Optional title shown below the image
+        </div>
       </div>
-      <button
-        class="btn btn-link btn-sm text-muted p-0 ms-2"
-        @click="selectImage('')"
-      >
-        Clear
-      </button>
     </div>
   </div>
 </template>
@@ -164,6 +165,14 @@ const isUploading = ref(false);
 const uploadProgress = ref(0);
 const fileInput = ref(null);
 const isDragging = ref(false);
+
+const formatFileSize = (bytes) => {
+  if (!bytes) return "0 B";
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+};
 
 const onDragOver = () => {
   isDragging.value = true;
@@ -228,7 +237,7 @@ const selectImage = (url) => {
 
 const getImageUrl = (image) => {
   // Use a small preview if available on the server
-  return `${API_SERVER}${image.url}?width=100&height=100&quality=60`;
+  return `${API_SERVER}${image.url}?width=200&height=200&quality=80`;
 };
 
 const handleUpload = (event) => {
@@ -336,29 +345,30 @@ onMounted(fetchImages);
 <style scoped>
 .image-picker {
   position: relative;
-  min-height: 380px;
 }
 
-.dragging-over {
-  border: 2px dashed #0d6efd !important;
+.upload-zone {
+  border: 1px dashed rgba(255, 255, 255, 0.2) !important;
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.2s ease-in-out;
+}
+
+.upload-zone.dragging-over {
+  border-color: #0d6efd !important;
   background: rgba(13, 110, 253, 0.05);
-  border-radius: 8px;
+  color: #0d6efd;
 }
 
-.drag-drop-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  z-index: 100;
-  pointer-events: none;
-  border-radius: 8px;
+.upload-text {
+  font-size: 0.9rem;
+}
+
+.upload-hint {
+  font-size: 0.75rem;
 }
 
 .image-grid {
-  max-height: 250px;
+  max-height: 400px;
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 4px;
@@ -375,23 +385,21 @@ onMounted(fetchImages);
   transform: translateY(-2px);
 }
 
-.image-card:hover .image-overlay {
-  opacity: 1;
-}
-
-.image-overlay {
-  background: linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0.8) 0%,
-    rgba(0, 0, 0, 0) 100%
-  );
-  opacity: 0.8;
+.delete-hidden {
+  opacity: 0;
   transition: opacity 0.2s;
 }
 
+.image-card:hover .delete-hidden {
+  opacity: 1;
+}
+
 .image-name {
-  font-size: 0.65rem;
-  max-width: 70%;
+  font-size: 0.7rem;
+}
+
+.image-size {
+  font-size: 0.6rem;
 }
 
 .ratio img {
@@ -400,7 +408,7 @@ onMounted(fetchImages);
   object-fit: contain;
 }
 
-/* Custom scrollbar for small space */
+/* Custom scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
