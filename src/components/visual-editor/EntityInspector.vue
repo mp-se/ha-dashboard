@@ -6,7 +6,12 @@
       v-if="entity.entity || entity.getter || entity.type === 'HaImage'"
       class="inspector-section mb-3"
     >
-      <label v-if="entity.entity || entity.getter" class="form-label small mb-1"
+      <label v-if="entity.getter" class="form-label small mb-1"
+        ><strong>Getter</strong></label
+      >
+      <label
+        v-else-if="entity.entity"
+        class="form-label small mb-1"
         ><strong>Entity ID</strong></label
       >
       <label v-else class="form-label small mb-1"
@@ -262,11 +267,7 @@ watch(
     let entityType = newEntity.type;
     if (!entityType) {
       // Auto-detect type based on entity ID
-      if (newEntity.getter) {
-        entityType = "HaEntityList";
-      } else {
-        entityType = getDefaultComponentType(newEntity.entity, newEntity.getter);
-      }
+      entityType = getDefaultComponentType(newEntity.entity, newEntity.getter);
     }
     // Extract all card-specific properties from entity
     const propsDef = getCardProperties(entityType || "");
@@ -306,9 +307,6 @@ const unusedAttributeNames = computed(() => {
 });
 
 const recommendedType = computed(() => {
-  if (props.entity?.getter) {
-    return "HaEntityList";
-  }
   return getDefaultComponentType(props.entity?.entity, props.entity?.getter);
 });
 
