@@ -24,6 +24,7 @@
         <div class="d-flex align-items-center justify-content-between mb-3">
           <div class="text-start flex-grow-1">
             <h6 class="card-title mb-0">{{ name }}</h6>
+            <EntityAttributeList :attributes="requestedAttributes" />
           </div>
           <button
             class="ha-control-button"
@@ -135,12 +136,14 @@
 import { computed, ref, watch } from "vue";
 import { useEntityResolver } from "@/composables/useEntityResolver";
 import { useServiceCall } from "@/composables/useServiceCall";
+import { useAttributeResolver } from "@/composables/useAttributeResolver";
 import { useLightColor } from "@/composables/useLightColor";
 import {
   useLightColorTemp,
   getPresetColor,
 } from "@/composables/useLightColorTemp";
 import { useLightColorPresets } from "@/composables/useLightColorPresets";
+import EntityAttributeList from "../sub-components/EntityAttributeList.vue";
 
 const props = defineProps({
   entity: {
@@ -339,5 +342,10 @@ const { controlCircleColor, iconColor } = useLightColor(
   isDisabled,
   getPresetColor,
   supportedPresets,
+);
+
+const { requestedAttributes } = useAttributeResolver(
+  computed(() => props.attributes),
+  entityAttrs,
 );
 </script>
