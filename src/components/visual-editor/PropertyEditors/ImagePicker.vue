@@ -86,7 +86,7 @@
               />
             </div>
 
-            <div class="image-info border-top border-secondary pt-1 mt-1">
+            <div class="image-info pt-1 mt-1">
               <div
                 class="image-name text-truncate small fw-bold text-light"
                 :title="image.name"
@@ -126,7 +126,7 @@
     </div>
 
     <!-- Selection Info -->
-    <div class="mt-3">
+    <div v-if="false" class="mt-3">
       <div class="mb-2">
         <label class="form-label small text-light mb-1">Title</label>
         <input
@@ -397,7 +397,6 @@ onMounted(fetchImages);
 .image-card {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  background: #1e1e1e;
 }
 
 .image-card:hover {
