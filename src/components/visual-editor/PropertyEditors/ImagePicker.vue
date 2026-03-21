@@ -6,7 +6,7 @@
           <input
             v-model="searchQuery"
             type="text"
-            class="form-control bg-dark border-secondary text-light shadow-none"
+            class="form-control border-secondary text-dark shadow-none"
             placeholder="Search images..."
           />
         </div>
