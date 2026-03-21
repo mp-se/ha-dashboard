@@ -92,8 +92,8 @@ app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
   if (req.method === "POST" || req.method === "PUT") {
     // Basic body logging
-    if (req.body && typeof req.body === 'object') {
-       console.log("  Body fields:", Object.keys(req.body).length);
+    if (req.body && typeof req.body === "object") {
+      console.log("  Body fields:", Object.keys(req.body).length);
     }
   }
   next();
@@ -316,37 +316,42 @@ app.post("/api/config", authenticate, async (req, res) => {
 });
 
 // Image upload endpoint
-app.post("/api/images/upload", authenticate, upload.array("images", 20), async (req, res) => {
-  try {
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({
+app.post(
+  "/api/images/upload",
+  authenticate,
+  upload.array("images", 20),
+  async (req, res) => {
+    try {
+      if (!req.files || req.files.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: "No files provided",
+        });
+      }
+
+      const uploadedImages = req.files.map((file) => ({
+        id: file.filename,
+        url: `/api/images/${file.filename}`,
+        name: path.parse(file.filename).name,
+        size: file.size,
+      }));
+
+      log.info(`Uploaded ${uploadedImages.length} image(s)`);
+      res.json({
+        success: true,
+        data: {
+          images: uploadedImages,
+        },
+      });
+    } catch (error) {
+      log.error("Error uploading images:", error);
+      res.status(500).json({
         success: false,
-        error: "No files provided",
+        error: error.message || "Failed to upload images",
       });
     }
-
-    const uploadedImages = req.files.map((file) => ({
-      id: file.filename,
-      url: `/api/images/${file.filename}`,
-      name: path.parse(file.filename).name,
-      size: file.size,
-    }));
-
-    log.info(`Uploaded ${uploadedImages.length} image(s)`);
-    res.json({
-      success: true,
-      data: {
-        images: uploadedImages,
-      },
-    });
-  } catch (error) {
-    log.error("Error uploading images:", error);
-    res.status(500).json({
-      success: false,
-      error: error.message || "Failed to upload images",
-    });
-  }
-});
+  },
+);
 
 // Get list of available images
 app.get("/api/images", (req, res) => {
@@ -418,10 +423,10 @@ app.get("/api/images/:id", async (req, res) => {
     }
 
     const { width, height, quality, format } = req.query;
-    
+
     // If no processing requested, serve directly
     if (!width && !height && !quality && !format) {
-        return res.sendFile(filePath);
+      return res.sendFile(filePath);
     }
 
     let transform = sharp(filePath);
@@ -470,9 +475,12 @@ app.get("/api/images/:id", async (req, res) => {
 
     // Set content type
     if (format) {
-       res.set("Content-Type", `image/${format === 'jpg' ? 'jpeg' : format}`);
+      res.set("Content-Type", `image/${format === "jpg" ? "jpeg" : format}`);
     } else {
-       res.set("Content-Type", `image/${path.extname(filename).slice(1).toLowerCase()}`);
+      res.set(
+        "Content-Type",
+        `image/${path.extname(filename).slice(1).toLowerCase()}`,
+      );
     }
 
     transform.pipe(res);

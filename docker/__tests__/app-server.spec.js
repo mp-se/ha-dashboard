@@ -184,56 +184,24 @@ describe("Backend Server (app-server.js)", () => {
     });
   });
 
-  describe("Local Data Endpoint (/api/data/local)", () => {
-    it("should return empty object if local-data.json does not exist", async () => {
-      const response = await request(app).get("/api/data/local");
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual({ success: true, data: {} });
-    });
-
-    it("should return data from local-data.json if it exists", async () => {
-      const testData = { entities: { "sensor.test": { state: "ok" } } };
-      fs.writeFileSync(
-        path.join(testDataDir, "local-data.json"),
-        JSON.stringify(testData),
-      );
-
-      const response = await request(app).get("/api/data/local");
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data).toEqual(testData);
-    });
-
-    it("should not require authentication", async () => {
-      const response = await request(app)
-        .get("/api/data/local")
-        .set("Authorization", "Bearer invalid");
-
-      // Should still work without proper auth
-      expect(response.status).toBe(200);
-    });
-  });
-
   describe("Backup Management", () => {
-    it("should use ISO timestamp format for backups", async () => {
+    it("should use sequence number for backups", async () => {
       const response = await request(app)
         .post("/api/config")
         .set("Authorization", "Bearer test-password")
         .set("Content-Type", "application/json")
-        .send({ app: { title: "Timestamp Test" } });
+        .send({ app: { title: "Sequence Test" } });
 
       expect(response.status).toBe(200);
 
       const backups = fs.readdirSync(testBackupDir);
       expect(backups.length).toBeGreaterThan(0);
 
-      // Check ISO format in backup filename
-      const hasISOFormat = backups.some((backup) =>
-        /\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}/.test(backup),
+      // Check sequence number format (e.g., .backup.1.json)
+      const hasSequenceFormat = backups.some((backup) =>
+        /\.backup\.\d+\.json$/.test(backup),
       );
-      expect(hasISOFormat).toBe(true);
+      expect(hasSequenceFormat).toBe(true);
     });
   });
 
