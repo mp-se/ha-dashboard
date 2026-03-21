@@ -321,6 +321,37 @@ describe("HaSensor.vue", () => {
 
       expect(wrapper.exists()).toBe(true);
     });
+
+    it("should display requested attributes below entity name", () => {
+      const entity = {
+        entity_id: "sensor.temperature",
+        state: "23.5",
+        attributes: {
+          friendly_name: "Living Room Temperature",
+          unit_of_measurement: "°C",
+          icon: "mdi:thermometer",
+          humidity: "45",
+        },
+      };
+
+      const wrapper = mount(HaSensor, {
+        props: {
+          entity,
+          attributes: ["unit_of_measurement", "humidity"],
+        },
+        global: {
+          stubs: {
+            i: true,
+            svg: true,
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain("Unit Of Measurement");
+      expect(wrapper.text()).toContain("°C");
+      expect(wrapper.text()).toContain("Humidity");
+      expect(wrapper.text()).toContain("45");
+    });
   });
 
   describe("Icon Display", () => {
