@@ -201,7 +201,13 @@ const getServerUrl = () => {
       console.error("Error parsing server config", e);
     }
   }
-  return "";
+
+  // Fallback to origin for local dev/Docker environments
+  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    return "http://localhost:3000";
+  }
+
+  return window.location.origin;
 };
 
 const API_SERVER = getServerUrl();
