@@ -2,8 +2,9 @@
   <div class="entity-inspector p-3">
     <h6 class="mb-3">Entity Inspector</h6>
 
-    <div v-if="entity.entity || entity.getter" class="inspector-section mb-3">
-      <label class="form-label small mb-1"><strong>Entity ID</strong></label>
+    <div v-if="entity.entity || entity.getter || entity.type === 'HaImage'" class="inspector-section mb-3">
+      <label v-if="entity.entity || entity.getter" class="form-label small mb-1"><strong>Entity ID</strong></label>
+      <label v-else class="form-label small mb-1"><strong>Static Component</strong></label>
 
       <!-- Display array entities with EntityListEditor -->
       <div
@@ -21,8 +22,13 @@
       </div>
 
       <!-- Display single entity -->
-      <div v-else class="form-control-static text-monospace small">
+      <div v-else-if="entity.entity || entity.getter" class="form-control-static text-monospace small">
         {{ entity.entity || entity.getter }}
+      </div>
+
+      <!-- Display static component name -->
+      <div v-else class="form-control-static text-monospace small">
+        {{ entity.type }}
       </div>
     </div>
 
@@ -251,6 +257,9 @@ watch(
     for (const propName of Object.keys(propsDef)) {
       if (propName in newEntity) {
         newProperties[propName] = newEntity[propName];
+      } else if (propsDef[propName].default !== undefined) {
+        // Use default value if prop is missing
+        newProperties[propName] = propsDef[propName].default;
       }
     }
     localProperties.value = newProperties;
@@ -343,7 +352,6 @@ const availableComponentTypes = computed(() => {
     "HaGauge",
     "HaGlance",
     "HaHeader",
-    "HaImage",
     "HaLight",
     "HaLink",
     "HaMediaPlayer",

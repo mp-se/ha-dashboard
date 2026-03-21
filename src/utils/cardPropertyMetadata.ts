@@ -15,7 +15,9 @@ export interface PropertyDefinition {
     | "complex-entity-list"
     | "icon"
     | "color"
-    | "number";
+    | "number"
+    | "slider"
+    | "image";
   label: string;
   default?: any;
   required?: boolean;
@@ -25,6 +27,8 @@ export interface PropertyDefinition {
   pattern?: string;
   min?: number;
   max?: number;
+  step?: number;
+  placeholder?: string;
 }
 
 export interface CardPropertiesDefinition {
@@ -218,7 +222,23 @@ export const CARD_PROPERTY_METADATA: Record<string, CardPropertiesDefinition> =
     HaGauge: {},
     HaPerson: {},
     HaPrinter: {},
-    HaImage: {},
+    HaImage: {
+      url: {
+        type: "image",
+        label: "Image",
+        required: true,
+        help: "Paste a URL or upload a local image file",
+      },
+      scale: {
+        type: "slider",
+        label: "Scale",
+        min: 0.1,
+        max: 1.0,
+        step: 0.05,
+        default: 1.0,
+        help: "Scale the image (0.1 to 1.0)",
+      },
+    },
     HaSun: {},
     HaMediaPlayer: {},
     HaAlarmPanel: {},

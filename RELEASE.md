@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **HaImage Gallery and Advanced Scaling**: Restored full image management capabilities.
+  - Re-introduced `ImagePicker.vue` with a grid-based gallery, search functionality, and delete support.
+  - Updated backend `app-server.js` with production-grade endpoints for listing (`GET /api/images`), uploading (`POST /api/images/upload` via `multer`), and deleting (`DELETE /api/images/:id`) images.
+  - Added real-time image resizing support via the `sharp` library on the backend.
+  - Moved `HaImage` from the Entity Inspector dropdown to the Static Component Palette for cleaner drag-and-drop organization.
+  - Enabled property persistence for scale and URL within the Entity Inspector.
+- **Improved Entity Inspector**: Enhanced support for static components without associated Home Assistant entities.
 - **Fixed Visual Editor Drag and Drop**: Resolved issue where dragging entities or static components to the center canvas would fail in certain browsers or configurations.
   - Added fallback logic to handle entity IDs as plain text if `application/json` data is unavailable.
   - Increased `EditorCanvas` minimum height to match viewport for better drop target accessibility.

@@ -80,6 +80,12 @@ const staticComponents = ref([
     description: "Vertical spacing",
     icon: "mdi-minus-thick",
   },
+  {
+    type: "HaImage",
+    label: "Image",
+    description: "External or uploaded image",
+    icon: "mdi-image-outline",
+  },
 ]);
 
 const handleDragStart = (event, component) => {
