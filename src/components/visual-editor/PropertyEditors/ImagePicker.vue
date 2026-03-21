@@ -144,6 +144,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import { useConfigStore } from "@/stores/configStore";
 
 const props = defineProps({
   modelValue: {
@@ -158,6 +159,7 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue"]);
 
+const configStore = useConfigStore();
 const images = ref([]);
 const searchQuery = ref("");
 const isLoading = ref(true);
@@ -165,6 +167,10 @@ const isUploading = ref(false);
 const uploadProgress = ref(0);
 const fileInput = ref(null);
 const isDragging = ref(false);
+
+const getEditorPassword = () => {
+  return (configStore.dashboardConfig?.app?.password as string) || "";
+};
 
 const formatFileSize = (bytes) => {
   if (!bytes) return "0 B";
@@ -267,12 +273,10 @@ const uploadFiles = async (files) => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", `${API_SERVER}/api/images/upload`);
 
-    // Authentication header if exists
-    const config = JSON.parse(
-      localStorage.getItem("ha-dashboard-server-config") || "{}",
-    );
-    if (config.api_password) {
-      xhr.setRequestHeader("Authorization", `Bearer ${config.api_password}`);
+    // Authentication header from active dashboard config
+    const password = getEditorPassword();
+    if (password) {
+      xhr.setRequestHeader("Authorization", `Bearer ${password}`);
     }
 
     xhr.upload.addEventListener("progress", (e) => {
@@ -318,15 +322,11 @@ const confirmDelete = async (image) => {
   if (!confirm(`Are you sure you want to delete ${image.name}?`)) return;
 
   try {
-    const config = JSON.parse(
-      localStorage.getItem("ha-dashboard-server-config") || "{}",
-    );
+    const password = getEditorPassword();
     const response = await fetch(`${API_SERVER}/api/images/${image.id}`, {
       method: "DELETE",
       headers: {
-        Authorization: config.api_password
-          ? `Bearer ${config.api_password}`
-          : "",
+        Authorization: password ? `Bearer ${password}` : "",
       },
     });
 
