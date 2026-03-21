@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **Fixed Entity Attribute Rendering & Live Preview**: Resolved a critical issue where Home Assistant sensor attributes were not rendering on dashboard cards and the visual editor failed to update in real-time.
+  - Corrected missing `EntityAttributeList` component imports in `HaSensor.vue`, `HaBinarySensor.vue`, and `HaSwitch.vue`.
+  - Standardized attribute selection format as `string[]` in `EntityInspector.vue` to ensure data consistency.
+  - Enabled recursive reactivity in `EditorCanvas.vue` by adding a serialized JSON key to the entity grid, forcing instant canvas refreshes on configuration changes.
+  - Implemented validation in `useAttributeResolver.ts` to prevent "attrs is not iterable" crashes when processing malformed attribute data.
 - **HaImage Gallery and Advanced Scaling**: Restored full image management capabilities.
   - Re-introduced `ImagePicker.vue` with a grid-based gallery, search functionality, and delete support.
   - Updated backend `app-server.js` with production-grade endpoints for listing (`GET /api/images`), uploading (`POST /api/images/upload` via `multer`), and deleting (`DELETE /api/images/:id`) images.
