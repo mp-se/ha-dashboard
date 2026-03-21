@@ -93,7 +93,7 @@ const componentSchemas: ComponentSchemas = {
   },
   HaImage: {
     required: ["url"],
-    optional: ["title"],
+    optional: ["title", "scale"],
   },
   HaHeader: {
     required: ["name"],
