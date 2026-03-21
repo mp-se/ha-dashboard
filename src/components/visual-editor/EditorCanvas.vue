@@ -141,9 +141,13 @@ const emit = defineEmits([
 
 // DEBUG: Listen for ALL drop events globally
 if (typeof window !== "undefined") {
-  window.addEventListener("drop", (e) => {
-    console.log("[GLOBAL] DROP event detected!", e.target);
-  }, true); // Use capture phase to catch events before Vue
+  window.addEventListener(
+    "drop",
+    (e) => {
+      console.log("[GLOBAL] DROP event detected!", e.target);
+    },
+    true,
+  ); // Use capture phase to catch events before Vue
 }
 
 const isDragging = ref(false);
@@ -278,10 +282,10 @@ const getEntityDataForComponent = (entity) => {
     return entity.entities;
   }
 
-  // For non-entity types (spacer, header, link), pass the full config
+  // For non-entity types (spacer, header, link, image), pass the full config
   if (
     entity.type &&
-    ["HaRowSpacer", "HaSpacer", "HaHeader", "HaLink"].includes(entity.type)
+    ["HaRowSpacer", "HaSpacer", "HaHeader", "HaLink", "HaImage"].includes(entity.type)
   ) {
     return entity;
   }
