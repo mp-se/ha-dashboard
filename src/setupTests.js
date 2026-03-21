@@ -54,13 +54,13 @@ if (typeof window !== "undefined") {
       configurable: true,
       writable: true,
     });
-  } catch (e) {
+  } catch {
     // If window.localStorage is already there and we can't redefine it,
     // just try to patch it. If that fails (Proxy), we might need another approach.
     if (window.localStorage && !window.localStorage.clear) {
       try {
         window.localStorage.clear = mockStorage.clear;
-      } catch (err) {
+      } catch {
         // Fallback for tricky scenarios: manually patch each test file or use a vitest plugin
       }
     }
