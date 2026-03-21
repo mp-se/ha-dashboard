@@ -141,6 +141,22 @@ describe("EntityInspector.vue", () => {
       const selector = wrapper.find("#componentType");
       expect(selector.element.value).toBe("HaGauge");
     });
+
+    it("filters out static component types from the Available Components optgroup", () => {
+      wrapper = createWrapper();
+      const optgroups = wrapper.findAll("#componentType optgroup");
+      const availableGroup = optgroups.find((og) =>
+        og.attributes("label")?.includes("Available"),
+      );
+
+      const staticTypes = ["HaHeader", "HaLink", "HaRowSpacer", "HaSpacer", "HaImage"];
+      const options = availableGroup.findAll("option");
+
+      staticTypes.forEach((type) => {
+        const option = options.find((opt) => opt.attributes("value") === type);
+        expect(option).toBeFalsy();
+      });
+    });
   });
 
   describe("Recommended Type Logic", () => {

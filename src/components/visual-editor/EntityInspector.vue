@@ -378,6 +378,14 @@ const handleAllEntitiesRemoved = () => {
 };
 // List of available component types (can be imported from a constant)
 const availableComponentTypes = computed(() => {
+  const staticTypes = [
+    "HaHeader",
+    "HaLink",
+    "HaRowSpacer",
+    "HaSpacer",
+    "HaImage",
+  ];
+
   return [
     "HaAlarmPanel",
     "HaBeerTap",
@@ -405,7 +413,9 @@ const availableComponentTypes = computed(() => {
     "HaSwitch",
     "HaWarning",
     "HaWeather",
-  ].sort();
+  ]
+    .filter((type) => !staticTypes.includes(type))
+    .sort();
 });
 
 /** Get properties for the current component type */
