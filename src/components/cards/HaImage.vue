@@ -10,8 +10,12 @@
     ]"
   >
     <div class="card-body d-flex align-items-center justify-content-center p-0">
-      <div :style="{ transform: `scale(${scale})`, transformOrigin: 'center' }">
+      <div v-if="resolvedUrl" :style="{ transform: `scale(${scale})`, transformOrigin: 'center' }">
         <img :src="resolvedUrl" :alt="title" class="ha-image-img" />
+      </div>
+      <div v-else class="text-center text-muted">
+        <i class="mdi mdi-image-off mdi-48px mb-2"></i>
+        <div class="small">No image selected</div>
       </div>
     </div>
   </div>
@@ -23,7 +27,7 @@ import { computed } from "vue";
 const props = defineProps({
   url: {
     type: String,
-    required: true,
+    default: "",
   },
   title: {
     type: String,
@@ -53,6 +57,11 @@ const getApiServerUrl = () => {
 
 // Resolve relative URLs to absolute URLs for bundled assets or data directory
 const resolvedUrl = computed(() => {
+  // Guard against undefined or empty url
+  if (!props.url || typeof props.url !== "string") {
+    return "";
+  }
+
   if (
     props.url.startsWith("http://") ||
     props.url.startsWith("https://") ||
