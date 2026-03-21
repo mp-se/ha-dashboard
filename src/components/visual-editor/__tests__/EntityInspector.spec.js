@@ -184,13 +184,24 @@ describe("EntityInspector.vue", () => {
       expect(wrapper.vm.recommendedType).toBe("HaBinarySensor");
     });
 
-    it("uses HaEntityList when entity is a getter", () => {
+    it("uses getter-based type hints for component detection", () => {
+      wrapper = createWrapper({
+        getter: "getItems",
+        entity: undefined,
+        type: undefined,
+      });
+      // Generic getter name defaults to HaSensor
+      expect(wrapper.vm.recommendedType).toBe("HaSensor");
+    });
+
+    it("detects HaLight from getter containing 'light'", () => {
       wrapper = createWrapper({
         getter: "store.allLights",
         entity: undefined,
         type: undefined,
       });
-      expect(wrapper.vm.recommendedType).toBe("HaEntityList");
+      // Getter name "allLights" contains "light", so it infers HaLight
+      expect(wrapper.vm.recommendedType).toBe("HaLight");
     });
   });
 
@@ -228,6 +239,44 @@ describe("EntityInspector.vue", () => {
         await removeBtn.trigger("click");
         expect(wrapper.emitted("remove-entity")).toBeTruthy();
       }
+    });
+  });
+
+  describe("Static Component Types", () => {
+    it("hides component type selector for static types like HaSpacer", () => {
+      wrapper = createWrapper({
+        type: "HaSpacer",
+        entity: undefined,
+      });
+      const typeSelector = wrapper.find('select#componentType');
+      expect(typeSelector.exists()).toBe(false);
+    });
+
+    it("hides component type selector for HaRowSpacer", () => {
+      wrapper = createWrapper({
+        type: "HaRowSpacer",
+        entity: undefined,
+      });
+      const typeSelector = wrapper.find('select#componentType');
+      expect(typeSelector.exists()).toBe(false);
+    });
+
+    it("hides component type selector for HaHeader", () => {
+      wrapper = createWrapper({
+        type: "HaHeader",
+        entity: undefined,
+      });
+      const typeSelector = wrapper.find('select#componentType');
+      expect(typeSelector.exists()).toBe(false);
+    });
+
+    it("shows component type selector for dynamic types like HaLight", () => {
+      wrapper = createWrapper({
+        type: "HaLight",
+        entity: "light.living_room",
+      });
+      const typeSelector = wrapper.find('select#componentType');
+      expect(typeSelector.exists()).toBe(true);
     });
   });
 });

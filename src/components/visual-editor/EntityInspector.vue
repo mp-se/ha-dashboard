@@ -48,7 +48,7 @@
     </div>
 
     <!-- Component Type Selector -->
-    <div v-if="currentType !== 'HaImage'" class="inspector-section mb-3">
+    <div v-if="!isStaticComponent" class="inspector-section mb-3">
       <label for="componentType" class="form-label small mb-1">
         <strong>Component Type</strong>
       </label>
@@ -248,6 +248,15 @@ const localProperties = ref({});
 const attributeErrors = ref({});
 const propertyErrors = ref({});
 
+// Static component types that don't need type selection
+const STATIC_COMPONENT_TYPES = [
+  "HaHeader",
+  "HaLink",
+  "HaRowSpacer",
+  "HaSpacer",
+  "HaImage",
+];
+
 // Sync local attributes with prop
 watch(
   () => props.entity?.attributes,
@@ -316,6 +325,11 @@ const recommendedType = computed(() => {
  */
 const currentType = computed(() => {
   return props.entity?.type || recommendedType.value;
+});
+
+/** Check if this entity is a static component type */
+const isStaticComponent = computed(() => {
+  return STATIC_COMPONENT_TYPES.includes(currentType.value);
 });
 
 /** Check if this card type should lock the first entity (e.g., HaRoom) */
