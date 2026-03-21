@@ -20,6 +20,7 @@
     <div
       v-if="entityCount > 0"
       class="row g-3"
+      :key="`canvas-${JSON.stringify(localEntities)}`"
       @dragover.prevent="handleDragOver"
       @drop.prevent="handleDrop"
       @dragenter="handleDragEnter"
