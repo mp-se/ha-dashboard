@@ -356,3 +356,18 @@ export function supportsAttributes(cardType: string): boolean {
   const cardsWithAttributes = ["HaBinarySensor", "HaSensor", "HaSwitch"];
   return cardsWithAttributes.includes(cardType);
 }
+
+/**
+ * Check if a card type supports multiple entities (array of entities)
+ * These cards can handle 2 or more entities
+ */
+export function supportsMultipleEntities(cardType: string): boolean {
+  const cardsWithMultipleEntities = [
+    "HaRoom",
+    "HaGlance",
+    "HaSensorGraph",
+    "HaSensor",
+    "HaBeerTap",
+  ];
+  return cardsWithMultipleEntities.includes(cardType);
+}

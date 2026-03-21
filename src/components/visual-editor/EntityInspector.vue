@@ -222,6 +222,7 @@ import {
   getCardProperties,
   validateProperty,
   supportsAttributes,
+  supportsMultipleEntities,
 } from "../../utils/cardPropertyMetadata";
 import PropertyEditorFactory from "./PropertyEditors/PropertyEditorFactory.vue";
 import EntityListEditor from "./PropertyEditors/EntityListEditor.vue";
@@ -342,7 +343,12 @@ const entityListHelp = computed(() => {
   return "Drag to reorder. Drop entities from the left panel to add. If all are removed the component will be deleted.";
 });
 const isArrayEntity = computed(() => {
-  return Array.isArray(props.entity?.entity);
+  // Show EntityListEditor if:
+  // 1. Entity is already an array, OR
+  // 2. Card type supports multiple entities (even if currently single)
+  const alreadyArray = Array.isArray(props.entity?.entity);
+  const typeSupportsMultiple = supportsMultipleEntities(currentType.value);
+  return alreadyArray || typeSupportsMultiple;
 });
 
 /** Get entity array for EntityListEditor */
@@ -350,6 +356,14 @@ const entityArray = computed({
   get: () => {
     if (Array.isArray(props.entity?.entity)) {
       return props.entity.entity;
+    }
+    // If single entity and card supports multiple entities, wrap in array
+    if (
+      props.entity?.entity &&
+      typeof props.entity.entity === "string" &&
+      supportsMultipleEntities(currentType.value)
+    ) {
+      return [props.entity.entity];
     }
     return [];
   },
