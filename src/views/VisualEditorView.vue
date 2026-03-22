@@ -137,6 +137,7 @@ import EntityInspector from "../components/visual-editor/EntityInspector.vue";
 import ViewManager from "../components/visual-editor/ViewManager.vue";
 import StaticComponentPalette from "../components/visual-editor/StaticComponentPalette.vue";
 import { createLogger } from "../utils/logger";
+import "../styles/editor-styles.css";
 
 const logger = createLogger("VisualEditorView");
 defineProps({
