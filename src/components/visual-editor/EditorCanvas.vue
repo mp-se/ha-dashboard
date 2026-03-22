@@ -74,8 +74,7 @@
               <component
                 :is="getComponentForEntity(entity)"
                 v-if="getComponentForEntity(entity)"
-                :entity="getEntityDataForComponent(entity)"
-                v-bind="getComponentCustomProps(entity)"
+                v-bind="getComponentProps(entity)"
                 :editor-mode="isConditionalComponent(entity)"
                 class="editor-component"
                 :class="{
@@ -356,6 +355,37 @@ const getComponentCustomProps = (entity) => {
   }
 
   return customProps;
+};
+
+/**
+ * Combine entity data and custom props for a component
+ * Different components need different prop structures
+ */
+const getComponentProps = (entity) => {
+  if (!entity) return {};
+
+  const props = {};
+
+  // For HaImage, HaLink, HaHeader, HaSpacer - only use custom props (url, title, etc.)
+  // Don't pass entity prop since these components don't use it
+  if (
+    ["HaImage", "HaLink", "HaHeader", "HaSpacer", "HaRowSpacer"].includes(
+      entity.type,
+    )
+  ) {
+    return getComponentCustomProps(entity);
+  }
+
+  // For other components, include both entity data and custom props
+  const entityData = getEntityDataForComponent(entity);
+  if (entityData) {
+    props.entity = entityData;
+  }
+
+  // Merge in custom props
+  Object.assign(props, getComponentCustomProps(entity));
+
+  return props;
 };
 
 const handleSelectClick = (index) => {

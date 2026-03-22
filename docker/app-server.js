@@ -377,7 +377,7 @@ app.get("/api/images", (req, res) => {
         const stats = fs.statSync(filePath);
         return {
           id: file,
-          url: `/api/images/${file}`,
+          url: `/data/images/${file}`,
           name: path.parse(file).name,
           size: stats.size,
           mtime: stats.mtime.toISOString(),

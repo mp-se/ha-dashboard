@@ -74,7 +74,7 @@
         <div v-for="image in filteredImages" :key="image.id" class="col-4">
           <div
             class="image-card position-relative overflow-hidden rounded border border-secondary p-1"
-            :class="{ 'border-primary shadow-sm': modelValue === image.url }"
+            :class="{ 'border-primary shadow-sm': isImageSelected(image) }"
             @click="selectImage(image.url)"
           >
             <div class="ratio ratio-1x1 mb-1">
@@ -108,7 +108,7 @@
 
             <!-- Selection indicator -->
             <div
-              v-if="modelValue === image.url"
+              v-if="isImageSelected(image)"
               class="position-absolute top-0 start-0 p-1"
             >
               <i
@@ -125,18 +125,18 @@
       Select or upload an image from the server
     </div>
 
-    <!-- Selection Info -->
-    <div v-if="false" class="mt-3">
-      <div class="mb-2">
-        <label class="form-label small text-light mb-1">Title</label>
-        <input
-          type="text"
-          class="form-control form-control-sm bg-dark border-secondary text-light"
-          placeholder="Image"
-        />
-        <div class="form-text small text-muted">
-          Optional title shown below the image
-        </div>
+    <!-- URL Input Field -->
+    <div class="mt-3">
+      <label class="form-label small mb-2">Or enter URL directly</label>
+      <input
+        :value="modelValue"
+        type="text"
+        class="form-control form-control-sm"
+        placeholder="https://example.com/image.jpg or /data/images/photo.jpg"
+        @input="(e) => $emit('update:modelValue', e.target.value)"
+      />
+      <div class="form-text small text-muted mt-1">
+        Paste a full URL (https://...) or /data/images/ path
       </div>
     </div>
   </div>
@@ -210,32 +210,71 @@ const onDrop = async (event) => {
   }
 };
 
-// Get server URL from local storage or default to current host
-const getServerUrl = () => {
+// Get API base URL respecting environment configuration
+// Priority:
+// 1. VITE_API_URL from .env (dev environment) - should point to /api base
+// 2. localStorage config (runtime override)
+// 3. Relative /api paths (Docker/production with Nginx proxy)
+const getApiBase = () => {
+  // 1. Check Vite environment variables (from .env)
+  const envApiUrl = import.meta.env.VITE_API_URL;
+  if (envApiUrl) {
+    let url = envApiUrl;
+    // Remove trailing slash for consistency
+    if (url.endsWith("/")) {
+      url = url.substring(0, url.length - 1);
+    }
+    // Ensure /api is appended for full URLs
+    if (url.includes("://")) {
+      // This is an absolute URL like http://localhost:3000
+      // Append /api if not already there
+      if (!url.endsWith("/api")) {
+        url = url + "/api";
+      }
+      return url;
+    }
+    // Relative path already includes /api or is /api
+    return url;
+  }
+
+  // 2. Check localStorage for custom API server configuration
   const stored = localStorage.getItem("ha-dashboard-server-config");
   if (stored) {
     try {
       const config = JSON.parse(stored);
-      return config.api_url || "";
-    } catch (e) {
-      console.error("Error parsing server config", e);
+      if (config.api_url) {
+        // If it's a relative path already, use it; otherwise extract the path
+        if (config.api_url.startsWith("/")) {
+          return config.api_url;
+        }
+        // If it's an absolute URL, extract the path or append /api
+        try {
+          const url = new URL(config.api_url);
+          const pathname = url.pathname;
+          if (!pathname.endsWith("/api")) {
+            return pathname + "/api";
+          }
+          return pathname;
+        } catch {
+          return config.api_url;
+        }
+      }
+    } catch {
+      // Ignore parsing errors
     }
   }
 
-  // Fallback to origin for local dev/Docker environments
-  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-    return "http://localhost:3000";
-  }
-
-  return window.location.origin;
+  // 3. Default to relative /api path for Docker/production with Nginx proxy
+  // This respects CSP and works in both Vite proxy (dev) and Nginx proxy (Docker)
+  return "/api";
 };
 
-const API_SERVER = getServerUrl();
+const API_BASE = getApiBase();
 
 const fetchImages = async () => {
   isLoading.value = true;
   try {
-    const response = await fetch(`${API_SERVER}/api/images`);
+    const response = await fetch(`${API_BASE}/images`);
     const data = await response.json();
     if (data.success) {
       images.value = data.data.images;
@@ -258,12 +297,19 @@ const filteredImages = computed(() => {
 });
 
 const selectImage = (url) => {
+  // Server returns /data/images/ URLs - use them directly
   emit("update:modelValue", url);
 };
 
+const isImageSelected = (image) => {
+  if (!props.modelValue) return false;
+  // Direct comparison - URLs are already normalized
+  return props.modelValue === image.url;
+};
+
 const getImageUrl = (image) => {
-  // Use a small preview if available on the server
-  return `${API_SERVER}${image.url}?width=200&height=200&quality=80`;
+  // Server returns /data/images/ URLs - use them directly
+  return image.url || "";
 };
 
 const handleUpload = (event) => {
@@ -285,7 +331,7 @@ const uploadFiles = async (files) => {
   try {
     // We use XHR to track progress
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", `${API_SERVER}/api/images/upload`);
+    xhr.open("POST", `${API_BASE}/images/upload`);
 
     // Authentication header from active dashboard config
     const password = getEditorPassword();
@@ -337,7 +383,7 @@ const confirmDelete = async (image) => {
 
   try {
     const password = getEditorPassword();
-    const response = await fetch(`${API_SERVER}/api/images/${image.id}`, {
+    const response = await fetch(`${API_BASE}/images/${image.id}`, {
       method: "DELETE",
       headers: {
         Authorization: password ? `Bearer ${password}` : "",
