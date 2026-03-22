@@ -108,7 +108,7 @@ const logger = createLogger("HaRoom");
 
 // Debug: log when color prop changes
 if (props.color && props.color !== "blue") {
-  console.log("[HaRoom] Received color prop:", props.color);
+  logger.log("Received color prop:", props.color);
 }
 
 // Normalize entity to always be an array
@@ -257,7 +257,7 @@ const roomIconClass = computed(() => {
 const circleColor = computed(() => {
   const color = props.color || "blue";
   if (color !== "blue") {
-    console.log("[HaRoom] circleColor computed:", color);
+    logger.log("circleColor computed:", color);
   }
   return color;
 });

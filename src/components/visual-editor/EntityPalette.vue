@@ -116,6 +116,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useHaStore } from "../../stores/haStore";
+import { createLogger } from "../../utils/logger";
 
 const props = defineProps({
   entitiesInView: {
@@ -127,20 +128,21 @@ const props = defineProps({
 defineEmits(["add-entity", "remove-entity"]);
 
 const store = useHaStore();
+const logger = createLogger("EntityPalette");
 const isExpanded = ref(true);
 const searchText = ref("");
 const selectedType = ref("");
 
 const entitiesInViewIds = computed(() => {
-  console.log(
-    "[EntityPalette] entitiesInViewIds - entitiesInView:",
+  logger.log(
+    "entitiesInViewIds - entitiesInView:",
     props.entitiesInView,
     "isArray:",
     Array.isArray(props.entitiesInView),
   );
   if (!Array.isArray(props.entitiesInView)) {
-    console.warn(
-      "[EntityPalette] entitiesInViewIds - entitiesInView is not an array!",
+    logger.warn(
+      "entitiesInViewIds - entitiesInView is not an array!",
     );
     return [];
   }

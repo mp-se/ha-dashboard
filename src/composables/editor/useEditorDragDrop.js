@@ -1,4 +1,7 @@
 import { ref } from "vue";
+import { createLogger } from "../../utils/logger";
+
+const logger = createLogger("useEditorDragDrop");
 
 /**
  * Composable for managing drag-drop behavior in EditorCanvas
@@ -185,7 +188,7 @@ export function useEditorDragDrop(localEntities, emit) {
         }
       }
     } catch (error) {
-      console.error("[useEditorDragDrop] Error handling entity drop:", error);
+      logger.error("Error handling entity drop:", error);
     } finally {
       dragOverIndex.value = null;
     }
@@ -195,7 +198,7 @@ export function useEditorDragDrop(localEntities, emit) {
    * Handle drop on canvas background
    */
   const handleDrop = (event) => {
-    console.log("[useEditorDragDrop] DROP event fired!", event);
+    logger.log("DROP event fired!", event);
     event.preventDefault();
     isDragOver.value = false;
     isDropping.value = false;
@@ -235,7 +238,7 @@ export function useEditorDragDrop(localEntities, emit) {
         }
       }
     } catch (error) {
-      console.error("[useEditorDragDrop] Error parsing dropped data:", error);
+      logger.error("Error parsing dropped data:", error);
     }
   };
 

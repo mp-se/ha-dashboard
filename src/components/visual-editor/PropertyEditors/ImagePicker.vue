@@ -145,6 +145,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useConfigStore } from "@/stores/configStore";
+import { createLogger } from "@/utils/logger";
 
 const props = defineProps({
   modelValue: {
@@ -160,6 +161,7 @@ const props = defineProps({
 const emit = defineEmits(["update:modelValue"]);
 
 const configStore = useConfigStore();
+const logger = createLogger("ImagePicker");
 const images = ref([]);
 const searchQuery = ref("");
 const isLoading = ref(true);
@@ -180,7 +182,7 @@ const getEditorPassword = () => {
       const config = JSON.parse(stored);
       return config.api_password || "";
     } catch (e) {
-      console.error("Error parsing legacy server config", e);
+      logger.error("Error parsing legacy server config", e);
     }
   }
   return "";
@@ -280,7 +282,7 @@ const fetchImages = async () => {
       images.value = data.data.images;
     }
   } catch (error) {
-    console.error("Failed to fetch images", error);
+    logger.error("Failed to fetch images", error);
   } finally {
     isLoading.value = false;
   }
@@ -373,7 +375,7 @@ const uploadFiles = async (files) => {
 
     xhr.send(formData);
   } catch (error) {
-    console.error("Upload error", error);
+    logger.error("Upload error", error);
     isUploading.value = false;
   }
 };
@@ -401,7 +403,7 @@ const confirmDelete = async (image) => {
       alert("Delete failed: " + data.error);
     }
   } catch (error) {
-    console.error("Delete error", error);
+    logger.error("Delete error", error);
   }
 };
 
