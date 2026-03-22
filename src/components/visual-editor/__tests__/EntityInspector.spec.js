@@ -149,7 +149,13 @@ describe("EntityInspector.vue", () => {
         og.attributes("label")?.includes("Available"),
       );
 
-      const staticTypes = ["HaHeader", "HaLink", "HaRowSpacer", "HaSpacer", "HaImage"];
+      const staticTypes = [
+        "HaHeader",
+        "HaLink",
+        "HaRowSpacer",
+        "HaSpacer",
+        "HaImage",
+      ];
       const options = availableGroup.findAll("option");
 
       staticTypes.forEach((type) => {
@@ -248,7 +254,7 @@ describe("EntityInspector.vue", () => {
         type: "HaSpacer",
         entity: undefined,
       });
-      const typeSelector = wrapper.find('select#componentType');
+      const typeSelector = wrapper.find("select#componentType");
       expect(typeSelector.exists()).toBe(false);
     });
 
@@ -257,7 +263,7 @@ describe("EntityInspector.vue", () => {
         type: "HaRowSpacer",
         entity: undefined,
       });
-      const typeSelector = wrapper.find('select#componentType');
+      const typeSelector = wrapper.find("select#componentType");
       expect(typeSelector.exists()).toBe(false);
     });
 
@@ -266,7 +272,7 @@ describe("EntityInspector.vue", () => {
         type: "HaHeader",
         entity: undefined,
       });
-      const typeSelector = wrapper.find('select#componentType');
+      const typeSelector = wrapper.find("select#componentType");
       expect(typeSelector.exists()).toBe(false);
     });
 
@@ -275,7 +281,7 @@ describe("EntityInspector.vue", () => {
         type: "HaLight",
         entity: "light.living_room",
       });
-      const typeSelector = wrapper.find('select#componentType');
+      const typeSelector = wrapper.find("select#componentType");
       expect(typeSelector.exists()).toBe(true);
     });
   });

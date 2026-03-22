@@ -307,7 +307,9 @@ const getEntityDataForComponent = (entity) => {
   // For non-entity types (spacer, header, link, image), pass the full config
   if (
     entity.type &&
-    ["HaRowSpacer", "HaSpacer", "HaHeader", "HaLink", "HaImage"].includes(entity.type)
+    ["HaRowSpacer", "HaSpacer", "HaHeader", "HaLink", "HaImage"].includes(
+      entity.type,
+    )
   ) {
     return entity;
   }
@@ -333,13 +335,7 @@ const getComponentCustomProps = (entity) => {
   }
 
   // List of standard config properties that shouldn't be passed as component props
-  const standardProps = [
-    "entity",
-    "entities",
-    "type",
-    "getter",
-    "layout",
-  ];
+  const standardProps = ["entity", "entities", "type", "getter", "layout"];
 
   // Extract custom properties (like color, operator, message, etc.)
   const customProps = {};

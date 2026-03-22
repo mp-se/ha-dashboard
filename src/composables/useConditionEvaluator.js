@@ -3,7 +3,7 @@ import { useHaStore } from "@/stores/haStore";
 
 /**
  * Composable for evaluating conditions in HaWarning and HaError components.
- * 
+ *
  * @param props - Component props containing entity, attribute, operator, and value.
  * @returns Object with evaluation results.
  */

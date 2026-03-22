@@ -4,15 +4,16 @@
 
     <!-- Entity/Getter display (skip for HaEntityList) -->
     <div
-      v-if="(entity.entity || entity.getter || entity.type === 'HaImage') && entity.type !== 'HaEntityList'"
+      v-if="
+        (entity.entity || entity.getter || entity.type === 'HaImage') &&
+        entity.type !== 'HaEntityList'
+      "
       class="inspector-section mb-3"
     >
       <label v-if="entity.getter" class="form-label small mb-1"
         ><strong>Getter</strong></label
       >
-      <label
-        v-else-if="entity.entity"
-        class="form-label small mb-1"
+      <label v-else-if="entity.entity" class="form-label small mb-1"
         ><strong>Entity ID</strong></label
       >
       <label v-else class="form-label small mb-1"
@@ -78,13 +79,17 @@
 
     <!-- Card-Specific Properties -->
     <div v-if="hasCardProperties" class="inspector-section mb-3">
-      <label v-if="currentType !== 'HaImage'" class="form-label small mb-2"><strong>Properties</strong></label>
+      <label v-if="currentType !== 'HaImage'" class="form-label small mb-2"
+        ><strong>Properties</strong></label
+      >
       <div class="properties-form">
         <PropertyEditorFactory
           v-for="(propertyDef, propName) in cardProperties"
           :key="propName"
           :property="{ ...propertyDef, label: propertyDef.label }"
-          :model-value="getPropertyValue(propName, propertyDef, localProperties[propName])"
+          :model-value="
+            getPropertyValue(propName, propertyDef, localProperties[propName])
+          "
           :error="propertyErrors[propName]"
           @update:model-value="updateProperty(propName, $event)"
         />
@@ -263,7 +268,9 @@ const STATIC_COMPONENT_TYPES = [
 watch(
   () => props.entity?.attributes,
   (newAttributes) => {
-    localAttributes.value = Array.isArray(newAttributes) ? [...newAttributes] : [];
+    localAttributes.value = Array.isArray(newAttributes)
+      ? [...newAttributes]
+      : [];
     attributeErrors.value = {};
   },
   { immediate: true, deep: true },

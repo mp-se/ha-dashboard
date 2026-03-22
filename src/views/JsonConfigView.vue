@@ -156,7 +156,10 @@ const entitiesList = computed(() => {
       });
     }
     // Special handling for EntityList - pass getter/entities array directly to component
-    else if (componentType === "EntityList" || componentType === "HaEntityList") {
+    else if (
+      componentType === "EntityList" ||
+      componentType === "HaEntityList"
+    ) {
       // For EntityList, we need to provide entities array in the format it expects
       // If getter is specified, convert to entities array format
       let entitiesForList = entity.entities || [];

@@ -1,25 +1,24 @@
 <template>
   <div
-    :class="[
-      'card',
-      'card-display',
-      'rounded-4',
-      'shadow-lg',
-      'border-info',
-    ]"
+    :class="['card', 'card-display', 'rounded-4', 'shadow-lg', 'border-info']"
     :style="{
       width: `${scale * 100}%`,
       margin: '0 auto',
-      transition: 'width 0.2s ease-out'
+      transition: 'width 0.2s ease-out',
     }"
   >
-    <div class="card-body d-flex align-items-center justify-content-center p-0 overflow-hidden">
-      <div v-if="resolvedUrl" class="w-100 d-flex align-items-center justify-content-center">
+    <div
+      class="card-body d-flex align-items-center justify-content-center p-0 overflow-hidden"
+    >
+      <div
+        v-if="resolvedUrl"
+        class="w-100 d-flex align-items-center justify-content-center"
+      >
         <img
           :src="resolvedUrl"
           :alt="title"
           class="ha-image-img"
-          style="width: 100%; height: auto; display: block;"
+          style="width: 100%; height: auto; display: block"
         />
       </div>
       <div v-else class="text-center text-muted p-4">
