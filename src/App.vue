@@ -68,7 +68,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, watch, defineAsyncComponent } from "vue";
 import { useHaStore } from "./stores/haStore";
 import { createLogger } from "./utils/logger";

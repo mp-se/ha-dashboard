@@ -1,5 +1,5 @@
 import { config } from "@vue/test-utils";
-import { vi, beforeEach } from "vitest";
+import { beforeEach } from "vitest";
 import IconCircle from "./components/sub-components/IconCircle.vue";
 import EntityAttributeList from "./components/sub-components/EntityAttributeList.vue";
 

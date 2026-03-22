@@ -18,17 +18,7 @@ import {
 } from "@/utils/secureStorage";
 import { fetchWithTimeout } from "@/utils/fetchWithTimeout";
 import { TIMEOUT_SERVICE_CALL } from "@/utils/constants";
-import type {
-  ServiceCallData,
-  DashboardConfig,
-  Logger as LoggerInterface,
-} from "@/types";
-
-interface RequestOptions {
-  method?: string;
-  headers?: Record<string, string>;
-  body?: string;
-}
+import type { ServiceCallData } from "@/types";
 
 export const useAuthStore = defineStore("auth", () => {
   const haUrl: Ref<string> = ref("");

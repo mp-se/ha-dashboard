@@ -3,7 +3,7 @@ import { ref, computed, Ref, ComputedRef } from "vue";
 import { createLogger } from "@/utils/logger";
 import { useAuthStore } from "./authStore";
 import { useForecastStore } from "./forecastStore";
-import { subscribeEntities, Connection } from "home-assistant-js-websocket";
+import { subscribeEntities } from "home-assistant-js-websocket";
 import { fetchJsonWithTimeout } from "@/utils/fetchWithTimeout";
 import { TIMEOUT_CONFIG, TIMEOUT_WEBSOCKET } from "@/utils/constants";
 

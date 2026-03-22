@@ -1,11 +1,10 @@
 import { defineStore } from "pinia";
-import { toRef, Ref, ComputedRef } from "vue";
+import { toRef } from "vue";
 import { useAuthStore } from "./authStore";
 import { createLogger } from "@/utils/logger";
 import { useEntitiesStore } from "./entitiesStore";
 import { useConfigStore } from "./configStore";
 import { useForecastStore } from "./forecastStore";
-import type { Connection } from "home-assistant-js-websocket";
 
 /**
  * Bridge store that maintains the original useHaStore API

@@ -33,11 +33,10 @@ app.config.errorHandler = (
 };
 
 // Global warning handler for Vue warnings
-// eslint-disable-next-line no-unused-vars
 app.config.warnHandler = (
   msg: string,
-  instance: unknown,
-  trace: string,
+  _instance: unknown,
+  _trace: string,
 ): void => {
   // Only log in development
   if (import.meta.env.DEV) {

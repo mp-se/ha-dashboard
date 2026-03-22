@@ -3,7 +3,7 @@
  * Handles HSV to RGB conversion, luminance calculations, and color analysis
  */
 
-import { computed, ComputedRef, Ref } from "vue";
+import { computed, ComputedRef } from "vue";
 
 interface RGBColor {
   r: number;

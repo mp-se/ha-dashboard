@@ -298,7 +298,7 @@ export const useConfigStore = defineStore("config", () => {
         try {
           const errorData = (await response.json()) as Record<string, unknown>;
           errorMsg = (errorData.error as string) || errorMsg;
-        } catch (parseError) {
+        } catch {
           // Response not JSON, use generic message
         }
         throw new Error(errorMsg);
