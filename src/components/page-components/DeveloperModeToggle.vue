@@ -8,7 +8,7 @@
           ? 'Click to disable Developer Mode'
           : hasPassword
             ? 'Click to enable Developer Mode (password required)'
-            : 'Developer Mode unavailable (no password configured)'
+            : 'Click to enable Developer Mode'
       "
       @click="handleClick"
     >
@@ -92,13 +92,15 @@ const error = ref("");
 
 const handleClick = () => {
   if (store.developerMode) {
-    // If already in developer mode, disable without needing password
+    // Disable developer mode directly (no password needed)
     toggleMode();
   } else if (hasPassword.value) {
-    // Only show password dialog if a password is configured
+    // Password is configured — show the modal
     showModal.value = true;
+  } else {
+    // No password configured — enter developer mode freely
+    toggleMode();
   }
-  // If no password configured, do nothing — developer mode is unavailable
 };
 
 const toggleMode = () => {

@@ -295,7 +295,7 @@ describe("DeveloperModeToggle.vue", () => {
       useConfigStore.mockReturnValue(createMockConfigStore(null));
     });
 
-    it("does not show the modal when button is clicked with no password configured", async () => {
+    it("does not show the modal when no password is configured", async () => {
       const wrapper = mount(DeveloperModeToggle, {
         global: { plugins: [pinia] },
       });
@@ -303,33 +303,41 @@ describe("DeveloperModeToggle.vue", () => {
       expect(wrapper.find(".modal").exists()).toBe(false);
     });
 
-    it("does not call toggleDeveloperMode when no password is configured", async () => {
-      const mockStore = createMockStore({ toggleDeveloperMode: vi.fn() });
+    it("calls toggleDeveloperMode directly when no password is configured", async () => {
+      const mockStore = createMockStore({ toggleDeveloperMode: vi.fn(() => true) });
       useAuthStore.mockReturnValue(mockStore);
       const wrapper = mount(DeveloperModeToggle, {
         global: { plugins: [pinia] },
       });
       await wrapper.find("button").trigger("click");
-      expect(mockStore.toggleDeveloperMode).not.toHaveBeenCalled();
+      expect(mockStore.toggleDeveloperMode).toHaveBeenCalledWith("");
     });
 
-    it("shows 'unavailable' tooltip when no password is configured", () => {
-      const wrapper = mount(DeveloperModeToggle, {
-        global: { plugins: [pinia] },
-      });
-      expect(wrapper.find("button").attributes("title")).toContain(
-        "no password configured",
-      );
-    });
-
-    it("shows 'unavailable' tooltip when password is an empty string", () => {
+    it("calls toggleDeveloperMode directly when password is an empty string", async () => {
       useConfigStore.mockReturnValue(createMockConfigStore(""));
+      const mockStore = createMockStore({ toggleDeveloperMode: vi.fn(() => true) });
+      useAuthStore.mockReturnValue(mockStore);
+      const wrapper = mount(DeveloperModeToggle, {
+        global: { plugins: [pinia] },
+      });
+      await wrapper.find("button").trigger("click");
+      expect(mockStore.toggleDeveloperMode).toHaveBeenCalledWith("");
+    });
+
+    it("shows generic enable tooltip when no password is configured", () => {
       const wrapper = mount(DeveloperModeToggle, {
         global: { plugins: [pinia] },
       });
       expect(wrapper.find("button").attributes("title")).toContain(
-        "no password configured",
+        "Click to enable Developer Mode",
       );
+    });
+
+    it("button is not disabled when no password is configured", () => {
+      const wrapper = mount(DeveloperModeToggle, {
+        global: { plugins: [pinia] },
+      });
+      expect(wrapper.find("button").attributes("disabled")).toBeUndefined();
     });
   });
 });
