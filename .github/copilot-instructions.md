@@ -59,6 +59,12 @@ For any change that impacts UI appearance or interaction:
 - **Release Notes**: Update `RELEASE.md` with a concise summary of changes and this should always be done under the "Unreleased" section at the top of the file.
 - **Configuration**: If the change impacts user configuration, update `CONFIGURATION.md` with examples.
 - **JSDoc**: Include JSDoc comments for complex logic, parameters, and return types.
+- **Specifications**: For complex features or modules that need clear, detailed documentation about behavior, storage, and API contracts, create specification documents in the `spec/` directory. Examples: `spec/IMAGE_PICKER_SPEC.md`. Specifications should clarify:
+  - Data flow and storage locations
+  - API endpoints and response formats
+  - Frontend behavior and URL handling
+  - Edge cases and validation rules
+  - Any assumptions about the runtime environment (Dev vs Docker)
 
 ## 7. Verification Steps (Instructions for AI)
 
