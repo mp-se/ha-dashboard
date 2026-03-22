@@ -59,13 +59,6 @@ describe("EditorCanvas.vue - Drag and Drop (Phase 2)", () => {
   });
 
   describe("Drag event handling", () => {
-    it("should track drag state", async () => {
-      expect(wrapper.vm.isDragging).toBe(false);
-      wrapper.vm.isDragging = true;
-      await wrapper.vm.$nextTick();
-      expect(wrapper.vm.isDragging).toBe(true);
-    });
-
     it("should emit reorder-entities when drag ends", async () => {
       // The reorder-entities event is emitted when handleEntityDrop is called with reordering
       const event = {

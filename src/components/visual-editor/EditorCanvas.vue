@@ -31,13 +31,31 @@
         v-for="(entity, index) in localEntities"
         :key="`entity-${index}`"
       >
-        <!-- EntityList items render as direct grid children (no col wrapper) -->
+        <!-- EntityList items render as direct grid children (no col wrapper for full width) -->
         <template v-if="entity.type === 'HaEntityList'">
           <component
             :is="getComponentForEntity(entity)"
-            v-bind="getComponentCustomProps(entity)"
+            v-bind="getComponentProps(entity)"
+            :class="{
+              'editor-component': true,
+              'is-selected': isEntitySelected(index),
+            }"
+            draggable="true"
+            @dragstart="handleEntityDragStart(index, $event)"
+            @dragover.prevent="handleEntityDragOver(index, $event)"
+            @dragleave="handleEntityDragLeave(index)"
+            @drop.prevent="handleEntityDrop(index, $event)"
+            @dragend="handleEntityDragEnd"
+            @click.stop="onCardClick(index)"
           />
+          <!-- Drop indicator for EntityList -->
+          <div
+            v-if="dragOverIndex === index && isDropping"
+            class="drop-indicator drop-indicator-before"
+            style="grid-column: 1 / -1"
+          ></div>
         </template>
+
         <!-- Other components wrapped in col div with editor overlay -->
         <div
           v-else
@@ -97,9 +115,13 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from "vue";
-import { getComponentLayoutClasses } from "../../utils/componentLayouts";
-import { getDefaultComponentType } from "../../composables/useDefaultComponentType";
+import { watch } from "vue";
+
+// Import composables
+import { useEditorDragDrop } from "../../composables/editor/useEditorDragDrop";
+import { useComponentResolver } from "../../composables/editor/useComponentResolver";
+import { useEditorSelection } from "../../composables/editor/useEditorSelection";
+import { useEditorState } from "../../composables/editor/useEditorState";
 
 // Import all Ha* components
 import HaAlarmPanel from "../cards/HaAlarmPanel.vue";
@@ -151,31 +173,6 @@ const emit = defineEmits([
   "add-entity-at-index",
 ]);
 
-// DEBUG: Listen for ALL drop events globally
-if (typeof window !== "undefined") {
-  window.addEventListener(
-    "drop",
-    (e) => {
-      console.log("[GLOBAL] DROP event detected!", e.target);
-    },
-    true,
-  ); // Use capture phase to catch events before Vue
-}
-
-const isDragging = ref(false);
-const isDragOver = ref(false);
-const isDropping = ref(false);
-const dragOverCounter = ref(0);
-const dragOverIndex = ref(null);
-const localEntities = ref(
-  Array.isArray(props.entities) ? [...props.entities] : [],
-);
-
-// Safe entity count
-const entityCount = computed(() => {
-  return Array.isArray(localEntities.value) ? localEntities.value.length : 0;
-});
-
 // Map component types to imported components
 const componentMap = {
   HaAlarmPanel,
@@ -209,6 +206,10 @@ const componentMap = {
   HaWeather,
 };
 
+// State management - use composable for ref and computed, handle watch in component for reactivity
+const { localEntities, entityCount } = useEditorState(props.entities);
+
+// Watch for prop changes and sync local state
 watch(
   () => props.entities,
   (newEntities) => {
@@ -221,390 +222,44 @@ watch(
   { deep: true },
 );
 
-const isEntitySelected = (index) => {
-  return props.selectedEntityId === index;
-};
+// Drag-drop functionality
+const {
+  isDropping,
+  dragOverIndex,
+  handleDragOver,
+  handleDragEnter,
+  handleDragLeave,
+  handleEntityDragStart,
+  handleEntityDragOver,
+  handleEntityDragLeave,
+  handleEntityDrop,
+  handleEntityDragEnd,
+  handleDrop,
+} = useEditorDragDrop(localEntities, emit);
 
+// Component resolution
+const {
+  getComponentForEntity,
+  getComponentProps,
+  getComponentClasses,
+} = useComponentResolver(componentMap);
+
+// Selection management
+const { isEntitySelected: isEntitySelectedBase, onCardClick: onCardClickBase } =
+  useEditorSelection(emit);
+
+// Create wrapper functions that include the reactive selectedEntityId
+const isEntitySelected = (index) => isEntitySelectedBase(props.selectedEntityId, index);
+const onCardClick = (index) => onCardClickBase(props.selectedEntityId, index);
+
+
+// Helper functions for entity type checking
 const isSpacer = (entity) => {
   return entity?.type === "HaSpacer" || entity?.type === "HaRowSpacer";
 };
 
 const isConditionalComponent = (entity) => {
   return entity?.type === "HaWarning" || entity?.type === "HaError";
-};
-
-/**
- * Get the component to render for an entity
- */
-const getComponentForEntity = (entity) => {
-  if (!entity) return null;
-
-  // Special mapping for HaEntityList to EntityList component
-  if (entity.type === "HaEntityList") {
-    return componentMap.EntityList;
-  }
-
-  // If entity has explicit type, use it
-  if (entity.type && componentMap[entity.type]) {
-    return componentMap[entity.type];
-  }
-
-  // Special cases for non-entity items (when no entity ID is present)
-  if (!entity.entity && !entity.getter) {
-    if (entity.type === "HaRowSpacer" || entity.type === "HaSpacer") {
-      return componentMap.HaSpacer;
-    }
-    if (entity.type === "HaHeader") {
-      return componentMap.HaHeader;
-    }
-    if (entity.type === "HaLink") {
-      return componentMap.HaLink;
-    }
-  }
-
-  // If no explicit type, use getDefaultComponentType for auto-detection
-  if (!entity.type) {
-    const defaultType = getDefaultComponentType(
-      entity.entity || entity.getter,
-      entity.getter,
-    );
-    if (defaultType && componentMap[defaultType]) {
-      return componentMap[defaultType];
-    }
-  }
-
-  // Default fallback
-  return componentMap.HaSensor;
-};
-
-/**
- * Get the entity data to pass to component
- * Pass just the entity ID(s) so components can resolve their own data
- */
-const getEntityDataForComponent = (entity) => {
-  if (!entity) return null;
-
-  // For HaEntityList, don't pass entity data - it uses entities/getter instead
-  if (entity.type === "HaEntityList") {
-    return null;
-  }
-
-  // If entity has an array of entity IDs (like HaRoom, HaGlance)
-  if (entity.entity && Array.isArray(entity.entity)) {
-    return entity.entity;
-  }
-
-  // If entity has a single entity ID string
-  if (entity.entity && typeof entity.entity === "string") {
-    return entity.entity;
-  }
-
-  // Fallback: check for entities property (alternative naming)
-  if (entity.entities && Array.isArray(entity.entities)) {
-    return entity.entities;
-  }
-
-  // For non-entity types (spacer, header, link, image), pass the full config
-  if (
-    entity.type &&
-    ["HaRowSpacer", "HaSpacer", "HaHeader", "HaLink", "HaImage"].includes(
-      entity.type,
-    )
-  ) {
-    return entity;
-  }
-
-  // Safety fallback: if we have no valid entity data, return empty string to prevent errors
-  return "";
-};
-
-const getComponentCustomProps = (entity) => {
-  if (!entity) return {};
-
-  // Special handling for HaEntityList - construct entities array for the component
-  if (entity.type === "HaEntityList") {
-    const entitiesForList = entity.entities || [];
-    if (entity.getter && !entitiesForList.length) {
-      entitiesForList.push({ getter: entity.getter });
-    }
-    return {
-      entities: entitiesForList,
-      componentMap: entity.componentMap || {},
-      attributes: entity.attributes || [],
-    };
-  }
-
-  // List of standard config properties that shouldn't be passed as component props
-  const standardProps = ["entity", "entities", "type", "getter", "layout"];
-
-  // Extract custom properties (like color, operator, message, etc.)
-  const customProps = {};
-  for (const [key, value] of Object.entries(entity)) {
-    if (!standardProps.includes(key) && value !== undefined && value !== null) {
-      customProps[key] = value;
-    }
-  }
-
-  // Debug logging for HaRoom color property
-  if (entity.type === "HaRoom" && customProps.color) {
-    // Room color property detected
-  }
-
-  return customProps;
-};
-
-/**
- * Combine entity data and custom props for a component
- * Different components need different prop structures
- */
-const getComponentProps = (entity) => {
-  if (!entity) return {};
-
-  const props = {};
-
-  // For HaImage, HaLink, HaHeader, HaSpacer - only use custom props (url, title, etc.)
-  // Don't pass entity prop since these components don't use it
-  if (
-    ["HaImage", "HaLink", "HaHeader", "HaSpacer", "HaRowSpacer"].includes(
-      entity.type,
-    )
-  ) {
-    return getComponentCustomProps(entity);
-  }
-
-  // For other components, include both entity data and custom props
-  const entityData = getEntityDataForComponent(entity);
-  if (entityData) {
-    props.entity = entityData;
-  }
-
-  // Merge in custom props
-  Object.assign(props, getComponentCustomProps(entity));
-
-  return props;
-};
-
-const handleSelectClick = (index) => {
-  if (isEntitySelected(index)) {
-    // Deselect if clicking the same entity
-    emit("select-entity", null);
-  } else {
-    // Select the clicked entity
-    emit("select-entity", index);
-  }
-};
-
-const onCardClick = (index) => {
-  handleSelectClick(index);
-};
-
-/**
- * Get Bootstrap grid classes for a component
- * Uses componentLayouts.js for consistent sizing across editor and views
- */
-const getComponentClasses = (entity) => {
-  if (!entity) return "col-lg-4 col-md-6";
-  return getComponentLayoutClasses(entity.type);
-};
-
-const handleDragOver = (event) => {
-  event.preventDefault();
-  // Ensure we allow the drop effect matching the palette (copy)
-  event.dataTransfer.dropEffect = "copy";
-
-  // If there are no entities, or if we're dragging over the background (not specific entities)
-  // we set the drop index to the end.
-  if (localEntities.value.length === 0) {
-    dragOverIndex.value = 0;
-  } else {
-    // Only update to the end if we aren't already targeting a specific entity via handleEntityDragOver
-    if (dragOverIndex.value === null) {
-      dragOverIndex.value = localEntities.value.length;
-    }
-  }
-  isDropping.value = true;
-};
-
-const handleDragEnter = () => {
-  dragOverCounter.value++;
-  isDragOver.value = true;
-  isDropping.value = true;
-};
-
-const handleDragLeave = () => {
-  dragOverCounter.value--;
-  if (dragOverCounter.value <= 0) {
-    isDragOver.value = false;
-    dragOverCounter.value = 0;
-    // Don't reset dragOverIndex immediately to avoid flickering,
-    // handleEntityDragOver will take care of updating it.
-    isDropping.value = false;
-  }
-};
-
-const handleEntityDragOver = (index, event) => {
-  event.preventDefault();
-  event.stopPropagation(); // Prevent handleDragOver from overriding
-  event.dataTransfer.dropEffect = "copy";
-
-  // Track the horizontal/vertical position to determine if dropping before or after
-  const rect = event.currentTarget.getBoundingClientRect();
-
-  // For grid layouts (Bootstrap rows), we should ideally check both X and Y
-  // but most users expect "before" or "after" based on visual sequence.
-  const midpointX = rect.left + rect.width / 2;
-
-  // Use midpointX for horizontal flow, midpointY for vertical stack
-  if (event.clientX < midpointX) {
-    dragOverIndex.value = index;
-  } else {
-    dragOverIndex.value = index + 1;
-  }
-};
-
-const handleEntityDragStart = (index, event) => {
-  isDragging.value = true;
-  // Store the dragged entity info for reordering
-  event.dataTransfer.effectAllowed = "move";
-  event.dataTransfer.setData(
-    "application/json",
-    JSON.stringify({
-      type: "entity-reorder",
-      draggedIndex: index,
-      entity: localEntities.value[index],
-    }),
-  );
-};
-
-const handleEntityDragEnd = () => {
-  isDragging.value = false;
-  dragOverIndex.value = null;
-  isDropping.value = false;
-};
-
-const handleEntityDragLeave = (index) => {
-  // Only reset if we're leaving this specific entity without entering another
-  if (dragOverIndex.value === index || dragOverIndex.value === index + 1) {
-    dragOverIndex.value = null;
-  }
-};
-
-const handleEntityDrop = (index, event) => {
-  event.preventDefault();
-  event.stopPropagation();
-  isDropping.value = false;
-
-  try {
-    let data = event.dataTransfer.getData("application/json");
-
-    // Fallback: If application/json is empty, try text/plain
-    if (!data) {
-      const textData = event.dataTransfer.getData("text/plain");
-      if (textData && textData.includes(".")) {
-        data = JSON.stringify({ entity: textData });
-      }
-    }
-
-    if (data) {
-      const parsedData = JSON.parse(data);
-
-      // Handle entity reordering (from another entity in the same canvas)
-      if (parsedData.type === "entity-reorder") {
-        const draggedIndex = parsedData.draggedIndex;
-        const draggedEntity = parsedData.entity;
-
-        // Determine the actual insertion index based on mouse position
-        const rect = event.currentTarget.getBoundingClientRect();
-        const midpoint = rect.top + rect.height / 2;
-        let insertIndex = event.clientY < midpoint ? index : index + 1;
-
-        // If dragging from above, adjust the insert index
-        if (draggedIndex < insertIndex) {
-          insertIndex--;
-        }
-
-        // Move the entity in the local array
-        localEntities.value.splice(draggedIndex, 1);
-        localEntities.value.splice(insertIndex, 0, draggedEntity);
-        emit("reorder-entities", localEntities.value);
-        return;
-      }
-
-      // Handle static component (from palette)
-      if (parsedData.isStatic && parsedData.type) {
-        const rect = event.currentTarget.getBoundingClientRect();
-        const midpoint = rect.top + rect.height / 2;
-        const insertIndex = event.clientY < midpoint ? index : index + 1;
-
-        emit("add-entity-at-index", {
-          entity: { type: parsedData.type },
-          index: insertIndex,
-        });
-        return;
-      }
-
-      // Handle entity from palette
-      if (parsedData.entity) {
-        const rect = event.currentTarget.getBoundingClientRect();
-        const midpoint = rect.top + rect.height / 2;
-        const insertIndex = event.clientY < midpoint ? index : index + 1;
-
-        emit("add-entity-at-index", {
-          entity: parsedData.entity,
-          index: insertIndex,
-        });
-      }
-    }
-  } catch (error) {
-    console.error("[EditorCanvas] Error handling entity drop:", error);
-  } finally {
-    dragOverIndex.value = null;
-  }
-};
-
-const handleDrop = (event) => {
-  console.log("[EditorCanvas] DROP event fired!", event);
-  event.preventDefault();
-  isDragOver.value = false;
-  isDropping.value = false;
-  dragOverCounter.value = 0;
-  dragOverIndex.value = null;
-
-  try {
-    // Check for data in application/json (handles both entities and static components)
-    let data = event.dataTransfer.getData("application/json");
-
-    // Fallback: If application/json is empty, try text/plain (some browsers or drag sources)
-    if (!data) {
-      const textData = event.dataTransfer.getData("text/plain");
-      if (textData) {
-        // If it looks like an entity ID (contains a dot), wrap it in the expected JSON format
-        if (textData.includes(".")) {
-          data = JSON.stringify({ entity: textData });
-        }
-      }
-    }
-
-    if (data) {
-      const parsedData = JSON.parse(data);
-
-      // Handle static component
-      if (parsedData.isStatic && parsedData.type) {
-        emit("add-entity", {
-          type: parsedData.type,
-        });
-        return;
-      }
-
-      // Handle entity (original behavior)
-      if (parsedData.entity) {
-        emit("add-entity", parsedData.entity);
-        return;
-      }
-    }
-  } catch (error) {
-    console.error("[EditorCanvas] Error parsing dropped data:", error);
-  }
 };
 </script>
 
@@ -735,6 +390,13 @@ const handleDrop = (event) => {
   right: 0;
   height: 4px;
   width: auto;
+}
+
+/* EntityList component styling when selected */
+:deep(.entity-list.is-selected) {
+  border: 3px solid #0d6efd !important;
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3) !important;
+  background-color: rgba(13, 110, 253, 0.05) !important;
 }
 
 .editor-overlay {
