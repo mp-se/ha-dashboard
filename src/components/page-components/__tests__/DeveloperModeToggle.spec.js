@@ -3,15 +3,27 @@ import { mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import DeveloperModeToggle from "../DeveloperModeToggle.vue";
 import { useAuthStore } from "@/stores/authStore";
+import { useConfigStore } from "@/stores/configStore";
 
 vi.mock("@/stores/authStore", () => ({
   useAuthStore: vi.fn(),
+}));
+
+vi.mock("@/stores/configStore", () => ({
+  useConfigStore: vi.fn(),
 }));
 
 const createMockStore = (overrides = {}) => ({
   developerMode: false,
   toggleDeveloperMode: vi.fn(() => true),
   ...overrides,
+});
+
+/** Build a mock config store. Pass null/undefined/empty to simulate no password. */
+const createMockConfigStore = (password = "secret") => ({
+  dashboardConfig: {
+    app: password ? { password } : {},
+  },
 });
 
 describe("DeveloperModeToggle.vue", () => {
@@ -22,6 +34,8 @@ describe("DeveloperModeToggle.vue", () => {
     setActivePinia(pinia);
     vi.clearAllMocks();
     useAuthStore.mockReturnValue(createMockStore());
+    // Default: password is configured
+    useConfigStore.mockReturnValue(createMockConfigStore("secret"));
   });
 
   // ─── Initial render ────────────────────────────────────────────────────
@@ -271,6 +285,51 @@ describe("DeveloperModeToggle.vue", () => {
       await pwInput.trigger("keyup.enter");
 
       expect(mockStore.toggleDeveloperMode).toHaveBeenCalledWith("correct-pw");
+    });
+  });
+
+  // ─── No password configured ───────────────────────────────────────────
+
+  describe("no password configured", () => {
+    beforeEach(() => {
+      useConfigStore.mockReturnValue(createMockConfigStore(null));
+    });
+
+    it("does not show the modal when button is clicked with no password configured", async () => {
+      const wrapper = mount(DeveloperModeToggle, {
+        global: { plugins: [pinia] },
+      });
+      await wrapper.find("button").trigger("click");
+      expect(wrapper.find(".modal").exists()).toBe(false);
+    });
+
+    it("does not call toggleDeveloperMode when no password is configured", async () => {
+      const mockStore = createMockStore({ toggleDeveloperMode: vi.fn() });
+      useAuthStore.mockReturnValue(mockStore);
+      const wrapper = mount(DeveloperModeToggle, {
+        global: { plugins: [pinia] },
+      });
+      await wrapper.find("button").trigger("click");
+      expect(mockStore.toggleDeveloperMode).not.toHaveBeenCalled();
+    });
+
+    it("shows 'unavailable' tooltip when no password is configured", () => {
+      const wrapper = mount(DeveloperModeToggle, {
+        global: { plugins: [pinia] },
+      });
+      expect(wrapper.find("button").attributes("title")).toContain(
+        "no password configured",
+      );
+    });
+
+    it("shows 'unavailable' tooltip when password is an empty string", () => {
+      useConfigStore.mockReturnValue(createMockConfigStore(""));
+      const wrapper = mount(DeveloperModeToggle, {
+        global: { plugins: [pinia] },
+      });
+      expect(wrapper.find("button").attributes("title")).toContain(
+        "no password configured",
+      );
     });
   });
 });

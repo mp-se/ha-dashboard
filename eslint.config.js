@@ -59,6 +59,16 @@ export default [
     },
   },
 
+  // Enable TypeScript sub-parser for <script lang="ts"> blocks inside .vue files
+  {
+    files: ["src/**/*.vue"],
+    languageOptions: {
+      parserOptions: {
+        parser: tsParser,
+      },
+    },
+  },
+
   // Node + browser globals for test files (vitest runs in happy-dom / node)
   {
     files: ["src/**/__tests__/**/*.{js,ts}", "src/**/*.spec.{js,ts}", "src/setupTests.ts"],

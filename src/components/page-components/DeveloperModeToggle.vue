@@ -6,7 +6,9 @@
       :title="
         store.developerMode
           ? 'Click to disable Developer Mode'
-          : 'Click to enable Developer Mode (password required)'
+          : hasPassword
+            ? 'Click to enable Developer Mode (password required)'
+            : 'Developer Mode unavailable (no password configured)'
       "
       @click="handleClick"
     >
@@ -72,10 +74,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useAuthStore } from "@/stores/authStore";
+import { useConfigStore } from "@/stores/configStore";
 
 const store = useAuthStore();
+const configStore = useConfigStore();
+
+const hasPassword = computed(() => {
+  const appConfig = (configStore.dashboardConfig as Record<string, unknown>)
+    ?.app as Record<string, unknown> | undefined;
+  return !!(appConfig?.password && String(appConfig.password).trim() !== "");
+});
 const showModal = ref(false);
 const password = ref("");
 const error = ref("");
@@ -84,10 +94,11 @@ const handleClick = () => {
   if (store.developerMode) {
     // If already in developer mode, disable without needing password
     toggleMode();
-  } else {
-    // If not in developer mode, show password dialog
+  } else if (hasPassword.value) {
+    // Only show password dialog if a password is configured
     showModal.value = true;
   }
+  // If no password configured, do nothing — developer mode is unavailable
 };
 
 const toggleMode = () => {
