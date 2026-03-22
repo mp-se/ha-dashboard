@@ -160,15 +160,13 @@ const roomName = computed(() => {
 });
 
 // Find temperature sensor in area's entities, fallback to entity list
-const temperatureEntity = computed(() => {
-  // Get the area entity
+const findSensorByDeviceClass = (deviceClass) => {
+  // First, search in the area's own entity registry
   const areaEntity = store.entityMap.get(roomEntityId.value);
-
-  // First, search for temperature sensor in the area's entities
   if (areaEntity && areaEntity.entities) {
     for (const entityId of areaEntity.entities) {
       const entity = store.entityMap.get(entityId);
-      if (entity && entity.attributes?.device_class === "temperature") {
+      if (entity && entity.attributes?.device_class === deviceClass) {
         return entity;
       }
     }
@@ -178,13 +176,15 @@ const temperatureEntity = computed(() => {
   for (const entityId of entityArray.value) {
     if (entityId.startsWith("area.")) continue;
     const entity = store.entityMap.get(entityId);
-    if (entity && entity.attributes?.device_class === "temperature") {
+    if (entity && entity.attributes?.device_class === deviceClass) {
       return entity;
     }
   }
 
   return null;
-});
+};
+
+const temperatureEntity = computed(() => findSensorByDeviceClass("temperature"));
 
 const temperatureValue = computed(() => {
   if (!temperatureEntity.value) return null;
@@ -203,31 +203,7 @@ const temperatureUnit = computed(() => {
 });
 
 // Find humidity sensor in area's entities, fallback to entity list
-const humidityEntity = computed(() => {
-  // Get the area entity
-  const areaEntity = store.entityMap.get(roomEntityId.value);
-
-  // First, search for humidity sensor in the area's entities
-  if (areaEntity && areaEntity.entities) {
-    for (const entityId of areaEntity.entities) {
-      const entity = store.entityMap.get(entityId);
-      if (entity && entity.attributes?.device_class === "humidity") {
-        return entity;
-      }
-    }
-  }
-
-  // Fallback: search in the provided entity list
-  for (const entityId of entityArray.value) {
-    if (entityId.startsWith("area.")) continue;
-    const entity = store.entityMap.get(entityId);
-    if (entity && entity.attributes?.device_class === "humidity") {
-      return entity;
-    }
-  }
-
-  return null;
-});
+const humidityEntity = computed(() => findSensorByDeviceClass("humidity"));
 
 const humidityValue = computed(() => {
   if (!humidityEntity.value) return null;
