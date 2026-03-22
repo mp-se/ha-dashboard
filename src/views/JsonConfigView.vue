@@ -2,17 +2,25 @@
   <div class="container-fluid overflow-hidden text-center">
     <p>&nbsp;</p>
     <div class="row g-3">
-      <!-- Grid wrapper applying layout from componentLayouts constants -->
-      <div
+      <template
         v-for="item in filteredEntitiesList"
         :key="item.entity || item.entityId"
-        :class="getComponentGridClasses(item.component)"
       >
-        <component
-          :is="componentMap[item.component]"
-          v-bind="getComponentProps(item)"
-        />
-      </div>
+        <!-- EntityList renders its own row with grid items, not wrapped in col -->
+        <template v-if="item.component === 'EntityList'">
+          <component
+            :is="componentMap[item.component]"
+            v-bind="getComponentProps(item)"
+          />
+        </template>
+        <!-- All other components are wrapped in grid columns -->
+        <div v-else :class="getComponentGridClasses(item.component)">
+          <component
+            :is="componentMap[item.component]"
+            v-bind="getComponentProps(item)"
+          />
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -148,7 +156,7 @@ const entitiesList = computed(() => {
       });
     }
     // Special handling for EntityList - pass getter/entities array directly to component
-    else if (componentType === "EntityList") {
+    else if (componentType === "EntityList" || componentType === "HaEntityList") {
       // For EntityList, we need to provide entities array in the format it expects
       // If getter is specified, convert to entities array format
       let entitiesForList = entity.entities || [];
@@ -157,7 +165,7 @@ const entitiesList = computed(() => {
       }
 
       entities.push({
-        component: componentType,
+        component: "EntityList", // Normalize to EntityList for the componentMap
         entities: entitiesForList,
         componentMap: entity.componentMap,
         attributes: entity.attributes || [],

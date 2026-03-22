@@ -27,53 +27,65 @@
       @dragleave="handleDragLeave"
     >
       <!-- Grid wrapper with layout from componentLayouts constants -->
-      <div
+      <template
         v-for="(entity, index) in localEntities"
         :key="`entity-${index}`"
-        :class="[
-          getComponentClasses(entity),
-          { 'drop-indicator-active': dragOverIndex === index && isDropping },
-        ]"
-        draggable="true"
-        @dragstart="handleEntityDragStart(index, $event)"
-        @dragover.prevent="handleEntityDragOver(index, $event)"
-        @dragleave="handleEntityDragLeave(index)"
-        @drop.prevent="handleEntityDrop(index, $event)"
-        @dragend="handleEntityDragEnd"
       >
-        <!-- Drop indicator line (before this item) -->
+        <!-- EntityList items render as direct grid children (no col wrapper) -->
+        <template v-if="entity.type === 'HaEntityList'">
+          <component
+            :is="getComponentForEntity(entity)"
+            v-bind="getComponentCustomProps(entity)"
+          />
+        </template>
+        <!-- Other components wrapped in col div with editor overlay -->
         <div
-          v-if="dragOverIndex === index && isDropping"
-          class="drop-indicator drop-indicator-before"
-        ></div>
-
-        <!-- Editor overlay for edit controls -->
-        <div
-          class="editor-overlay"
-          :class="{
-            'border-3 border-primary': isEntitySelected(index),
-            'border-1 border-light': !isEntitySelected(index),
-            'editor-spacer': isSpacer(entity),
-            'editor-conditional': isConditionalComponent(entity),
-          }"
-          @click.stop="onCardClick(index)"
+          v-else
+          :class="[
+            getComponentClasses(entity),
+            { 'drop-indicator-active': dragOverIndex === index && isDropping },
+          ]"
+          draggable="true"
+          @dragstart="handleEntityDragStart(index, $event)"
+          @dragover.prevent="handleEntityDragOver(index, $event)"
+          @dragleave="handleEntityDragLeave(index)"
+          @drop.prevent="handleEntityDrop(index, $event)"
+          @dragend="handleEntityDragEnd"
         >
-          <!-- Component preview -->
-          <div class="component-wrapper">
-            <component
-              :is="getComponentForEntity(entity)"
-              v-if="getComponentForEntity(entity)"
-              :entity="getEntityDataForComponent(entity)"
-              v-bind="getComponentCustomProps(entity)"
-              :editor-mode="isConditionalComponent(entity)"
-              class="editor-component"
-              :class="{
-                'editor-conditional': isConditionalComponent(entity),
-              }"
-            />
+          <!-- Drop indicator line (before this item) -->
+          <div
+            v-if="dragOverIndex === index && isDropping"
+            class="drop-indicator drop-indicator-before"
+          ></div>
+
+          <!-- Editor overlay for edit controls -->
+          <div
+            class="editor-overlay"
+            :class="{
+              'border-3 border-primary': isEntitySelected(index),
+              'border-1 border-light': !isEntitySelected(index),
+              'editor-spacer': isSpacer(entity),
+              'editor-conditional': isConditionalComponent(entity),
+            }"
+            @click.stop="onCardClick(index)"
+          >
+            <!-- Component preview -->
+            <div class="component-wrapper">
+              <component
+                :is="getComponentForEntity(entity)"
+                v-if="getComponentForEntity(entity)"
+                :entity="getEntityDataForComponent(entity)"
+                v-bind="getComponentCustomProps(entity)"
+                :editor-mode="isConditionalComponent(entity)"
+                class="editor-component"
+                :class="{
+                  'editor-conditional': isConditionalComponent(entity),
+                }"
+              />
+            </div>
           </div>
         </div>
-      </div>
+      </template>
 
       <!-- Drop indicator at the end -->
       <div
@@ -228,6 +240,11 @@ const isConditionalComponent = (entity) => {
 const getComponentForEntity = (entity) => {
   if (!entity) return null;
 
+  // Special mapping for HaEntityList to EntityList component
+  if (entity.type === "HaEntityList") {
+    return componentMap.EntityList;
+  }
+
   // If entity has explicit type, use it
   if (entity.type && componentMap[entity.type]) {
     return componentMap[entity.type];
@@ -268,6 +285,11 @@ const getComponentForEntity = (entity) => {
 const getEntityDataForComponent = (entity) => {
   if (!entity) return null;
 
+  // For HaEntityList, don't pass entity data - it uses entities/getter instead
+  if (entity.type === "HaEntityList") {
+    return null;
+  }
+
   // If entity has an array of entity IDs (like HaRoom, HaGlance)
   if (entity.entity && Array.isArray(entity.entity)) {
     return entity.entity;
@@ -297,6 +319,19 @@ const getEntityDataForComponent = (entity) => {
 
 const getComponentCustomProps = (entity) => {
   if (!entity) return {};
+
+  // Special handling for HaEntityList - construct entities array for the component
+  if (entity.type === "HaEntityList") {
+    const entitiesForList = entity.entities || [];
+    if (entity.getter && !entitiesForList.length) {
+      entitiesForList.push({ getter: entity.getter });
+    }
+    return {
+      entities: entitiesForList,
+      componentMap: entity.componentMap || {},
+      attributes: entity.attributes || [],
+    };
+  }
 
   // List of standard config properties that shouldn't be passed as component props
   const standardProps = [

@@ -3,18 +3,21 @@
     v-for="item in displayedEntities"
     :key="item.entity?.entity_id || `spacer-${item.index}`"
   >
-    <!-- Spacer card -->
-    <HaSpacer v-if="item.isSpacer" />
-    <!-- Regular entity card with dynamic component -->
-    <component
-      :is="
-        item.component ||
-        getComponentForDomain(item.entity.entity_id) ||
-        'HaSensor'
-      "
-      v-else-if="item.entity"
-      :entity="item.entity"
-    />
+    <!-- Spacer card - rendered as grid item -->
+    <div v-if="item.isSpacer" class="col-lg-4 col-md-6 col-sm-12">
+      <HaSpacer />
+    </div>
+    <!-- Regular entity card with dynamic component - rendered as grid item -->
+    <div v-else-if="item.entity" class="col-lg-4 col-md-6 col-sm-12">
+      <component
+        :is="
+          item.component ||
+          getComponentForDomain(item.entity.entity_id) ||
+          'HaSensor'
+        "
+        :entity="item.entity"
+      />
+    </div>
   </template>
 </template>
 

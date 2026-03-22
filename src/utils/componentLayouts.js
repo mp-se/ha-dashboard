@@ -66,6 +66,13 @@ export const COMPONENT_LAYOUTS = {
     mobile: "col-12",
     description: "3-column card",
   },
+  HaEntityList: {
+    classes: "col-12",
+    desktop: "col-lg-12",
+    tablet: "col-md-12",
+    mobile: "col-12",
+    description: "Full width entity list container",
+  },
   HaGauge: {
     classes: "col-lg-4 col-md-6",
     desktop: "col-lg-4",
