@@ -37,8 +37,12 @@ COPY docker/nginx.conf /etc/nginx/nginx.conf
 RUN mkdir -p /usr/share/nginx/html/data/backups && \
     chmod -R 755 /usr/share/nginx/html/data
 
+# Copy startup script
+COPY docker/start.sh ./
+RUN chmod +x start.sh
+
 # Expose ports
 EXPOSE 80 443
 
 # Start both Nginx and Node.js server
-CMD ["sh", "-c", "nginx -g 'daemon off;' & node app-server.js"]
+CMD ["sh", "start.sh"]
