@@ -38,6 +38,7 @@
             <div class="mb-3">
               <label class="form-label">Enter Developer Password</label>
               <input
+                ref="passwordInput"
                 v-model="password"
                 type="password"
                 class="form-control"
@@ -74,12 +75,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, nextTick } from "vue";
 import { useAuthStore } from "@/stores/authStore";
 import { useConfigStore } from "@/stores/configStore";
 
 const store = useAuthStore();
 const configStore = useConfigStore();
+const passwordInput = ref<HTMLInputElement | null>(null);
 
 const hasPassword = computed(() => {
   const appConfig = (configStore.dashboardConfig as Record<string, unknown>)
@@ -97,6 +99,7 @@ const handleClick = () => {
   } else if (hasPassword.value) {
     // Password is configured — show the modal
     showModal.value = true;
+    nextTick(() => passwordInput.value?.focus());
   } else {
     // No password configured — enter developer mode freely
     toggleMode();
