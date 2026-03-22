@@ -204,10 +204,32 @@ export const CARD_PROPERTY_METADATA: Record<string, CardPropertiesDefinition> =
       },
     },
 
-    // HaEntityList has complex getter logic - handled separately
     HaEntityList: {
-      // Complex property handling via componentMap and getters
-      // Inspector handles this with special UI
+      getter: {
+        type: "select",
+        label: "Getter Function",
+        required: true,
+        options: [
+          { label: "Battery Sensors", value: "getBatterySensors" },
+          { label: "WiFi Sensors", value: "getWifiSensors" },
+          { label: "All Entities", value: "getAll" },
+          { label: "Suns", value: "getSuns" },
+          { label: "Fans", value: "getFans" },
+          { label: "Selects", value: "getSelects" },
+          { label: "Buttons", value: "getButtons" },
+          { label: "Sensors", value: "getSensors" },
+          { label: "Lights", value: "getLights" },
+          { label: "Switches", value: "getSwitches" },
+          { label: "Alarm Panels", value: "getAlarmPanels" },
+          { label: "Device Trackers", value: "getDeviceTrackers" },
+          { label: "Media Players", value: "getMediaPlayers" },
+          { label: "Binary Sensors", value: "getBinarySensors" },
+          { label: "Energy Consumption", value: "getEnergyConsumptionSensors" },
+          { label: "Power Consumption", value: "getPowerConsumptionSensors" },
+          { label: "Weather Entities", value: "getWeatherEntities" },
+        ],
+        help: "Choose which entities to display in the list",
+      },
     },
 
     // ==============================
@@ -223,32 +245,28 @@ export const CARD_PROPERTY_METADATA: Record<string, CardPropertiesDefinition> =
     HaPerson: {},
     HaPrinter: {
       black: {
-        type: "text",
+        type: "entity-list",
         label: "Black Toner Entity",
         required: true,
-        placeholder: "sensor.printer_black_toner",
-        help: "Entity ID for black toner remaining",
+        help: "Drag a sensor entity from the left panel or select from the list",
       },
       cyan: {
-        type: "text",
+        type: "entity-list",
         label: "Cyan Toner Entity",
         required: true,
-        placeholder: "sensor.printer_cyan_toner",
-        help: "Entity ID for cyan toner remaining",
+        help: "Drag a sensor entity from the left panel or select from the list",
       },
       magenta: {
-        type: "text",
+        type: "entity-list",
         label: "Magenta Toner Entity",
         required: true,
-        placeholder: "sensor.printer_magenta_toner",
-        help: "Entity ID for magenta toner remaining",
+        help: "Drag a sensor entity from the left panel or select from the list",
       },
       yellow: {
-        type: "text",
+        type: "entity-list",
         label: "Yellow Toner Entity",
         required: true,
-        placeholder: "sensor.printer_yellow_toner",
-        help: "Entity ID for yellow toner remaining",
+        help: "Drag a sensor entity from the left panel or select from the list",
       },
     },
     HaImage: {

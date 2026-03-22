@@ -2,8 +2,9 @@
   <div class="entity-inspector p-3">
     <h6 class="mb-3">Entity Inspector</h6>
 
+    <!-- Entity/Getter display (skip for HaEntityList) -->
     <div
-      v-if="entity.entity || entity.getter || entity.type === 'HaImage'"
+      v-if="(entity.entity || entity.getter || entity.type === 'HaImage') && entity.type !== 'HaEntityList'"
       class="inspector-section mb-3"
     >
       <label v-if="entity.getter" class="form-label small mb-1"
@@ -83,7 +84,7 @@
           v-for="(propertyDef, propName) in cardProperties"
           :key="propName"
           :property="{ ...propertyDef, label: propertyDef.label }"
-          :model-value="localProperties[propName]"
+          :model-value="getPropertyValue(propName, propertyDef, localProperties[propName])"
           :error="propertyErrors[propName]"
           @update:model-value="updateProperty(propName, $event)"
         />
@@ -255,6 +256,7 @@ const STATIC_COMPONENT_TYPES = [
   "HaRowSpacer",
   "HaSpacer",
   "HaImage",
+  "HaEntityList",
 ];
 
 // Sync local attributes with prop
@@ -477,11 +479,22 @@ const handleComponentTypeChange = (event) => {
 };
 
 const updateProperty = (propName, value) => {
+  // Handle entity-list properties (like HaPrinter's black, cyan, magenta, yellow)
+  // EntityListEditor returns an array, but printer properties need a single string
+  let processedValue = value;
+  if (Array.isArray(value) && value.length > 0) {
+    // For printer color properties, take the first (and only) entity
+    const cardProps = getCardProperties(currentType.value);
+    if (cardProps[propName]?.type === "entity-list") {
+      processedValue = value[0]; // Convert array to single string
+    }
+  }
+
   // Validate the property
   const validation = validateProperty(
     props.entity?.type || "",
     propName,
-    value,
+    processedValue,
   );
   if (!validation.valid) {
     propertyErrors.value[propName] = validation.error;
@@ -492,10 +505,22 @@ const updateProperty = (propName, value) => {
   propertyErrors.value[propName] = "";
 
   // Update local property
-  localProperties.value[propName] = value;
+  localProperties.value[propName] = processedValue;
 
   // Emit all properties
   emit("update-properties", { ...localProperties.value });
+};
+
+/**
+ * Get property value in the format expected by PropertyEditorFactory
+ * Converts string values to arrays for entity-list type properties
+ */
+const getPropertyValue = (propName, propertyDef, storedValue) => {
+  if (propertyDef.type === "entity-list" && storedValue) {
+    // Convert single string to array for EntityListEditor
+    return Array.isArray(storedValue) ? storedValue : [storedValue];
+  }
+  return storedValue;
 };
 
 const removeAttribute = (key) => {

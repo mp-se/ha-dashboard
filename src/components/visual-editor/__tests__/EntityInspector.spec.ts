@@ -168,8 +168,11 @@ describe("EntityInspector.vue", () => {
       },
     });
     await wrapper.vm.$nextTick();
-    // Check that the entity ID field shows the getter
-    const entityIdText = wrapper.find(".form-control-static").text();
-    expect(entityIdText).toContain("getBatterySensors");
+    // Check that HaEntityList props section contains the getter dropdown
+    const propsSection = wrapper.find(".inspector-section");
+    expect(propsSection.exists()).toBe(true);
+    // Should not show the getter display section for HaEntityList
+    const allStaticDisplays = wrapper.findAll(".form-control-static");
+    expect(allStaticDisplays.length).toBe(0); // No display section for HaEntityList
   });
 });
