@@ -1,2 +1,12 @@
 dist/data/*
 !dist/data/.gitkeep
+.env
+.env.local
+node_modules/
+.git/
+coverage/
+dist/
+tests/
+.github/
+.vscode/
+.DS_Store

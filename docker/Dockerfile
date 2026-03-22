@@ -6,6 +6,10 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
+
+# Clear VITE_API_URL so relative /api paths are used in Docker
+ENV VITE_API_URL=
+
 RUN npm run build
 
 # Stage 2: Runtime with Nginx + Node.js
