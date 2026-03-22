@@ -215,10 +215,6 @@ const filteredIcons = computed(() => {
 </script>
 
 <style scoped>
-.property-editor {
-  margin-bottom: 0.75rem;
-}
-
 .icon-picker {
   border: 1px solid #dee2e6;
   border-radius: 4px;

@@ -1176,3 +1176,8 @@ button:active {
   max-width: 250px;
   margin: 0 auto;
 }
+
+/* Property Editor Components */
+.property-editor {
+  margin-bottom: 0.75rem;
+}

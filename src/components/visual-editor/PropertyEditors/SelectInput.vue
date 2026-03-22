@@ -72,9 +72,3 @@ const optionLabel = (option) => {
   return option.label;
 };
 </script>
-
-<style scoped>
-.property-editor {
-  margin-bottom: 0.75rem;
-}
-</style>

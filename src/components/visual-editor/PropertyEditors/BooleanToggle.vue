@@ -54,9 +54,3 @@ const toggleId = computed(
   () => `toggle-input-${Math.random().toString(36).substr(2, 9)}`,
 );
 </script>
-
-<style scoped>
-.property-editor {
-  margin-bottom: 0.75rem;
-}
-</style>

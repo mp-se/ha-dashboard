@@ -266,10 +266,6 @@ const removeEntity = (index) => {
 </script>
 
 <style scoped>
-.property-editor {
-  margin-bottom: 0.75rem;
-}
-
 .list-group-item-sm {
   padding: 0.5rem 0.75rem;
 }

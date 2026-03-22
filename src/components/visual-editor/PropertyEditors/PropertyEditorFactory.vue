@@ -151,9 +151,3 @@ const props = defineProps({
 
 defineEmits(["update:modelValue"]);
 </script>
-
-<style scoped>
-.property-editor-factory {
-  width: 100%;
-}
-</style>
