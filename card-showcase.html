@@ -1740,27 +1740,50 @@
       <!-- Image Card Section -->
       <div class="card-section" id="card-haimage">
         <h2>🖼️ Image Card (HaImage)</h2>
-        <div class="showcase-grid">
-          <div
-            class="card card-display h-100 rounded-4 shadow-lg border-info"
-            style="border: 2px solid #17a2b8 !important"
-          >
+        <div class="row">
+          <div class="col-md-4">
             <div
-              class="card-body d-flex align-items-center justify-content-center p-0"
-              style="min-height: 250px"
+              class="card card-display rounded-4 shadow-lg border-info"
+              style="border: 2px solid #17a2b8 !important; width: 100%; margin: 0 auto;"
             >
-              <img
-                src="https://via.placeholder.com/400x300?text=Static+Image"
-                alt="Static Image"
-                style="
-                  max-width: 100%;
-                  max-height: 100%;
-                  width: auto;
-                  height: auto;
-                  object-fit: contain;
-                  border-radius: 0.375rem;
-                "
-              />
+              <div class="card-body d-flex align-items-center justify-content-center p-0 overflow-hidden">
+                <img
+                  src="https://via.placeholder.com/400x300?text=Full+Scale"
+                  alt="Full Scale"
+                  style="width: 100%; height: auto; display: block;"
+                />
+              </div>
+              <div class="p-2 text-center small text-muted">Scale: 1.0</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div
+              class="card card-display rounded-4 shadow-lg border-info"
+              style="border: 2px solid #17a2b8 !important; width: 75%; margin: 0 auto;"
+            >
+              <div class="card-body d-flex align-items-center justify-content-center p-0 overflow-hidden">
+                <img
+                  src="https://via.placeholder.com/400x300?text=75%+Scale"
+                  alt="75% Scale"
+                  style="width: 100%; height: auto; display: block;"
+                />
+              </div>
+              <div class="p-2 text-center small text-muted">Scale: 0.75</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div
+              class="card card-display rounded-4 shadow-lg border-info"
+              style="border: 2px solid #17a2b8 !important; width: 50%; margin: 0 auto;"
+            >
+              <div class="card-body d-flex align-items-center justify-content-center p-0 overflow-hidden">
+                <img
+                  src="https://via.placeholder.com/400x300?text=50%+Scale"
+                  alt="50% Scale"
+                  style="width: 100%; height: auto; display: block;"
+                />
+              </div>
+              <div class="p-2 text-center small text-muted">Scale: 0.50</div>
             </div>
           </div>
         </div>

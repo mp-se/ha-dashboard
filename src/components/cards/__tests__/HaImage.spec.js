@@ -256,7 +256,7 @@ describe("HaImage.vue", () => {
 
       const card = wrapper.find(".card");
       expect(card.classes()).toContain("card-display");
-      expect(card.classes()).toContain("h-100");
+      // expect(card.classes()).toContain("h-100"); // Removed to allow auto-height
     });
 
     it("should have responsive column classes", () => {
@@ -614,7 +614,7 @@ describe("HaImage.vue", () => {
       expect(wrapper.find("img").attributes("src")).toBe(urlWithHash);
     });
 
-    it("should be responsive with h-100 height", () => {
+    it("should allow auto-height without h-100", () => {
       const wrapper = mount(HaImage, {
         props: {
           url: "https://example.com/image.jpg",
@@ -627,7 +627,7 @@ describe("HaImage.vue", () => {
         },
       });
 
-      expect(wrapper.find(".h-100").exists()).toBe(true);
+      expect(wrapper.find(".h-100").exists()).toBe(false);
     });
   });
 });

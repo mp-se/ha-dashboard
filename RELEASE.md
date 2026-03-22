@@ -8,6 +8,9 @@
   - Enabled recursive reactivity in `EditorCanvas.vue` by adding a serialized JSON key to the entity grid, forcing instant canvas refreshes on configuration changes.
   - Implemented validation in `useAttributeResolver.ts` to prevent "attrs is not iterable" crashes when processing malformed attribute data.
 - **HaImage Gallery and Advanced Scaling**: Restored full image management capabilities.
+  - Fixed `HaImage` container height issue where cards remained at fixed height or scaled incorrectly based on CSS transforms.
+  - Removed `h-100` from `HaImage` card container to allow the card to correctly shrink-to-fit the visible image.
+  - Updated `HaImage` to use width scaling instead of CSS `scale()` transform for better document flow and layout consistency.
   - Re-introduced `ImagePicker.vue` with a grid-based gallery, search functionality, and delete support.
   - Updated backend `app-server.js` with production-grade endpoints for listing (`GET /api/images`), uploading (`POST /api/images/upload` via `multer`), and deleting (`DELETE /api/images/:id`) images.
   - Added real-time image resizing support via the `sharp` library on the backend.
