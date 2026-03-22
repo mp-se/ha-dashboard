@@ -1,8 +1,55 @@
 # Release Notes
 
-## Unreleased
+## March 2026 - v0.7.0
 
+- Added tests for `useConditionEvaluator` (33 tests, 0→100% coverage)
+- Added tests for `SliderInput` (17 tests, ~25→100% coverage)
+- Added tests for `DeveloperModeToggle` (19 tests, ~52→100% coverage)
 - **Fixed Entity Attribute Rendering & Live Preview**: Resolved a critical issue where Home Assistant sensor attributes were not rendering on dashboard cards and the visual editor failed to update in real-time.
+  - Corrected missing `EntityAttributeList` component imports in `HaSensor.vue`, `HaBinarySensor.vue`, and `HaSwitch.vue`.
+  - Standardized attribute selection format as `string[]` in `EntityInspector.vue` to ensure data consistency.
+  - Enabled recursive reactivity in `EditorCanvas.vue` by adding a serialized JSON key to the entity grid, forcing instant canvas refreshes on configuration changes.
+  - Implemented validation in `useAttributeResolver.ts` to prevent "attrs is not iterable" crashes when processing malformed attribute data.
+- **HaImage Gallery and Advanced Scaling**: Restored full image management capabilities.
+  - Fixed `HaImage` container height issue where cards remained at fixed height or scaled incorrectly based on CSS transforms.
+  - Removed `h-100` from `HaImage` card container to allow the card to correctly shrink-to-fit the visible image.
+  - Updated `HaImage` to use width scaling instead of CSS `scale()` transform for better document flow and layout consistency.
+  - Re-introduced `ImagePicker.vue` with a grid-based gallery, search functionality, and delete support.
+  - Updated backend `app-server.js` with production-grade endpoints for listing (`GET /api/images`), uploading (`POST /api/images/upload` via `multer`), and deleting (`DELETE /api/images/:id`) images.
+  - Added real-time image resizing support via the `sharp` library on the backend.
+  - Moved `HaImage` from the Entity Inspector dropdown to the Static Component Palette for cleaner drag-and-drop organization.
+  - Enabled property persistence for scale and URL within the Entity Inspector.
+- **Improved Entity Inspector**: Enhanced support for static components without associated Home Assistant entities.
+- **Fixed Visual Editor Drag and Drop**: Resolved issue where dragging entities or static components to the center canvas would fail in certain browsers or configurations.
+  - Added fallback logic to handle entity IDs as plain text if `application/json` data is unavailable.
+  - Increased `EditorCanvas` minimum height to match viewport for better drop target accessibility.
+  - Improved diagnostic logging for drop events.
+- **Phase 7: Comprehensive E2E Test Suite** (162 tests across 9 Playwright test files)
+  - **visual-editor.spec.js** (14 tests): Editor navigation, mode switching, entity palette, view properties, save/exit functionality, responsive editing
+  - **developer-mode.spec.js** (12 tests): Password protection, modal interactions, password validation, accessibility, developer tools access
+  - **configuration-persistence.spec.js** (11 tests): Config loading/persistence, dark mode preservation, draft auto-save, page reload state, localStorage error handling
+  - **pwa.spec.js** (18 tests): Service worker registration, offline capability, web app manifest, install prompt, offline content serving, cache management
+  - **api-integration.spec.js** (23 tests): Config loading, data persistence, authentication, error handling, backup management, sync status, save queue overflow
+  - **accessibility.spec.js** (27 tests): Keyboard navigation, ARIA semantics, color contrast, touch targets, responsive layout (mobile/tablet/desktop), text sizing
+  - **component-rendering.spec.js** (36 tests): Component visibility, sensor/switch/button/light/media cards, weather/energy display, color schemes, interactions, error states, performance
+  - Plus 2 existing E2E test files (dashboard.spec.js, components.spec.js) with 21 tests
+  - **All E2E tests pass with Playwright** across 3 browsers (Chromium, Firefox, WebKit)
+- **Deployment & Server Configuration**: Comprehensive documentation for backend server setup, Docker deployment, environment variables, API endpoints, password management, backup retention, and production deployment patterns
+- **Backend Server API Documentation**: Complete REST API reference including `/api/health`, `/api/config` (with auth), `/api/data/local`, backup management, concurrent save queue, and error handling
+- **Backend Server API**: Complete server-side config persistence with Express.js API, Bearer token authentication, timestamped backups with automatic cleanup, CORS support, and Save Queue to prevent race conditions. Includes Docker multi-stage build, Nginx reverse proxy with SSL/TLS, and `/api/health`, `/api/config`, `/api/data/local` endpoints
+- **Developer Mode Protection**: Password-protected dashboard editor with DeveloperModeToggle component modal, persistent secure password storage in app config, and authentication middleware on all config modification endpoints
+- **Backend Unit Tests**: 17 comprehensive test cases for app-server.js covering: configuration loading, authentication, API endpoints, file operations, backup management, CORS headers, error handling, and concurrent save operations. All tests passing with 100% success rate
+- **Visual Editor**: Complete drag-and-drop dashboard editor with three-panel layout (entity palette, canvas, inspector), view management (create/edit/delete), drag-reorder entities, component type selection, and attribute configuration. Features icon picker in modals, HaGlance/HaRoom entity rules, comprehensive property editor system, and **resizable panels with draggable dividers** (widths persisted in localStorage for user preference)
+- Test Coverage: 2347 tests passing
+- **Code quality improvements**:
+  - Added `concurrently` dev dependency; fixed broken `dev:full` npm script
+  - Removed stale duplicate `vite.config.js`
+  - Replaced raw `console.log/warn` calls in `HaRoom`, `EntityPalette`, `useEditorDragDrop`, and `ImagePicker` with project logger
+  - Re-enabled `vue/no-mutating-props` ESLint rule
+  - Added TypeScript linting via `@typescript-eslint/parser`; fixed all resulting unused import warnings
+  - Added `lang="ts"` to `App.vue` for correct `vue-tsc` type-checking
+  - Moved `vite-plugin-pwa` from `dependencies` to `devDependencies`
+  - Extracted `findSensorByDeviceClass` helper in `HaRoom.vue` to remove duplicated sensor search logic
   - Corrected missing `EntityAttributeList` component imports in `HaSensor.vue`, `HaBinarySensor.vue`, and `HaSwitch.vue`.
   - Standardized attribute selection format as `string[]` in `EntityInspector.vue` to ensure data consistency.
   - Enabled recursive reactivity in `EditorCanvas.vue` by adding a serialized JSON key to the entity grid, forcing instant canvas refreshes on configuration changes.
