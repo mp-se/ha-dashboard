@@ -241,12 +241,12 @@ describe("cardPropertyMetadata.ts", () => {
       expect(printer.yellow).toBeDefined();
     });
 
-    it("all color properties are of type text", () => {
+    it("all color properties are of type entity-list", () => {
       const printer = CARD_PROPERTY_METADATA.HaPrinter;
-      expect(printer.black.type).toBe("text");
-      expect(printer.cyan.type).toBe("text");
-      expect(printer.magenta.type).toBe("text");
-      expect(printer.yellow.type).toBe("text");
+      expect(printer.black.type).toBe("entity-list");
+      expect(printer.cyan.type).toBe("entity-list");
+      expect(printer.magenta.type).toBe("entity-list");
+      expect(printer.yellow.type).toBe("entity-list");
     });
 
     it("all color properties are required", () => {
@@ -273,12 +273,12 @@ describe("cardPropertyMetadata.ts", () => {
       expect(printer.yellow.help).toBeDefined();
     });
 
-    it("all color properties have placeholders", () => {
+    it("all color properties mention drag-and-drop in help text", () => {
       const printer = CARD_PROPERTY_METADATA.HaPrinter;
-      expect(printer.black.placeholder).toBeDefined();
-      expect(printer.cyan.placeholder).toBeDefined();
-      expect(printer.magenta.placeholder).toBeDefined();
-      expect(printer.yellow.placeholder).toBeDefined();
+      expect(printer.black.help).toContain("Drag");
+      expect(printer.cyan.help).toContain("Drag");
+      expect(printer.magenta.help).toContain("Drag");
+      expect(printer.yellow.help).toContain("Drag");
     });
 
     it("validates HaPrinter black property with entity ID", () => {
