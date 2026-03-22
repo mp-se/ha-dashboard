@@ -159,22 +159,6 @@
               >
             </div>
           </div>
-          <div v-if="stats.comparison !== null">
-            <i
-              :class="[
-                'mdi',
-                stats.comparison >= 0
-                  ? 'mdi-trending-up text-danger'
-                  : 'mdi-trending-down text-success',
-              ]"
-            ></i>
-            <span
-              :class="stats.comparison >= 0 ? 'text-danger' : 'text-success'"
-            >
-              {{ Math.abs(stats.comparison) }}% vs previous
-              {{ selectedPeriod }}d
-            </span>
-          </div>
         </div>
       </div>
     </div>
