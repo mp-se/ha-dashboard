@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
 import {
   getCardProperties,
+  getSpecialProperties,
+  hasSpecialProperties,
+  getCardPropertyNames,
+  supportsAttributes,
+  supportsMultipleEntities,
   validateProperty,
   CARD_PROPERTY_METADATA,
 } from "../cardPropertyMetadata";
@@ -293,6 +298,189 @@ describe("cardPropertyMetadata.ts", () => {
     it("rejects empty HaPrinter color property", () => {
       const result = validateProperty("HaPrinter", "black", "");
       expect(result.valid).toBe(false);
+    });
+  });
+
+  describe("getSpecialProperties", () => {
+    it("returns property names that are not plain text type", () => {
+      // HaWarning has 'operator' (select type)
+      const props = getSpecialProperties("HaWarning");
+      expect(props).toContain("operator");
+    });
+
+    it("returns empty array for card with no properties", () => {
+      const props = getSpecialProperties("HaSwitch");
+      expect(props).toEqual([]);
+    });
+
+    it("returns empty array for unknown card type", () => {
+      const props = getSpecialProperties("UnknownCard");
+      expect(props).toEqual([]);
+    });
+
+    it("includes entity-list type properties", () => {
+      // HaPrinter has entity-list type properties
+      const props = getSpecialProperties("HaPrinter");
+      expect(props).toContain("black");
+    });
+
+    it("includes icon type properties", () => {
+      // HaHeader has 'icon' which is icon type
+      const props = getSpecialProperties("HaHeader");
+      expect(props).toContain("icon");
+    });
+  });
+
+  describe("hasSpecialProperties", () => {
+    it("returns true for HaWarning which has properties", () => {
+      expect(hasSpecialProperties("HaWarning")).toBe(true);
+    });
+
+    it("returns true for HaHeader which has properties", () => {
+      expect(hasSpecialProperties("HaHeader")).toBe(true);
+    });
+
+    it("returns false for HaSwitch which has no special properties", () => {
+      expect(hasSpecialProperties("HaSwitch")).toBe(false);
+    });
+
+    it("returns false for unknown card type", () => {
+      expect(hasSpecialProperties("CompletelyUnknown")).toBe(false);
+    });
+
+    it("returns false for HaSensor which has no special properties", () => {
+      expect(hasSpecialProperties("HaSensor")).toBe(false);
+    });
+  });
+
+  describe("getCardPropertyNames", () => {
+    it("returns array of property keys for HaWarning", () => {
+      const names = getCardPropertyNames("HaWarning");
+      expect(names).toContain("operator");
+      expect(names).toContain("value");
+      expect(names).toContain("message");
+    });
+
+    it("returns empty array for card with no properties", () => {
+      const names = getCardPropertyNames("HaSwitch");
+      expect(names).toEqual([]);
+    });
+
+    it("returns empty array for unknown card type", () => {
+      const names = getCardPropertyNames("NonExistent");
+      expect(names).toEqual([]);
+    });
+
+    it("returns printer color property names", () => {
+      const names = getCardPropertyNames("HaPrinter");
+      expect(names).toContain("black");
+      expect(names).toContain("cyan");
+      expect(names).toContain("magenta");
+      expect(names).toContain("yellow");
+    });
+  });
+
+  describe("supportsAttributes", () => {
+    it("returns true for HaBinarySensor", () => {
+      expect(supportsAttributes("HaBinarySensor")).toBe(true);
+    });
+
+    it("returns true for HaSensor", () => {
+      expect(supportsAttributes("HaSensor")).toBe(true);
+    });
+
+    it("returns true for HaSwitch", () => {
+      expect(supportsAttributes("HaSwitch")).toBe(true);
+    });
+
+    it("returns false for HaHeader", () => {
+      expect(supportsAttributes("HaHeader")).toBe(false);
+    });
+
+    it("returns false for HaLight", () => {
+      expect(supportsAttributes("HaLight")).toBe(false);
+    });
+
+    it("returns false for unknown card type", () => {
+      expect(supportsAttributes("HaUnknown")).toBe(false);
+    });
+  });
+
+  describe("supportsMultipleEntities", () => {
+    it("returns true for HaRoom", () => {
+      expect(supportsMultipleEntities("HaRoom")).toBe(true);
+    });
+
+    it("returns true for HaGlance", () => {
+      expect(supportsMultipleEntities("HaGlance")).toBe(true);
+    });
+
+    it("returns true for HaSensorGraph", () => {
+      expect(supportsMultipleEntities("HaSensorGraph")).toBe(true);
+    });
+
+    it("returns true for HaBeerTap", () => {
+      expect(supportsMultipleEntities("HaBeerTap")).toBe(true);
+    });
+
+    it("returns false for HaHeader", () => {
+      expect(supportsMultipleEntities("HaHeader")).toBe(false);
+    });
+
+    it("returns false for unknown card type", () => {
+      expect(supportsMultipleEntities("Unknown")).toBe(false);
+    });
+  });
+
+  describe("validateProperty — type-specific branches", () => {
+    it("validates text within maxLength", () => {
+      // HaLink name has maxLength: 100
+      const result = validateProperty("HaLink", "name", "short name");
+      expect(result.valid).toBe(true);
+    });
+
+    it("rejects text exceeding maxLength", () => {
+      // HaLink name has maxLength: 100
+      const result = validateProperty("HaLink", "name", "a".repeat(101));
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain("100");
+    });
+
+    it("validates text matching URL pattern", () => {
+      // HaLink url has pattern: '^https?://'
+      const result = validateProperty("HaLink", "url", "https://example.com");
+      expect(result.valid).toBe(true);
+    });
+
+    it("rejects text not matching URL pattern", () => {
+      const result = validateProperty("HaLink", "url", "ftp://example.com");
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain("format is invalid");
+    });
+
+    it("validates number within min/max range", () => {
+      // HaImage scale is type "slider" — the number validator is not invoked;
+      // slider values pass through as valid
+      const result = validateProperty("HaImage", "scale", 0.5);
+      expect(result.valid).toBe(true);
+    });
+
+    it("slider value out of range still passes validator (slider type not validated)", () => {
+      // The validateProperty function only enforces min/max for type === "number".
+      // Slider types are validated client-side by the SliderInput component.
+      const result = validateProperty("HaImage", "scale", 1.5);
+      expect(result.valid).toBe(true);
+    });
+
+    it("accepts empty value for optional field", () => {
+      // HaHeader icon is not required
+      const result = validateProperty("HaHeader", "icon", "");
+      expect(result.valid).toBe(true);
+    });
+
+    it("accepts undefined value for optional field", () => {
+      const result = validateProperty("HaHeader", "icon", undefined);
+      expect(result.valid).toBe(true);
     });
   });
 });

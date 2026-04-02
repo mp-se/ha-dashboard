@@ -46,190 +46,493 @@
       }
 
       @keyframes slideUp {
-        from { transform: translateY(100%); }
-        to { transform: translateY(0); }
+        from {
+          transform: translateY(100%);
+        }
+        to {
+          transform: translateY(0);
+        }
       }
     </style>
   </head>
   <body>
     <div class="showcase-container">
-      <h1 class="showcase-title">📱 UI/UX Showcase - Mobile Editor & Dialogs</h1>
+      <h1 class="showcase-title">
+        📱 UI/UX Showcase - Mobile Editor & Dialogs
+      </h1>
       <p class="text-center text-muted mb-5">
-        Here are the proposed UI changes for optimizing the Visual Editor on mobile devices (iOS/Android via Capacitor).
+        Here are the proposed UI changes for optimizing the Visual Editor on
+        mobile devices (iOS/Android via Capacitor).
       </p>
 
       <!-- DESKTOP DASHBOARD VIEW REFERENCE -->
       <div class="card-section" id="desktop-reference">
         <h2 class="mb-4">🖥️ Desktop Dashboard View (1024px - Reference)</h2>
-        <p class="text-muted small mb-4">This is the current desktop layout with optimal responsive behavior. This is the target for larger devices.</p>
-        
-        <div class="mx-auto border border-2 bg-white rounded-4 overflow-hidden shadow" style="width: 100%; max-width: 1024px; height: 500px; display: flex; flex-direction: column;">
+        <p class="text-muted small mb-4">
+          This is the current desktop layout with optimal responsive behavior.
+          This is the target for larger devices.
+        </p>
+
+        <div
+          class="mx-auto border border-2 bg-white rounded-4 overflow-hidden shadow"
+          style="
+            width: 100%;
+            max-width: 1024px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+          "
+        >
           <!-- Navbar: AppNavbar (dashboard mode) -->
-          <nav class="navbar bg-light border-bottom px-3 py-2 d-flex justify-content-between">
+          <nav
+            class="navbar bg-light border-bottom px-3 py-2 d-flex justify-content-between"
+          >
             <div class="d-flex gap-1 align-items-center">
-              <button class="btn btn-link nav-link text-decoration-none d-flex align-items-center px-2" style="color: #0078d4; border-bottom: 3px solid #0078d4;">
+              <button
+                class="btn btn-link nav-link text-decoration-none d-flex align-items-center px-2"
+                style="color: #0078d4; border-bottom: 3px solid #0078d4"
+              >
                 <i class="mdi mdi-view-dashboard me-1"></i> <span>Main</span>
               </button>
-              <button class="btn btn-link nav-link text-decoration-none text-muted d-flex align-items-center px-2">
-                <i class="mdi mdi-lightbulb-outline me-1"></i> <span>Lights</span>
+              <button
+                class="btn btn-link nav-link text-decoration-none text-muted d-flex align-items-center px-2"
+              >
+                <i class="mdi mdi-lightbulb-outline me-1"></i>
+                <span>Lights</span>
               </button>
-              <button class="btn btn-link nav-link text-decoration-none text-muted d-flex align-items-center px-2">
+              <button
+                class="btn btn-link nav-link text-decoration-none text-muted d-flex align-items-center px-2"
+              >
                 <i class="mdi mdi-thermometer me-1"></i> <span>Climate</span>
               </button>
             </div>
             <div class="d-flex gap-2 align-items-center">
               <span class="badge bg-success text-light">Connected</span>
-              <button class="btn btn-outline-secondary btn-sm" title="Open visual editor">
+              <button
+                class="btn btn-outline-secondary btn-sm"
+                title="Open visual editor"
+              >
                 <i class="mdi mdi-pencil-ruler"></i>
               </button>
-              <button class="btn btn-outline-dark btn-sm" title="Toggle dark mode">
+              <button
+                class="btn btn-outline-dark btn-sm"
+                title="Toggle dark mode"
+              >
                 <i class="mdi mdi-moon-waning-crescent"></i>
               </button>
             </div>
           </nav>
           <!-- Dashboard Content - Matching the real app structure -->
-          <div class="p-3" style="flex: 1; overflow-y: auto; background: #f8f9fa;">
+          <div
+            class="p-3"
+            style="flex: 1; overflow-y: auto; background: #f8f9fa"
+          >
             <!-- Top Warning/Error Cards -->
             <div class="row g-3 mb-3">
               <div class="col-6">
-                <div class="card border-0 shadow-sm" style="background: #fff9e6; border-left: 4px solid #ffbc00 !important; border-radius: 4px;">
-                  <div class="card-body p-2 d-flex justify-content-between align-items-start">
+                <div
+                  class="card border-0 shadow-sm"
+                  style="
+                    background: #fff9e6;
+                    border-left: 4px solid #ffbc00 !important;
+                    border-radius: 4px;
+                  "
+                >
+                  <div
+                    class="card-body p-2 d-flex justify-content-between align-items-start"
+                  >
                     <div>
-                      <div class="fw-bold small mb-1" style="color: #856404; font-size: 0.7rem;">WARNING <span class="badge bg-warning text-dark float-end ms-2" style="font-size: 0.6rem;">CONDITIONAL</span></div>
+                      <div
+                        class="fw-bold small mb-1"
+                        style="color: #856404; font-size: 0.7rem"
+                      >
+                        WARNING
+                        <span
+                          class="badge bg-warning text-dark float-end ms-2"
+                          style="font-size: 0.6rem"
+                          >CONDITIONAL</span
+                        >
+                      </div>
                       <div class="small fw-semibold">Internet ping is high</div>
                     </div>
-                    <i class="mdi mdi-alert-circle-outline text-warning" style="font-size: 1.2rem;"></i>
+                    <i
+                      class="mdi mdi-alert-circle-outline text-warning"
+                      style="font-size: 1.2rem"
+                    ></i>
                   </div>
                 </div>
               </div>
               <div class="col-6">
-                <div class="card border-0 shadow-sm" style="background: #fff2f2; border-left: 4px solid #f44336 !important; border-radius: 4px;">
-                  <div class="card-body p-2 d-flex justify-content-between align-items-start">
+                <div
+                  class="card border-0 shadow-sm"
+                  style="
+                    background: #fff2f2;
+                    border-left: 4px solid #f44336 !important;
+                    border-radius: 4px;
+                  "
+                >
+                  <div
+                    class="card-body p-2 d-flex justify-content-between align-items-start"
+                  >
                     <div>
-                      <div class="fw-bold small mb-1" style="color: #721c24; font-size: 0.7rem;">ERROR <span class="badge bg-danger float-end ms-2" style="font-size: 0.6rem;">CONDITIONAL</span></div>
+                      <div
+                        class="fw-bold small mb-1"
+                        style="color: #721c24; font-size: 0.7rem"
+                      >
+                        ERROR
+                        <span
+                          class="badge bg-danger float-end ms-2"
+                          style="font-size: 0.6rem"
+                          >CONDITIONAL</span
+                        >
+                      </div>
                       <div class="small fw-semibold">API is down</div>
                     </div>
-                    <i class="mdi mdi-alert-circle-outline text-danger" style="font-size: 1.2rem;"></i>
+                    <i
+                      class="mdi mdi-alert-circle-outline text-danger"
+                      style="font-size: 1.2rem"
+                    ></i>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="text-center text-muted small mb-3 letter-spacing-2 fw-bold" style="letter-spacing: 0.2rem; font-size: 0.7rem; opacity: 0.3;">SPACER</div>
+            <div
+              class="text-center text-muted small mb-3 letter-spacing-2 fw-bold"
+              style="letter-spacing: 0.2rem; font-size: 0.7rem; opacity: 0.3"
+            >
+              SPACER
+            </div>
 
             <!-- Mail and Clock row -->
             <div class="row g-3 mb-3">
               <div class="col-4">
-                <div class="card border-0 shadow-sm p-2 d-flex flex-row justify-content-between align-items-center" style="border-radius: 8px;">
+                <div
+                  class="card border-0 shadow-sm p-2 d-flex flex-row justify-content-between align-items-center"
+                  style="border-radius: 8px"
+                >
                   <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-secondary bg-opacity-10 p-2 me-2" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><i class="mdi mdi-package-variant" style="font-size: 0.9rem;"></i></div>
-                    <span class="small fw-bold" style="font-size: 0.8rem;">Delivery A</span>
+                    <div
+                      class="rounded-circle bg-secondary bg-opacity-10 p-2 me-2"
+                      style="
+                        width: 32px;
+                        height: 32px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <i
+                        class="mdi mdi-package-variant"
+                        style="font-size: 0.9rem"
+                      ></i>
+                    </div>
+                    <span class="small fw-bold" style="font-size: 0.8rem"
+                      >Delivery A</span
+                    >
                   </div>
-                  <span class="fw-bold" style="font-size: 0.8rem;">2</span>
+                  <span class="fw-bold" style="font-size: 0.8rem">2</span>
                 </div>
               </div>
               <div class="col-4">
-                <div class="card border-0 shadow-sm p-2 d-flex flex-row justify-content-between align-items-center" style="border-radius: 8px;">
+                <div
+                  class="card border-0 shadow-sm p-2 d-flex flex-row justify-content-between align-items-center"
+                  style="border-radius: 8px"
+                >
                   <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-secondary bg-opacity-10 p-2 me-2" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><i class="mdi mdi-package-variant" style="font-size: 0.9rem;"></i></div>
-                    <span class="small fw-bold" style="font-size: 0.8rem;">Delivery B</span>
+                    <div
+                      class="rounded-circle bg-secondary bg-opacity-10 p-2 me-2"
+                      style="
+                        width: 32px;
+                        height: 32px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <i
+                        class="mdi mdi-package-variant"
+                        style="font-size: 0.9rem"
+                      ></i>
+                    </div>
+                    <span class="small fw-bold" style="font-size: 0.8rem"
+                      >Delivery B</span
+                    >
                   </div>
-                  <span class="fw-bold" style="font-size: 0.8rem;">1</span>
+                  <span class="fw-bold" style="font-size: 0.8rem">1</span>
                 </div>
               </div>
               <div class="col-4">
-                <div class="card border-0 shadow-sm p-2 d-flex flex-row justify-content-between align-items-center" style="border-radius: 8px;">
+                <div
+                  class="card border-0 shadow-sm p-2 d-flex flex-row justify-content-between align-items-center"
+                  style="border-radius: 8px"
+                >
                   <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-secondary bg-opacity-10 p-2 me-2" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><i class="mdi mdi-clock-outline" style="font-size: 0.9rem;"></i></div>
-                    <span class="small fw-bold" style="font-size: 0.8rem;">12:00</span>
+                    <div
+                      class="rounded-circle bg-secondary bg-opacity-10 p-2 me-2"
+                      style="
+                        width: 32px;
+                        height: 32px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <i
+                        class="mdi mdi-clock-outline"
+                        style="font-size: 0.9rem"
+                      ></i>
+                    </div>
+                    <span class="small fw-bold" style="font-size: 0.8rem"
+                      >12:00</span
+                    >
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="text-center text-muted small mb-3 letter-spacing-2 fw-bold" style="letter-spacing: 0.2rem; font-size: 0.7rem; opacity: 0.3;">SPACER</div>
+            <div
+              class="text-center text-muted small mb-3 letter-spacing-2 fw-bold"
+              style="letter-spacing: 0.2rem; font-size: 0.7rem; opacity: 0.3"
+            >
+              SPACER
+            </div>
 
             <!-- Weather and Sun row -->
             <div class="row g-3 mb-3">
               <div class="col-4">
-                <div class="card border-0 shadow-sm p-2" style="border-radius: 8px;">
+                <div
+                  class="card border-0 shadow-sm p-2"
+                  style="border-radius: 8px"
+                >
                   <div class="d-flex justify-content-between mb-1">
-                    <span class="small fw-bold" style="font-size: 0.75rem;">Sun</span>
-                    <small class="text-muted" style="font-size: 0.6rem;">Sunrise: 06:00 / Sunset: 18:00</small>
+                    <span class="small fw-bold" style="font-size: 0.75rem"
+                      >Sun</span
+                    >
+                    <small class="text-muted" style="font-size: 0.6rem"
+                      >Sunrise: 06:00 / Sunset: 18:00</small
+                    >
                   </div>
                   <div class="d-flex align-items-center">
-                    <i class="mdi mdi-white-balance-sunny text-warning me-2" style="font-size: 1.2rem;"></i>
-                    <span class="text-primary small fw-bold" style="font-size: 0.75rem;">Daylight</span>
+                    <i
+                      class="mdi mdi-white-balance-sunny text-warning me-2"
+                      style="font-size: 1.2rem"
+                    ></i>
+                    <span
+                      class="text-primary small fw-bold"
+                      style="font-size: 0.75rem"
+                      >Daylight</span
+                    >
                   </div>
                 </div>
               </div>
               <div class="col-4">
-                <div class="card border-0 shadow-sm p-2" style="border-radius: 8px;">
+                <div
+                  class="card border-0 shadow-sm p-2"
+                  style="border-radius: 8px"
+                >
                   <div class="d-flex justify-content-between mb-1">
-                    <span class="small fw-bold" style="font-size: 0.75rem;">Forecast Local</span>
-                    <small class="text-muted" style="font-size: 0.6rem;">Humidity: 50% / Pressure: 1013.0 hPa</small>
+                    <span class="small fw-bold" style="font-size: 0.75rem"
+                      >Forecast Local</span
+                    >
+                    <small class="text-muted" style="font-size: 0.6rem"
+                      >Humidity: 50% / Pressure: 1013.0 hPa</small
+                    >
                   </div>
                   <div class="d-flex align-items-center">
-                    <i class="mdi mdi-weather-partly-cloudy text-info me-2" style="font-size: 1.2rem;"></i>
-                    <span class="text-primary small fw-bold" style="font-size: 0.75rem;">Sunny <span style="font-size: 0.65rem; color: #666;">2.0 m/s</span></span>
-                    <span class="ms-auto fw-bold" style="font-size: 0.85rem;">22.0 °C</span>
+                    <i
+                      class="mdi mdi-weather-partly-cloudy text-info me-2"
+                      style="font-size: 1.2rem"
+                    ></i>
+                    <span
+                      class="text-primary small fw-bold"
+                      style="font-size: 0.75rem"
+                      >Sunny
+                      <span style="font-size: 0.65rem; color: #666"
+                        >2.0 m/s</span
+                      ></span
+                    >
+                    <span class="ms-auto fw-bold" style="font-size: 0.85rem"
+                      >22.0 °C</span
+                    >
                   </div>
                 </div>
               </div>
               <div class="col-4">
-                <div class="card border-0 shadow-sm p-2" style="border-radius: 8px;">
+                <div
+                  class="card border-0 shadow-sm p-2"
+                  style="border-radius: 8px"
+                >
                   <div class="d-flex justify-content-between mb-1">
-                    <span class="small fw-bold" style="font-size: 0.75rem;">Forecast Remote</span>
-                    <small class="text-muted" style="font-size: 0.6rem;">Humidity: 60% / Pressure: 1012.0 hPa</small>
+                    <span class="small fw-bold" style="font-size: 0.75rem"
+                      >Forecast Remote</span
+                    >
+                    <small class="text-muted" style="font-size: 0.6rem"
+                      >Humidity: 60% / Pressure: 1012.0 hPa</small
+                    >
                   </div>
                   <div class="d-flex align-items-center">
-                    <i class="mdi mdi-weather-cloudy text-secondary me-2" style="font-size: 1.2rem;"></i>
-                    <span class="text-primary small fw-bold" style="font-size: 0.75rem;">Cloudy <span style="font-size: 0.65rem; color: #666;">5.0 m/s</span></span>
-                    <span class="ms-auto fw-bold" style="font-size: 0.85rem;">18 °C</span>
+                    <i
+                      class="mdi mdi-weather-cloudy text-secondary me-2"
+                      style="font-size: 1.2rem"
+                    ></i>
+                    <span
+                      class="text-primary small fw-bold"
+                      style="font-size: 0.75rem"
+                      >Cloudy
+                      <span style="font-size: 0.65rem; color: #666"
+                        >5.0 m/s</span
+                      ></span
+                    >
+                    <span class="ms-auto fw-bold" style="font-size: 0.85rem"
+                      >18 °C</span
+                    >
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="text-center text-muted small mb-3 letter-spacing-2 fw-bold" style="letter-spacing: 0.2rem; font-size: 0.7rem; opacity: 0.3;">SPACER</div>
+            <div
+              class="text-center text-muted small mb-3 letter-spacing-2 fw-bold"
+              style="letter-spacing: 0.2rem; font-size: 0.7rem; opacity: 0.3"
+            >
+              SPACER
+            </div>
 
             <!-- Room Cards Grid -->
             <div class="row g-3">
               <div class="col-4">
-                <div class="card border-0 shadow-sm p-3" style="border-radius: 12px;">
-                  <div class="d-flex justify-content-between mb-3 text-muted" style="font-size: 0.75rem;">
+                <div
+                  class="card border-0 shadow-sm p-3"
+                  style="border-radius: 12px"
+                >
+                  <div
+                    class="d-flex justify-content-between mb-3 text-muted"
+                    style="font-size: 0.75rem"
+                  >
                     <span class="fw-bold text-dark">Living Room</span>
                     <span>21.9 °C / 43 %</span>
                   </div>
                   <div class="d-flex flex-wrap gap-2">
-                    <div class="rounded-circle bg-success p-3 text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 44px; height: 44px;"><i class="mdi mdi-sofa" style="font-size: 1.2rem;"></i></div>
-                    <div class="rounded-circle bg-secondary bg-opacity-10 p-2 text-muted" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><i class="mdi mdi-power" style="font-size: 0.9rem;"></i></div>
-                    <div class="rounded-circle bg-secondary bg-opacity-10 p-2 text-muted" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><i class="mdi mdi-lightbulb-outline" style="font-size: 0.9rem;"></i></div>
+                    <div
+                      class="rounded-circle bg-success p-3 text-white d-flex align-items-center justify-content-center shadow-sm"
+                      style="width: 44px; height: 44px"
+                    >
+                      <i class="mdi mdi-sofa" style="font-size: 1.2rem"></i>
+                    </div>
+                    <div
+                      class="rounded-circle bg-secondary bg-opacity-10 p-2 text-muted"
+                      style="
+                        width: 32px;
+                        height: 32px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <i class="mdi mdi-power" style="font-size: 0.9rem"></i>
+                    </div>
+                    <div
+                      class="rounded-circle bg-secondary bg-opacity-10 p-2 text-muted"
+                      style="
+                        width: 32px;
+                        height: 32px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <i
+                        class="mdi mdi-lightbulb-outline"
+                        style="font-size: 0.9rem"
+                      ></i>
+                    </div>
                   </div>
                 </div>
               </div>
               <div class="col-4">
-                <div class="card border-0 shadow-sm p-3" style="border-radius: 12px;">
-                  <div class="d-flex justify-content-between mb-3 text-muted" style="font-size: 0.75rem;">
+                <div
+                  class="card border-0 shadow-sm p-3"
+                  style="border-radius: 12px"
+                >
+                  <div
+                    class="d-flex justify-content-between mb-3 text-muted"
+                    style="font-size: 0.75rem"
+                  >
                     <span class="fw-bold text-dark">Sällskapsrum</span>
                     <span>22.1 °C / 41 %</span>
                   </div>
                   <div class="d-flex flex-wrap gap-2">
-                    <div class="rounded-circle bg-warning p-3 text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 44px; height: 44px;"><i class="mdi mdi-monitor" style="font-size: 1.2rem;"></i></div>
-                    <div class="rounded-circle bg-success p-2 text-white" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><i class="mdi mdi-power" style="font-size: 0.9rem;"></i></div>
-                    <div class="rounded-circle bg-warning p-2 text-white" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><i class="mdi mdi-lightbulb-outline" style="font-size: 0.9rem;"></i></div>
+                    <div
+                      class="rounded-circle bg-warning p-3 text-white d-flex align-items-center justify-content-center shadow-sm"
+                      style="width: 44px; height: 44px"
+                    >
+                      <i class="mdi mdi-monitor" style="font-size: 1.2rem"></i>
+                    </div>
+                    <div
+                      class="rounded-circle bg-success p-2 text-white"
+                      style="
+                        width: 32px;
+                        height: 32px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <i class="mdi mdi-power" style="font-size: 0.9rem"></i>
+                    </div>
+                    <div
+                      class="rounded-circle bg-warning p-2 text-white"
+                      style="
+                        width: 32px;
+                        height: 32px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <i
+                        class="mdi mdi-lightbulb-outline"
+                        style="font-size: 0.9rem"
+                      ></i>
+                    </div>
                   </div>
                 </div>
               </div>
               <div class="col-4">
-                <div class="card border-0 shadow-sm p-3" style="border-radius: 12px;">
-                  <div class="d-flex justify-content-between mb-3 text-muted" style="font-size: 0.75rem;">
+                <div
+                  class="card border-0 shadow-sm p-3"
+                  style="border-radius: 12px"
+                >
+                  <div
+                    class="d-flex justify-content-between mb-3 text-muted"
+                    style="font-size: 0.75rem"
+                  >
                     <span class="fw-bold text-dark">Arvids rum</span>
                     <span>23.5 °C / 40 %</span>
                   </div>
                   <div class="d-flex flex-wrap gap-2">
-                    <div class="rounded-circle bg-primary p-3 text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 44px; height: 44px;"><i class="mdi mdi-bed" style="font-size: 1.2rem;"></i></div>
-                    <div class="rounded-circle bg-secondary bg-opacity-10 p-2 text-muted" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><i class="mdi mdi-lightbulb-outline" style="font-size: 0.9rem;"></i></div>
+                    <div
+                      class="rounded-circle bg-primary p-3 text-white d-flex align-items-center justify-content-center shadow-sm"
+                      style="width: 44px; height: 44px"
+                    >
+                      <i class="mdi mdi-bed" style="font-size: 1.2rem"></i>
+                    </div>
+                    <div
+                      class="rounded-circle bg-secondary bg-opacity-10 p-2 text-muted"
+                      style="
+                        width: 32px;
+                        height: 32px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <i
+                        class="mdi mdi-lightbulb-outline"
+                        style="font-size: 0.9rem"
+                      ></i>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -241,143 +544,329 @@
       <!-- MOBILE DASHBOARD VIEW -->
       <div class="card-section" id="mobile-dashboard">
         <h2 class="mb-4">📱 Mobile Dashboard View (375px)</h2>
-        <p class="text-muted small mb-4">On mobile, the navbar shows only icons. Cards stack in a single column with the same content as desktop.</p>
+        <p class="text-muted small mb-4">
+          On mobile, the navbar shows only icons. Cards stack in a single column
+          with the same content as desktop.
+        </p>
 
-        <div class="mx-auto border border-2 bg-white rounded-4 overflow-hidden shadow" style="width: 375px; height: 600px; display: flex; flex-direction: column;">
+        <div
+          class="mx-auto border border-2 bg-white rounded-4 overflow-hidden shadow"
+          style="
+            width: 375px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+          "
+        >
           <!-- Navbar: AppNavbar mobile (icons only) -->
-          <nav class="navbar bg-light border-bottom px-2 py-1 d-flex justify-content-between">
+          <nav
+            class="navbar bg-light border-bottom px-2 py-1 d-flex justify-content-between"
+          >
             <div class="d-flex gap-1 align-items-center">
-              <button class="btn btn-link nav-link text-decoration-none px-2 py-1" style="color: #0078d4; border-bottom: 3px solid #0078d4;" title="Main">
-                <i class="mdi mdi-view-dashboard" style="font-size: 1.2rem;"></i>
+              <button
+                class="btn btn-link nav-link text-decoration-none px-2 py-1"
+                style="color: #0078d4; border-bottom: 3px solid #0078d4"
+                title="Main"
+              >
+                <i class="mdi mdi-view-dashboard" style="font-size: 1.2rem"></i>
               </button>
-              <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1" title="Lights">
-                <i class="mdi mdi-lightbulb-outline" style="font-size: 1.2rem;"></i>
+              <button
+                class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
+                title="Lights"
+              >
+                <i
+                  class="mdi mdi-lightbulb-outline"
+                  style="font-size: 1.2rem"
+                ></i>
               </button>
-              <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1" title="Climate">
-                <i class="mdi mdi-thermometer" style="font-size: 1.2rem;"></i>
+              <button
+                class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
+                title="Climate"
+              >
+                <i class="mdi mdi-thermometer" style="font-size: 1.2rem"></i>
               </button>
             </div>
             <div class="d-flex gap-1 align-items-center">
               <span class="badge bg-success">Connected</span>
-              <button class="btn btn-outline-secondary btn-sm" title="Open visual editor">
+              <button
+                class="btn btn-outline-secondary btn-sm"
+                title="Open visual editor"
+              >
                 <i class="mdi mdi-pencil-ruler"></i>
               </button>
-              <button class="btn btn-outline-dark btn-sm" title="Toggle dark mode">
+              <button
+                class="btn btn-outline-dark btn-sm"
+                title="Toggle dark mode"
+              >
                 <i class="mdi mdi-moon-waning-crescent"></i>
               </button>
             </div>
           </nav>
 
           <!-- Dashboard Content - Mobile single column -->
-          <div class="p-2" style="flex: 1; overflow-y: auto; background: #f8f9fa;">
+          <div
+            class="p-2"
+            style="flex: 1; overflow-y: auto; background: #f8f9fa"
+          >
             <!-- Warning/Error -->
             <div class="row g-2 mb-2">
               <div class="col-6">
-                <div class="card border-0 shadow-sm" style="background: #fff9e6; border-left: 3px solid #ffbc00 !important; border-radius: 4px;">
-                  <div class="card-body p-2 d-flex justify-content-between align-items-center">
-                    <div class="small fw-bold" style="font-size: 0.7rem;">Warning</div>
+                <div
+                  class="card border-0 shadow-sm"
+                  style="
+                    background: #fff9e6;
+                    border-left: 3px solid #ffbc00 !important;
+                    border-radius: 4px;
+                  "
+                >
+                  <div
+                    class="card-body p-2 d-flex justify-content-between align-items-center"
+                  >
+                    <div class="small fw-bold" style="font-size: 0.7rem">
+                      Warning
+                    </div>
                     <i class="mdi mdi-alert-circle-outline text-warning"></i>
                   </div>
                 </div>
               </div>
               <div class="col-6">
-                <div class="card border-0 shadow-sm" style="background: #fff2f2; border-left: 3px solid #f44336 !important; border-radius: 4px;">
-                  <div class="card-body p-2 d-flex justify-content-between align-items-center">
-                    <div class="small fw-bold" style="font-size: 0.7rem;">API is down</div>
+                <div
+                  class="card border-0 shadow-sm"
+                  style="
+                    background: #fff2f2;
+                    border-left: 3px solid #f44336 !important;
+                    border-radius: 4px;
+                  "
+                >
+                  <div
+                    class="card-body p-2 d-flex justify-content-between align-items-center"
+                  >
+                    <div class="small fw-bold" style="font-size: 0.7rem">
+                      API is down
+                    </div>
                     <i class="mdi mdi-alert-circle-outline text-danger"></i>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="text-center text-muted mb-2 fw-bold" style="font-size: 0.65rem; opacity: 0.3; letter-spacing: 0.2rem;">SPACER</div>
+            <div
+              class="text-center text-muted mb-2 fw-bold"
+              style="font-size: 0.65rem; opacity: 0.3; letter-spacing: 0.2rem"
+            >
+              SPACER
+            </div>
 
             <!-- Delivery + Clock row -->
             <div class="row g-2 mb-2">
               <div class="col-4">
-                <div class="card border-0 shadow-sm p-2 d-flex flex-row justify-content-between align-items-center">
+                <div
+                  class="card border-0 shadow-sm p-2 d-flex flex-row justify-content-between align-items-center"
+                >
                   <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-secondary bg-opacity-10 me-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;"><i class="mdi mdi-package-variant" style="font-size: 0.85rem;"></i></div>
-                    <span class="small fw-bold" style="font-size: 0.7rem;">Carrier A</span>
+                    <div
+                      class="rounded-circle bg-secondary bg-opacity-10 me-2 d-flex align-items-center justify-content-center"
+                      style="width: 28px; height: 28px"
+                    >
+                      <i
+                        class="mdi mdi-package-variant"
+                        style="font-size: 0.85rem"
+                      ></i>
+                    </div>
+                    <span class="small fw-bold" style="font-size: 0.7rem"
+                      >Carrier A</span
+                    >
                   </div>
-                  <span class="fw-bold" style="font-size: 0.75rem;">2</span>
+                  <span class="fw-bold" style="font-size: 0.75rem">2</span>
                 </div>
               </div>
               <div class="col-4">
-                <div class="card border-0 shadow-sm p-2 d-flex flex-row justify-content-between align-items-center">
+                <div
+                  class="card border-0 shadow-sm p-2 d-flex flex-row justify-content-between align-items-center"
+                >
                   <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-secondary bg-opacity-10 me-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;"><i class="mdi mdi-package-variant" style="font-size: 0.85rem;"></i></div>
-                    <span class="small fw-bold" style="font-size: 0.7rem;">Carrier B</span>
+                    <div
+                      class="rounded-circle bg-secondary bg-opacity-10 me-2 d-flex align-items-center justify-content-center"
+                      style="width: 28px; height: 28px"
+                    >
+                      <i
+                        class="mdi mdi-package-variant"
+                        style="font-size: 0.85rem"
+                      ></i>
+                    </div>
+                    <span class="small fw-bold" style="font-size: 0.7rem"
+                      >Carrier B</span
+                    >
                   </div>
-                  <span class="fw-bold" style="font-size: 0.75rem;">1</span>
+                  <span class="fw-bold" style="font-size: 0.75rem">1</span>
                 </div>
               </div>
               <div class="col-4">
-                <div class="card border-0 shadow-sm p-2 d-flex flex-row align-items-center">
-                  <div class="rounded-circle bg-secondary bg-opacity-10 me-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;"><i class="mdi mdi-clock-outline" style="font-size: 0.85rem;"></i></div>
-                  <span class="fw-bold" style="font-size: 0.75rem;">12:00</span>
+                <div
+                  class="card border-0 shadow-sm p-2 d-flex flex-row align-items-center"
+                >
+                  <div
+                    class="rounded-circle bg-secondary bg-opacity-10 me-2 d-flex align-items-center justify-content-center"
+                    style="width: 28px; height: 28px"
+                  >
+                    <i
+                      class="mdi mdi-clock-outline"
+                      style="font-size: 0.85rem"
+                    ></i>
+                  </div>
+                  <span class="fw-bold" style="font-size: 0.75rem">12:00</span>
                 </div>
               </div>
             </div>
 
-            <div class="text-center text-muted mb-2 fw-bold" style="font-size: 0.65rem; opacity: 0.3; letter-spacing: 0.2rem;">SPACER</div>
+            <div
+              class="text-center text-muted mb-2 fw-bold"
+              style="font-size: 0.65rem; opacity: 0.3; letter-spacing: 0.2rem"
+            >
+              SPACER
+            </div>
 
             <!-- Weather row stacked -->
             <div class="row g-2 mb-2">
               <div class="col-12">
-                <div class="card border-0 shadow-sm p-2" style="border-radius: 8px;">
-                  <div class="d-flex justify-content-between align-items-center">
+                <div
+                  class="card border-0 shadow-sm p-2"
+                  style="border-radius: 8px"
+                >
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
                     <div>
-                      <div class="small fw-bold" style="font-size: 0.75rem;">Forecast Local</div>
+                      <div class="small fw-bold" style="font-size: 0.75rem">
+                        Forecast Local
+                      </div>
                       <div class="d-flex align-items-center mt-1">
-                        <i class="mdi mdi-weather-partly-cloudy text-info me-1" style="font-size: 1rem;"></i>
-                        <span class="text-primary small fw-bold" style="font-size: 0.75rem;">Sunny 2.0 m/s</span>
+                        <i
+                          class="mdi mdi-weather-partly-cloudy text-info me-1"
+                          style="font-size: 1rem"
+                        ></i>
+                        <span
+                          class="text-primary small fw-bold"
+                          style="font-size: 0.75rem"
+                          >Sunny 2.0 m/s</span
+                        >
                       </div>
                     </div>
                     <div class="text-end">
-                      <div class="fw-bold" style="font-size: 0.85rem;">22.0 °C</div>
-                      <div class="text-muted" style="font-size: 0.65rem;">50% / 1013 hPa</div>
+                      <div class="fw-bold" style="font-size: 0.85rem">
+                        22.0 °C
+                      </div>
+                      <div class="text-muted" style="font-size: 0.65rem">
+                        50% / 1013 hPa
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="text-center text-muted mb-2 fw-bold" style="font-size: 0.65rem; opacity: 0.3; letter-spacing: 0.2rem;">SPACER</div>
+            <div
+              class="text-center text-muted mb-2 fw-bold"
+              style="font-size: 0.65rem; opacity: 0.3; letter-spacing: 0.2rem"
+            >
+              SPACER
+            </div>
 
             <!-- Room cards single column -->
             <div class="row g-2">
               <div class="col-6">
-                <div class="card border-0 shadow-sm p-2" style="border-radius: 10px;">
-                  <div class="d-flex justify-content-between mb-2" style="font-size: 0.7rem;">
-                    <span class="fw-bold">Living Room</span><span class="text-muted">21.9 °C</span>
+                <div
+                  class="card border-0 shadow-sm p-2"
+                  style="border-radius: 10px"
+                >
+                  <div
+                    class="d-flex justify-content-between mb-2"
+                    style="font-size: 0.7rem"
+                  >
+                    <span class="fw-bold">Living Room</span
+                    ><span class="text-muted">21.9 °C</span>
                   </div>
                   <div class="d-flex gap-1 flex-wrap">
-                    <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;"><i class="mdi mdi-sofa" style="font-size: 1rem;"></i></div>
-                    <div class="rounded-circle bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 26px; height: 26px;"><i class="mdi mdi-power" style="font-size: 0.8rem;"></i></div>
-                    <div class="rounded-circle bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 26px; height: 26px;"><i class="mdi mdi-lightbulb-outline" style="font-size: 0.8rem;"></i></div>
+                    <div
+                      class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center"
+                      style="width: 36px; height: 36px"
+                    >
+                      <i class="mdi mdi-sofa" style="font-size: 1rem"></i>
+                    </div>
+                    <div
+                      class="rounded-circle bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center"
+                      style="width: 26px; height: 26px"
+                    >
+                      <i class="mdi mdi-power" style="font-size: 0.8rem"></i>
+                    </div>
+                    <div
+                      class="rounded-circle bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center"
+                      style="width: 26px; height: 26px"
+                    >
+                      <i
+                        class="mdi mdi-lightbulb-outline"
+                        style="font-size: 0.8rem"
+                      ></i>
+                    </div>
                   </div>
                 </div>
               </div>
               <div class="col-6">
-                <div class="card border-0 shadow-sm p-2" style="border-radius: 10px;">
-                  <div class="d-flex justify-content-between mb-2" style="font-size: 0.7rem;">
-                    <span class="fw-bold">TV Room</span><span class="text-muted">22.1 °C</span>
+                <div
+                  class="card border-0 shadow-sm p-2"
+                  style="border-radius: 10px"
+                >
+                  <div
+                    class="d-flex justify-content-between mb-2"
+                    style="font-size: 0.7rem"
+                  >
+                    <span class="fw-bold">TV Room</span
+                    ><span class="text-muted">22.1 °C</span>
                   </div>
                   <div class="d-flex gap-1 flex-wrap">
-                    <div class="rounded-circle bg-warning text-white d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;"><i class="mdi mdi-monitor" style="font-size: 1rem;"></i></div>
-                    <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 26px; height: 26px;"><i class="mdi mdi-power" style="font-size: 0.8rem;"></i></div>
+                    <div
+                      class="rounded-circle bg-warning text-white d-flex align-items-center justify-content-center"
+                      style="width: 36px; height: 36px"
+                    >
+                      <i class="mdi mdi-monitor" style="font-size: 1rem"></i>
+                    </div>
+                    <div
+                      class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center"
+                      style="width: 26px; height: 26px"
+                    >
+                      <i class="mdi mdi-power" style="font-size: 0.8rem"></i>
+                    </div>
                   </div>
                 </div>
               </div>
               <div class="col-6">
-                <div class="card border-0 shadow-sm p-2" style="border-radius: 10px;">
-                  <div class="d-flex justify-content-between mb-2" style="font-size: 0.7rem;">
-                    <span class="fw-bold">Kid's Room</span><span class="text-muted">23.5 °C</span>
+                <div
+                  class="card border-0 shadow-sm p-2"
+                  style="border-radius: 10px"
+                >
+                  <div
+                    class="d-flex justify-content-between mb-2"
+                    style="font-size: 0.7rem"
+                  >
+                    <span class="fw-bold">Kid's Room</span
+                    ><span class="text-muted">23.5 °C</span>
                   </div>
                   <div class="d-flex gap-1 flex-wrap">
-                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;"><i class="mdi mdi-bed" style="font-size: 1rem;"></i></div>
-                    <div class="rounded-circle bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 26px; height: 26px;"><i class="mdi mdi-lightbulb-outline" style="font-size: 0.8rem;"></i></div>
+                    <div
+                      class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                      style="width: 36px; height: 36px"
+                    >
+                      <i class="mdi mdi-bed" style="font-size: 1rem"></i>
+                    </div>
+                    <div
+                      class="rounded-circle bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center"
+                      style="width: 26px; height: 26px"
+                    >
+                      <i
+                        class="mdi mdi-lightbulb-outline"
+                        style="font-size: 0.8rem"
+                      ></i>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -388,20 +877,46 @@
 
       <!-- DESKTOP EDITOR VIEW -->
       <div class="card-section" id="desktop-editor">
-        <h2 class="mb-4">🖥️ Desktop Editor View (1024px - Three-Column Layout)</h2>
-        <p class="text-muted small mb-4">The editor uses a three-column resizable layout optimized for editing: Left Palette (24%) | Center Canvas (50%) | Right Inspector (24%). Views are managed through a separate interface (not taking up editor space).</p>
-        
-        <div class="mx-auto border border-2 bg-white rounded-4 overflow-hidden shadow" style="width: 100%; max-width: 1024px; height: 600px; display: flex; flex-direction: column;">
+        <h2 class="mb-4">
+          🖥️ Desktop Editor View (1024px - Three-Column Layout)
+        </h2>
+        <p class="text-muted small mb-4">
+          The editor uses a three-column resizable layout optimized for editing:
+          Left Palette (24%) | Center Canvas (50%) | Right Inspector (24%).
+          Views are managed through a separate interface (not taking up editor
+          space).
+        </p>
+
+        <div
+          class="mx-auto border border-2 bg-white rounded-4 overflow-hidden shadow"
+          style="
+            width: 100%;
+            max-width: 1024px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+          "
+        >
           <!-- Navbar: EditorNavbar (editor mode) -->
-          <nav class="navbar bg-light border-bottom px-3 py-2 d-flex justify-content-between" style="border-bottom: 2px solid #ffc107 !important;">
+          <nav
+            class="navbar bg-light border-bottom px-3 py-2 d-flex justify-content-between"
+            style="border-bottom: 2px solid #ffc107 !important"
+          >
             <div class="d-flex gap-1 align-items-center">
-              <button class="btn btn-link nav-link text-decoration-none d-flex align-items-center px-2 active fw-bold" style="color: #0078d4; border-bottom: 3px solid #0078d4;">
+              <button
+                class="btn btn-link nav-link text-decoration-none d-flex align-items-center px-2 active fw-bold"
+                style="color: #0078d4; border-bottom: 3px solid #0078d4"
+              >
                 <i class="mdi mdi-pencil-ruler me-1"></i> <span>Editor</span>
               </button>
-              <button class="btn btn-link nav-link text-decoration-none text-muted d-flex align-items-center px-2">
+              <button
+                class="btn btn-link nav-link text-decoration-none text-muted d-flex align-items-center px-2"
+              >
                 <i class="mdi mdi-devices me-1"></i> <span>Devices</span>
               </button>
-              <button class="btn btn-link nav-link text-decoration-none text-muted d-flex align-items-center px-2">
+              <button
+                class="btn btn-link nav-link text-decoration-none text-muted d-flex align-items-center px-2"
+              >
                 <i class="mdi mdi-database me-1"></i> <span>Entity</span>
               </button>
             </div>
@@ -409,44 +924,84 @@
               <button class="btn btn-success btn-sm">
                 <i class="mdi mdi-content-save me-1"></i>Save
               </button>
-              <button class="btn btn-outline-dark btn-sm" title="Toggle dark mode">
+              <button
+                class="btn btn-outline-dark btn-sm"
+                title="Toggle dark mode"
+              >
                 <i class="mdi mdi-moon-waning-crescent"></i>
               </button>
             </div>
           </nav>
 
           <!-- Three-Column Editor Layout -->
-          <div style="flex: 1; display: flex; gap: 0; border-bottom: 1px solid #ddd; overflow: hidden;">
-            
+          <div
+            style="
+              flex: 1;
+              display: flex;
+              gap: 0;
+              border-bottom: 1px solid #ddd;
+              overflow: hidden;
+            "
+          >
             <!-- LEFT PANEL (24%) - Tabbed Palette (Views, Entities, Components) -->
-            <div style="width: 24%; border-right: 1px solid #ddd; display: flex; flex-direction: column; background: #f8f9fa;">
+            <div
+              style="
+                width: 24%;
+                border-right: 1px solid #ddd;
+                display: flex;
+                flex-direction: column;
+                background: #f8f9fa;
+              "
+            >
               <!-- Tabs Header -->
               <div class="d-flex border-bottom bg-white">
-                <div class="flex-fill text-center p-2 border-bottom border-primary border-3 bg-light" style="cursor: pointer; color: #0078d4;">
+                <div
+                  class="flex-fill text-center p-2 border-bottom border-primary border-3 bg-light"
+                  style="cursor: pointer; color: #0078d4"
+                >
                   <i class="mdi mdi-view-list d-block"></i>
                   <small class="d-none d-lg-block">Views</small>
                 </div>
-                <div class="flex-fill text-center p-2 text-muted" style="cursor: pointer;">
+                <div
+                  class="flex-fill text-center p-2 text-muted"
+                  style="cursor: pointer"
+                >
                   <i class="mdi mdi-database d-block"></i>
                   <small class="d-none d-lg-block">Entities</small>
                 </div>
-                <div class="flex-fill text-center p-2 text-muted" style="cursor: pointer;">
+                <div
+                  class="flex-fill text-center p-2 text-muted"
+                  style="cursor: pointer"
+                >
                   <i class="mdi mdi-shape-plus d-block"></i>
                   <small class="d-none d-lg-block">Components</small>
                 </div>
               </div>
 
               <!-- Tab Content (Views active) -->
-              <div style="flex: 1; overflow-y: auto; padding: 1rem;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+              <div style="flex: 1; overflow-y: auto; padding: 1rem">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-3"
+                >
                   <h6 class="text-muted small fw-bold mb-0">Views</h6>
-                  <button class="btn btn-primary btn-sm py-0" style="font-size: 0.75rem;">+ Add</button>
+                  <button
+                    class="btn btn-primary btn-sm py-0"
+                    style="font-size: 0.75rem"
+                  >
+                    + Add
+                  </button>
                 </div>
-                
-                  <div class="list-group list-group-flush mb-3">
-                  <div class="list-group-item list-group-item-action active py-2 px-3 border rounded mb-2 bg-primary text-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div class="small"><i class="mdi mdi-home-outline me-2"></i>overview</div>
+
+                <div class="list-group list-group-flush mb-3">
+                  <div
+                    class="list-group-item list-group-item-action active py-2 px-3 border rounded mb-2 bg-primary text-white"
+                  >
+                    <div
+                      class="d-flex justify-content-between align-items-center"
+                    >
+                      <div class="small">
+                        <i class="mdi mdi-home-outline me-2"></i>overview
+                      </div>
                       <div class="d-flex gap-1">
                         <i class="mdi mdi-pencil small"></i>
                         <i class="mdi mdi-content-copy small"></i>
@@ -454,9 +1009,16 @@
                       </div>
                     </div>
                   </div>
-                  <div class="list-group-item list-group-item-action py-2 px-3 border rounded mb-2 bg-white">
-                    <div class="d-flex justify-content-between align-items-center text-dark">
-                      <div class="small"><i class="mdi mdi-weather-partly-cloudy me-2"></i>weather</div>
+                  <div
+                    class="list-group-item list-group-item-action py-2 px-3 border rounded mb-2 bg-white"
+                  >
+                    <div
+                      class="d-flex justify-content-between align-items-center text-dark"
+                    >
+                      <div class="small">
+                        <i class="mdi mdi-weather-partly-cloudy me-2"></i
+                        >weather
+                      </div>
                       <div class="d-flex gap-1 text-muted">
                         <i class="mdi mdi-pencil small"></i>
                         <i class="mdi mdi-content-copy small"></i>
@@ -469,16 +1031,39 @@
             </div>
 
             <!-- CENTER PANEL (50%) - Canvas (Matching screenshot) -->
-            <div style="width: 50%; border-right: 1px solid #ddd; overflow-y: auto; padding: 1rem; background: #e9ecef; position: relative;">
+            <div
+              style="
+                width: 50%;
+                border-right: 1px solid #ddd;
+                overflow-y: auto;
+                padding: 1rem;
+                background: #e9ecef;
+                position: relative;
+              "
+            >
               <!-- Editor Canvas Content -->
               <div class="mb-3 d-flex gap-2">
-                <div class="card border-0 shadow-sm flex-fill" style="background: #fff9e6; border-left: 4px solid #ffc107 !important; transform: scale(0.9);">
+                <div
+                  class="card border-0 shadow-sm flex-fill"
+                  style="
+                    background: #fff9e6;
+                    border-left: 4px solid #ffc107 !important;
+                    transform: scale(0.9);
+                  "
+                >
                   <div class="card-body p-2 d-flex justify-content-between">
                     <div class="small fw-bold">Warning</div>
                     <i class="mdi mdi-alert-circle-outline text-warning"></i>
                   </div>
                 </div>
-                <div class="card border-0 shadow-sm flex-fill" style="background: #fff2f2; border-left: 4px solid #dc3545 !important; transform: scale(0.9);">
+                <div
+                  class="card border-0 shadow-sm flex-fill"
+                  style="
+                    background: #fff2f2;
+                    border-left: 4px solid #dc3545 !important;
+                    transform: scale(0.9);
+                  "
+                >
                   <div class="card-body p-2 d-flex justify-content-between">
                     <div class="small fw-bold">Error</div>
                     <i class="mdi mdi-alert-circle-outline text-danger"></i>
@@ -486,56 +1071,152 @@
                 </div>
               </div>
 
-              <div class="text-center text-muted mb-3 fw-bold" style="font-size: 0.6rem; opacity: 0.5;">SPACER</div>
+              <div
+                class="text-center text-muted mb-3 fw-bold"
+                style="font-size: 0.6rem; opacity: 0.5"
+              >
+                SPACER
+              </div>
 
               <!-- Selected Row of Cards -->
               <div class="d-flex gap-2 mb-3">
-                <div class="card shadow-sm p-2 flex-fill border-2 border-primary" style="border-color: #0078d4 !important; cursor: move; border-radius: 0.5rem;">
-                   <div class="d-flex justify-content-between mb-1">
-                     <span style="font-size: 0.7rem;" class="fw-bold">Carrier A</span>
-                     <span style="font-size: 0.7rem;" class="fw-bold">5.0</span>
-                   </div>
-                   <div class="rounded-circle bg-secondary bg-opacity-10" style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center;"><i class="mdi mdi-email-outline" style="font-size: 0.8rem;"></i></div>
+                <div
+                  class="card shadow-sm p-2 flex-fill border-2 border-primary"
+                  style="
+                    border-color: #0078d4 !important;
+                    cursor: move;
+                    border-radius: 0.5rem;
+                  "
+                >
+                  <div class="d-flex justify-content-between mb-1">
+                    <span style="font-size: 0.7rem" class="fw-bold"
+                      >Carrier A</span
+                    >
+                    <span style="font-size: 0.7rem" class="fw-bold">5.0</span>
+                  </div>
+                  <div
+                    class="rounded-circle bg-secondary bg-opacity-10"
+                    style="
+                      width: 25px;
+                      height: 25px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                    "
+                  >
+                    <i
+                      class="mdi mdi-email-outline"
+                      style="font-size: 0.8rem"
+                    ></i>
+                  </div>
                 </div>
-                <div class="card shadow-sm p-2 flex-fill border text-muted" style="cursor: move; border-radius: 0.5rem; opacity: 0.7;">
-                   <div class="d-flex justify-content-between mb-1">
-                     <span style="font-size: 0.7rem;" class="fw-bold">Carrier B</span>
-                     <span style="font-size: 0.7rem;" class="fw-bold">5.0</span>
-                   </div>
-                   <div class="rounded-circle bg-secondary bg-opacity-10" style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center;"><i class="mdi mdi-email-outline" style="font-size: 0.8rem;"></i></div>
+                <div
+                  class="card shadow-sm p-2 flex-fill border text-muted"
+                  style="cursor: move; border-radius: 0.5rem; opacity: 0.7"
+                >
+                  <div class="d-flex justify-content-between mb-1">
+                    <span style="font-size: 0.7rem" class="fw-bold"
+                      >Carrier B</span
+                    >
+                    <span style="font-size: 0.7rem" class="fw-bold">5.0</span>
+                  </div>
+                  <div
+                    class="rounded-circle bg-secondary bg-opacity-10"
+                    style="
+                      width: 25px;
+                      height: 25px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                    "
+                  >
+                    <i
+                      class="mdi mdi-email-outline"
+                      style="font-size: 0.8rem"
+                    ></i>
+                  </div>
                 </div>
-                <div class="card shadow-sm p-2 flex-fill border text-muted" style="cursor: move; border-radius: 0.5rem; opacity: 0.7;">
-                   <div class="d-flex justify-content-between mb-1">
-                     <span style="font-size: 0.7rem;" class="fw-bold">09:47</span>
-                   </div>
-                   <div class="rounded-circle bg-secondary bg-opacity-10" style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center;"><i class="mdi mdi-clock-outline" style="font-size: 0.8rem;"></i></div>
+                <div
+                  class="card shadow-sm p-2 flex-fill border text-muted"
+                  style="cursor: move; border-radius: 0.5rem; opacity: 0.7"
+                >
+                  <div class="d-flex justify-content-between mb-1">
+                    <span style="font-size: 0.7rem" class="fw-bold">09:47</span>
+                  </div>
+                  <div
+                    class="rounded-circle bg-secondary bg-opacity-10"
+                    style="
+                      width: 25px;
+                      height: 25px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                    "
+                  >
+                    <i
+                      class="mdi mdi-clock-outline"
+                      style="font-size: 0.8rem"
+                    ></i>
+                  </div>
                 </div>
               </div>
 
-              <div class="text-center text-muted mb-3 fw-bold" style="font-size: 0.6rem; opacity: 0.5;">SPACER</div>
+              <div
+                class="text-center text-muted mb-3 fw-bold"
+                style="font-size: 0.6rem; opacity: 0.5"
+              >
+                SPACER
+              </div>
 
               <!-- Room Grid Preview (Vardagsrum selected) -->
               <div class="row g-2 mb-3">
                 <div class="col-6">
                   <div class="card border-0 shadow-sm p-2">
-                    <div class="d-flex justify-content-between mb-2 text-muted" style="font-size: 0.6rem;">
+                    <div
+                      class="d-flex justify-content-between mb-2 text-muted"
+                      style="font-size: 0.6rem"
+                    >
                       <span class="fw-bold">Vardagsrum</span>
                       <span>21.9 °C</span>
                     </div>
                     <div class="d-flex gap-1">
-                      <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;"><i class="mdi mdi-sofa" style="font-size: 1rem;"></i></div>
-                      <div class="rounded-circle bg-secondary bg-opacity-25" style="width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;"><i class="mdi mdi-power" style="font-size: 0.7rem;"></i></div>
+                      <div
+                        class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center"
+                        style="width: 30px; height: 30px"
+                      >
+                        <i class="mdi mdi-sofa" style="font-size: 1rem"></i>
+                      </div>
+                      <div
+                        class="rounded-circle bg-secondary bg-opacity-25"
+                        style="
+                          width: 20px;
+                          height: 20px;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                        "
+                      >
+                        <i class="mdi mdi-power" style="font-size: 0.7rem"></i>
+                      </div>
                     </div>
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="card border-0 shadow-sm p-2 opacity-75">
-                    <div class="d-flex justify-content-between mb-2 text-muted" style="font-size: 0.6rem;">
+                    <div
+                      class="d-flex justify-content-between mb-2 text-muted"
+                      style="font-size: 0.6rem"
+                    >
                       <span class="fw-bold">Sällskapsrum</span>
                       <span>22.1 °C</span>
                     </div>
                     <div class="d-flex gap-1">
-                      <div class="rounded-circle bg-warning text-white d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;"><i class="mdi mdi-monitor" style="font-size: 1rem;"></i></div>
+                      <div
+                        class="rounded-circle bg-warning text-white d-flex align-items-center justify-content-center"
+                        style="width: 30px; height: 30px"
+                      >
+                        <i class="mdi mdi-monitor" style="font-size: 1rem"></i>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -543,46 +1224,86 @@
             </div>
 
             <!-- RIGHT PANEL (24%) - Entity Inspector -->
-            <div style="width: 24%; overflow-y: auto; background: white; padding: 1rem; border-left: 1px solid #ddd;">
+            <div
+              style="
+                width: 24%;
+                overflow-y: auto;
+                background: white;
+                padding: 1rem;
+                border-left: 1px solid #ddd;
+              "
+            >
               <h6 class="mb-3"><strong>Entity Inspector</strong></h6>
-              
+
               <div class="mb-3">
-                <label class="form-label small mb-1"><strong>Entity ID</strong></label>
-                <input type="text" class="form-control form-control-sm" value="light.main_light" readonly style="font-size: 0.875rem;">
+                <label class="form-label small mb-1"
+                  ><strong>Entity ID</strong></label
+                >
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  value="light.main_light"
+                  readonly
+                  style="font-size: 0.875rem"
+                />
               </div>
 
               <div class="mb-3">
-                <label class="form-label small mb-1"><strong>Card Title</strong></label>
-                <input type="text" class="form-control form-control-sm" value="Main Light" style="font-size: 0.875rem;">
+                <label class="form-label small mb-1"
+                  ><strong>Card Title</strong></label
+                >
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  value="Main Light"
+                  style="font-size: 0.875rem"
+                />
               </div>
 
               <div class="mb-3">
-                <label class="form-label small mb-1"><strong>Component Type</strong></label>
-                <select class="form-select form-select-sm" style="font-size: 0.875rem;">
+                <label class="form-label small mb-1"
+                  ><strong>Component Type</strong></label
+                >
+                <select
+                  class="form-select form-select-sm"
+                  style="font-size: 0.875rem"
+                >
                   <option selected>HaSwitch</option>
                   <option>HaFan</option>
                   <option>HaLight</option>
                 </select>
               </div>
 
-              <hr>
+              <hr />
               <h6 class="small mb-2"><strong>Properties</strong></h6>
-              
+
               <div class="mb-2">
                 <label class="form-label small mb-1">Show Icon</label>
                 <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="showicon" checked>
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="showicon"
+                    checked
+                  />
                 </div>
               </div>
 
               <div class="mb-3">
                 <label class="form-label small mb-1">Icon</label>
-                <input type="text" class="form-control form-control-sm" value="mdi:lightbulb" style="font-size: 0.875rem;">
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  value="mdi:lightbulb"
+                  style="font-size: 0.875rem"
+                />
               </div>
 
-              <hr>
+              <hr />
               <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-danger flex-grow-1">Delete</button>
+                <button class="btn btn-sm btn-danger flex-grow-1">
+                  Delete
+                </button>
                 <button class="btn btn-sm btn-primary flex-grow-1">Save</button>
               </div>
             </div>
@@ -593,45 +1314,94 @@
       <!-- MOBILE EDITOR VIEW -->
       <div class="card-section" id="mobile-editor">
         <h2 class="mb-4">📱 Mobile Editor View (375px)</h2>
-        <p class="text-muted small mb-4">On mobile, the canvas takes full width. A floating action button in the bottom-right opens a bottom sheet with the Views / Entities / Components panel for drag-and-drop onto the canvas.</p>
+        <p class="text-muted small mb-4">
+          On mobile, the canvas takes full width. A floating action button in
+          the bottom-right opens a bottom sheet with the Views / Entities /
+          Components panel for drag-and-drop onto the canvas.
+        </p>
 
         <div class="d-flex gap-4 flex-wrap justify-content-center">
-
           <!-- STATE 1: Canvas with FAB closed -->
           <div>
-            <p class="text-center small text-muted fw-semibold mb-2">Canvas view — panel closed</p>
-            <div class="border border-2 bg-white rounded-4 overflow-hidden shadow" style="width: 375px; height: 680px; display: flex; flex-direction: column; position: relative;">
+            <p class="text-center small text-muted fw-semibold mb-2">
+              Canvas view — panel closed
+            </p>
+            <div
+              class="border border-2 bg-white rounded-4 overflow-hidden shadow"
+              style="
+                width: 375px;
+                height: 680px;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+              "
+            >
               <!-- Navbar -->
-              <nav class="navbar bg-light px-2 py-1 d-flex justify-content-between" style="border-bottom: 2px solid #ffc107;">
+              <nav
+                class="navbar bg-light px-2 py-1 d-flex justify-content-between"
+                style="border-bottom: 2px solid #ffc107"
+              >
                 <div class="d-flex gap-1 align-items-center">
-                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1" style="color: #0078d4;" title="Editor">
-                    <i class="mdi mdi-pencil-ruler" style="font-size: 1.2rem;"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none px-2 py-1"
+                    style="color: #0078d4"
+                    title="Editor"
+                  >
+                    <i
+                      class="mdi mdi-pencil-ruler"
+                      style="font-size: 1.2rem"
+                    ></i>
                   </button>
-                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1" title="Devices">
-                    <i class="mdi mdi-devices" style="font-size: 1.2rem;"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
+                    title="Devices"
+                  >
+                    <i class="mdi mdi-devices" style="font-size: 1.2rem"></i>
                   </button>
-                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1" title="Raw">
-                    <i class="mdi mdi-database" style="font-size: 1.2rem;"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
+                    title="Raw"
+                  >
+                    <i class="mdi mdi-database" style="font-size: 1.2rem"></i>
                   </button>
                 </div>
                 <div class="d-flex gap-1 align-items-center">
-                  <button class="btn btn-success btn-sm"><i class="mdi mdi-content-save"></i></button>
-                  <button class="btn btn-outline-secondary btn-sm"><i class="mdi mdi-moon-waning-crescent"></i></button>
+                  <button class="btn btn-success btn-sm">
+                    <i class="mdi mdi-content-save"></i>
+                  </button>
+                  <button class="btn btn-outline-secondary btn-sm">
+                    <i class="mdi mdi-moon-waning-crescent"></i>
+                  </button>
                 </div>
               </nav>
 
               <!-- Full-width canvas -->
-              <div style="flex: 1; overflow-y: auto; background: #f0f0f0; padding: 0.75rem;">
+              <div
+                style="
+                  flex: 1;
+                  overflow-y: auto;
+                  background: #f0f0f0;
+                  padding: 0.75rem;
+                "
+              >
                 <!-- Selected card highlight -->
-                <div class="bg-white rounded p-2 mb-2 border border-2 border-primary shadow-sm">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <span class="small fw-semibold text-primary">Temperature</span>
+                <div
+                  class="bg-white rounded p-2 mb-2 border border-2 border-primary shadow-sm"
+                >
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span class="small fw-semibold text-primary"
+                      >Temperature</span
+                    >
                     <span class="small text-muted">sensor</span>
                   </div>
                   <div class="small text-muted mt-1">22.1 °C — Living Room</div>
                 </div>
                 <div class="bg-white rounded p-2 mb-2 border">
-                  <div class="d-flex justify-content-between align-items-center">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
                     <span class="small fw-semibold">Humidity</span>
                     <span class="small text-muted">sensor</span>
                   </div>
@@ -650,7 +1420,19 @@
                   </div>
                 </div>
                 <!-- Spacer placeholder -->
-                <div class="rounded p-2 mb-2 text-center text-muted small" style="border: 2px dashed #ccc; background: repeating-linear-gradient(45deg, #f8f8f8, #f8f8f8 6px, #eee 6px, #eee 12px);">
+                <div
+                  class="rounded p-2 mb-2 text-center text-muted small"
+                  style="
+                    border: 2px dashed #ccc;
+                    background: repeating-linear-gradient(
+                      45deg,
+                      #f8f8f8,
+                      #f8f8f8 6px,
+                      #eee 6px,
+                      #eee 12px
+                    );
+                  "
+                >
                   SPACER
                 </div>
                 <div class="bg-white rounded p-2 mb-2 border">
@@ -662,8 +1444,18 @@
               </div>
 
               <!-- FAB button (closed state) -->
-              <button class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center"
-                style="position: absolute; bottom: 20px; right: 20px; width: 52px; height: 52px; font-size: 1.4rem; z-index: 10;">
+              <button
+                class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center"
+                style="
+                  position: absolute;
+                  bottom: 20px;
+                  right: 20px;
+                  width: 52px;
+                  height: 52px;
+                  font-size: 1.4rem;
+                  z-index: 10;
+                "
+              >
                 <i class="mdi mdi-plus"></i>
               </button>
             </div>
@@ -671,89 +1463,201 @@
 
           <!-- STATE 2: Bottom sheet open -->
           <div>
-            <p class="text-center small text-muted fw-semibold mb-2">Panel open — bottom sheet</p>
-            <div class="border border-2 bg-white rounded-4 overflow-hidden shadow" style="width: 375px; height: 680px; display: flex; flex-direction: column; position: relative;">
+            <p class="text-center small text-muted fw-semibold mb-2">
+              Panel open — bottom sheet
+            </p>
+            <div
+              class="border border-2 bg-white rounded-4 overflow-hidden shadow"
+              style="
+                width: 375px;
+                height: 680px;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+              "
+            >
               <!-- Navbar -->
-              <nav class="navbar bg-light px-2 py-1 d-flex justify-content-between" style="border-bottom: 2px solid #ffc107;">
+              <nav
+                class="navbar bg-light px-2 py-1 d-flex justify-content-between"
+                style="border-bottom: 2px solid #ffc107"
+              >
                 <div class="d-flex gap-1 align-items-center">
-                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1" style="color: #0078d4;" title="Editor">
-                    <i class="mdi mdi-pencil-ruler" style="font-size: 1.2rem;"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none px-2 py-1"
+                    style="color: #0078d4"
+                    title="Editor"
+                  >
+                    <i
+                      class="mdi mdi-pencil-ruler"
+                      style="font-size: 1.2rem"
+                    ></i>
                   </button>
-                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
-                    <i class="mdi mdi-devices" style="font-size: 1.2rem;"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
+                  >
+                    <i class="mdi mdi-devices" style="font-size: 1.2rem"></i>
                   </button>
-                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
-                    <i class="mdi mdi-database" style="font-size: 1.2rem;"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
+                  >
+                    <i class="mdi mdi-database" style="font-size: 1.2rem"></i>
                   </button>
                 </div>
                 <div class="d-flex gap-1 align-items-center">
-                  <button class="btn btn-success btn-sm"><i class="mdi mdi-content-save"></i></button>
-                  <button class="btn btn-outline-secondary btn-sm"><i class="mdi mdi-moon-waning-crescent"></i></button>
+                  <button class="btn btn-success btn-sm">
+                    <i class="mdi mdi-content-save"></i>
+                  </button>
+                  <button class="btn btn-outline-secondary btn-sm">
+                    <i class="mdi mdi-moon-waning-crescent"></i>
+                  </button>
                 </div>
               </nav>
 
               <!-- Dimmed canvas behind sheet -->
-              <div style="flex: 1; overflow: hidden; background: #f0f0f0; padding: 0.75rem; opacity: 0.35;">
-                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Temperature</span></div>
-                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Humidity</span></div>
-                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Ceiling Light</span></div>
+              <div
+                style="
+                  flex: 1;
+                  overflow: hidden;
+                  background: #f0f0f0;
+                  padding: 0.75rem;
+                  opacity: 0.35;
+                "
+              >
+                <div class="bg-white rounded p-2 mb-2 border">
+                  <span class="small fw-semibold">Temperature</span>
+                </div>
+                <div class="bg-white rounded p-2 mb-2 border">
+                  <span class="small fw-semibold">Humidity</span>
+                </div>
+                <div class="bg-white rounded p-2 mb-2 border">
+                  <span class="small fw-semibold">Ceiling Light</span>
+                </div>
               </div>
 
               <!-- Bottom sheet overlay -->
-              <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 70%; background: white; border-radius: 16px 16px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); display: flex; flex-direction: column; z-index: 20;">
+              <div
+                style="
+                  position: absolute;
+                  bottom: 0;
+                  left: 0;
+                  right: 0;
+                  height: 70%;
+                  background: white;
+                  border-radius: 16px 16px 0 0;
+                  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+                  display: flex;
+                  flex-direction: column;
+                  z-index: 20;
+                "
+              >
                 <!-- Drag handle -->
                 <div class="text-center pt-2 pb-1">
-                  <div style="width: 40px; height: 4px; background: #ccc; border-radius: 2px; margin: 0 auto;"></div>
+                  <div
+                    style="
+                      width: 40px;
+                      height: 4px;
+                      background: #ccc;
+                      border-radius: 2px;
+                      margin: 0 auto;
+                    "
+                  ></div>
                 </div>
                 <!-- Tab bar (icons only) -->
                 <div class="d-flex border-bottom">
-                  <div class="flex-fill text-center py-2" style="color: #0078d4; border-bottom: 3px solid #0078d4; cursor: pointer;">
-                    <i class="mdi mdi-view-list" style="font-size: 1.1rem;"></i>
+                  <div
+                    class="flex-fill text-center py-2"
+                    style="
+                      color: #0078d4;
+                      border-bottom: 3px solid #0078d4;
+                      cursor: pointer;
+                    "
+                  >
+                    <i class="mdi mdi-view-list" style="font-size: 1.1rem"></i>
                   </div>
-                  <div class="flex-fill text-center py-2 text-muted" style="cursor: pointer;">
-                    <i class="mdi mdi-database" style="font-size: 1.1rem;"></i>
+                  <div
+                    class="flex-fill text-center py-2 text-muted"
+                    style="cursor: pointer"
+                  >
+                    <i class="mdi mdi-database" style="font-size: 1.1rem"></i>
                   </div>
-                  <div class="flex-fill text-center py-2 text-muted" style="cursor: pointer;">
-                    <i class="mdi mdi-shape-plus" style="font-size: 1.1rem;"></i>
+                  <div
+                    class="flex-fill text-center py-2 text-muted"
+                    style="cursor: pointer"
+                  >
+                    <i class="mdi mdi-shape-plus" style="font-size: 1.1rem"></i>
                   </div>
                 </div>
                 <!-- Entities list (Entities tab) -->
-                <div style="flex: 1; overflow-y: auto; padding: 0.75rem;">
-                  <input class="form-control form-control-sm mb-2" placeholder="Search entities..." disabled>
+                <div style="flex: 1; overflow-y: auto; padding: 0.75rem">
+                  <input
+                    class="form-control form-control-sm mb-2"
+                    placeholder="Search entities..."
+                    disabled
+                  />
                   <div class="list-group list-group-flush small">
-                    <div class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom">
+                    <div
+                      class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom"
+                    >
                       <i class="mdi mdi-thermometer text-warning"></i>
                       <div>
-                        <div class="fw-semibold" style="font-size:0.8rem;">Living Room Temp</div>
-                        <div class="text-muted" style="font-size:0.72rem;">sensor.living_room_temp</div>
+                        <div class="fw-semibold" style="font-size: 0.8rem">
+                          Living Room Temp
+                        </div>
+                        <div class="text-muted" style="font-size: 0.72rem">
+                          sensor.living_room_temp
+                        </div>
                       </div>
                     </div>
-                    <div class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom">
+                    <div
+                      class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom"
+                    >
                       <i class="mdi mdi-water-percent text-info"></i>
                       <div>
-                        <div class="fw-semibold" style="font-size:0.8rem;">Humidity</div>
-                        <div class="text-muted" style="font-size:0.72rem;">sensor.humidity</div>
+                        <div class="fw-semibold" style="font-size: 0.8rem">
+                          Humidity
+                        </div>
+                        <div class="text-muted" style="font-size: 0.72rem">
+                          sensor.humidity
+                        </div>
                       </div>
                     </div>
-                    <div class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom">
+                    <div
+                      class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom"
+                    >
                       <i class="mdi mdi-lightbulb text-warning"></i>
                       <div>
-                        <div class="fw-semibold" style="font-size:0.8rem;">Ceiling Light</div>
-                        <div class="text-muted" style="font-size:0.72rem;">light.ceiling</div>
+                        <div class="fw-semibold" style="font-size: 0.8rem">
+                          Ceiling Light
+                        </div>
+                        <div class="text-muted" style="font-size: 0.72rem">
+                          light.ceiling
+                        </div>
                       </div>
                     </div>
-                    <div class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom">
+                    <div
+                      class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom"
+                    >
                       <i class="mdi mdi-television text-secondary"></i>
                       <div>
-                        <div class="fw-semibold" style="font-size:0.8rem;">TV</div>
-                        <div class="text-muted" style="font-size:0.72rem;">media_player.tv</div>
+                        <div class="fw-semibold" style="font-size: 0.8rem">
+                          TV
+                        </div>
+                        <div class="text-muted" style="font-size: 0.72rem">
+                          media_player.tv
+                        </div>
                       </div>
                     </div>
-                    <div class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0">
+                    <div
+                      class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0"
+                    >
                       <i class="mdi mdi-fan text-primary"></i>
                       <div>
-                        <div class="fw-semibold" style="font-size:0.8rem;">Fan</div>
-                        <div class="text-muted" style="font-size:0.72rem;">fan.bedroom</div>
+                        <div class="fw-semibold" style="font-size: 0.8rem">
+                          Fan
+                        </div>
+                        <div class="text-muted" style="font-size: 0.72rem">
+                          fan.bedroom
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -761,8 +1665,18 @@
               </div>
 
               <!-- FAB (rotated to X when open) -->
-              <button class="btn btn-danger rounded-circle shadow-lg d-flex align-items-center justify-content-center"
-                style="position: absolute; bottom: 20px; right: 20px; width: 52px; height: 52px; font-size: 1.4rem; z-index: 30;">
+              <button
+                class="btn btn-danger rounded-circle shadow-lg d-flex align-items-center justify-content-center"
+                style="
+                  position: absolute;
+                  bottom: 20px;
+                  right: 20px;
+                  width: 52px;
+                  height: 52px;
+                  font-size: 1.4rem;
+                  z-index: 30;
+                "
+              >
                 <i class="mdi mdi-close"></i>
               </button>
             </div>
@@ -770,95 +1684,209 @@
 
           <!-- STATE 3: Entity inspector bottom sheet (double-tap / long-press) -->
           <div>
-            <p class="text-center small text-muted fw-semibold mb-2">Entity inspector — double-tap / long-press</p>
-            <div class="border border-2 bg-white rounded-4 overflow-hidden shadow" style="width: 375px; height: 680px; display: flex; flex-direction: column; position: relative;">
+            <p class="text-center small text-muted fw-semibold mb-2">
+              Entity inspector — double-tap / long-press
+            </p>
+            <div
+              class="border border-2 bg-white rounded-4 overflow-hidden shadow"
+              style="
+                width: 375px;
+                height: 680px;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+              "
+            >
               <!-- Navbar -->
-              <nav class="navbar bg-light px-2 py-1 d-flex justify-content-between" style="border-bottom: 2px solid #ffc107;">
+              <nav
+                class="navbar bg-light px-2 py-1 d-flex justify-content-between"
+                style="border-bottom: 2px solid #ffc107"
+              >
                 <div class="d-flex gap-1 align-items-center">
-                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1" style="color: #0078d4;" title="Editor">
-                    <i class="mdi mdi-pencil-ruler" style="font-size: 1.2rem;"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none px-2 py-1"
+                    style="color: #0078d4"
+                    title="Editor"
+                  >
+                    <i
+                      class="mdi mdi-pencil-ruler"
+                      style="font-size: 1.2rem"
+                    ></i>
                   </button>
-                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
-                    <i class="mdi mdi-devices" style="font-size: 1.2rem;"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
+                  >
+                    <i class="mdi mdi-devices" style="font-size: 1.2rem"></i>
                   </button>
-                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
-                    <i class="mdi mdi-database" style="font-size: 1.2rem;"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
+                  >
+                    <i class="mdi mdi-database" style="font-size: 1.2rem"></i>
                   </button>
                 </div>
                 <div class="d-flex gap-1 align-items-center">
-                  <button class="btn btn-success btn-sm"><i class="mdi mdi-content-save"></i></button>
-                  <button class="btn btn-outline-secondary btn-sm"><i class="mdi mdi-moon-waning-crescent"></i></button>
+                  <button class="btn btn-success btn-sm">
+                    <i class="mdi mdi-content-save"></i>
+                  </button>
+                  <button class="btn btn-outline-secondary btn-sm">
+                    <i class="mdi mdi-moon-waning-crescent"></i>
+                  </button>
                 </div>
               </nav>
 
               <!-- Canvas — dimmed, selected card highlighted -->
-              <div style="flex: 1; overflow: hidden; background: #f0f0f0; padding: 0.75rem; opacity: 0.35;">
-                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Temperature</span></div>
+              <div
+                style="
+                  flex: 1;
+                  overflow: hidden;
+                  background: #f0f0f0;
+                  padding: 0.75rem;
+                  opacity: 0.35;
+                "
+              >
+                <div class="bg-white rounded p-2 mb-2 border">
+                  <span class="small fw-semibold">Temperature</span>
+                </div>
                 <!-- selected card -->
-                <div class="rounded p-2 mb-2 border border-2" style="background: #e8f0fe; border-color: #0078d4 !important;">
-                  <span class="small fw-semibold" style="color: #0078d4;">Ceiling Light</span>
+                <div
+                  class="rounded p-2 mb-2 border border-2"
+                  style="background: #e8f0fe; border-color: #0078d4 !important"
+                >
+                  <span class="small fw-semibold" style="color: #0078d4"
+                    >Ceiling Light</span
+                  >
                   <span class="badge bg-warning text-dark small ms-2">on</span>
                 </div>
-                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Floor Lamp</span></div>
+                <div class="bg-white rounded p-2 mb-2 border">
+                  <span class="small fw-semibold">Floor Lamp</span>
+                </div>
               </div>
 
               <!-- Entity Inspector bottom sheet -->
-              <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 72%; background: white; border-radius: 16px 16px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); display: flex; flex-direction: column; z-index: 20;">
+              <div
+                style="
+                  position: absolute;
+                  bottom: 0;
+                  left: 0;
+                  right: 0;
+                  height: 72%;
+                  background: white;
+                  border-radius: 16px 16px 0 0;
+                  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+                  display: flex;
+                  flex-direction: column;
+                  z-index: 20;
+                "
+              >
                 <!-- Drag handle -->
                 <div class="text-center pt-2 pb-1">
-                  <div style="width: 40px; height: 4px; background: #ccc; border-radius: 2px; margin: 0 auto;"></div>
+                  <div
+                    style="
+                      width: 40px;
+                      height: 4px;
+                      background: #ccc;
+                      border-radius: 2px;
+                      margin: 0 auto;
+                    "
+                  ></div>
                 </div>
                 <!-- Inspector header -->
-                <div class="d-flex justify-content-between align-items-center px-3 pt-1 pb-2 border-bottom">
-                  <span class="fw-semibold" style="font-size: 0.9rem;">Entity Inspector</span>
-                  <button class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 0.75rem;">
+                <div
+                  class="d-flex justify-content-between align-items-center px-3 pt-1 pb-2 border-bottom"
+                >
+                  <span class="fw-semibold" style="font-size: 0.9rem"
+                    >Entity Inspector</span
+                  >
+                  <button
+                    class="btn btn-sm btn-outline-secondary py-0 px-2"
+                    style="font-size: 0.75rem"
+                  >
                     <i class="mdi mdi-close"></i>
                   </button>
                 </div>
                 <!-- Inspector body -->
-                <div style="flex: 1; overflow-y: auto; padding: 0.75rem;">
+                <div style="flex: 1; overflow-y: auto; padding: 0.75rem">
                   <!-- Entity ID -->
                   <div class="mb-3">
-                    <div class="small fw-semibold text-muted mb-1">Entity ID</div>
-                    <div class="small text-monospace bg-light rounded px-2 py-1" style="font-size: 0.78rem;">light.ceiling</div>
+                    <div class="small fw-semibold text-muted mb-1">
+                      Entity ID
+                    </div>
+                    <div
+                      class="small text-monospace bg-light rounded px-2 py-1"
+                      style="font-size: 0.78rem"
+                    >
+                      light.ceiling
+                    </div>
                   </div>
                   <!-- Component type -->
                   <div class="mb-3">
-                    <label class="small fw-semibold text-muted mb-1 d-block">Component Type</label>
+                    <label class="small fw-semibold text-muted mb-1 d-block"
+                      >Component Type</label
+                    >
                     <select class="form-select form-select-sm" disabled>
                       <option selected>HaSwitch (Default)</option>
                     </select>
                   </div>
                   <!-- Properties -->
                   <div class="mb-3">
-                    <div class="small fw-semibold text-muted mb-2">Properties</div>
+                    <div class="small fw-semibold text-muted mb-2">
+                      Properties
+                    </div>
                     <!-- Name -->
                     <div class="mb-2">
                       <label class="small text-muted mb-1 d-block">Name</label>
-                      <input class="form-control form-control-sm" value="Ceiling Light" disabled>
+                      <input
+                        class="form-control form-control-sm"
+                        value="Ceiling Light"
+                        disabled
+                      />
                     </div>
                     <!-- Show icon toggle -->
-                    <div class="mb-2 d-flex justify-content-between align-items-center">
+                    <div
+                      class="mb-2 d-flex justify-content-between align-items-center"
+                    >
                       <label class="small text-muted">Show Icon</label>
                       <div class="form-check form-switch mb-0">
-                        <input class="form-check-input" type="checkbox" checked disabled style="cursor: default;">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          checked
+                          disabled
+                          style="cursor: default"
+                        />
                       </div>
                     </div>
                     <!-- Icon -->
                     <div class="mb-2">
                       <label class="small text-muted mb-1 d-block">Icon</label>
                       <div class="input-group input-group-sm">
-                        <span class="input-group-text"><i class="mdi mdi-lightbulb"></i></span>
-                        <input class="form-control" value="mdi:lightbulb" disabled>
+                        <span class="input-group-text"
+                          ><i class="mdi mdi-lightbulb"></i
+                        ></span>
+                        <input
+                          class="form-control"
+                          value="mdi:lightbulb"
+                          disabled
+                        />
                       </div>
                     </div>
                   </div>
                   <!-- Attributes -->
                   <div class="mb-2">
-                    <div class="small fw-semibold text-muted mb-2">Attributes</div>
-                    <div class="d-flex align-items-center justify-content-between border rounded px-2 py-1 mb-1 small">
-                      <span class="text-monospace" style="font-size: 0.77rem;">brightness</span>
-                      <span class="badge bg-secondary" style="font-size:0.65rem;">num</span>
+                    <div class="small fw-semibold text-muted mb-2">
+                      Attributes
+                    </div>
+                    <div
+                      class="d-flex align-items-center justify-content-between border rounded px-2 py-1 mb-1 small"
+                    >
+                      <span class="text-monospace" style="font-size: 0.77rem"
+                        >brightness</span
+                      >
+                      <span
+                        class="badge bg-secondary"
+                        style="font-size: 0.65rem"
+                        >num</span
+                      >
                     </div>
                     <select class="form-select form-select-sm mt-2" disabled>
                       <option>-- Add attribute --</option>
@@ -868,1309 +1896,39 @@
               </div>
 
               <!-- FAB hidden behind sheet (shown for context) -->
-              <button class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center"
-                style="position: absolute; bottom: 20px; right: 20px; width: 52px; height: 52px; font-size: 1.4rem; z-index: 10; opacity: 0.3;">
+              <button
+                class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center"
+                style="
+                  position: absolute;
+                  bottom: 20px;
+                  right: 20px;
+                  width: 52px;
+                  height: 52px;
+                  font-size: 1.4rem;
+                  z-index: 10;
+                  opacity: 0.3;
+                "
+              >
                 <i class="mdi mdi-plus"></i>
               </button>
             </div>
           </div>
-
         </div>
       </div>
 
-      <footer style="text-align: center; margin-top: 4rem; padding: 2rem; color: #999; border-top: 1px solid #ddd;">
+      <footer
+        style="
+          text-align: center;
+          margin-top: 4rem;
+          padding: 2rem;
+          color: #999;
+          border-top: 1px solid #ddd;
+        "
+      >
         <p><strong>UI/UX Showcase</strong></p>
-        <p style="font-size: 0.875rem;">Desktop & Mobile • Dashboard & Editor • Touch-First Interactions</p>
-      </footer>
-    </div>
-  </body>
-</html>
-
-      <!-- ARCHIVED SECTIONS BELOW - REMOVE -->
-      <div class="card-section d-none" id="menubar-states">
-        <h2 class="mb-4">🎛️ Menubar States: Dashboard View vs Editor View</h2>
-        
-        <div class="row g-4">
-          <!-- Dashboard View - Mobile -->
-          <div class="col-12 col-lg-6">
-            <div class="text-center mb-3 fw-semibold">Dashboard View - Mobile (Living Room selected, icons only)</div>
-            <div class="mx-auto border bg-white rounded-4 overflow-hidden shadow" style="width: 100%; max-width: 375px;">
-              <!-- Navbar: Dashboard Mode (icons only on mobile) -->
-              <nav class="navbar bg-light border-bottom p-2" style="overflow-x: auto;">
-                <div class="d-flex gap-2 w-100" style="white-space: nowrap;">
-                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1" style="font-size: 1.2rem; color: #0078d4; border-bottom: 3px solid #0078d4;" title="Overview">
-                    <i class="mdi mdi-home"></i>
-                  </button>
-                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1 text-muted" style="font-size: 1.2rem;" title="Devices">
-                    <i class="mdi mdi-devices"></i>
-                  </button>
-                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1 text-muted" style="font-size: 1.2rem;" title="Entities">
-                    <i class="mdi mdi-database"></i>
-                  </button>
-                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1 text-muted ms-auto" style="font-size: 1.2rem;" title="Editor">
-                    <i class="mdi mdi-pencil"></i>
-                  </button>
-                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1 text-muted" style="font-size: 1.2rem;" title="Toggle dark mode">
-                    <i class="mdi mdi-moon-waning-crescent"></i>
-                  </button>
-                </div>
-              </nav>
-              <!-- Content Area (Dashboard cards matching real app) -->
-              <div class="p-3" style="min-height: 400px; background: #f8f9fa;">
-                <div class="card p-2 mb-2 shadow-sm border-0" style="background: #fff9e6; border-left: 3px solid #ffbc00; border-radius: 4px;">
-                   <div class="d-flex justify-content-between align-items-center">
-                     <span class="small fw-bold" style="font-size: 0.75rem;">Warning: Internet ping is high</span>
-                     <i class="mdi mdi-alert-circle-outline text-warning"></i>
-                   </div>
-                </div>
-                <div class="card p-2 mb-3 shadow-sm border-0" style="background: #fff2f2; border-left: 3px solid #f44336; border-radius: 4px;">
-                   <div class="d-flex justify-content-between align-items-center">
-                     <span class="small fw-bold" style="font-size: 0.75rem;">Error: API is down</span>
-                     <i class="mdi mdi-alert-circle-outline text-danger"></i>
-                   </div>
-                </div>
-                <div class="card p-3 mb-2 shadow-sm border-0" style="border-radius: 0.75rem;">
-                   <div class="d-flex justify-content-between align-items-center mb-1">
-                     <h6 class="mb-0 fw-bold" style="font-size: 0.85rem;">Vardagsrum</h6>
-                     <i class="mdi mdi-sofa text-success" style="font-size: 1.3rem;"></i>
-                   </div>
-                   <div class="d-flex gap-2 align-items-center text-muted" style="font-size: 0.75rem;">
-                     <i class="mdi mdi-power"></i>
-                     <i class="mdi mdi-lightbulb-outline"></i>
-                     <span class="ms-auto fw-bold">21.9 °C / 43 %</span>
-                   </div>
-                </div>
-                <div class="card p-3 mb-2 shadow-sm border-0" style="border-radius: 0.75rem;">
-                   <div class="d-flex justify-content-between align-items-center mb-1">
-                     <h6 class="mb-0 fw-bold" style="font-size: 0.85rem;">Sällskapsrum</h6>
-                     <i class="mdi mdi-monitor text-warning" style="font-size: 1.3rem;"></i>
-                   </div>
-                   <div class="d-flex gap-2 align-items-center text-muted" style="font-size: 0.75rem;">
-                      <i class="mdi mdi-power"></i>
-                      <i class="mdi mdi-lightbulb-outline"></i>
-                      <span class="ms-auto fw-bold">22.1 °C / 41 %</span>
-                   </div>
-                </div>
-              </div>
-
-          <!-- Editor View -->
-          <div class="col-12 col-lg-6">
-            <div class="text-center mb-3 fw-semibold">Editor View - Mobile (Full screen with Tabbed Sidebar)</div>
-            <div class="mx-auto border bg-white rounded-4 overflow-hidden shadow" style="width: 100%; max-width: 375px; height: 550px; display: flex; flex-direction: column;">
-              <!-- Navbar: Editor View (showing "Editor" selected, icons only) -->
-              <nav class="navbar bg-light border-bottom p-2" style="overflow-x: auto;">
-                <div class="d-flex gap-2" style="white-space: nowrap; width: 100%;">
-                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1 text-muted" style="font-size: 1.2rem;" title="Overview">
-                    <i class="mdi mdi-home"></i>
-                  </button>
-                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1 text-muted" style="font-size: 1.2rem;" title="Living Room">
-                    <i class="mdi mdi-sofa"></i>
-                  </button>
-                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1" style="font-size: 1.2rem; color: #0078d4; border-bottom: 3px solid #0078d4;" title="Editor">
-                    <i class="mdi mdi-pencil"></i>
-                  </button>
-                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1 text-muted ms-auto" style="font-size: 1.2rem;" title="Toggle dark mode">
-                    <i class="mdi mdi-moon-waning-crescent"></i>
-                  </button>
-                </div>
-              </nav>
-
-              <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
-                <!-- Visual Editor Sub-Header -->
-                <div class="p-2 border-bottom bg-white d-flex justify-content-between align-items-center">
-                  <h6 class="mb-0 fw-bold" style="font-size: 0.85rem;">Visual Editor</h6>
-                  <div class="d-flex gap-1">
-                    <button class="btn btn-sm btn-outline-secondary py-0 px-1" title="Undo"><i class="mdi mdi-undo small"></i></button>
-                    <button class="btn btn-sm btn-outline-secondary py-0 px-1 me-1" title="Redo"><i class="mdi mdi-redo small"></i></button>
-                    <button class="btn btn-sm btn-success py-0" title="Save changes">
-                      <i class="mdi mdi-content-save me-1 small"></i><span style="font-size: 0.75rem;">Save</span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- NEW: Tabbed Sidebar on Mobile (showing only Icons) -->
-                <div class="d-flex border-bottom bg-white shadow-sm">
-                  <div class="flex-fill text-center p-2 border-bottom border-primary border-3 bg-light" style="color: #0078d4;">
-                    <i class="mdi mdi-view-list" style="font-size: 1.1rem;"></i>
-                  </div>
-                  <div class="flex-fill text-center p-2 text-muted">
-                    <i class="mdi mdi-database" style="font-size: 1.1rem;"></i>
-                  </div>
-                  <div class="flex-fill text-center p-2 text-muted">
-                    <i class="mdi mdi-shape-plus" style="font-size: 1.1rem;"></i>
-                  </div>
-                </div>
-
-                <!-- Editor Canvas (Center area - Matching real app) -->
-                <div class="px-3" style="flex: 1; min-height: 200px; background: #f8f9fa; position: relative; overflow-y: auto;">
-                   <div class="d-flex gap-2 py-3">
-                     <div class="card p-2 shadow-sm border-0 flex-fill" style="background: #fff9e6; border-left: 3px solid #ffbc00; border-radius: 4px;">
-                       <span class="small fw-bold" style="font-size: 0.65rem;">Warning</span>
-                     </div>
-                     <div class="card p-2 shadow-sm border-0 flex-fill" style="background: #fff2f2; border-left: 3px solid #f44336; border-radius: 4px;">
-                       <span class="small fw-bold" style="font-size: 0.65rem;">Error</span>
-                     </div>
-                   </div>
-
-                   <div class="card p-3 mb-2 shadow-sm border-2 border-primary" style="border-color: #0078d4 !important; border-radius: 0.5rem; position: relative;">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                      <h6 class="mb-0 fw-bold" style="font-size: 0.8rem;">Vardagsrum</h6>
-                      <i class="mdi mdi-sofa text-success" style="font-size: 1.2rem;"></i>
-                    </div>
-                    <div class="d-flex gap-2 align-items-center text-muted" style="font-size: 0.7rem;">
-                      <i class="mdi mdi-power"></i>
-                      <i class="mdi mdi-lightbulb-outline"></i>
-                      <span class="ms-auto fw-bold">21.9 °C</span>
-                    </div>
-                  </div>
-                  
-                  <div class="card p-3 shadow-sm border-1 bg-white opacity-75" style="border-radius: 0.5rem;">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                      <h6 class="mb-0" style="font-size: 0.8rem;">Sällskapsrum</h6>
-                      <i class="mdi mdi-monitor text-warning" style="font-size: 1.2rem;"></i>
-                    </div>
-                    <div class="d-flex gap-2 align-items-center text-muted" style="font-size: 0.7rem;">
-                       <i class="mdi mdi-power"></i>
-                       <span class="ms-auto fw-bold">22.1 °C</span>
-                    </div>
-                  </div>
-
-                  <!-- Floating Action Button -->
-                  <button class="btn btn-primary rounded-circle position-absolute" style="width: 42px; height: 42px; bottom: 15px; right: 15px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
-                    <i class="mdi mdi-plus" style="font-size: 1.2rem;"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- DASHBOARD VIEWS: IPAD (Editor Disabled) -->
-      <div class="card-section" id="dashboard-views">
-        <h2 class="mb-4">🎮 iPad Dashboard View (768px - Editor Disabled)</h2>
-        <p class="text-muted small mb-4">How the dashboard appears on tablet devices with responsive navbar.</p>
-        
-        <div class="mx-auto border border-2 bg-white rounded-4 overflow-hidden shadow" style="width: 100%; max-width: 768px; height: 500px; display: flex; flex-direction: column;">
-          <!-- Navbar -->
-            <div class="text-center mb-3 fw-semibold">iPad Dashboard View (768px - Editor Disabled)</div>
-            <div class="mx-auto border border-2 bg-white rounded-4 overflow-hidden shadow" style="width: 100%; max-width: 768px; height: 500px; display: flex; flex-direction: column;">
-              <!-- Navbar -->
-              <nav class="navbar bg-light border-bottom p-2 d-flex justify-content-between">
-                <div class="d-flex gap-2">
-                  <button class="btn btn-link nav-link text-decoration-none px-2 text-muted" style="font-size: 1.3rem;" title="Overview">
-                    <i class="mdi mdi-home"></i>
-                  </button>
-                  <button class="btn btn-link nav-link text-decoration-none px-2" style="font-size: 1.3rem; color: #0078d4; border-bottom: 3px solid #0078d4;" title="Living Room">
-                    <i class="mdi mdi-sofa"></i> <span class="d-none d-md-inline ms-2 small">Living Room</span>
-                  </button>
-                  <button class="btn btn-link nav-link text-decoration-none px-2 text-muted" style="font-size: 1.3rem;" title="Bedroom">
-                    <i class="mdi mdi-bed"></i> <span class="d-none d-md-inline ms-2 small">Bedroom</span>
-                  </button>
-                </div>
-                <button class="btn btn-link nav-link text-decoration-none px-2 text-muted" style="font-size: 1.3rem;" title="Editor">
-                  <i class="mdi mdi-pencil"></i> <span class="d-none d-md-inline ms-2 small">Editor</span>
-                </button>
-                <button class="btn btn-link nav-link text-decoration-none px-2 text-muted" style="font-size: 1.3rem;" title="Toggle dark mode">
-                  <i class="mdi mdi-moon-waning-crescent"></i>
-                </button>
-              </nav>
-              <!-- Dashboard Content - Grid of Cards -->
-              <div class="p-4" style="flex: 1; overflow-y: auto; background: #f8f9fa; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
-                <div class="card shadow-sm">
-                  <div class="card-body p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div>
-                        <h6 class="card-title mb-0">Main Light</h6>
-                        <small class="text-muted">living room</small>
-                      </div>
-                      <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="l1" checked>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="card shadow-sm">
-                  <div class="card-body p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div>
-                        <h6 class="card-title mb-0">Ceiling Fan</h6>
-                        <small class="text-muted">speed control</small>
-                      </div>
-                      <div>
-                        <button class="btn btn-sm btn-outline-secondary">Low</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="card shadow-sm">
-                  <div class="card-body p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div>
-                        <h6 class="card-title mb-0">Temperature</h6>
-                        <small class="text-muted">22.5°C</small>
-                      </div>
-                      <i class="mdi mdi-thermometer" style="font-size: 1.8rem; color: #28a745;"></i>
-                    </div>
-                  </div>
-                </div>
-                <div class="card shadow-sm">
-                  <div class="card-body p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div>
-                        <h6 class="card-title mb-0">Humidity</h6>
-                        <small class="text-muted">65%</small>
-                      </div>
-                      <i class="mdi mdi-water-percent" style="font-size: 1.8rem; color: #0078d4;"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- DESIGN PROTOTYPE: MOBILE EDITOR & DIALOGS -->
-      <div class="card-section" id="mobile-ui-prototypes">
-        <h2 class="mb-4">📱 Mobile Editor Prototypes (Editor View & Dialogs)</h2>
-        
-        <div class="row g-4">
-          <!-- Desktop vs Mobile Comparison -->
-          <div class="col-12">
-            <div class="card bg-light border-0">
-              <div class="card-body">
-                <h5 class="card-title mb-3">Editor Strategy: Responsive Sidepanel -> Bottom Sheet</h5>
-                <p class="small text-muted mb-4">On mobile, the sidepanel is too narrow (see example below). We propose a slide-up "Bottom Sheet" instead.</p>
-                
-                <div class="row g-4 justify-content-center">
-                  <!-- iPhone View (320px) -->
-                  <div class="col-md-4 col-lg-3">
-                    <div class="text-center mb-2 fw-semibold" style="font-size: 0.9rem;">iPhone (320px)</div>
-                    <div class="mx-auto border border-2 bg-white rounded-4 overflow-hidden shadow-sm" style="width: 320px; height: 500px; display: flex; flex-direction: column; border-color: #ddd;">
-                      <!-- Header -->
-                      <div class="p-2 border-bottom bg-light d-flex justify-content-between align-items-center" style="font-size: 9px;">
-                        <span class="fw-bold">Editor</span>
-                        <button class="btn btn-sm btn-success" style="padding: 2px 6px; font-size: 7px;">Save</button>
-                      </div>
-                      <!-- Three-column layout at 320px width = L:77px, C:160px, R:77px -->
-                      <div style="display: flex; flex: 1; font-size: 8px; overflow: hidden;">
-                        <!-- Left Panel: 24% (~77px) - CRAMPED -->
-                        <div style="width: 24%; border-right: 1px solid #ddd; background: #f8f9fa; padding: 6px; overflow: hidden; font-size: 6px;">
-                          <div class="fw-bold mb-1" style="font-size: 6px;">Views</div>
-                          <small class="text-muted">Living</small><br>
-                          <small class="text-muted">Bed</small><br>
-                          <hr class="my-1" style="margin: 0.25rem 0; border-width: 1px;">
-                          <div class="fw-bold mb-1" style="font-size: 6px;">Entities</div>
-                          <small class="text-muted" style="overflow: hidden; display: block; width: 100%;">l.1</small>
-                        </div>
-                        <!-- Center Canvas: 50% (~160px) - READABLE -->
-                        <div style="width: 50%; background: #f8f9fa; padding: 6px; border-right: 1px solid #ddd; overflow: auto;">
-                          <div class="card p-1 mb-1 border" style="font-size: 7px; border-radius: 3px;">
-                            <i class="mdi" style="font-size: 10px;">💡</i> L1
-                          </div>
-                          <div class="card p-1 mb-1 border" style="font-size: 7px; border-radius: 3px;">
-                            <i class="mdi" style="font-size: 10px;">🔌</i> S2
-                          </div>
-                        </div>
-                        <!-- Right Panel: 24% (~77px) - CRAMPED -->
-                        <div style="width: 24%; background: white; padding: 6px; overflow: hidden; font-size: 6px;">
-                          <div class="fw-bold mb-1" style="font-size: 6px;">Insp</div>
-                          <small class="text-muted">ID:</small><br>
-                          <small style="word-break: break-all; font-size: 5px;">light</small>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="text-center mt-2" style="font-size: 0.75rem; color: #dc3545;">
-                      ❌ Left & Right panels are unreadable
-                    </div>
-                  </div>
-
-                  <!-- iPad View (768px) -->
-                  <div class="col-md-4 col-lg-3">
-                    <div class="text-center mb-2 fw-semibold" style="font-size: 0.9rem;">iPad (768px)</div>
-                    <div class="mx-auto border border-2 bg-white rounded-4 overflow-hidden shadow-sm" style="width: 384px; height: 500px; display: flex; flex-direction: column; border-color: #ddd;">
-                      <!-- Header -->
-                      <div class="p-2 border-bottom bg-light d-flex justify-content-between align-items-center" style="font-size: 11px;">
-                        <span class="fw-bold">Editor</span>
-                        <button class="btn btn-sm btn-success" style="padding: 3px 8px; font-size: 8px;">Save</button>
-                      </div>
-                      <!-- Three-column layout at 768px width = L:184px, C:384px, R:184px -->
-                      <div style="display: flex; flex: 1; font-size: 10px; overflow: hidden;">
-                        <!-- Left Panel: 24% (~184px) - OK -->
-                        <div style="width: 24%; border-right: 1px solid #ddd; background: #f8f9fa; padding: 8px; overflow-y: auto; font-size: 9px;">
-                          <div class="fw-bold mb-2" style="font-size: 9px;">Views</div>
-                          <small class="text-muted d-block">Living Room</small>
-                          <small class="text-muted d-block">Bedroom</small>
-                          <small class="text-muted d-block">Kitchen</small>
-                          <hr class="my-2" style="border-width: 1px;">
-                          <div class="fw-bold mb-1" style="font-size: 9px;">Entities</div>
-                          <small class="text-muted d-block">light.living</small>
-                          <small class="text-muted d-block">switch.fan</small>
-                        </div>
-                        <!-- Center Canvas: 50% (~384px) - GOOD -->
-                        <div style="width: 50%; background: #f8f9fa; padding: 8px; border-right: 1px solid #ddd; overflow: auto;">
-                          <div class="card p-2 mb-1 border" style="font-size: 9px; border-radius: 4px;">
-                            💡 Living Room Light
-                          </div>
-                          <div class="card p-2 mb-1 border" style="font-size: 9px; border-radius: 4px;">
-                            🔌 Kitchen Switch
-                          </div>
-                        </div>
-                        <!-- Right Panel: 24% (~184px) - OK -->
-                        <div style="width: 24%; background: white; padding: 8px; overflow: auto; font-size: 8px;">
-                          <div class="fw-bold mb-2" style="font-size: 9px;">Inspector</div>
-                          <small class="text-muted">Entity ID:</small><br>
-                          <small class="text-monospace">light.living</small><br>
-                          <small class="text-muted mt-2 d-block">Type: Light</small>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="text-center mt-2" style="font-size: 0.75rem; color: #28a745;">
-                      ✓ Workable but still not ideal
-                    </div>
-                  </div>
-
-                  <!-- Desktop View (1024px) -->
-                  <div class="col-md-4 col-lg-3">
-                    <div class="text-center mb-2 fw-semibold" style="font-size: 0.9rem;">Desktop (1024px)</div>
-                    <div class="mx-auto border border-2 bg-white rounded-4 overflow-hidden shadow-sm" style="width: 512px; height: 500px; display: flex; flex-direction: column; border-color: #ddd;">
-                      <!-- Header -->
-                      <div class="p-2 border-bottom bg-light d-flex justify-content-between align-items-center" style="font-size: 12px;">
-                        <span class="fw-bold">Visual Editor</span>
-                        <button class="btn btn-sm btn-success" style="padding: 4px 10px; font-size: 9px;">Save Changes</button>
-                      </div>
-                      <!-- Three-column layout at 1024px width = L:246px, C:512px, R:246px -->
-                      <div style="display: flex; flex: 1; font-size: 11px; overflow: hidden;">
-                        <!-- Left Panel: 24% (~246px) - COMFORTABLE -->
-                        <div style="width: 24%; border-right: 1px solid #ddd; background: #f8f9fa; padding: 12px; overflow-y: auto; font-size: 10px;">
-                          <div class="fw-bold mb-3" style="font-size: 10px;">Views</div>
-                          <small class="text-muted d-block mb-1">Living Room</small>
-                          <small class="text-muted d-block mb-1">Bedroom</small>
-                          <small class="text-muted d-block mb-1">Kitchen</small>
-                          <small class="text-muted d-block mb-3">Bathroom</small>
-                          <hr class="my-3" style="border-width: 1px;">
-                          <div class="fw-bold mb-2" style="font-size: 10px;">Entities</div>
-                          <small class="text-muted d-block mb-1">light.living_room</small>
-                          <small class="text-muted d-block mb-1">switch.kitchen_fan</small>
-                          <small class="text-muted d-block mb-1">climate.thermostat</small>
-                        </div>
-                        <!-- Center Canvas: 50% (~512px) - EXCELLENT -->
-                        <div style="width: 50%; background: #f8f9fa; padding: 12px; border-right: 1px solid #ddd; overflow: auto;">
-                          <div class="card p-3 mb-2 border shadow-sm" style="font-size: 10px; border-radius: 6px;">
-                            💡 Living Room Light
-                          </div>
-                          <div class="card p-3 mb-2 border shadow-sm" style="font-size: 10px; border-radius: 6px;">
-                            🔌 Kitchen Switch
-                          </div>
-                          <div class="card p-3 mb-2 border shadow-sm" style="font-size: 10px; border-radius: 6px;">
-                            🌡️ Thermostat
-                          </div>
-                        </div>
-                        <!-- Right Panel: 24% (~246px) - COMFORTABLE -->
-                        <div style="width: 24%; background: white; padding: 12px; overflow-y: auto; font-size: 9px;">
-                          <div class="fw-bold mb-3" style="font-size: 10px;">Entity Inspector</div>
-                          <div class="mb-3">
-                            <small class="text-muted">Entity ID:</small><br>
-                            <small class="text-monospace">light.living_room</small>
-                          </div>
-                          <div class="mb-3">
-                            <small class="text-muted">Component Type:</small><br>
-                            <small>HaLight</small>
-                          </div>
-                          <div class="mb-3">
-                            <small class="text-muted">Card Title:</small><br>
-                            <input type="text" class="form-control form-control-sm" value="Living Room" style="font-size: 8px;">
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="text-center mt-2" style="font-size: 0.75rem; color: #0078d4;">
-                      ✅ Optimal - All panels readable
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Proposed Solution: Bottom Sheet -->
-                <div class="row g-4 justify-content-center mt-5">
-                  <div class="col-md-6 col-lg-4">
-                    <div class="text-center mb-2 fw-semibold">Proposed (Mobile-First) Bottom Sheet</div>
-                    <div class="mx-auto border bg-white rounded-4 overflow-hidden shadow-sm position-relative" style="width: 320px; height: 500px;">
-                      <!-- Canvas gets full width -->
-                      <div class="w-100 h-100 bg-light p-3">
-                        <div class="alert alert-info p-2 small mb-3">Fully visible editor canvas</div>
-                        <div class="card p-2 mb-2 shadow-sm border-primary" style="border-width: 2px !important">
-                          <div class="d-flex align-items-center">
-                            <i class="mdi mdi-lightbulb-on text-warning me-2"></i>
-                            <span class="small">Living Room Light</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Bottom Sheet Dialog -->
-                      <div class="position-absolute bottom-0 start-0 w-100 bg-white shadow-lg border-top" style="height: 60%; border-radius: 20px 20px 0 0; z-index: 10;">
-                        <!-- Drag Handle -->
-                        <div class="p-2 text-center">
-                          <div style="width: 40px; height: 5px; background: #e0e0e0; border-radius: 5px; margin: 0 auto;"></div>
-                        </div>
-                        <div class="px-4 py-3">
-                          <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="fw-bold mb-0">Edit Entity</h6>
-                            <button class="btn-close btn-sm"></button>
-                          </div>
-                          
-                          <div class="mb-3">
-                            <label class="form-label small text-muted">Entity ID</label>
-                            <input type="text" class="form-control form-control-sm border-0 border-bottom rounded-0" value="light.living_room_1">
-                          </div>
-                          
-                          <div class="mb-3">
-                            <label class="form-label small text-muted">Display Name</label>
-                            <input type="text" class="form-control form-control-sm border-0 border-bottom rounded-0" value="Living Room Main">
-                          </div>
-
-                          <div class="mt-4">
-                            <button class="btn btn-primary w-100 rounded-pill">Apply Changes</button>
-                            <button class="btn btn-link btn-sm w-100 text-muted mt-2 text-decoration-none">Cancel</button>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Backdrop (Simulated) -->
-                      <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0,0,0,0.25); z-index: 5;"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Interaction Pattern Detail -->
-          <div class="col-md-6 text-start">
-            <h5>Interaction Pattern</h5>
-            <div class="list-group list-group-flush small">
-              <div class="list-group-item d-flex align-items-start gap-2 bg-transparent">
-                <i class="mdi mdi-gesture-tap-box text-primary h5"></i>
-                <div>
-                  <strong>Single Tap (Selection)</strong><br>
-                  Selects the entity for dragging/moving. Shows selection border.
-                </div>
-              </div>
-              <div class="list-group-item d-flex align-items-start gap-2 bg-transparent">
-                <i class="mdi mdi-gesture-double-tap text-primary h5"></i>
-                <div>
-                  <strong>Double Tap (Editor)</strong><br>
-                  Triggers the Bottom Sheet editor for the selected entity.
-                </div>
-              </div>
-              <div class="list-group-item d-flex align-items-start gap-2 bg-transparent">
-                <i class="mdi mdi-gesture-swipe-down text-primary h5"></i>
-                <div>
-                  <strong>Swipe Down</strong><br>
-                  Closes the inspector bottom sheet (iOS native feel).
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Component Variant: Full Screen Modal -->
-          <div class="col-md-6 text-start">
-            <h5>Dialog Variants</h5>
-            <div class="p-4 border rounded-4 bg-white shadow-sm text-center">
-              <p class="text-muted small mb-3">Complex settings (e.g. Energy Chart Setup) will use a full-screen modal with a native "Done" button at the top right.</p>
-              <div class="mx-auto border bg-white rounded-4 overflow-hidden position-relative shadow-sm" style="width: 140px; height: 220px;">
-                <div class="p-2 border-bottom d-flex justify-content-between bg-light">
-                  <span style="font-size: 8px;">Settings</span>
-                  <span class="text-primary fw-bold" style="font-size: 8px;">Done</span>
-                </div>
-                <div class="p-2" style="font-size: 7px;">Energy Chart</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- MOBILE-FIRST EDITOR UI EXAMPLES (Real Code Examples) -->
-      <hr class="my-5">
-      <div class="card-section" id="mobile-editor-real-examples">
-        <h2 class="mb-4">📱 Mobile Editor UI (Real Component Examples)</h2>
-        <p class="text-muted mb-4">These examples show how the actual VisualEditorView components should render on mobile.</p>
-        
-        <!-- Example 1: Mobile Editor Canvas with Bottom Sheet Inspector -->
-        <div class="card bg-light border-0 mb-4">
-          <div class="card-body">
-            <h5 class="card-title">1. Editor on Mobile: Full-Width Canvas + Bottom Sheet Inspector</h5>
-            <p class="text-muted small mb-3">On screens < 992px, the three-panel layout is replaced with:</p>
-            <ul class="small text-muted mb-3">
-              <li>Canvas takes 100% width</li>
-              <li>Left panel (EntityPalette) is hidden</li>
-              <li>Right panel (Inspector) appears as a Bottom Sheet when entity is selected</li>
-              <li>Resize handles are removed</li>
-            </ul>
-            
-            <div class="mx-auto" style="max-width: 380px;">
-              <div class="border rounded-4 bg-white overflow-hidden shadow-lg position-relative" style="height: 600px;">
-                <!-- Mobile Header -->
-                <div class="bg-light border-bottom p-2 d-flex justify-content-between align-items-center" style="height: 50px;">
-                  <h6 class="mb-0">Visual Editor</h6>
-                  <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-success">Save</button>
-                  </div>
-                </div>
-
-                <!-- Full Width Canvas -->
-                <div class="w-100 p-3" style="height: 400px; overflow-y: auto; background: #f8f9fa;">
-                  <!-- Card 1: Light (normal) -->
-                  <div class="card mb-2 p-2" style="border: 1px solid #dee2e6; cursor: grab;">
-                    <div class="d-flex align-items-center justify-content-between">
-                      <div class="d-flex align-items-center gap-2">
-                        <i class="mdi mdi-lightbulb" style="color: #ff9800;"></i>
-                        <span class="small fw-bold">Living Room Light</span>
-                      </div>
-                      <small class="text-muted">light.living_room</small>
-                    </div>
-                  </div>
-
-                  <!-- Card 2: Climate (normal) -->
-                  <div class="card mb-2 p-2" style="border: 1px solid #dee2e6; cursor: grab;">
-                    <div class="d-flex align-items-center justify-content-between">
-                      <div class="d-flex align-items-center gap-2">
-                        <i class="mdi mdi-thermostat" style="color: #ff6b6b;"></i>
-                        <span class="small fw-bold">Climate Control</span>
-                      </div>
-                      <small class="text-muted">climate.living_room</small>
-                    </div>
-                  </div>
-
-                  <!-- Card 3: Sensor (SELECTED - highlighted) -->
-                  <div class="card p-2" style="border: 2px solid #0d6efd; background: #f0f7ff; cursor: grab;">
-                    <div class="d-flex align-items-center justify-content-between">
-                      <div class="d-flex align-items-center gap-2">
-                        <i class="mdi mdi-thermometer" style="color: #0d6efd;"></i>
-                        <span class="small fw-bold">Temperature Sensor</span>
-                      </div>
-                      <small class="text-muted">sensor.temperature</small>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Bottom Sheet Inspector (Visible) -->
-                <div class="position-absolute bottom-0 start-0 w-100 bg-white shadow-lg" style="height: 45%; border-radius: 16px 16px 0 0; z-index: 100; display: flex; flex-direction: column; border-top: 1px solid #e9ecef;">
-                  <!-- Drag Handle -->
-                  <div class="p-2 text-center border-bottom">
-                    <div style="width: 40px; height: 4px; background: #d0d0d0; border-radius: 2px; margin: 0 auto;"></div>
-                  </div>
-
-                  <!-- Inspector Content -->
-                  <div class="p-3 overflow-y-auto flex-grow-1">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                      <h6 class="mb-0 fw-bold">Entity Inspector</h6>
-                      <button class="btn-close btn-sm"></button>
-                    </div>
-
-                    <!-- Entity ID (Read-only) -->
-                    <div class="mb-3">
-                      <label class="form-label small text-muted"><strong>Entity ID</strong></label>
-                      <div style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; font-family: monospace; font-size: 0.75rem;">
-                        sensor.temperature
-                      </div>
-                    </div>
-
-                    <!-- Component Type (Dropdown) -->
-                    <div class="mb-3">
-                      <label class="form-label small text-muted"><strong>Component Type</strong></label>
-                      <select class="form-select form-select-sm">
-                        <option selected>HaSensor (Recommended)</option>
-                        <option>HaGauge</option>
-                      </select>
-                    </div>
-
-                    <!-- Card Title (Editable) -->
-                    <div class="mb-3">
-                      <label class="form-label small text-muted"><strong>Card Title</strong></label>
-                      <input type="text" class="form-control form-control-sm" value="Living Room Temperature">
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="d-grid gap-2">
-                      <button class="btn btn-primary btn-sm">Save Entity</button>
-                      <button class="btn btn-outline-danger btn-sm">Remove Entity</button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Backdrop -->
-                <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0,0,0,0.2); z-index: 50; pointer-events: none;"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Example 2: View Management Modal -->
-        <div class="card bg-light border-0 mb-4">
-          <div class="card-body">
-            <h5 class="card-title">2. View Management On Mobile</h5>
-            <p class="text-muted small mb-3">List of views and their controls appear in a bottom sheet modal:</p>
-            
-            <div class="mx-auto" style="max-width: 380px;">
-              <div class="border rounded-4 bg-white overflow-hidden shadow-lg" style="height: 500px; display: flex; flex-direction: column;">
-                <!-- Modal Header -->
-                <div class="bg-primary text-white p-3 d-flex justify-content-between align-items-center">
-                  <h6 class="mb-0 fw-bold">Manage Views</h6>
-                  <button class="btn btn-close btn-close-white btn-sm"></button>
-                </div>
-
-                <!-- Scrollable List -->
-                <div class="flex-grow-1 overflow-y-auto">
-                  <!-- View Item 1 -->
-                  <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center gap-2 flex-grow-1">
-                      <i class="mdi mdi-drag text-muted"></i>
-                      <div>
-                        <div class="small fw-bold">Living Room</div>
-                        <div class="text-muted" style="font-size: 0.75rem;">4 entities • Last edited: 2 hours ago</div>
-                      </div>
-                    </div>
-                    <button class="btn btn-sm btn-outline-secondary">Edit</button>
-                  </div>
-
-                  <!-- View Item 2 -->
-                  <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center gap-2 flex-grow-1">
-                      <i class="mdi mdi-drag text-muted"></i>
-                      <div>
-                        <div class="small fw-bold">Kitchen</div>
-                        <div class="text-muted" style="font-size: 0.75rem;">3 entities • Last edited: 1 day ago</div>
-                      </div>
-                    </div>
-                    <button class="btn btn-sm btn-outline-secondary">Edit</button>
-                  </div>
-
-                  <!-- View Item 3 (Selected) -->
-                  <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #f0f7ff; border-left: 3px solid #0d6efd;">
-                    <div class="d-flex align-items-center gap-2 flex-grow-1">
-                      <i class="mdi mdi-drag text-primary"></i>
-                      <div>
-                        <div class="small fw-bold">Bedroom</div>
-                        <div class="text-muted" style="font-size: 0.75rem;">2 entities • Last edited: moments ago</div>
-                      </div>
-                    </div>
-                    <button class="btn btn-sm btn-primary">Edit</button>
-                  </div>
-
-                  <!-- View Item 4 -->
-                  <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center gap-2 flex-grow-1">
-                      <i class="mdi mdi-drag text-muted"></i>
-                      <div>
-                        <div class="small fw-bold">Bathroom</div>
-                        <div class="text-muted" style="font-size: 0.75rem;">1 entity • Last edited: 3 days ago</div>
-                      </div>
-                    </div>
-                    <button class="btn btn-sm btn-outline-secondary">Edit</button>
-                  </div>
-                </div>
-
-                <!-- Footer Action Button -->
-                <div class="p-3 border-top bg-light">
-                  <button class="btn btn-outline-primary w-100 btn-sm">
-                    <i class="mdi mdi-plus me-1"></i> Create New View
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Example 3: Mobile Gesture Reference Card -->
-        <div class="card bg-light border-0 mb-4">
-          <div class="card-body">
-            <h5 class="card-title">3. Mobile Gestures & Interactions</h5>
-            
-            <div class="row g-3">
-              <div class="col-md-6">
-                <div class="card border-0">
-                  <div class="card-body">
-                    <div class="d-flex align-items-start gap-2 mb-3">
-                      <i class="mdi mdi-gesture-tap bg-primary text-white p-2 rounded" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;"></i>
-                      <div>
-                        <h6 class="card-title">Single Tap: Select</h6>
-                        <p class="small text-muted">Tap a card to select it. Shows blue highlight border.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="card border-0">
-                  <div class="card-body">
-                    <div class="d-flex align-items-start gap-2 mb-3">
-                      <i class="mdi mdi-gesture-double-tap bg-primary text-white p-2 rounded" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;"></i>
-                      <div>
-                        <h6 class="card-title">Double Tap: Open Inspector</h6>
-                        <p class="small text-muted">Double-tap to open the entity inspector bottom sheet.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="card border-0">
-                  <div class="card-body">
-                    <div class="d-flex align-items-start gap-2 mb-3">
-                      <i class="mdi mdi-gesture-swipe-up bg-primary text-white p-2 rounded" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;"></i>
-                      <div>
-                        <h6 class="card-title">Long Press: Drag Handle</h6>
-                        <p class="small text-muted">Long-press a card to enable dragging for reordering.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="card border-0">
-                  <div class="card-body">
-                    <div class="d-flex align-items-start gap-2 mb-3">
-                      <i class="mdi mdi-gesture-swipe-down bg-primary text-white p-2 rounded" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;"></i>
-                      <div>
-                        <h6 class="card-title">Swipe Down: Close Inspector</h6>
-                        <p class="small text-muted">Swipe down on the bottom sheet to close the inspector.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Example 4: Large Dialog with Scrollable Content (EntityInspector with many properties) -->
-        <div class="card bg-light border-0 mb-4">
-          <div class="card-body">
-            <h5 class="card-title mb-3">4. Large Inspector with Scrollable Content (Real EntityInspector Layout)</h5>
-            <p class="text-muted small mb-4">When editing a complex card type with many properties, the bottom sheet becomes scrollable. The header and action buttons remain sticky.</p>
-            
-            <div class="mx-auto" style="max-width: 380px;">
-              <div class="border rounded-4 bg-white overflow-hidden shadow-lg position-relative" style="height: 600px; display: flex; flex-direction: column;">
-                
-                <!-- Sticky Header -->
-                <div class="p-3 border-bottom bg-white" style="flex-shrink: 0; z-index: 10;">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="mb-0 fw-bold">Entity Inspector</h6>
-                    <button class="btn-close btn-sm"></button>
-                  </div>
-                  <p class="text-muted small mb-0">light.living_room</p>
-                </div>
-
-                <!-- Scrollable Content Area -->
-                <div class="p-3 overflow-y-auto flex-grow-1" style="background: #fafbfc;">
-                  
-                  <!-- Section: Entity Display -->
-                  <div class="mb-4">
-                    <div class="small text-muted fw-bold mb-2">Entity ID</div>
-                    <div style="background: #f0f0f0; padding: 0.5rem; border-radius: 4px; font-family: monospace; font-size: 0.75rem; word-break: break-all;">
-                      light.living_room
-                    </div>
-                  </div>
-
-                  <!-- Section: Component Type -->
-                  <div class="mb-4">
-                    <label class="form-label small fw-bold">Component Type</label>
-                    <select class="form-select form-select-sm">
-                      <option selected>HaLight (Default)</option>
-                      <option>HaSwitch</option>
-                      <option>HaGauge</option>
-                    </select>
-                  </div>
-
-                  <!-- Section: Properties (Many fields) -->
-                  <div class="mb-4">
-                    <div class="small text-muted fw-bold mb-2">Properties</div>
-                    
-                    <!-- Property 1 -->
-                    <div class="mb-3">
-                      <label class="form-label small">Card Title</label>
-                      <input type="text" class="form-control form-control-sm" value="Living Room Main Light" placeholder="Optional title">
-                    </div>
-
-                    <!-- Property 2 -->
-                    <div class="mb-3">
-                      <label class="form-label small">Show Icon</label>
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="showIcon" checked>
-                        <label class="form-check-label small" for="showIcon">Display entity icon</label>
-                      </div>
-                    </div>
-
-                    <!-- Property 3 -->
-                    <div class="mb-3">
-                      <label class="form-label small">Icon Override</label>
-                      <input type="text" class="form-control form-control-sm" value="" placeholder="e.g., mdi:ceiling-light">
-                    </div>
-
-                    <!-- Property 4 -->
-                    <div class="mb-3">
-                      <label class="form-label small">Color Temperature Control</label>
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="colorTemp">
-                        <label class="form-check-label small" for="colorTemp">Enable brightness & color temp sliders</label>
-                      </div>
-                    </div>
-
-                    <!-- Property 5 -->
-                    <div class="mb-3">
-                      <label class="form-label small">Color Presets</label>
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="presets" checked>
-                        <label class="form-check-label small" for="presets">Show color preset buttons</label>
-                      </div>
-                    </div>
-
-                    <!-- Property 6 -->
-                    <div class="mb-3">
-                      <label class="form-label small">Layout Style</label>
-                      <select class="form-select form-select-sm">
-                        <option selected>Auto (Default)</option>
-                        <option>Compact</option>
-                        <option>Extended</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <!-- Section: Attributes (Many available attributes) -->
-                  <div class="mb-4">
-                    <div class="small text-muted fw-bold mb-2">Attributes <span class="badge bg-secondary">3 selected</span></div>
-                    
-                    <!-- Attribute 1 -->
-                    <div class="mb-2 d-flex justify-content-between align-items-center p-2 bg-white rounded border">
-                      <div>
-                        <span class="small fw-bold">brightness</span>
-                        <span class="badge bg-light text-dark ms-1" style="font-size: 0.65rem;">number</span>
-                      </div>
-                      <button class="btn btn-sm btn-outline-danger" title="Remove">
-                        <i class="mdi mdi-trash-can" style="font-size: 0.9rem;"></i>
-                      </button>
-                    </div>
-
-                    <!-- Attribute 2 -->
-                    <div class="mb-2 d-flex justify-content-between align-items-center p-2 bg-white rounded border">
-                      <div>
-                        <span class="small fw-bold">color_temp_kelvin</span>
-                        <span class="badge bg-light text-dark ms-1" style="font-size: 0.65rem;">number</span>
-                      </div>
-                      <button class="btn btn-sm btn-outline-danger" title="Remove">
-                        <i class="mdi mdi-trash-can" style="font-size: 0.9rem;"></i>
-                      </button>
-                    </div>
-
-                    <!-- Attribute 3 -->
-                    <div class="mb-2 d-flex justify-content-between align-items-center p-2 bg-white rounded border">
-                      <div>
-                        <span class="small fw-bold">effect_list</span>
-                        <span class="badge bg-light text-dark ms-1" style="font-size: 0.65rem;">array</span>
-                      </div>
-                      <button class="btn btn-sm btn-outline-danger" title="Remove">
-                        <i class="mdi mdi-trash-can" style="font-size: 0.9rem;"></i>
-                      </button>
-                    </div>
-
-                    <!-- Add More Attributes -->
-                    <div class="mt-2">
-                      <label class="form-label small">Add Attribute</label>
-                      <select class="form-select form-select-sm">
-                        <option value="">-- Select an attribute --</option>
-                        <option value="color">color</option>
-                        <option value="effect">effect</option>
-                        <option value="xy_color">xy_color</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Sticky Footer (Action Buttons) -->
-                <div class="p-3 border-top bg-white d-grid gap-2" style="flex-shrink: 0; z-index: 10;">
-                  <button class="btn btn-primary btn-sm">
-                    <i class="mdi mdi-content-save me-1"></i> Save Changes
-                  </button>
-                  <button class="btn btn-outline-danger btn-sm">
-                    <i class="mdi mdi-trash-can me-1"></i> Remove Entity
-                  </button>
-                  <button class="btn btn-link btn-sm text-muted">
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Explanation -->
-            <div class="mt-4 p-4 bg-white rounded-4 border">
-              <h6 class="mb-2">Key Design Patterns for Large Dialogs:</h6>
-              <ul class="small mb-0">
-                <li><strong>Sticky Header:</strong> Title and entity info stay visible when scrolling content</li>
-                <li><strong>Sticky Footer:</strong> Action buttons (Save, Delete, Cancel) remain accessible</li>
-                <li><strong>Scrollable Middle:</strong> All form sections (Properties, Attributes) scroll independently</li>
-                <li><strong>Visual Sections:</strong> Grouped form fields with clear spacing and labels</li>
-                <li><strong>Touch-Friendly Buttons:</strong> Minimum 44px height for mobile tap targets</li>
-                <li><strong>Icon Badges:</strong> Attribute types are clearly labeled (number, string, array, etc.)</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <!-- Example 5: Left Panel (ViewManager & EntityPalette) on Mobile -->
-        <div class="card bg-light border-0 mb-4">
-          <div class="card-body">
-            <h5 class="card-title mb-3">5. Left Panel on Mobile: Hidden by Default, Accessible via UI</h5>
-            <p class="text-muted small mb-4">On mobile, the left panel (ViewManager, EntityPalette, StaticComponentPalette) is hidden to maximize canvas space. Access it via header dropdown and floating action button.</p>
-            
-            <div class="row g-4">
-              <!-- Header Option: View Selector with Settings Icon -->
-              <div class="col-md-6">
-                <h6 class="mb-3">View Selector Dropdown (Header)</h6>
-                <div class="mx-auto border rounded-4 bg-white overflow-hidden shadow-lg" style="max-width: 380px;">
-                  <!-- Header with View Selector -->
-                  <div class="bg-light border-bottom p-3 d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">Visual Editor</h6>
-                    <div class="d-flex gap-2">
-                      <!-- View Selector Dropdown -->
-                      <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="viewDropdown" data-bs-toggle="dropdown">
-                          <i class="mdi mdi-home"></i> Living Room
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="viewDropdown">
-                          <li><a class="dropdown-item active" href="#"><i class="mdi mdi-home"></i> Living Room</a></li>
-                          <li><a class="dropdown-item" href="#"><i class="mdi mdi-bed"></i> Bedroom</a></li>
-                          <li><a class="dropdown-item" href="#"><i class="mdi mdi-silverware-fork-knife"></i> Kitchen</a></li>
-                          <li><hr class="dropdown-divider"></li>
-                          <li><a class="dropdown-item text-primary" href="#"><i class="mdi mdi-plus"></i> New View</a></li>
-                        </ul>
-                      </div>
-                      <button class="btn btn-success btn-sm">Save</button>
-                    </div>
-                  </div>
-
-                  <!-- Full-Width Canvas -->
-                  <div class="p-3" style="background: #f8f9fa; height: 350px; overflow-y: auto;">
-                    <div class="card mb-2 p-2" style="border: 1px solid #dee2e6;">
-                      <div class="d-flex align-items-center gap-2">
-                        <i class="mdi mdi-lightbulb" style="color: #ff9800;"></i>
-                        <span class="small fw-bold">Main Light</span>
-                      </div>
-                    </div>
-                    <div class="card p-2" style="border: 2px solid #0d6efd; background: #f0f7ff;">
-                      <div class="d-flex align-items-center gap-2">
-                        <i class="mdi mdi-fan"></i>
-                        <span class="small fw-bold">Ceiling Fan</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Floating Action Button (FAB) Option -->
-              <div class="col-md-6">
-                <h6 class="mb-3">Floating Action Button (FAB) + Offcanvas</h6>
-                <div class="mx-auto border rounded-4 bg-white overflow-hidden shadow-lg" style="max-width: 380px; position: relative;">
-                  <!-- Header with Menu Button -->
-                  <div class="bg-light border-bottom p-3 d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">Visual Editor</h6>
-                    <div class="d-flex gap-2">
-                      <!-- Menu Button -->
-                      <button class="btn btn-sm btn-outline-secondary">
-                        <i class="mdi mdi-plus"></i> Add Entity
-                      </button>
-                      <button class="btn btn-success btn-sm">Save</button>
-                    </div>
-                  </div>
-
-                  <!-- Canvas with FAB -->
-                  <div class="p-3" style="background: #f8f9fa; height: 350px; overflow-y: auto; position: relative;">
-                    <div class="card mb-2 p-2" style="border: 1px solid #dee2e6;">
-                      <div class="d-flex align-items-center gap-2">
-                        <i class="mdi mdi-lightbulb" style="color: #ff9800;"></i>
-                        <span class="small fw-bold">Living Room Light</span>
-                      </div>
-                    </div>
-                    <div class="card mb-2 p-2" style="border: 1px solid #dee2e6;">
-                      <div class="d-flex align-items-center gap-2">
-                        <i class="mdi mdi-thermostat" style="color: #ff6b6b;"></i>
-                        <span class="small fw-bold">Thermostat</span>
-                      </div>
-                    </div>
-
-                    <!-- Floating Action Button (FAB) -->
-                    <button class="btn btn-primary btn-sm rounded-circle position-absolute" style="bottom: 20px; right: 20px; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-                      <i class="mdi mdi-plus" style="font-size: 1.5rem;"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Entity Palette Slide-out (Offcanvas) -->
-            <div class="mt-4 border rounded-4 p-4" style="background: #fff3cd;">
-              <h6 class="mb-3"><i class="mdi mdi-lightbulb-plus-outline"></i> Entity Palette: Slide-out Offcanvas</h6>
-              <p class="small text-muted mb-3">When the user taps "+ Add Entity" or the FAB, the EntityPalette slides in from the left as an offcanvas drawer.</p>
-
-              <div class="row g-3">
-                <!-- Offcanvas Overlay -->
-                <div class="col-md-6">
-                  <div class="border rounded-4 bg-white overflow-hidden shadow-lg position-relative" style="max-width: 380px; height: 450px;">
-                    <!-- Canvas with dimmed overlay -->
-                    <div style="background: #f8f9fa; height: 100%; opacity: 0.5; display: flex; align-items: center; justify-content: center; color: #999;">
-                      Editor Canvas (Dimmed)
-                    </div>
-                    <!-- Offcanvas from left -->
-                    <div class="position-absolute start-0 top-0 h-100 bg-white shadow-lg" style="width: 280px; border-radius: 0 16px 16px 0; z-index: 100; display: flex; flex-direction: column;">
-                      <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="flex-shrink: 0;">
-                        <h6 class="mb-0">Add Entity</h6>
-                        <button class="btn-close btn-sm"></button>
-                      </div>
-                      <div class="p-3 overflow-y-auto flex-grow-1">
-                        <!-- Search -->
-                        <div class="mb-3">
-                          <input type="text" class="form-control form-control-sm" placeholder="Search...">
-                        </div>
-                        <!-- Available Entities -->
-                        <div class="small">
-                          <div class="mb-2 p-2 bg-light rounded">
-                            <i class="mdi mdi-lightbulb"></i> <strong>Kitchen Light</strong>
-                            <div style="font-size: 0.75rem; color: #666;">light.kitchen</div>
-                          </div>
-                          <div class="mb-2 p-2 bg-light rounded">
-                            <i class="mdi mdi-switch"></i> <strong>Living Room Switch</strong>
-                            <div style="font-size: 0.75rem; color: #666;">switch.living_room</div>
-                          </div>
-                          <div class="mb-2 p-2 bg-light rounded">
-                            <i class="mdi mdi-fan"></i> <strong>Bedroom Fan</strong>
-                            <div style="font-size: 0.75rem; color: #666;">fan.bedroom</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- View Manager Similarly -->
-                <div class="col-md-6">
-                  <div class="border rounded-4 bg-white overflow-hidden shadow-lg position-relative" style="max-width: 380px; height: 450px;">
-                    <!-- Canvas with dimmed overlay -->
-                    <div style="background: #f8f9fa; height: 100%; opacity: 0.5; display: flex; align-items: center; justify-content: center; color: #999;">
-                      Editor Canvas (Dimmed)
-                    </div>
-                    <!-- Offcanvas from left for View Manager -->
-                    <div class="position-absolute start-0 top-0 h-100 bg-white shadow-lg" style="width: 280px; border-radius: 0 16px 16px 0; z-index: 100; display: flex; flex-direction: column;">
-                      <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="flex-shrink: 0;">
-                        <h6 class="mb-0">Views</h6>
-                        <button class="btn-close btn-sm"></button>
-                      </div>
-                      <div class="p-3 overflow-y-auto flex-grow-1">
-                        <!-- View List -->
-                        <div class="list-group list-group-flush small">
-                          <button class="list-group-item list-group-item-action active" style="border-left: 3px solid #0d6efd;">
-                            <i class="mdi mdi-home"></i> Living Room
-                          </button>
-                          <button class="list-group-item list-group-item-action">
-                            <i class="mdi mdi-bed"></i> Bedroom
-                          </button>
-                          <button class="list-group-item list-group-item-action">
-                            <i class="mdi mdi-silverware-fork-knife"></i> Kitchen
-                          </button>
-                          <button class="list-group-item list-group-item-action">
-                            <i class="mdi mdi-car"></i> Garage
-                          </button>
-                        </div>
-                        <button class="btn btn-sm btn-primary w-100 mt-3">
-                          <i class="mdi mdi-plus"></i> New View
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Summary Table -->
-            <div class="mt-4">
-              <h6 class="mb-3">Left Panel Access Patterns Summary</h6>
-              <table class="table table-sm table-bordered small">
-                <thead class="table-light">
-                  <tr>
-                    <th>Component</th>
-                    <th>Desktop</th>
-                    <th>Mobile</th>
-                    <th>Interaction</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>ViewManager</strong></td>
-                    <td>Sidebar (Left, Resizable)</td>
-                    <td>Dropdown in Header</td>
-                    <td>Tap header dropdown to switch views</td>
-                  </tr>
-                  <tr>
-                    <td><strong>EntityPalette</strong></td>
-                    <td>Sidebar (Left, Resizable)</td>
-                    <td>Offcanvas Drawer OR FAB</td>
-                    <td>Tap "Add Entity" button or FAB</td>
-                  </tr>
-                  <tr>
-                    <td><strong>StaticComponentPalette</strong></td>
-                    <td>Sidebar (Left, Resizable)</td>
-                    <td>Menu in Offcanvas</td>
-                    <td>Tap menu option in entity palette</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Example 6: View Management on Mobile -->
-        <div class="card bg-light border-0">
-          <div class="card-body">
-            <h5 class="card-title mb-3">6. View Management on Mobile: Desktop Reference</h5>
-            <p class="text-muted small mb-4">For reference, here's how the ViewManager appears on desktop and how it maps to mobile.</p>
-            
-            <div class="row g-4">
-              <!-- Desktop: Three-Panel Editor -->
-              <div class="col-md-12">
-                <h6 class="mb-3">Desktop View: Three-Panel Layout (Reference)</h6>
-                <p class="text-muted small mb-2">On desktop (>992px), the visual editor uses a resizable three-column layout:</p>
-                <div class="border rounded p-4 bg-white shadow-sm">
-                  <div class="row g-2 h-100" style="background: #f8f9fa; border-radius: 8px; min-height: 300px; display: flex;">
-                    <!-- Left Panel -->
-                    <div class="col-2 border-end p-3" style="background: #fff; border-radius: 0 0 0 8px;">
-                      <div class="small fw-bold mb-2">Views</div>
-                      <div style="font-size: 0.75rem;">
-                        <div class="p-1 mb-1 bg-light rounded">Living Room</div>
-                        <div class="p-1 mb-1">Bedroom</div>
-                        <div class="p-1 mb-1">Kitchen</div>
-                      </div>
-                      <div class="mt-2 pt-2 border-top">
-                        <div class="small fw-bold mb-2">Entities</div>
-                        <div style="font-size: 0.75rem;">
-                          <div class="p-1 mb-1"><i class="mdi mdi-lightbulb"></i> Lights</div>
-                          <div class="p-1 mb-1"><i class="mdi mdi-fan"></i> Fans</div>
-                        </div>
-                      </div>
-                    </div>
-                    <!-- Canvas -->
-                    <div class="col-8 p-3 text-center d-flex align-items-center justify-content-center">
-                      <span style="color: #999; font-size: 0.875rem;">Editor Canvas (Full Resizable)</span>
-                    </div>
-                    <!-- Inspector Panel -->
-                    <div class="col-2 border-start p-3" style="background: #fff; border-radius: 0 0 8px 0;">
-                      <div class="small fw-bold mb-2">Inspector</div>
-                      <div style="font-size: 0.75rem;">
-                        <div class="mb-1">Entity ID</div>
-                        <div class="border p-1 bg-light mb-2 rounded">light.living_room</div>
-                        <div class="mb-1">Type</div>
-                        <div class="border p-1 bg-light rounded">HaLight</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Mobile: Header + FAB + Bottom Sheet -->
-              <div class="col-md-12">
-                <h6 class="mb-3">Mobile View: Full Canvas + Bottom Sheet (Solution)</h6>
-                <p class="text-muted small mb-2">On mobile (<992px), the layout transforms to maximize canvas:
-                </p>
-                <div class="mx-auto border rounded-4 bg-white overflow-hidden shadow-lg position-relative" style="max-width: 380px;">
-                  <!-- Header -->
-                  <div class="bg-primary text-white p-2 d-flex justify-content-between align-items-center">
-                    <div class="dropdown">
-                      <button class="btn btn-sm btn-light dropdown-toggle" type="button">
-                        <i class="mdi mdi-home"></i> Living Room
-                      </button>
-                    </div>
-                    <button class="btn btn-success btn-sm">Save</button>
-                  </div>
-
-                  <!-- Full Canvas -->
-                  <div class="p-3" style="background: #f8f9fa; height: 300px; overflow-y: auto;">
-                    <div class="card mb-2 p-2 border-primary" style="border-width: 2px;">
-                      <div class="d-flex align-items-center gap-2">
-                        <i class="mdi mdi-lightbulb" style="color: #ff9800;"></i>
-                        <span class="small fw-bold">Main Light</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- FAB Button -->
-                  <div class="position-absolute" style="bottom: 20px; right: 20px; z-index: 5;">
-                    <button class="btn btn-primary btn-sm rounded-circle" style="width: 50px; height: 50px;">
-                      <i class="mdi mdi-plus" style="font-size: 1.25rem;"></i>
-                    </button>
-                  </div>
-
-                  <!-- Bottom Sheet (Inspector) -->
-                  <div class="position-absolute bottom-0 start-0 w-100 bg-white shadow-lg" style="height: 45%; border-radius: 16px 16px 0 0; border-top: 1px solid #e9ecef; display: flex; flex-direction: column;">
-                    <div class="p-2 text-center">
-                      <div style="width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto;"></div>
-                    </div>
-                    <div class="p-3 overflow-y-auto">
-                      <div class="small fw-bold mb-2">Entity ID: light.living_room</div>
-                      <div class="d-grid gap-2">
-                        <button class="btn btn-primary btn-sm">Save</button>
-                        <button class="btn btn-sm btn-outline-danger">Delete</button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0,0,0,0.15); z-index: 10; pointer-events: none;"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Mapping Table -->
-            <div class="mt-4 p-4 bg-white rounded-4 border">
-              <h6 class="mb-3">Desktop ↔ Mobile Layout Mapping</h6>
-              <table class="table table-sm table-bordered small">
-                <thead class="table-light">
-                  <tr>
-                    <th>Component</th>
-                    <th>Desktop (>992px)</th>
-                    <th>Mobile (<992px)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>Canvas</strong></td>
-                    <td>Middle column, 60% width (resizable)</td>
-                    <td>100% width, full screen</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Left Panel</strong></td>
-                    <td>Fixed sidebar with ViewManager & EntityPalette</td>
-                    <td>Hidden by default, accessible via dropdown header + FAB</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Right Panel (Inspector)</strong></td>
-                    <td>Fixed sidebar, 20% width (resizable)</td>
-                    <td>Bottom sheet modal (slide-up dialogue)</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Accessibility</strong></td>
-                    <td>All visible at once (good for multi-tasking)</td>
-                    <td>Progressive disclosure (less cognitive load)</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <footer style="text-align: center; margin-top: 4rem; padding: 2rem; color: #999; border-top: 1px solid #ddd;">
-        <p><strong>UI/UX Showcase v0.1.0</strong></p>
-        <p style="font-size: 0.875rem;">Mobile Editor & Dialog Patterns • Responsive Design • Touch-First Interactions</p>
+        <p style="font-size: 0.875rem">
+          Desktop & Mobile • Dashboard & Editor • Touch-First Interactions
+        </p>
       </footer>
     </div>
   </body>

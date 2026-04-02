@@ -1,15 +1,18 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import VisualEditorView from "../VisualEditorView.vue";
 import { createPinia, setActivePinia } from "pinia";
 import { useHaStore } from "../../stores/haStore";
+import { useConfigStore } from "../../stores/configStore";
 
 describe("VisualEditorView.vue", () => {
   let wrapper;
   let haStore;
+  let pinia;
 
   beforeEach(() => {
-    const pinia = createPinia();
+    localStorage.clear();
+    pinia = createPinia();
     setActivePinia(pinia);
     haStore = useHaStore();
 
@@ -115,5 +118,248 @@ describe("VisualEditorView.vue", () => {
     wrapper.vm.selectedEntityId = 0;
     wrapper.vm.handleUpdateEntityType("HaChip");
     expect(wrapper.vm.currentViewEntities[0].type).toBe("HaChip");
+  });
+
+  describe("handleAddEntityAtIndex", () => {
+    it("inserts entity string at specified index", () => {
+      wrapper.vm.handleAddEntityAtIndex({
+        entity: "sensor.new",
+        index: 0,
+      });
+      expect(wrapper.vm.currentViewEntities[0].entity).toBe("sensor.new");
+    });
+
+    it("inserts static component at specified index", () => {
+      wrapper.vm.handleAddEntityAtIndex({
+        entity: { type: "HaHeader" },
+        index: 0,
+      });
+      expect(wrapper.vm.currentViewEntities[0].type).toBe("HaHeader");
+    });
+
+    it("does nothing when no current view", () => {
+      wrapper.vm.selectedViewName = "nonexistent";
+      const countBefore = wrapper.vm.currentViewEntities.length;
+      wrapper.vm.handleAddEntityAtIndex({ entity: "sensor.x", index: 0 });
+      expect(wrapper.vm.currentViewEntities.length).toBe(countBefore);
+    });
+
+    it("clamps index to valid range", () => {
+      const initial = wrapper.vm.currentViewEntities.length;
+      wrapper.vm.handleAddEntityAtIndex({
+        entity: "sensor.last",
+        index: 9999,
+      });
+      expect(wrapper.vm.currentViewEntities.length).toBe(initial + 1);
+      expect(
+        wrapper.vm.currentViewEntities[wrapper.vm.currentViewEntities.length - 1].entity,
+      ).toBe("sensor.last");
+    });
+
+    it("ignores null/invalid entity payload", () => {
+      const initial = wrapper.vm.currentViewEntities.length;
+      wrapper.vm.handleAddEntityAtIndex({ entity: null, index: 0 });
+      expect(wrapper.vm.currentViewEntities.length).toBe(initial);
+    });
+  });
+
+  describe("handleRemoveEntityByEntityId", () => {
+    it("removes entity by entity ID", () => {
+      const initial = wrapper.vm.currentViewEntities.length;
+      wrapper.vm.handleRemoveEntityByEntityId("sensor.temperature");
+      expect(wrapper.vm.currentViewEntities.length).toBe(initial - 1);
+    });
+
+    it("does nothing when entity ID not found", () => {
+      const initial = wrapper.vm.currentViewEntities.length;
+      wrapper.vm.handleRemoveEntityByEntityId("sensor.nonexistent");
+      expect(wrapper.vm.currentViewEntities.length).toBe(initial);
+    });
+
+    it("deselects entity when removed entity was selected", () => {
+      wrapper.vm.selectedEntityId = 0;
+      wrapper.vm.handleRemoveEntityByEntityId("sensor.temperature");
+      expect(wrapper.vm.selectedEntityId).toBeNull();
+    });
+  });
+
+  describe("handleUpdateEntityAttributes", () => {
+    it("updates attributes of selected entity", () => {
+      wrapper.vm.selectedEntityId = 0;
+      wrapper.vm.handleUpdateEntityAttributes({ unit_of_measurement: "°C" });
+      expect(
+        wrapper.vm.currentViewEntities[0].attributes.unit_of_measurement,
+      ).toBe("°C");
+    });
+
+    it("does nothing when no entity is selected", () => {
+      wrapper.vm.selectedEntityId = null;
+      expect(() =>
+        wrapper.vm.handleUpdateEntityAttributes({ unit: "°C" }),
+      ).not.toThrow();
+    });
+  });
+
+  describe("handleUpdateEntityProperties", () => {
+    it("merges properties into selected entity", () => {
+      wrapper.vm.selectedEntityId = 0;
+      wrapper.vm.handleUpdateEntityProperties({
+        header: "My Card",
+        icon: "mdi-home",
+      });
+      expect(wrapper.vm.currentViewEntities[0].header).toBe("My Card");
+      expect(wrapper.vm.currentViewEntities[0].icon).toBe("mdi-home");
+    });
+
+    it("does nothing when no entity is selected", () => {
+      wrapper.vm.selectedEntityId = null;
+      expect(() =>
+        wrapper.vm.handleUpdateEntityProperties({ header: "x" }),
+      ).not.toThrow();
+    });
+  });
+
+  describe("onSelectEntity", () => {
+    it("sets selectedEntityId", () => {
+      wrapper.vm.onSelectEntity(1);
+      expect(wrapper.vm.selectedEntityId).toBe(1);
+    });
+
+    it("clears selectedEntityId when null is passed", () => {
+      wrapper.vm.onSelectEntity(1);
+      wrapper.vm.onSelectEntity(null);
+      expect(wrapper.vm.selectedEntityId).toBeNull();
+    });
+  });
+
+  describe("handleViewCreated", () => {
+    it("auto-selects the new view", async () => {
+      const newView = {
+        name: "newview",
+        label: "New View",
+        entities: [],
+      };
+      haStore.dashboardConfig.views.push(newView);
+      wrapper.vm.handleViewCreated(newView);
+      expect(wrapper.vm.selectedViewName).toBe("newview");
+    });
+  });
+
+  describe("handleViewDeleted", () => {
+    it("auto-selects first remaining view after deletion", async () => {
+      wrapper.vm.selectedViewName = "bedroom";
+      haStore.dashboardConfig.views = haStore.dashboardConfig.views.filter(
+        (v) => v.name !== "bedroom",
+      );
+      wrapper.vm.handleViewDeleted({ name: "bedroom" });
+      expect(wrapper.vm.selectedViewName).toBe("overview");
+    });
+  });
+
+  describe("handleViewUpdated", () => {
+    it("does not throw and preserves state", () => {
+      expect(() =>
+        wrapper.vm.handleViewUpdated({ name: "overview", label: "Updated" }),
+      ).not.toThrow();
+    });
+  });
+
+  describe("panel resize logic", () => {
+    it("normalizePanelWidths returns defaults for invalid input", () => {
+      const result = wrapper.vm.normalizePanelWidths({
+        left: NaN,
+        center: "x",
+        right: null,
+      });
+      expect(result).toEqual({ left: 25, center: 50, right: 25 });
+    });
+
+    it("normalizePanelWidths normalises to 100% total", () => {
+      const result = wrapper.vm.normalizePanelWidths({
+        left: 10,
+        center: 20,
+        right: 10,
+      });
+      expect(result.left + result.center + result.right).toBeCloseTo(100, 1);
+    });
+
+    it("normalizePanelWidths returns defaults when total is 0", () => {
+      const result = wrapper.vm.normalizePanelWidths({
+        left: 0,
+        center: 0,
+        right: 0,
+      });
+      expect(result).toEqual({ left: 25, center: 50, right: 25 });
+    });
+
+    it("savePanelWidths stores widths in localStorage", () => {
+      wrapper.vm.savePanelWidths();
+      const saved = localStorage.getItem("editor-panel-widths");
+      expect(saved).toContain("left");
+    });
+
+    it("initializePanelWidths restores saved widths from localStorage", () => {
+      localStorage.setItem(
+        "editor-panel-widths",
+        JSON.stringify({ left: 30, center: 45, right: 25 }),
+      );
+      wrapper.vm.initializePanelWidths();
+      expect(wrapper.vm.leftPanelWidth).toBeCloseTo(30, 0);
+    });
+
+    it("initializePanelWidths handles corrupt localStorage data gracefully", () => {
+      localStorage.setItem("editor-panel-widths", "not-json{");
+      expect(() => wrapper.vm.initializePanelWidths()).not.toThrow();
+    });
+
+    it("startResize sets isResizing true and attaches listeners", () => {
+      const addEventSpy = vi.spyOn(document, "addEventListener");
+      wrapper.vm.startResize("left", { clientX: 200 });
+      expect(wrapper.vm.isResizing).toBe(true);
+      expect(addEventSpy).toHaveBeenCalledWith(
+        "mousemove",
+        expect.any(Function),
+      );
+    });
+
+    it("handleMouseMove adjusts panel widths during left resize", () => {
+      wrapper.vm.startResize("left", { clientX: 200 });
+      wrapper.vm.handleMouseMove({ clientX: 220 }); // 20px rightward
+      expect(wrapper.vm.leftPanelWidth).toBeGreaterThan(25);
+    });
+
+    it("handleMouseMove adjusts panel widths during right resize", () => {
+      wrapper.vm.startResize("right", { clientX: 400 });
+      wrapper.vm.handleMouseMove({ clientX: 420 }); // 20px rightward
+      expect(wrapper.vm.centerPanelWidth).toBeGreaterThan(50);
+    });
+
+    it("handleMouseMove does nothing when not resizing", () => {
+      const before = wrapper.vm.leftPanelWidth;
+      wrapper.vm.handleMouseMove({ clientX: 500 });
+      expect(wrapper.vm.leftPanelWidth).toBe(before);
+    });
+
+    it("handleMouseUp ends resize and removes listeners", () => {
+      const removeEventSpy = vi.spyOn(document, "removeEventListener");
+      wrapper.vm.startResize("left", { clientX: 200 });
+      wrapper.vm.handleMouseUp();
+      expect(wrapper.vm.isResizing).toBe(false);
+      expect(removeEventSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("saveConfigToBackend", () => {
+    it("calls configStore.saveConfigToBackend", async () => {
+      const configStore = useConfigStore();
+      vi.spyOn(configStore, "saveConfigToBackend").mockResolvedValue(true);
+      await wrapper.vm.saveConfigToBackend();
+      expect(configStore.saveConfigToBackend).toHaveBeenCalled();
+    });
+
+    it("does nothing when dashboardConfig is null", async () => {
+      haStore.dashboardConfig = null;
+      await expect(wrapper.vm.saveConfigToBackend()).resolves.not.toThrow();
+    });
   });
 });

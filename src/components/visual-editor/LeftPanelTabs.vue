@@ -27,7 +27,10 @@
     <!-- Tab Content -->
     <div class="tab-content flex-grow-1 overflow-hidden d-flex flex-column">
       <!-- Views Tab -->
-      <div v-show="activeTab === 'views'" class="tab-pane flex-grow-1 overflow-auto">
+      <div
+        v-show="activeTab === 'views'"
+        class="tab-pane flex-grow-1 overflow-auto"
+      >
         <ViewManager
           :views="views"
           :selected-view-name="selectedViewName"
@@ -39,7 +42,10 @@
       </div>
 
       <!-- Entities Tab -->
-      <div v-show="activeTab === 'entities'" class="tab-pane flex-grow-1 overflow-auto">
+      <div
+        v-show="activeTab === 'entities'"
+        class="tab-pane flex-grow-1 overflow-auto"
+      >
         <EntityPalette
           :entities-in-view="entitiesInView"
           @add-entity="$emit('add-entity', $event)"
@@ -48,7 +54,10 @@
       </div>
 
       <!-- Components Tab -->
-      <div v-show="activeTab === 'components'" class="tab-pane flex-grow-1 overflow-auto">
+      <div
+        v-show="activeTab === 'components'"
+        class="tab-pane flex-grow-1 overflow-auto"
+      >
         <StaticComponentPalette />
       </div>
     </div>

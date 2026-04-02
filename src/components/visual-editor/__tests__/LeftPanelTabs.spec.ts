@@ -6,13 +6,12 @@ import { useHaStore } from "../../../stores/haStore";
 
 describe("LeftPanelTabs.vue", () => {
   let wrapper;
-  let store;
   let pinia;
 
   beforeEach(() => {
     pinia = createPinia();
     setActivePinia(pinia);
-    store = useHaStore();
+    useHaStore();
 
     // No need to mock entityMap since it's handled by the store
 
@@ -140,7 +139,9 @@ describe("LeftPanelTabs.vue", () => {
 
   it("contains StaticComponentPalette component in components tab", async () => {
     const componentsPane = wrapper.findAll(".tab-pane")[2];
-    expect(componentsPane.find(".static-component-palette").exists()).toBe(true);
+    expect(componentsPane.find(".static-component-palette").exists()).toBe(
+      true,
+    );
   });
 
   it("maintains active tab state across user interactions", async () => {
@@ -160,5 +161,40 @@ describe("LeftPanelTabs.vue", () => {
     await buttons[2].trigger("click");
     await wrapper.vm.$nextTick();
     expect(wrapper.vm.activeTab).toBe("components");
+  });
+
+  it("passes through view-created from ViewManager", async () => {
+    const viewManager = wrapper.findComponent({ name: "ViewManager" });
+    await viewManager.vm.$emit("view-created", { name: "new-view" });
+    expect(wrapper.emitted("view-created")).toBeTruthy();
+    expect(wrapper.emitted("view-created")[0]).toEqual([{ name: "new-view" }]);
+  });
+
+  it("passes through view-deleted from ViewManager", async () => {
+    const viewManager = wrapper.findComponent({ name: "ViewManager" });
+    await viewManager.vm.$emit("view-deleted", "home");
+    expect(wrapper.emitted("view-deleted")).toBeTruthy();
+    expect(wrapper.emitted("view-deleted")[0]).toEqual(["home"]);
+  });
+
+  it("passes through view-updated from ViewManager", async () => {
+    const viewManager = wrapper.findComponent({ name: "ViewManager" });
+    await viewManager.vm.$emit("view-updated", { name: "home", label: "Home v2" });
+    expect(wrapper.emitted("view-updated")).toBeTruthy();
+    expect(wrapper.emitted("view-updated")[0]).toEqual([{ name: "home", label: "Home v2" }]);
+  });
+
+  it("passes through add-entity from EntityPalette", async () => {
+    const palette = wrapper.findComponent({ name: "EntityPalette" });
+    await palette.vm.$emit("add-entity", "sensor.humidity");
+    expect(wrapper.emitted("add-entity")).toBeTruthy();
+    expect(wrapper.emitted("add-entity")[0]).toEqual(["sensor.humidity"]);
+  });
+
+  it("passes through remove-entity from EntityPalette", async () => {
+    const palette = wrapper.findComponent({ name: "EntityPalette" });
+    await palette.vm.$emit("remove-entity", "sensor.temperature");
+    expect(wrapper.emitted("remove-entity")).toBeTruthy();
+    expect(wrapper.emitted("remove-entity")[0]).toEqual(["sensor.temperature"]);
   });
 });
