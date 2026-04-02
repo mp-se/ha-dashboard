@@ -31,6 +31,7 @@ Demo is available here: https://mp-se.github.io/ha-dashboard/
 
 ## ✨ Features
 
+- **Improved Visual Editor**: New tab-based left panel for managing Views, Entities, and Components in a more compact and organized interface
 - **Real-time Updates**: WebSocket connection with automatic reconnection and exponential backoff
 - **Area Organization**: View devices and entities grouped by Home Assistant areas with virtual area entities
 - **JSON Configuration**: Entire dashboard driven by a single configuration file—no code changes needed

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Left Panel Tabs**: Replaced the collapsible sections in the visual editor with a more compact tab-based interface for Views, Entities, and Components.
 - Replaced lazy-loaded app views and global component registration with eager imports so the PWA loads from a single, predictable application bundle.
 - Restored the `ViewManager` list to the visual editor left sidebar so view selection and management are available again while editing.
 - Fixed the editor navbar so `DevicesView` and `RawEntityView` are always visible within editor mode, while the extra editor tools remain gated behind Developer Mode.

@@ -1,21 +1,9 @@
 <template>
-  <div class="view-manager p-3 border-bottom">
+  <div class="view-manager p-3">
+    <!-- Header -->
     <div class="d-flex align-items-center justify-content-between mb-3">
-      <div class="d-flex align-items-center">
-        <button
-          class="btn btn-link btn-sm p-0 text-decoration-none me-2"
-          :class="{ 'text-muted': !isExpanded }"
-          title="Toggle Views panel"
-          @click="isExpanded = !isExpanded"
-        >
-          <i
-            :class="`mdi ${isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right'}`"
-          ></i>
-        </button>
-        <h6 class="mb-0">Views</h6>
-      </div>
+      <h6 class="mb-0">Views</h6>
       <button
-        v-if="isExpanded"
         class="btn btn-sm btn-primary"
         title="Add new view"
         @click="showNewViewDialog"
@@ -26,11 +14,7 @@
     </div>
 
     <!-- Views List -->
-    <div
-      v-if="isExpanded"
-      class="views-list"
-      style="max-height: 300px; overflow-y: auto"
-    >
+    <div class="views-list">
       <div
         v-for="view in views"
         :key="view.name"
@@ -241,7 +225,6 @@ const props = defineProps({
 
 const store = useHaStore();
 
-const isExpanded = ref(true);
 const showModal = ref(false);
 const showDeleteConfirm = ref(false);
 const editingView = ref(null);

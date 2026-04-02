@@ -2,31 +2,28 @@
   <div class="editor-container">
     <div
       class="row g-0 resizable-layout"
-      style="min-height: calc(100vh - 200px)"
+      style="height: calc(100vh - 100px); min-height: 400px"
     >
-      <!-- Entity Palette (Left) -->
+      <!-- Left Panel with Tabs -->
       <div
         class="border-end resizable-panel"
         :style="{
           width: leftPanelWidth + '%',
           height: '100%',
-          overflow: 'auto',
+          overflow: 'hidden',
         }"
       >
-        <ViewManager
+        <LeftPanelTabs
           :views="availableViews"
           :selected-view-name="selectedViewName"
+          :entities-in-view="currentViewEntities"
           @view-created="handleViewCreated"
           @view-deleted="handleViewDeleted"
           @view-updated="handleViewUpdated"
           @view-selected="selectedViewName = $event"
-        />
-        <EntityPalette
-          :entities-in-view="currentViewEntities"
           @add-entity="handleAddEntity"
           @remove-entity="handleRemoveEntityByEntityId"
         />
-        <StaticComponentPalette />
       </div>
 
       <!-- Resize Handle (Left-Center) -->
@@ -102,10 +99,8 @@ import {
   useVisualEditorToolbar,
 } from "../composables/useVisualEditorToolbar";
 import EditorCanvas from "../components/visual-editor/EditorCanvas.vue";
-import EntityPalette from "../components/visual-editor/EntityPalette.vue";
 import EntityInspector from "../components/visual-editor/EntityInspector.vue";
-import StaticComponentPalette from "../components/visual-editor/StaticComponentPalette.vue";
-import ViewManager from "../components/visual-editor/ViewManager.vue";
+import LeftPanelTabs from "../components/visual-editor/LeftPanelTabs.vue";
 import { createLogger } from "../utils/logger";
 import "../styles/editor-styles.css";
 

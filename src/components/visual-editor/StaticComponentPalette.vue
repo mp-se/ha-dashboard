@@ -1,24 +1,12 @@
 <template>
-  <div class="static-component-palette p-3 border-bottom">
-    <!-- Header with Toggle -->
-    <div class="d-flex align-items-center justify-content-between mb-3">
-      <div class="d-flex align-items-center">
-        <button
-          class="btn btn-link btn-sm p-0 text-decoration-none me-2"
-          :class="{ 'text-muted': !isExpanded }"
-          title="Toggle Static Components panel"
-          @click="isExpanded = !isExpanded"
-        >
-          <i
-            :class="`mdi ${isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right'}`"
-          ></i>
-        </button>
-        <h6 class="mb-0">Static Components</h6>
-      </div>
+  <div class="static-component-palette p-3">
+    <!-- Header -->
+    <div class="mb-3">
+      <h6 class="mb-3">Static Components</h6>
     </div>
 
-    <!-- Components List (only shown when expanded) -->
-    <div v-if="isExpanded" class="components-list">
+    <!-- Components List -->
+    <div class="components-list">
       <div
         v-for="component in staticComponents"
         :key="component.type"
@@ -52,8 +40,6 @@
 
 <script setup>
 import { ref } from "vue";
-
-const isExpanded = ref(true);
 
 const staticComponents = ref([
   {

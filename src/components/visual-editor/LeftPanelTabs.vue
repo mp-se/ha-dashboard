@@ -1,0 +1,173 @@
+<template>
+  <div class="left-panel-tabs d-flex flex-column">
+    <!-- Tab Navigation -->
+    <div class="tab-navigation border-bottom d-flex align-items-center bg-body">
+      <button
+        v-for="tab in tabs"
+        :key="tab.id"
+        :title="tab.label"
+        class="tab-button flex-fill py-2 px-1 text-center"
+        :class="{ active: activeTab === tab.id }"
+        @click="activeTab = tab.id"
+      >
+        <i
+          :class="`mdi ${tab.icon} ${
+            activeTab === tab.id ? 'text-primary' : 'text-secondary'
+          }`"
+        ></i>
+        <div
+          class="tab-label small d-none d-sm-block mt-1"
+          :class="activeTab === tab.id ? 'text-primary' : 'text-secondary'"
+        >
+          {{ tab.label }}
+        </div>
+      </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content flex-grow-1 overflow-hidden d-flex flex-column">
+      <!-- Views Tab -->
+      <div v-show="activeTab === 'views'" class="tab-pane flex-grow-1 overflow-auto">
+        <ViewManager
+          :views="views"
+          :selected-view-name="selectedViewName"
+          @view-created="$emit('view-created', $event)"
+          @view-deleted="$emit('view-deleted', $event)"
+          @view-updated="$emit('view-updated', $event)"
+          @view-selected="$emit('view-selected', $event)"
+        />
+      </div>
+
+      <!-- Entities Tab -->
+      <div v-show="activeTab === 'entities'" class="tab-pane flex-grow-1 overflow-auto">
+        <EntityPalette
+          :entities-in-view="entitiesInView"
+          @add-entity="$emit('add-entity', $event)"
+          @remove-entity="$emit('remove-entity', $event)"
+        />
+      </div>
+
+      <!-- Components Tab -->
+      <div v-show="activeTab === 'components'" class="tab-pane flex-grow-1 overflow-auto">
+        <StaticComponentPalette />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from "vue";
+import ViewManager from "./ViewManager.vue";
+import EntityPalette from "./EntityPalette.vue";
+import StaticComponentPalette from "./StaticComponentPalette.vue";
+
+defineProps({
+  views: {
+    type: Array,
+    required: true,
+  },
+  selectedViewName: {
+    type: String,
+    default: "",
+  },
+  entitiesInView: {
+    type: Array,
+    default: () => [],
+  },
+});
+
+defineEmits([
+  "view-created",
+  "view-deleted",
+  "view-updated",
+  "view-selected",
+  "add-entity",
+  "remove-entity",
+]);
+
+const activeTab = ref("views");
+
+const tabs = [
+  {
+    id: "views",
+    label: "Views",
+    icon: "mdi-view-dashboard",
+  },
+  {
+    id: "entities",
+    label: "Entities",
+    icon: "mdi-cube-outline",
+  },
+  {
+    id: "components",
+    label: "Components",
+    icon: "mdi-puzzle-outline",
+  },
+];
+</script>
+
+<style scoped>
+.left-panel-tabs {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-navigation {
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.tab-button {
+  border: none;
+  background: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  outline: none;
+}
+
+.tab-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.tab-button.active {
+  border-bottom: 2px solid var(--bs-primary);
+  background-color: rgba(var(--bs-primary-rgb), 0.05);
+}
+
+.tab-content {
+  background-color: var(--bs-body-bg);
+}
+
+.tab-pane:not([style*="display: none"]) {
+  display: flex !important;
+  flex-direction: column;
+  width: 100%;
+}
+
+.tab-pane[style*="display: none"] {
+  display: none !important;
+}
+
+.tab-pane > * {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .tab-button {
+    color: var(--bs-secondary);
+  }
+
+  .tab-button:hover {
+    background-color: var(--bs-tertiary);
+    color: var(--bs-body-color);
+  }
+
+  .tab-button.active {
+    color: var(--bs-primary);
+  }
+}
+</style>

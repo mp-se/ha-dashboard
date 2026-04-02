@@ -1248,3 +1248,101 @@ body {
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
 }
+
+/* ===== Left Panel Tabs Styling ===== */
+.left-panel-tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.tab-navigation {
+  display: flex;
+  gap: 0;
+  padding: 0;
+  background-color: var(--bs-body-bg);
+  flex-shrink: 0;
+  border-bottom: 2px solid var(--bs-border-color);
+}
+
+.tab-button {
+  flex: 1;
+  padding: 0.75rem 0.5rem;
+  border: none;
+  background-color: transparent;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bs-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.tab-button:hover {
+  background-color: var(--bs-light);
+  color: var(--bs-body-color);
+}
+
+.tab-button.active {
+  background-color: transparent;
+  border-bottom-color: var(--bs-primary);
+  color: var(--bs-primary);
+}
+
+.tab-label {
+  display: none;
+  margin-left: 0.25rem;
+}
+
+@media (min-width: 768px) {
+  .tab-label {
+    display: inline;
+  }
+}
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  flex-grow: 1;
+}
+
+.tab-pane {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Dark mode support for tabs */
+@media (prefers-color-scheme: dark) {
+  .tab-navigation {
+    border-bottom-color: var(--bs-dark-border-subtle);
+  }
+
+  .tab-button {
+    color: var(--bs-secondary);
+  }
+
+  .tab-button:hover {
+    background-color: var(--bs-tertiary);
+    color: var(--bs-body-color);
+  }
+
+  .tab-button.active {
+    color: var(--bs-primary);
+  }
+}
+
+/* Ensure panels work within tabs */
+.entity-palette,
+.view-manager,
+.static-component-palette {
+  border-bottom: none;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
