@@ -1,7 +1,18 @@
 <template>
+  <EditorNavbar
+    v-if="isEditorModeView"
+    :current-view="currentView"
+    :dark-mode="dark_mode"
+    @update:current-view="updateCurrentView"
+    @update:dark-mode="dark_mode = $event"
+  />
+
   <AppNavbar
-    v-model:current-view="currentView"
-    v-model:dark-mode="dark_mode"
+    v-else
+    :current-view="currentView"
+    :dark-mode="dark_mode"
+    @update:current-view="updateCurrentView"
+    @update:dark-mode="dark_mode = $event"
     @edit-credentials="handleEditCredentials"
   />
 
@@ -36,7 +47,11 @@
 
   <div
     v-if="!store.isLoading"
-    class="container-fluid"
+    :class="[
+      'container-fluid',
+      'app-shell',
+      { 'px-0': isEditorModeView, 'app-shell-editor': isEditorModeView },
+    ]"
     @touchstart="onTouchStart"
     @touchend="onTouchEnd"
   >
@@ -59,7 +74,7 @@
         'text-center',
         'py-3',
         'text-muted',
-        'mt-4',
+        isEditorModeView ? 'mt-0' : 'mt-4',
         dark_mode ? 'bg-dark' : 'bg-light',
       ]"
     >
@@ -69,22 +84,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, defineAsyncComponent } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useHaStore } from "./stores/haStore";
 import { createLogger } from "./utils/logger";
 import { SWIPE_MIN_DISTANCE } from "./utils/constants";
 import AppNavbar from "./components/page-components/AppNavbar.vue";
+import EditorNavbar from "./components/page-components/EditorNavbar.vue";
 import CredentialDialog from "./components/page-components/CredentialDialog.vue";
 import ErrorBoundary from "./components/page-components/ErrorBoundary.vue";
+import JsonConfigView from "./views/JsonConfigView.vue";
+import DevicesView from "./views/DevicesView.vue";
+import RawEntityView from "./views/RawEntityView.vue";
+import VisualEditorView from "./views/VisualEditorView.vue";
 
 import packageJson from "../package.json";
 
-// Lazy-loaded views for better performance
 const viewComponents = {
-  overview: defineAsyncComponent(() => import("./views/JsonConfigView.vue")),
-  device: defineAsyncComponent(() => import("./views/DevicesView.vue")),
-  raw: defineAsyncComponent(() => import("./views/RawEntityView.vue")),
-  editor: defineAsyncComponent(() => import("./views/VisualEditorView.vue")),
+  overview: JsonConfigView,
+  device: DevicesView,
+  raw: RawEntityView,
+  editor: VisualEditorView,
 };
 
 const logger = createLogger("App");
@@ -93,6 +112,20 @@ const currentView = ref("overview");
 const dark_mode = ref(false);
 const credentialDialog = ref(null);
 const appVersion = packageJson.version;
+const EDITOR_MODE_VIEWS = ["editor", "device", "raw"] as const;
+const isEditorModeView = computed(() =>
+  EDITOR_MODE_VIEWS.includes(
+    currentView.value as (typeof EDITOR_MODE_VIEWS)[number],
+  ),
+);
+
+// Ensure we react to route changes for navbar switching
+watch(
+  () => currentView.value,
+  (newView) => {
+    logger.log("View changed to:", newView);
+  },
+);
 
 /**
  * Ordered list of navigable view names, used for swipe gesture navigation.
@@ -109,7 +142,6 @@ const viewNames = computed(() => {
 
 /**
  * Returns the view component for the given view name.
- * All views are lazy-loaded to optimize initial bundle size.
  * Falls back to overview view if view name not found.
  */
 const getViewComponent = (viewName) =>
@@ -185,6 +217,13 @@ const handleGoHome = () => {
   currentView.value = "overview";
 };
 
+/**
+ * Sync currentView with external events (e.g. from navbars)
+ */
+const updateCurrentView = (view) => {
+  currentView.value = view;
+};
+
 onMounted(async () => {
   await store.init();
 
@@ -203,6 +242,14 @@ onMounted(async () => {
 
   root.setAttribute("data-bs-theme", dark_mode.value ? "dark" : "light");
   root.style.colorScheme = dark_mode.value ? "dark" : "light";
+});
+
+// Sync dark mode state to DOM and localStorage
+watch(dark_mode, (newValue) => {
+  const root = document.documentElement;
+  root.setAttribute("data-bs-theme", newValue ? "dark" : "light");
+  root.style.colorScheme = newValue ? "dark" : "light";
+  localStorage.setItem("ha-dashboard-dark-mode", String(newValue));
 });
 
 // Auto-show credentials dialog when credentials become needed at runtime
@@ -226,4 +273,24 @@ watch(
  * that need to use the shared classes (ha-control-button, ha-control-circle, etc.)
  */
 @import "/styles/shared-styles.css";
+
+html,
+body,
+#app {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+.app-shell {
+  width: 100%;
+}
+
+.app-shell-editor {
+  width: 100vw;
+  max-width: 100vw;
+  margin: 0;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
 </style>

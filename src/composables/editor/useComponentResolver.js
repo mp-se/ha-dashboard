@@ -117,7 +117,11 @@ export function useComponentResolver(componentMap) {
     // Extract custom properties (like color, operator, message, etc.)
     const customProps = {};
     for (const [key, value] of Object.entries(entity)) {
-      if (!standardProps.includes(key) && value !== undefined && value !== null) {
+      if (
+        !standardProps.includes(key) &&
+        value !== undefined &&
+        value !== null
+      ) {
         customProps[key] = value;
       }
     }

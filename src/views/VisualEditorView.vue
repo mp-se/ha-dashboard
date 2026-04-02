@@ -1,39 +1,4 @@
 <template>
-  <!-- Tab Navigation -->
-  <div class="sticky-top bg-body shadow-sm p-3 border-bottom">
-    <div class="container-fluid">
-      <div class="row align-items-center">
-        <div class="col-auto">
-          <h5 class="mb-0">Visual Editor</h5>
-        </div>
-        <div class="col-auto ms-auto d-flex align-items-center gap-2">
-          <!-- Save button -->
-          <button
-            :disabled="!hasChanges || isSaving"
-            class="btn btn-success btn-sm me-2"
-            title="Save changes to backend"
-            @click="saveConfigToBackend()"
-          >
-            <i
-              :class="
-                isSaving ? 'mdi mdi-loading mdi-spin' : 'mdi mdi-content-save'
-              "
-              class="me-1"
-            ></i>
-            {{ isSaving ? "Saving..." : "Save" }}
-          </button>
-
-          <!-- Save Status Badge -->
-          <div v-if="saveStatus" class="badge" :class="saveStatusClass">
-            <i :class="saveStatusIcon" class="me-1"></i>
-            {{ saveStatus }}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Editor Container -->
   <div class="editor-container">
     <div
       class="row g-0 resizable-layout"
@@ -49,6 +14,7 @@
         }"
       >
         <ViewManager
+          :views="availableViews"
           :selected-view-name="selectedViewName"
           @view-created="handleViewCreated"
           @view-deleted="handleViewDeleted"
@@ -128,14 +94,18 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue";
 import { useHaStore } from "../stores/haStore";
 import { useConfigStore } from "../stores/configStore";
+import {
+  resetVisualEditorToolbar,
+  useVisualEditorToolbar,
+} from "../composables/useVisualEditorToolbar";
 import EditorCanvas from "../components/visual-editor/EditorCanvas.vue";
 import EntityPalette from "../components/visual-editor/EntityPalette.vue";
 import EntityInspector from "../components/visual-editor/EntityInspector.vue";
-import ViewManager from "../components/visual-editor/ViewManager.vue";
 import StaticComponentPalette from "../components/visual-editor/StaticComponentPalette.vue";
+import ViewManager from "../components/visual-editor/ViewManager.vue";
 import { createLogger } from "../utils/logger";
 import "../styles/editor-styles.css";
 
@@ -152,13 +122,12 @@ const configStore = useConfigStore();
 
 const selectedViewName = ref("");
 const selectedEntityId = ref(null);
-const saveStatus = ref("");
 const saveTimeout = ref(null);
 
 // Draft management
-const hasChanges = ref(false);
-const isSaving = ref(false);
 const originalConfig = ref(null);
+const { setHasChanges, setIsSaving, setSaveStatus, setSaveHandler } =
+  useVisualEditorToolbar();
 
 const availableViews = computed(() => {
   const views = store.dashboardConfig?.views ?? [];
@@ -202,20 +171,6 @@ const selectedEntity = computed(() => {
   return entities.find((_, idx) => idx === selectedEntityId.value);
 });
 
-const saveStatusClass = computed(() => {
-  if (saveStatus.value.includes("Saving")) return "bg-info text-white";
-  if (saveStatus.value.includes("Saved")) return "bg-success text-white";
-  if (saveStatus.value.includes("Error")) return "bg-danger text-white";
-  return "bg-secondary text-white";
-});
-
-const saveStatusIcon = computed(() => {
-  if (saveStatus.value.includes("Saving")) return "mdi mdi-loading mdi-spin";
-  if (saveStatus.value.includes("Saved")) return "mdi mdi-check-circle";
-  if (saveStatus.value.includes("Error")) return "mdi mdi-alert-circle";
-  return "mdi mdi-information-outline";
-});
-
 /**
  * Debounced save function - waits 500ms before saving to allow user to finish editing
  */
@@ -224,7 +179,7 @@ const debouncedSave = () => {
     clearTimeout(saveTimeout.value);
   }
 
-  hasChanges.value = true;
+  setHasChanges(true);
 
   saveTimeout.value = setTimeout(() => {
     saveDraftToLocalStorage();
@@ -253,39 +208,39 @@ const saveConfigToBackend = async () => {
   try {
     if (!store.dashboardConfig) return;
 
-    isSaving.value = true;
-    saveStatus.value = "Saving...";
+    setIsSaving(true);
+    setSaveStatus("Saving...");
 
     const success = await configStore.saveConfigToBackend(
       store.dashboardConfig,
     );
 
     if (success) {
-      saveStatus.value = "Saved!";
-      hasChanges.value = false;
+      setSaveStatus("Saved!");
+      setHasChanges(false);
       originalConfig.value = JSON.parse(JSON.stringify(store.dashboardConfig));
       logger.log("Config saved to backend successfully");
 
       setTimeout(() => {
-        saveStatus.value = "";
+        setSaveStatus("");
       }, 2000);
     } else {
-      saveStatus.value = "Error saving";
+      setSaveStatus("Error saving");
       logger.error("Failed to save config to backend");
 
       setTimeout(() => {
-        saveStatus.value = "";
+        setSaveStatus("");
       }, 3000);
     }
   } catch (error) {
     logger.error("Error saving config to backend:", error);
-    saveStatus.value = "Error saving";
+    setSaveStatus("Error saving");
 
     setTimeout(() => {
-      saveStatus.value = "";
+      setSaveStatus("");
     }, 3000);
   } finally {
-    isSaving.value = false;
+    setIsSaving(false);
   }
 };
 
@@ -481,9 +436,9 @@ const handleUpdateEntityProperties = (properties) => {
  */
 const handleViewCreated = (newView) => {
   logger.log("View created:", newView);
-  saveStatus.value = "Saved";
+  setSaveStatus("Saved");
   setTimeout(() => {
-    saveStatus.value = "";
+    setSaveStatus("");
   }, 2000);
   // Auto-select the new view
   selectedViewName.value = newView.name;
@@ -499,9 +454,9 @@ const handleViewDeleted = (deletedView) => {
   if (views.length > 0) {
     selectedViewName.value = views[0].name;
   }
-  saveStatus.value = "Saved";
+  setSaveStatus("Saved");
   setTimeout(() => {
-    saveStatus.value = "";
+    setSaveStatus("");
   }, 2000);
 };
 
@@ -510,20 +465,45 @@ const handleViewDeleted = (deletedView) => {
  */
 const handleViewUpdated = (updatedView) => {
   logger.log("View updated:", updatedView);
-  saveStatus.value = "Saved";
+  setSaveStatus("Saved");
   setTimeout(() => {
-    saveStatus.value = "";
+    setSaveStatus("");
   }, 2000);
 };
 
 // Resizable panel state
-const leftPanelWidth = ref(24);
+const leftPanelWidth = ref(25);
 const centerPanelWidth = ref(50);
-const rightPanelWidth = ref(24);
+const rightPanelWidth = ref(25);
 const isResizing = ref(false);
 const resizeMode = ref(null); // 'left' or 'right'
 const startX = ref(0);
-const startWidths = ref({ left: 24, center: 50, right: 24 });
+const startWidths = ref({ left: 25, center: 50, right: 25 });
+
+const normalizePanelWidths = (widths) => {
+  const left = Number(widths?.left);
+  const center = Number(widths?.center);
+  const right = Number(widths?.right);
+
+  if (
+    !Number.isFinite(left) ||
+    !Number.isFinite(center) ||
+    !Number.isFinite(right)
+  ) {
+    return { left: 25, center: 50, right: 25 };
+  }
+
+  const total = left + center + right;
+  if (total <= 0) {
+    return { left: 25, center: 50, right: 25 };
+  }
+
+  return {
+    left: (left / total) * 100,
+    center: (center / total) * 100,
+    right: (right / total) * 100,
+  };
+};
 
 /**
  * Initialize panel widths from localStorage
@@ -532,10 +512,10 @@ const initializePanelWidths = () => {
   const saved = localStorage.getItem("editor-panel-widths");
   if (saved) {
     try {
-      const widths = JSON.parse(saved);
-      leftPanelWidth.value = widths.left ?? 24;
-      centerPanelWidth.value = widths.center ?? 50;
-      rightPanelWidth.value = widths.right ?? 24;
+      const widths = normalizePanelWidths(JSON.parse(saved));
+      leftPanelWidth.value = widths.left;
+      centerPanelWidth.value = widths.center;
+      rightPanelWidth.value = widths.right;
     } catch {
       // Use defaults if parsing fails
     }
@@ -621,6 +601,16 @@ const handleMouseUp = () => {
 // Initialize panel widths on mount
 onMounted(() => {
   initializePanelWidths();
+  setSaveHandler(saveConfigToBackend);
+});
+
+onBeforeUnmount(() => {
+  if (saveTimeout.value) {
+    clearTimeout(saveTimeout.value);
+  }
+
+  setSaveHandler(null);
+  resetVisualEditorToolbar();
 });
 </script>
 
@@ -628,14 +618,18 @@ onMounted(() => {
 .editor-container {
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 200px);
+  min-height: calc(100vh - 132px);
+  width: 100%;
+  margin: 0;
 }
 
 .resizable-layout {
   display: flex;
   gap: 0;
   min-width: 0;
-  height: calc(100vh - 200px);
+  width: 100%;
+  height: calc(100vh - 132px);
+  margin: 0;
 }
 
 .resizable-panel {

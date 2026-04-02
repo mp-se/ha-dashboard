@@ -54,6 +54,7 @@ describe("VisualEditorView.vue", () => {
       global: {
         plugins: [pinia],
         stubs: {
+          ViewManager: true,
           EditorCanvas: true,
           EntityPalette: true,
           EntityInspector: true,
@@ -67,12 +68,10 @@ describe("VisualEditorView.vue", () => {
     expect(wrapper.exists()).toBe(true);
   });
 
-  it("displays editor canvas without tab selection", () => {
-    // With the new setup, there are no editor/preview tabs
+  it("displays editor canvas with the restored view manager", () => {
     const editorContainer = wrapper.find(".editor-container");
     expect(editorContainer.exists()).toBe(true);
-    // Verify ViewManager is present (has view management buttons)
-    const viewManager = wrapper.find(".view-manager");
+    const viewManager = wrapper.findComponent({ name: "ViewManager" });
     expect(viewManager.exists()).toBe(true);
   });
 
@@ -82,11 +81,8 @@ describe("VisualEditorView.vue", () => {
   });
 
   it("can change selected view through ViewManager", async () => {
-    // Views are now selected through the ViewManager component, not a selector
-    // Verify that ViewManager is present
-    const viewManager = wrapper.find(".view-manager");
+    const viewManager = wrapper.findComponent({ name: "ViewManager" });
     expect(viewManager.exists()).toBe(true);
-    // The initial view should be the first one
     expect(wrapper.vm.selectedViewName).toBe("overview");
   });
 

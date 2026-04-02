@@ -54,7 +54,9 @@ describe("SliderInput.vue", () => {
       const wrapper = mount(SliderInput, {
         props: { ...defaultProps, help: "Adjust the scale factor" },
       });
-      expect(wrapper.find(".text-muted").text()).toBe("Adjust the scale factor");
+      expect(wrapper.find(".text-muted").text()).toBe(
+        "Adjust the scale factor",
+      );
     });
 
     it("does not show help text when not provided", () => {
@@ -66,9 +68,9 @@ describe("SliderInput.vue", () => {
       const wrapper = mount(SliderInput, {
         props: { ...defaultProps, error: "Value out of range" },
       });
-      const error = wrapper.findAll(".text-danger").find((el) =>
-        el.text().includes("Value out of range"),
-      );
+      const error = wrapper
+        .findAll(".text-danger")
+        .find((el) => el.text().includes("Value out of range"));
       expect(error).toBeTruthy();
       expect(error.text()).toBe("Value out of range");
     });

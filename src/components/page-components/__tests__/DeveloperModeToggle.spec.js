@@ -158,7 +158,9 @@ describe("DeveloperModeToggle.vue", () => {
 
   describe("successful authentication", () => {
     it("calls toggleDeveloperMode with the entered password", async () => {
-      const mockStore = createMockStore({ toggleDeveloperMode: vi.fn(() => true) });
+      const mockStore = createMockStore({
+        toggleDeveloperMode: vi.fn(() => true),
+      });
       useAuthStore.mockReturnValue(mockStore);
       const wrapper = mount(DeveloperModeToggle, {
         global: { plugins: [pinia] },
@@ -172,7 +174,9 @@ describe("DeveloperModeToggle.vue", () => {
     });
 
     it("closes the modal when toggle succeeds", async () => {
-      useAuthStore.mockReturnValue(createMockStore({ toggleDeveloperMode: vi.fn(() => true) }));
+      useAuthStore.mockReturnValue(
+        createMockStore({ toggleDeveloperMode: vi.fn(() => true) }),
+      );
       const wrapper = mount(DeveloperModeToggle, {
         global: { plugins: [pinia] },
       });
@@ -185,7 +189,9 @@ describe("DeveloperModeToggle.vue", () => {
     });
 
     it("shows no error when authentication succeeds", async () => {
-      useAuthStore.mockReturnValue(createMockStore({ toggleDeveloperMode: vi.fn(() => true) }));
+      useAuthStore.mockReturnValue(
+        createMockStore({ toggleDeveloperMode: vi.fn(() => true) }),
+      );
       const wrapper = mount(DeveloperModeToggle, {
         global: { plugins: [pinia] },
       });
@@ -273,7 +279,9 @@ describe("DeveloperModeToggle.vue", () => {
 
   describe("keyboard interaction", () => {
     it("pressing Enter in the password field submits the form", async () => {
-      const mockStore = createMockStore({ toggleDeveloperMode: vi.fn(() => true) });
+      const mockStore = createMockStore({
+        toggleDeveloperMode: vi.fn(() => true),
+      });
       useAuthStore.mockReturnValue(mockStore);
       const wrapper = mount(DeveloperModeToggle, {
         global: { plugins: [pinia] },
@@ -304,7 +312,9 @@ describe("DeveloperModeToggle.vue", () => {
     });
 
     it("calls toggleDeveloperMode directly when no password is configured", async () => {
-      const mockStore = createMockStore({ toggleDeveloperMode: vi.fn(() => true) });
+      const mockStore = createMockStore({
+        toggleDeveloperMode: vi.fn(() => true),
+      });
       useAuthStore.mockReturnValue(mockStore);
       const wrapper = mount(DeveloperModeToggle, {
         global: { plugins: [pinia] },
@@ -315,7 +325,9 @@ describe("DeveloperModeToggle.vue", () => {
 
     it("calls toggleDeveloperMode directly when password is an empty string", async () => {
       useConfigStore.mockReturnValue(createMockConfigStore(""));
-      const mockStore = createMockStore({ toggleDeveloperMode: vi.fn(() => true) });
+      const mockStore = createMockStore({
+        toggleDeveloperMode: vi.fn(() => true),
+      });
       useAuthStore.mockReturnValue(mockStore);
       const wrapper = mount(DeveloperModeToggle, {
         global: { plugins: [pinia] },

@@ -3,6 +3,10 @@ import { mount } from "@vue/test-utils";
 import VisualEditorView from "../VisualEditorView.vue";
 import { createPinia, setActivePinia } from "pinia";
 import { useHaStore } from "../../stores/haStore";
+import {
+  resetVisualEditorToolbar,
+  useVisualEditorToolbar,
+} from "../../composables/useVisualEditorToolbar";
 
 describe("VisualEditorView.vue - Reordering Integration (Phase 2)", () => {
   let wrapper;
@@ -11,6 +15,7 @@ describe("VisualEditorView.vue - Reordering Integration (Phase 2)", () => {
   beforeEach(() => {
     const pinia = createPinia();
     setActivePinia(pinia);
+    resetVisualEditorToolbar();
     haStore = useHaStore();
 
     // Mock dashboard config
@@ -80,6 +85,7 @@ describe("VisualEditorView.vue - Reordering Integration (Phase 2)", () => {
 
     it("should trigger auto-save on reorder", async () => {
       vi.useFakeTimers();
+      const toolbar = useVisualEditorToolbar();
 
       const newOrder = [
         { entity: "switch.garage", type: "HaSwitch" },
@@ -90,7 +96,7 @@ describe("VisualEditorView.vue - Reordering Integration (Phase 2)", () => {
       wrapper.vm.handleReorderEntities(newOrder);
 
       // After reorder, hasChanges should be true
-      expect(wrapper.vm.hasChanges).toBe(true);
+      expect(toolbar.hasChanges.value).toBe(true);
 
       vi.runAllTimers();
       await wrapper.vm.$nextTick();

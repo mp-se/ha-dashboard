@@ -222,7 +222,13 @@ describe("useConditionEvaluator", () => {
   describe("isConditionTrue — string operators", () => {
     it("contains returns true when state includes expected substring", () => {
       useHaStore.mockReturnValue(
-        createMockStore([{ entity_id: "sensor.temperature", state: "heating_mode_active", attributes: {} }]),
+        createMockStore([
+          {
+            entity_id: "sensor.temperature",
+            state: "heating_mode_active",
+            attributes: {},
+          },
+        ]),
       );
       const { isConditionTrue } = useConditionEvaluator(
         buildProps({ operator: "contains", value: "heating" }),

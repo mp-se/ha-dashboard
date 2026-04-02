@@ -184,7 +184,9 @@ const findSensorByDeviceClass = (deviceClass) => {
   return null;
 };
 
-const temperatureEntity = computed(() => findSensorByDeviceClass("temperature"));
+const temperatureEntity = computed(() =>
+  findSensorByDeviceClass("temperature"),
+);
 
 const temperatureValue = computed(() => {
   if (!temperatureEntity.value) return null;

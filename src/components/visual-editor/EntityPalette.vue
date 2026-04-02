@@ -141,9 +141,7 @@ const entitiesInViewIds = computed(() => {
     Array.isArray(props.entitiesInView),
   );
   if (!Array.isArray(props.entitiesInView)) {
-    logger.warn(
-      "entitiesInViewIds - entitiesInView is not an array!",
-    );
+    logger.warn("entitiesInViewIds - entitiesInView is not an array!");
     return [];
   }
   return props.entitiesInView

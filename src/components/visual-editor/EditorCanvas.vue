@@ -238,20 +238,17 @@ const {
 } = useEditorDragDrop(localEntities, emit);
 
 // Component resolution
-const {
-  getComponentForEntity,
-  getComponentProps,
-  getComponentClasses,
-} = useComponentResolver(componentMap);
+const { getComponentForEntity, getComponentProps, getComponentClasses } =
+  useComponentResolver(componentMap);
 
 // Selection management
 const { isEntitySelected: isEntitySelectedBase, onCardClick: onCardClickBase } =
   useEditorSelection(emit);
 
 // Create wrapper functions that include the reactive selectedEntityId
-const isEntitySelected = (index) => isEntitySelectedBase(props.selectedEntityId, index);
+const isEntitySelected = (index) =>
+  isEntitySelectedBase(props.selectedEntityId, index);
 const onCardClick = (index) => onCardClickBase(props.selectedEntityId, index);
-
 
 // Helper functions for entity type checking
 const isSpacer = (entity) => {

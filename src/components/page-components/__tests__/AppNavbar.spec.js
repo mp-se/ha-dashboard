@@ -3,6 +3,8 @@ import { mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import AppNavbar from "../AppNavbar.vue";
 import { useHaStore } from "@/stores/haStore";
+import { useAuthStore } from "@/stores/authStore";
+import { useConfigStore } from "@/stores/configStore";
 
 // Stub PwaInstallModal to avoid complex PWA logic
 const PwaInstallModalStub = {
@@ -33,13 +35,25 @@ const baseStoreState = () => ({
 
 describe("AppNavbar.vue", () => {
   let store;
+  let authStore;
+  let configStore;
   let pinia;
 
   beforeEach(() => {
     pinia = createPinia();
     setActivePinia(pinia);
     store = useHaStore();
+    authStore = useAuthStore();
+    configStore = useConfigStore();
     Object.assign(store, baseStoreState());
+    authStore.developerMode = false;
+    configStore.dashboardConfig = {
+      views: [
+        { name: "overview", label: "Overview", icon: "mdi:home" },
+        { name: "lights", label: "Lights", icon: "mdi:lightbulb" },
+      ],
+      app: {},
+    };
     vi.clearAllMocks();
     // Reset localStorage mock
     vi.stubGlobal("localStorage", {
@@ -96,6 +110,12 @@ describe("AppNavbar.vue", () => {
     it("shows dark mode button", () => {
       const wrapper = mountNavbar({ darkMode: false });
       const btn = wrapper.find('[aria-label="Toggle dark mode"]');
+      expect(btn.exists()).toBe(true);
+    });
+
+    it("shows the editor entry button on the right side", () => {
+      const wrapper = mountNavbar();
+      const btn = wrapper.find('button[title="Open visual editor"]');
       expect(btn.exists()).toBe(true);
     });
   });
@@ -232,18 +252,8 @@ describe("AppNavbar.vue", () => {
   });
 
   describe("Developer mode", () => {
-    it("shows reload config button in developer mode", async () => {
+    it("does not show reload config button in the normal navbar", async () => {
       store.developerMode = true;
-      const wrapper = mountNavbar();
-      await wrapper.vm.$nextTick();
-      const btn = wrapper.find(
-        'button[title="Reload dashboard configuration"]',
-      );
-      expect(btn.exists()).toBe(true);
-    });
-
-    it("hides reload config button outside developer mode", async () => {
-      store.developerMode = false;
       const wrapper = mountNavbar();
       await wrapper.vm.$nextTick();
       const btn = wrapper.find(
@@ -252,23 +262,14 @@ describe("AppNavbar.vue", () => {
       expect(btn.exists()).toBe(false);
     });
 
-    it("shows save data button in developer mode", async () => {
+    it("does not show save data button in the normal navbar", async () => {
       store.developerMode = true;
       const wrapper = mountNavbar();
       await wrapper.vm.$nextTick();
       const btn = wrapper.find(
         'button[title="Save current data for local testing"]',
       );
-      expect(btn.exists()).toBe(true);
-    });
-
-    it("adds dev/device/raw menu items in developer mode", async () => {
-      store.developerMode = true;
-      const wrapper = mountNavbar();
-      await wrapper.vm.$nextTick();
-      const buttons = wrapper.findAll("button.btn-link");
-      // Labels visible on large screens only, check title or count instead
-      expect(buttons.length).toBeGreaterThanOrEqual(5); // 2 config views + 3 dev views
+      expect(btn.exists()).toBe(false);
     });
   });
 
@@ -320,6 +321,50 @@ describe("AppNavbar.vue", () => {
       expect(wrapper.emitted("update:currentView")).toBeTruthy();
     });
 
+    it("opens the password modal before entering the editor when a password is configured", async () => {
+      configStore.dashboardConfig = {
+        ...configStore.dashboardConfig,
+        app: { password: "secret" },
+      };
+
+      const wrapper = mountNavbar();
+      const button = wrapper.find('button[title="Open visual editor"]');
+
+      await button.trigger("click");
+
+      expect(wrapper.find(".modal").exists()).toBe(true);
+      expect(wrapper.emitted("update:currentView")).toBeFalsy();
+    });
+
+    it("emits update:currentView with editor when developer mode is already enabled", async () => {
+      authStore.developerMode = true;
+      const wrapper = mountNavbar();
+      const button = wrapper.find('button[title="Open visual editor"]');
+
+      await button.trigger("click");
+
+      expect(wrapper.emitted("update:currentView")).toBeTruthy();
+      expect(wrapper.emitted("update:currentView").at(-1)).toEqual(["editor"]);
+    });
+
+    it("enables developer mode and enters the editor after a valid password", async () => {
+      configStore.dashboardConfig = {
+        ...configStore.dashboardConfig,
+        app: { password: "secret" },
+      };
+
+      const wrapper = mountNavbar();
+      await wrapper.find('button[title="Open visual editor"]').trigger("click");
+
+      const passwordInput = wrapper.find('input[type="password"]');
+      await passwordInput.setValue("secret");
+      await wrapper.find("button.btn-primary").trigger("click");
+
+      expect(authStore.developerMode).toBe(true);
+      expect(wrapper.emitted("update:currentView")).toBeTruthy();
+      expect(wrapper.emitted("update:currentView").at(-1)).toEqual(["editor"]);
+    });
+
     it("filters out hidden views from menu", async () => {
       store.dashboardConfig = {
         views: [
@@ -344,38 +389,6 @@ describe("AppNavbar.vue", () => {
       await wrapper.vm.$nextTick();
       const buttons = wrapper.findAll("button.btn-link");
       expect(buttons.length).toBe(0);
-    });
-  });
-
-  describe("Reload config", () => {
-    it("calls reloadConfig when reload button is clicked", async () => {
-      store.developerMode = true;
-      store.reloadConfig = vi
-        .fn()
-        .mockResolvedValue({ valid: true, errors: [] });
-      const wrapper = mountNavbar();
-      await wrapper.vm.$nextTick();
-      const btn = wrapper.find(
-        'button[title="Reload dashboard configuration"]',
-      );
-      await btn.trigger("click");
-      expect(store.reloadConfig).toHaveBeenCalled();
-    });
-
-    it("shows success banner after successful reload", async () => {
-      store.developerMode = true;
-      store.reloadConfig = vi
-        .fn()
-        .mockResolvedValue({ valid: true, errors: [] });
-      const wrapper = mountNavbar();
-      await wrapper.vm.$nextTick();
-      const btn = wrapper.find(
-        'button[title="Reload dashboard configuration"]',
-      );
-      await btn.trigger("click");
-      await wrapper.vm.$nextTick();
-      // configErrorBanner becomes true, validationError is null → shows success banner
-      expect(wrapper.find(".alert-success").exists()).toBe(true);
     });
   });
 });

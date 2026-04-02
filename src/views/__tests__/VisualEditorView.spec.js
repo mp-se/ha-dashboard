@@ -2,6 +2,10 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import VisualEditorView from "../VisualEditorView.vue";
 import { createPinia, setActivePinia } from "pinia";
+import {
+  resetVisualEditorToolbar,
+  useVisualEditorToolbar,
+} from "../../composables/useVisualEditorToolbar";
 
 // Mock child components
 const mockViewManager = {
@@ -52,24 +56,10 @@ const mockEntityInspector = {
 describe("VisualEditorView.vue", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+    resetVisualEditorToolbar();
   });
 
-  it("renders the view title", () => {
-    const wrapper = mount(VisualEditorView, {
-      global: {
-        components: {
-          ViewManager: mockViewManager,
-          EntityPalette: mockEntityPalette,
-          StaticComponentPalette: mockStaticComponentPalette,
-          EditorCanvas: mockEditorCanvas,
-          EntityInspector: mockEntityInspector,
-        },
-      },
-    });
-    expect(wrapper.text()).toContain("Visual Editor");
-  });
-
-  it("renders ViewManager component", () => {
+  it("renders the restored ViewManager component", () => {
     const wrapper = mount(VisualEditorView, {
       global: {
         components: {
@@ -205,6 +195,7 @@ describe("VisualEditorView.vue", () => {
 
   describe("save status", () => {
     it("initially has empty save status", () => {
+      const toolbar = useVisualEditorToolbar();
       const wrapper = mount(VisualEditorView, {
         global: {
           components: {
@@ -216,7 +207,8 @@ describe("VisualEditorView.vue", () => {
           },
         },
       });
-      expect(wrapper.vm.saveStatus).toBe("");
+      expect(wrapper.exists()).toBe(true);
+      expect(toolbar.saveStatus.value).toBe("");
     });
   });
 

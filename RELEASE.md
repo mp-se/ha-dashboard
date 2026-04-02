@@ -1,5 +1,19 @@
 # Release Notes
 
+## Unreleased
+
+- Replaced lazy-loaded app views and global component registration with eager imports so the PWA loads from a single, predictable application bundle.
+- Restored the `ViewManager` list to the visual editor left sidebar so view selection and management are available again while editing.
+- Fixed the editor navbar so `DevicesView` and `RawEntityView` are always visible within editor mode, while the extra editor tools remain gated behind Developer Mode.
+- Fixed editor navigation so the Editor tab is only active in the visual editor and developer-only views in the editor navbar are gated behind developer mode again.
+
+- **Editor View Navbar Scope**: Kept the dedicated editor navbar active for `editor`, `device`, and `raw` so moving into editor-side views no longer drops back to the normal dashboard navbar.
+- **Editor Navbar Views**: Added persistent `DevicesView` and `RawEntityView` entries to the dedicated editor navbar so those editor-side views are always available without depending on Developer Mode.
+- **Editor Toolbar Cleanup**: Removed the duplicate in-page `Visual Editor` header and moved the editor save action into the dedicated `EditorNavbar`, so editor controls now live in a single top bar.
+- **Editor Navigation Split**: Kept the normal dashboard navbar focused on view navigation and editor entry, while the `EditorNavbar` now owns the editor-only developer tools and save controls.
+- **Improved State Management**: Fixed a synchronization issue where dark mode changes were not being persisted to `localStorage` or correctly applied to the document theme until a page reload. Added a watcher in `App.vue` to ensure real-time theme updates and persistence.
+- **Code Quality**: Added comprehensive unit tests for `App.vue` to verify navbar switching and component rendering logic. Fixed a linting error in `AppNavbar.vue` related to an unused variable.
+
 ## March 2026 - v0.7.0
 
 - Added tests for `useConditionEvaluator` (33 tests, 0→100% coverage)

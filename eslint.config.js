@@ -55,7 +55,10 @@ export default [
       "no-undef": "off",
       // Use TS-aware no-unused-vars
       "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
     },
   },
 
@@ -71,7 +74,11 @@ export default [
 
   // Node + browser globals for test files (vitest runs in happy-dom / node)
   {
-    files: ["src/**/__tests__/**/*.{js,ts}", "src/**/*.spec.{js,ts}", "src/setupTests.ts"],
+    files: [
+      "src/**/__tests__/**/*.{js,ts}",
+      "src/**/*.spec.{js,ts}",
+      "src/setupTests.ts",
+    ],
     languageOptions: {
       globals: {
         ...globals.browser,

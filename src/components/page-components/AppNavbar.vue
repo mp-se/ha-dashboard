@@ -62,32 +62,12 @@
               title="Not connected to Home Assistant"
             ></i>
 
-            <!-- Reload config button (dev mode only) -->
             <button
-              v-if="store.developerMode"
               class="btn btn-outline-secondary btn-sm me-2"
-              :disabled="configReloading"
-              title="Reload dashboard configuration"
-              @click="handleReloadConfig"
+              title="Open visual editor"
+              @click="openEditor"
             >
-              <i v-if="!configReloading" class="mdi mdi-refresh"></i>
-              <span
-                v-if="configReloading"
-                class="spinner-border spinner-border-sm"
-                role="status"
-              >
-                <span class="visually-hidden">Loading...</span>
-              </span>
-            </button>
-
-            <!-- Save data button (dev mode only) -->
-            <button
-              v-if="store.developerMode"
-              class="btn btn-outline-info btn-sm me-2"
-              title="Save current data for local testing"
-              @click="store.saveLocalData()"
-            >
-              <i class="mdi mdi-content-save"></i>
+              <i :class="normalizeIcon('mdi-pencil-ruler')"></i>
             </button>
 
             <!-- Edit credentials button (only if set manually, not from config) -->
@@ -124,9 +104,6 @@
               ></i>
             </button>
 
-            <!-- Developer Mode Toggle -->
-            <DeveloperModeToggle />
-
             <!-- Manual open for PWA install dialog -->
             <button
               v-if="!isPwaInstalled() && isPwaSupported()"
@@ -140,6 +117,66 @@
         </div>
       </div>
     </nav>
+
+    <div
+      v-if="showEditorPasswordModal"
+      class="modal fade show d-block"
+      tabindex="-1"
+      style="background-color: rgba(0, 0, 0, 0.5)"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Open Visual Editor</h5>
+            <button
+              type="button"
+              class="btn-close"
+              aria-label="Close"
+              @click="closeEditorPasswordModal"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Enter Developer Password</label>
+              <input
+                ref="editorPasswordInput"
+                v-model="editorPassword"
+                type="password"
+                class="form-control"
+                placeholder="Password"
+                autocomplete="off"
+                @keyup.enter="confirmEditorAccess"
+              />
+            </div>
+
+            <div v-if="editorPasswordError" class="alert alert-danger mb-0">
+              <i class="mdi mdi-alert-circle me-2"></i>
+              {{ editorPasswordError }}
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              @click="closeEditorPasswordModal"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              :disabled="!editorPassword"
+              @click="confirmEditorAccess"
+            >
+              <i class="mdi mdi-shield-lock me-2"></i>
+              Open Visual Editor
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Connection status alert -->
     <div v-if="!store.isLocalMode">
@@ -256,11 +293,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, toRefs, nextTick } from "vue";
 import { useHaStore } from "@/stores/haStore";
+import { useAuthStore } from "@/stores/authStore";
+import { useConfigStore } from "@/stores/configStore";
 import { useNormalizeIcon } from "@/composables/useNormalizeIcon";
 import PwaInstallModal from "./PwaInstallModal.vue";
-import DeveloperModeToggle from "./DeveloperModeToggle.vue";
 
 const props = defineProps({
   /** The currently active view name */
@@ -269,6 +307,8 @@ const props = defineProps({
   darkMode: { type: Boolean, required: true },
 });
 
+const { currentView, darkMode } = toRefs(props);
+
 const emit = defineEmits([
   "update:currentView",
   "update:darkMode",
@@ -276,11 +316,16 @@ const emit = defineEmits([
 ]);
 
 const store = useHaStore();
+const authStore = useAuthStore();
+const configStore = useConfigStore();
+const normalizeIcon = useNormalizeIcon();
 const pwaInstallModal = ref(null);
+const editorPasswordInput = ref(null);
 const updateAvailable = ref(false);
-const configReloading = ref(false);
 const configErrorBanner = ref(false);
-const configErrorBannerTimeout = ref(null);
+const showEditorPasswordModal = ref(false);
+const editorPassword = ref("");
+const editorPasswordError = ref("");
 
 // Show config error banner automatically whenever validation errors change
 watch(
@@ -296,28 +341,61 @@ watch(
 /** Computed menu items derived from dashboard config */
 const menuItems = computed(() => {
   if (!store.dashboardConfig?.views) return [];
-  const normalizeIcon = useNormalizeIcon();
-  const filtered = store.dashboardConfig.views
+
+  // Show all views
+  return store.dashboardConfig.views
     .filter((view) => view.hidden !== true)
     .map((view) => ({
       name: view.name,
       label: view.label,
       icon: normalizeIcon(view.icon),
     }));
-
-  if (store.developerMode) {
-    filtered.push(
-      {
-        name: "editor",
-        label: "Editor",
-        icon: normalizeIcon("mdi-pencil-ruler"),
-      },
-      { name: "device", label: "Devices", icon: normalizeIcon("mdi-devices") },
-      { name: "raw", label: "Raw", icon: normalizeIcon("mdi-code-json") },
-    );
-  }
-  return filtered;
 });
+
+const hasDeveloperPassword = computed(() => {
+  const appConfig = configStore.dashboardConfig?.app;
+  return !!(appConfig?.password && String(appConfig.password).trim() !== "");
+});
+
+const closeEditorPasswordModal = () => {
+  showEditorPasswordModal.value = false;
+  editorPassword.value = "";
+  editorPasswordError.value = "";
+};
+
+const enterEditorMode = () => {
+  emit("update:currentView", "editor");
+};
+
+const confirmEditorAccess = () => {
+  const success = authStore.toggleDeveloperMode(editorPassword.value);
+
+  if (!success) {
+    editorPasswordError.value = "Invalid password";
+    editorPassword.value = "";
+    nextTick(() => editorPasswordInput.value?.focus());
+    return;
+  }
+
+  closeEditorPasswordModal();
+  enterEditorMode();
+};
+
+const openEditor = () => {
+  if (authStore.developerMode) {
+    enterEditorMode();
+    return;
+  }
+
+  if (hasDeveloperPassword.value) {
+    showEditorPasswordModal.value = true;
+    nextTick(() => editorPasswordInput.value?.focus());
+    return;
+  }
+
+  authStore.toggleDeveloperMode("");
+  enterEditorMode();
+};
 
 const openPwaDialog = () => {
   try {
@@ -327,34 +405,9 @@ const openPwaDialog = () => {
   }
 };
 
-/** Reload dashboard configuration in-memory */
-const handleReloadConfig = async () => {
-  configReloading.value = true;
-  configErrorBanner.value = false;
-
-  try {
-    const validationResult = await store.reloadConfig();
-    configErrorBanner.value = true;
-    if (configErrorBannerTimeout.value)
-      clearTimeout(configErrorBannerTimeout.value);
-    if (validationResult.valid) {
-      // Auto-dismiss on success
-      configErrorBannerTimeout.value = setTimeout(() => {
-        configErrorBanner.value = false;
-      }, 2000);
-    }
-  } catch {
-    configErrorBanner.value = true;
-    if (configErrorBannerTimeout.value)
-      clearTimeout(configErrorBannerTimeout.value);
-  } finally {
-    configReloading.value = false;
-  }
-};
-
 /** Toggle dark mode and notify parent via v-model */
 const toggleDarkMode = () => {
-  const newValue = !props.darkMode;
+  const newValue = !darkMode.value;
   const root = document.documentElement;
   root.setAttribute("data-bs-theme", newValue ? "dark" : "light");
   root.style.colorScheme = newValue ? "dark" : "light";
