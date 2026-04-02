@@ -5,18 +5,18 @@
       <button
         v-for="tab in tabs"
         :key="tab.id"
-        :title="tab.label"
         class="tab-button flex-fill py-2 px-1 text-center"
         :class="{ active: activeTab === tab.id }"
+        :title="tab.label"
         @click="activeTab = tab.id"
       >
         <i
-          :class="`mdi ${tab.icon} ${
+          :class="`mdi ${tab.icon} fs-4 ${
             activeTab === tab.id ? 'text-primary' : 'text-secondary'
           }`"
         ></i>
         <div
-          class="tab-label small d-none d-sm-block mt-1"
+          class="tab-label small d-none d-lg-block mt-1"
           :class="activeTab === tab.id ? 'text-primary' : 'text-secondary'"
         >
           {{ tab.label }}
