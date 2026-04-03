@@ -183,6 +183,93 @@ describe("VisualEditorView.vue", () => {
     });
   });
 
+  describe("handleMoveUp", () => {
+    it("moves entity up one position", () => {
+      wrapper.vm.selectedEntityId = 1; // Second item
+      const initial0 = wrapper.vm.currentViewEntities[0].entity;
+      const initial1 = wrapper.vm.currentViewEntities[1].entity;
+
+      wrapper.vm.handleMoveUp();
+
+      expect(wrapper.vm.currentViewEntities[0].entity).toBe(initial1);
+      expect(wrapper.vm.currentViewEntities[1].entity).toBe(initial0);
+      expect(wrapper.vm.selectedEntityId).toBe(0);
+    });
+
+    it("does nothing when at top position", () => {
+      wrapper.vm.selectedEntityId = 0;
+      const initial = JSON.stringify(wrapper.vm.currentViewEntities);
+
+      wrapper.vm.handleMoveUp();
+
+      expect(JSON.stringify(wrapper.vm.currentViewEntities)).toBe(initial);
+      expect(wrapper.vm.selectedEntityId).toBe(0);
+    });
+
+    it("does nothing when no entity is selected", () => {
+      wrapper.vm.selectedEntityId = null;
+      const initial = JSON.stringify(wrapper.vm.currentViewEntities);
+
+      wrapper.vm.handleMoveUp();
+
+      expect(JSON.stringify(wrapper.vm.currentViewEntities)).toBe(initial);
+    });
+
+    it("does nothing when no current view", () => {
+      wrapper.vm.selectedEntityId = 1;
+      wrapper.vm.selectedViewName = "nonexistent";
+      const initial = JSON.stringify(wrapper.vm.currentViewEntities);
+
+      wrapper.vm.handleMoveUp();
+
+      expect(JSON.stringify(wrapper.vm.currentViewEntities)).toBe(initial);
+    });
+  });
+
+  describe("handleMoveDown", () => {
+    it("moves entity down one position", () => {
+      wrapper.vm.selectedEntityId = 0; // First item
+      const initial0 = wrapper.vm.currentViewEntities[0].entity;
+      const initial1 = wrapper.vm.currentViewEntities[1].entity;
+
+      wrapper.vm.handleMoveDown();
+
+      expect(wrapper.vm.currentViewEntities[0].entity).toBe(initial1);
+      expect(wrapper.vm.currentViewEntities[1].entity).toBe(initial0);
+      expect(wrapper.vm.selectedEntityId).toBe(1);
+    });
+
+    it("does nothing when at bottom position", () => {
+      const lastIndex = wrapper.vm.currentViewEntities.length - 1;
+      wrapper.vm.selectedEntityId = lastIndex;
+      const initial = JSON.stringify(wrapper.vm.currentViewEntities);
+
+      wrapper.vm.handleMoveDown();
+
+      expect(JSON.stringify(wrapper.vm.currentViewEntities)).toBe(initial);
+      expect(wrapper.vm.selectedEntityId).toBe(lastIndex);
+    });
+
+    it("does nothing when no entity is selected", () => {
+      wrapper.vm.selectedEntityId = null;
+      const initial = JSON.stringify(wrapper.vm.currentViewEntities);
+
+      wrapper.vm.handleMoveDown();
+
+      expect(JSON.stringify(wrapper.vm.currentViewEntities)).toBe(initial);
+    });
+
+    it("does nothing when no current view", () => {
+      wrapper.vm.selectedEntityId = 0;
+      wrapper.vm.selectedViewName = "nonexistent";
+      const initial = JSON.stringify(wrapper.vm.currentViewEntities);
+
+      wrapper.vm.handleMoveDown();
+
+      expect(JSON.stringify(wrapper.vm.currentViewEntities)).toBe(initial);
+    });
+  });
+
   describe("handleUpdateEntityAttributes", () => {
     it("updates attributes of selected entity", () => {
       wrapper.vm.selectedEntityId = 0;
@@ -360,6 +447,47 @@ describe("VisualEditorView.vue", () => {
     it("does nothing when dashboardConfig is null", async () => {
       haStore.dashboardConfig = null;
       await expect(wrapper.vm.saveConfigToBackend()).resolves.not.toThrow();
+    });
+  });
+
+  describe("onMobilePaletteAdd", () => {
+    beforeEach(() => {
+      wrapper.vm.selectedViewName = "overview";
+    });
+
+    it("appends to end when no card is selected", () => {
+      wrapper.vm.selectedEntityId = null;
+      wrapper.vm.onMobilePaletteAdd("sensor.new");
+      const entities = haStore.dashboardConfig.views[0].entities;
+      expect(entities[entities.length - 1]).toMatchObject({ entity: "sensor.new" });
+    });
+
+    it("inserts after the selected card index", () => {
+      wrapper.vm.selectedEntityId = 0; // first card selected
+      wrapper.vm.onMobilePaletteAdd("sensor.inserted");
+      const entities = haStore.dashboardConfig.views[0].entities;
+      // should be at index 1, between the two original cards
+      expect(entities[1]).toMatchObject({ entity: "sensor.inserted" });
+    });
+
+    it("updates selectedEntityId to the new card's index after insert", () => {
+      wrapper.vm.selectedEntityId = 0;
+      wrapper.vm.onMobilePaletteAdd("sensor.inserted");
+      expect(wrapper.vm.selectedEntityId).toBe(1);
+    });
+
+    it("closes the mobile panel after adding", () => {
+      wrapper.vm.showMobilePanel = true;
+      wrapper.vm.onMobilePaletteAdd("sensor.new");
+      expect(wrapper.vm.showMobilePanel).toBe(false);
+    });
+
+    it("inserts after last card when last card is selected", () => {
+      wrapper.vm.selectedEntityId = 1; // last card (index 1 of 2)
+      wrapper.vm.onMobilePaletteAdd("sensor.last");
+      const entities = haStore.dashboardConfig.views[0].entities;
+      expect(entities[2]).toMatchObject({ entity: "sensor.last" });
+      expect(wrapper.vm.selectedEntityId).toBe(2);
     });
   });
 });

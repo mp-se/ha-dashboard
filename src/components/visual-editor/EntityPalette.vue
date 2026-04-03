@@ -69,18 +69,19 @@
         v-else
         :key="entity.entity_id"
         class="entity-item mb-2"
-        draggable="true"
-        @dragstart="handleDragStart($event, entity)"
-        @dragend="handleDragEnd"
+        :draggable="!mobileMode"
+        @dragstart="!mobileMode && handleDragStart($event, entity)"
+        @dragend="!mobileMode && handleDragEnd"
+        @click="mobileMode ? $emit('add-entity', entity.entity_id) : undefined"
       >
         <div
           class="btn btn-sm w-100 text-start entity-button entity-button-available"
-          title="Drag to add to view"
+          :title="mobileMode ? 'Tap to add to view' : 'Drag to add to view'"
         >
           <div class="d-flex justify-content-between align-items-center">
             <div class="flex-grow-1">
               <div class="small">
-                <i class="mdi mdi-drag-vertical me-1"></i>
+                <i :class="mobileMode ? 'mdi mdi-plus-circle-outline me-1' : 'mdi mdi-drag-vertical me-1'"></i>
                 {{
                   entity.attributes?.friendly_name ||
                   entity.entity_id.split(".")[1]
@@ -106,6 +107,10 @@ const props = defineProps({
   entitiesInView: {
     type: Array,
     default: () => [],
+  },
+  mobileMode: {
+    type: Boolean,
+    default: false,
   },
 });
 

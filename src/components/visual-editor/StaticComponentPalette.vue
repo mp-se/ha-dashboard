@@ -11,9 +11,10 @@
         v-for="component in staticComponents"
         :key="component.type"
         class="component-item mb-2"
-        draggable="true"
-        @dragstart="handleDragStart($event, component)"
-        @dragend="handleDragEnd"
+        :draggable="!mobileMode"
+        @dragstart="!mobileMode && handleDragStart($event, component)"
+        @dragend="!mobileMode && handleDragEnd"
+        @click="mobileMode ? $emit('add-entity', { type: component.type }) : undefined"
       >
         <div
           class="btn btn-sm w-100 text-start component-button"
@@ -40,6 +41,15 @@
 
 <script setup>
 import { ref } from "vue";
+
+defineProps({
+  mobileMode: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+defineEmits(["add-entity"]);
 
 const staticComponents = ref([
   {

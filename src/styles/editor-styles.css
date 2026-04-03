@@ -360,3 +360,132 @@
     border-bottom: 1px solid #dee2e6;
   }
 }
+
+/* ==================================================
+   Mobile Editor Layout
+   ================================================== */
+
+/* Full-height canvas area for mobile */
+.mobile-editor-canvas {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 132px);
+  overflow: auto;
+}
+
+/* Dimmed canvas backdrop when a bottom sheet is open */
+.canvas-dimmed::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  pointer-events: auto;
+}
+
+/* FAB button — bottom-right */
+.mobile-fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background-color: #0d6efd;
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  z-index: 200;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.mobile-fab:active {
+  transform: scale(0.92);
+}
+
+.mobile-fab.is-open {
+  background-color: #dc3545;
+}
+
+/* Bottom sheet container */
+.mobile-bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70vh;
+  background-color: #fff;
+  border-radius: 1rem 1rem 0 0;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18);
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Drag handle strip at top of bottom sheet */
+.bottom-sheet-handle {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 0 0.25rem;
+}
+
+.bottom-sheet-handle-bar {
+  width: 2.5rem;
+  height: 4px;
+  border-radius: 2px;
+  background-color: #dee2e6;
+}
+
+/* Scrollable content inside bottom sheet */
+.bottom-sheet-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 0 1rem;
+}
+
+/* Bottom sheet slide-up transition */
+.bottom-sheet-enter-active,
+.bottom-sheet-leave-active {
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.bottom-sheet-enter-from,
+.bottom-sheet-leave-to {
+  transform: translateY(100%);
+}
+
+/* Dark mode support for mobile layout */
+[data-bs-theme="dark"] .mobile-bottom-sheet {
+  background-color: #1e1e1e;
+}
+
+[data-bs-theme="dark"] .mobile-fab {
+  background-color: #0d6efd;
+}
+
+[data-bs-theme="dark"] .mobile-fab.is-open {
+  background-color: #dc3545;
+}
+
+[data-bs-theme="dark"] .canvas-dimmed::after {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+/* Tap-to-place mode styling in mobile palette */
+.entity-item.tap-selected {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
+  background-color: rgba(13, 110, 253, 0.08);
+  border-radius: 0.25rem;
+}

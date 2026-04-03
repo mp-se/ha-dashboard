@@ -48,6 +48,7 @@
       >
         <EntityPalette
           :entities-in-view="entitiesInView"
+          :mobile-mode="mobileMode"
           @add-entity="$emit('add-entity', $event)"
           @remove-entity="$emit('remove-entity', $event)"
         />
@@ -58,7 +59,10 @@
         v-show="activeTab === 'components'"
         class="tab-pane flex-grow-1 overflow-auto"
       >
-        <StaticComponentPalette />
+        <StaticComponentPalette
+          :mobile-mode="mobileMode"
+          @add-entity="$emit('add-entity', $event)"
+        />
       </div>
     </div>
   </div>
@@ -82,6 +86,10 @@ defineProps({
   entitiesInView: {
     type: Array,
     default: () => [],
+  },
+  mobileMode: {
+    type: Boolean,
+    default: false,
   },
 });
 

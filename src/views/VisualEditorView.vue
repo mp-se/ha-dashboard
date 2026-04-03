@@ -1,6 +1,10 @@
 <template>
   <div class="editor-container">
+    <!-- ============================================================
+         DESKTOP: three-column resizable layout
+         ============================================================ -->
     <div
+      v-if="!isMobile"
       class="row g-0 resizable-layout"
       style="height: calc(100vh - 100px); min-height: 400px"
     >
@@ -87,6 +91,86 @@
         </div>
       </div>
     </div>
+
+    <!-- ============================================================
+         MOBILE: full-width canvas + FAB + bottom sheets
+         ============================================================ -->
+    <div v-else class="mobile-editor-canvas" :class="{ 'canvas-dimmed': showMobilePanel || showMobileInspector }">
+      <EditorCanvas
+        :entities="currentViewEntities"
+        :selected-entity-id="selectedEntityId"
+        :mobile-inspect-mode="true"
+        @select-entity="onSelectEntity"
+        @reorder-entities="handleReorderEntities"
+        @remove-entity="handleRemoveEntity"
+        @add-entity="handleAddEntity"
+        @add-entity-at-index="handleAddEntityAtIndex"
+        @inspect-entity="onMobileInspectEntity"
+      />
+    </div>
+
+    <!-- Mobile FAB -->
+    <button
+      v-if="isMobile"
+      class="mobile-fab"
+      :class="{ 'is-open': showMobilePanel }"
+      :aria-label="showMobilePanel ? 'Close panel' : 'Open panel'"
+      @click="toggleMobilePanel"
+    >
+      <i :class="showMobilePanel ? 'mdi mdi-close' : 'mdi mdi-plus'" />
+    </button>
+
+    <!-- Mobile Panel bottom sheet (palette / views) -->
+    <Transition name="bottom-sheet">
+      <div v-if="isMobile && showMobilePanel" class="mobile-bottom-sheet">
+        <div class="bottom-sheet-handle">
+          <div class="bottom-sheet-handle-bar" />
+        </div>
+        <div class="bottom-sheet-content">
+          <LeftPanelTabs
+            :views="availableViews"
+            :selected-view-name="selectedViewName"
+            :entities-in-view="currentViewEntities"
+            :mobile-mode="true"
+            @view-created="handleViewCreated"
+            @view-deleted="handleViewDeleted"
+            @view-updated="handleViewUpdated"
+            @view-selected="selectedViewName = $event"
+            @add-entity="onMobilePaletteAdd"
+            @remove-entity="handleRemoveEntityByEntityId"
+          />
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Mobile Inspector bottom sheet -->
+    <Transition name="bottom-sheet">
+      <div v-if="isMobile && showMobileInspector" class="mobile-bottom-sheet">
+        <div class="bottom-sheet-handle">
+          <div class="bottom-sheet-handle-bar" />
+        </div>
+        <div class="d-flex align-items-center px-3 pt-2 pb-1">
+          <span class="fw-semibold flex-grow-1">Edit card</span>
+          <button class="btn btn-sm btn-outline-secondary" @click="showMobileInspector = false">
+            <i class="mdi mdi-close" />
+          </button>
+        </div>
+        <div class="bottom-sheet-content px-3">
+          <EntityInspector
+            v-if="selectedEntity"
+            :entity="selectedEntity"
+            :entity-id="selectedEntityId"
+            @update-type="handleUpdateEntityType"
+            @update-attributes="handleUpdateEntityAttributes"
+            @update-properties="handleUpdateEntityProperties"
+            @move-up="handleMoveUp"
+            @move-down="handleMoveDown"
+            @remove-entity="handleRemoveEntity(selectedEntityId)"
+            @deselect="onMobileInspectorDeselect"
+          />
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -94,6 +178,7 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue";
 import { useHaStore } from "../stores/haStore";
 import { useConfigStore } from "../stores/configStore";
+import { useIsMobile } from "../composables/useIsMobile";
 import {
   resetVisualEditorToolbar,
   useVisualEditorToolbar,
@@ -114,10 +199,52 @@ defineProps({
 
 const store = useHaStore();
 const configStore = useConfigStore();
+const { isMobile } = useIsMobile();
 
 const selectedViewName = ref("");
 const selectedEntityId = ref(null);
 const saveTimeout = ref(null);
+
+// Mobile bottom sheet state
+const showMobilePanel = ref(false);
+const showMobileInspector = ref(false);
+
+const toggleMobilePanel = () => {
+  showMobilePanel.value = !showMobilePanel.value;
+  if (showMobilePanel.value) {
+    showMobileInspector.value = false;
+  }
+};
+
+const onMobileInspectEntity = (entityId) => {
+  selectedEntityId.value = entityId;
+  showMobileInspector.value = true;
+  showMobilePanel.value = false;
+};
+
+const onMobileInspectorDeselect = () => {
+  showMobileInspector.value = false;
+  selectedEntityId.value = null;
+};
+
+/**
+ * Called when the user taps an entity in the mobile palette.
+ * Adds the entity and closes the panel.
+ */
+const onMobilePaletteAdd = (entityIdOrComponent) => {
+  if (selectedEntityId.value !== null && currentView.value?.entities) {
+    // Insert after the currently selected card
+    handleAddEntityAtIndex({
+      entity: entityIdOrComponent,
+      index: selectedEntityId.value + 1,
+    });
+    selectedEntityId.value = selectedEntityId.value + 1;
+  } else {
+    // Nothing selected — append to end
+    handleAddEntity(entityIdOrComponent);
+  }
+  showMobilePanel.value = false;
+};
 
 // Draft management
 const originalConfig = ref(null);
@@ -386,6 +513,46 @@ const handleRemoveEntity = (entityIndex) => {
 
   store.dashboardConfig.views[viewIndex].entities.splice(entityIndex, 1);
   selectedEntityId.value = null;
+  debouncedSave();
+};
+
+const handleMoveUp = () => {
+  if (selectedEntityId.value === null || !currentView.value) return;
+  if (selectedEntityId.value === 0) return; // Already at top
+
+  const viewIndex = store.dashboardConfig.views.findIndex(
+    (v) => v.name === selectedViewName.value,
+  );
+  if (viewIndex === -1) return;
+
+  const entities = store.dashboardConfig.views[viewIndex].entities;
+  if (!Array.isArray(entities)) return;
+
+  // Swap with previous item
+  const temp = entities[selectedEntityId.value - 1];
+  entities[selectedEntityId.value - 1] = entities[selectedEntityId.value];
+  entities[selectedEntityId.value] = temp;
+  selectedEntityId.value -= 1;
+  debouncedSave();
+};
+
+const handleMoveDown = () => {
+  if (selectedEntityId.value === null || !currentView.value) return;
+
+  const viewIndex = store.dashboardConfig.views.findIndex(
+    (v) => v.name === selectedViewName.value,
+  );
+  if (viewIndex === -1) return;
+
+  const entities = store.dashboardConfig.views[viewIndex].entities;
+  if (!Array.isArray(entities)) return;
+  if (selectedEntityId.value >= entities.length - 1) return; // Already at bottom
+
+  // Swap with next item
+  const temp = entities[selectedEntityId.value + 1];
+  entities[selectedEntityId.value + 1] = entities[selectedEntityId.value];
+  entities[selectedEntityId.value] = temp;
+  selectedEntityId.value += 1;
   debouncedSave();
 };
 

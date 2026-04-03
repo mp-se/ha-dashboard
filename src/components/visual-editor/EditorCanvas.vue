@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="canvasRef"
     class="editor-canvas p-4"
     @dragover.prevent="handleDragOver"
     @drop.prevent="handleDrop"
@@ -47,6 +48,7 @@
             @drop.prevent="handleEntityDrop(index, $event)"
             @dragend="handleEntityDragEnd"
             @click.stop="onCardClick(index)"
+            @dblclick.stop="emit('inspect-entity', index)"
           />
           <!-- Drop indicator for EntityList -->
           <div
@@ -86,6 +88,7 @@
               'editor-conditional': isConditionalComponent(entity),
             }"
             @click.stop="onCardClick(index)"
+            @dblclick.stop="emit('inspect-entity', index)"
           >
             <!-- Component preview -->
             <div class="component-wrapper">
@@ -115,7 +118,7 @@
 </template>
 
 <script setup>
-import { watch } from "vue";
+import { ref, watch } from "vue";
 
 // Import composables
 import { useEditorDragDrop } from "../../composables/editor/useEditorDragDrop";
@@ -163,6 +166,10 @@ const props = defineProps({
     type: [Number, null],
     default: null,
   },
+  mobileInspectMode: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits([
@@ -171,6 +178,7 @@ const emit = defineEmits([
   "remove-entity",
   "add-entity",
   "add-entity-at-index",
+  "inspect-entity",
 ]);
 
 // Map component types to imported components
@@ -207,6 +215,7 @@ const componentMap = {
 };
 
 // State management - use composable for ref and computed, handle watch in component for reactivity
+const canvasRef = ref(null);
 const { localEntities, entityCount } = useEditorState(props.entities);
 
 // Watch for prop changes and sync local state
