@@ -114,7 +114,8 @@
     </div>
 
     <!-- Floating toolbar: [Up] [Down] [Delete] [Edit] [+] -->
-    <div v-if="isMobile" class="floating-toolbar">
+    <!-- @touchstart.stop prevents touch fall-through to canvas cards behind the toolbar -->
+    <div v-if="isMobile" class="floating-toolbar" @touchstart.stop @touchend.stop>
       <!-- Move Up — always rendered, disabled at top so layout stays stable -->
       <button
         v-show="selectedEntityId !== null"
