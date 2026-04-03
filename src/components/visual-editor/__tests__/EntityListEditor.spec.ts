@@ -61,13 +61,13 @@ describe("EntityListEditor.vue", () => {
       expect(wrapper.text()).toContain("Select Entities");
     });
 
-    it("displays help text", () => {
-      expect(wrapper.text()).toContain("Choose entities to display");
+    it("displays the label", () => {
+      expect(wrapper.text()).toContain("Entities");
     });
 
     it("shows empty state when no entities", () => {
       expect(wrapper.find(".drop-zone-empty").exists()).toBe(true);
-      expect(wrapper.text()).toContain("Drag entities here to add");
+      expect(wrapper.text()).toContain("No entities added");
     });
 
     it("shows list when entities exist", async () => {
@@ -138,14 +138,15 @@ describe("EntityListEditor.vue", () => {
 
     it("does not show delete button for first entity", async () => {
       const items = wrapper.findAll(".list-group-item");
-      const firstItemDeleteBtn = items[0].find(".btn-outline-danger");
-      expect(firstItemDeleteBtn.exists()).toBe(false);
+      // First entity is locked — no click selection, no inline delete
+      expect(items[0].classes()).toContain("entity-item-locked");
     });
 
-    it("shows delete button for other entities", async () => {
-      const items = wrapper.findAll(".list-group-item");
-      const secondItemDeleteBtn = items[1].find(".btn-outline-danger");
-      expect(secondItemDeleteBtn.exists()).toBe(true);
+    it("clicking a non-locked entity row selects it", async () => {
+      const secondItem = wrapper.findAll(".list-group-item")[1];
+      await secondItem.trigger("click");
+      expect(wrapper.emitted("entity-index-selected")).toBeTruthy();
+      expect(wrapper.emitted("entity-index-selected")![0][0]).toBe(1);
     });
   });
 
@@ -158,21 +159,19 @@ describe("EntityListEditor.vue", () => {
     });
 
     it("emits update with entity removed", async () => {
-      const deleteBtn = wrapper.findAll(".btn-outline-danger")[0]; // Second item
-      await deleteBtn.trigger("click");
+      wrapper.vm.removeEntity(1); // Remove second item (index 1)
       expect(wrapper.emitted("update:modelValue")).toBeTruthy();
-      expect(wrapper.emitted("update:modelValue")[0][0]).toEqual([
+      expect(wrapper.emitted("update:modelValue")![0][0]).toEqual([
         "light.living_room",
         "switch.garage",
       ]);
     });
 
     it("removes correct entity from list", async () => {
-      const deleteButtons = wrapper.findAll(".btn-outline-danger");
-      await deleteButtons[0].trigger("click"); // Remove second entity (light.bedroom)
+      wrapper.vm.removeEntity(1); // Remove second entity (light.bedroom)
       await nextTick();
 
-      const updatedEntities = wrapper.emitted("update:modelValue")[0][0];
+      const updatedEntities = wrapper.emitted("update:modelValue")![0][0] as string[];
       expect(updatedEntities).not.toContain("light.bedroom");
       expect(updatedEntities).toContain("light.living_room");
       expect(updatedEntities).toContain("switch.garage");

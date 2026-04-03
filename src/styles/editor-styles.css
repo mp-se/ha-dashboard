@@ -383,31 +383,11 @@
   pointer-events: auto;
 }
 
-/* Floating toolbar — displays [Up] [Down] [Edit] [+] in one row at bottom-right */
-.floating-toolbar {
-  position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  display: flex;
-  flex-direction: row;
-  gap: 0.75rem;
-  align-items: center;
-  z-index: 200;
-  animation: slideInToolbar 0.2s ease-out;
-}
-
-@keyframes slideInToolbar {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.floating-toolbar .btn-fab {
+/* ============================================================
+   Generic .btn-fab — used by EditorActionBar (inline rows)
+   and the main floating toolbar in VisualEditorView.
+   ============================================================ */
+.btn-fab {
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
@@ -430,16 +410,16 @@
   touch-action: manipulation;
 }
 
-.floating-toolbar .btn-fab:hover {
+.btn-fab:hover {
   background-color: #0b5ed7;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
 }
 
-.floating-toolbar .btn-fab:active {
+.btn-fab:active {
   transform: scale(0.92);
 }
 
-.floating-toolbar .btn-fab:disabled {
+.btn-fab:disabled {
   opacity: 0.35;
   cursor: not-allowed;
   box-shadow: none;
@@ -449,20 +429,73 @@
      The native `disabled` attribute already prevents the click handler. */
 }
 
-.floating-toolbar .btn-fab.btn-fab-danger {
+.btn-fab.btn-fab-danger {
   background-color: #dc3545;
 }
 
-.floating-toolbar .btn-fab.btn-fab-danger:hover {
+.btn-fab.btn-fab-danger:hover {
   background-color: #bb2d3b;
 }
 
-.floating-toolbar .btn-fab.is-open {
+.btn-fab.btn-fab-secondary {
+  background-color: #6c757d;
+}
+
+.btn-fab.btn-fab-secondary:hover {
+  background-color: #5a6268;
+}
+
+.btn-fab.is-open {
   background-color: #dc3545;
 }
 
-.floating-toolbar .btn-fab.is-open:hover {
+.btn-fab.is-open:hover {
   background-color: #bb2d3b;
+}
+
+/* Smaller variant for dense inline rows (ViewManager, EntityListEditor) */
+.btn-fab.btn-fab-sm {
+  width: 2rem;
+  height: 2rem;
+  font-size: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+/* ============================================================
+   EditorActionBar — always inline flex row.
+   .floating-toolbar wraps it when fixed positioning is needed.
+   ============================================================ */
+.editor-action-bar {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+/* Floating toolbar — wraps EditorActionBar + main FAB at bottom-right */
+.floating-toolbar {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: nowrap;
+  z-index: 200;
+  animation: slideInToolbar 0.2s ease-out;
+}
+
+@keyframes slideInToolbar {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Bottom sheet container */
@@ -521,19 +554,19 @@
   background-color: #1e1e1e;
 }
 
-[data-bs-theme="dark"] .floating-toolbar .btn-fab {
+[data-bs-theme="dark"] .btn-fab {
   background-color: #0d6efd;
 }
 
-[data-bs-theme="dark"] .floating-toolbar .btn-fab:hover {
+[data-bs-theme="dark"] .btn-fab:hover {
   background-color: #0b5ed7;
 }
 
-[data-bs-theme="dark"] .floating-toolbar .btn-fab.is-open {
+[data-bs-theme="dark"] .btn-fab.is-open {
   background-color: #dc3545;
 }
 
-[data-bs-theme="dark"] .floating-toolbar .btn-fab.is-open:hover {
+[data-bs-theme="dark"] .btn-fab.is-open:hover {
   background-color: #bb2d3b;
 }
 

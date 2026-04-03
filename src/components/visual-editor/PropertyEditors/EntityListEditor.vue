@@ -17,13 +17,15 @@
         <div
           v-for="(entity, index) in entities"
           :key="`${entity}-${index}`"
+          draggable="true"
           class="list-group-item list-group-item-sm d-flex justify-content-between align-items-center"
           :class="{
             'entity-item-locked': isFirstEntity(index),
             'entity-item-dragging': draggedIndex === index,
             'list-group-drop-active': isDragOver,
+            'entity-item-selected': selectedEntityListIndex === index && !isFirstEntity(index),
           }"
-          draggable="true"
+          @click="selectEntityItem(index)"
           @dragstart="startDrag($event, index)"
           @dragenter.prevent="onDragEnter($event, index)"
           @dragleave.prevent="onDragLeave"
@@ -32,29 +34,22 @@
           @dragend="endDrag"
         >
           <div class="d-flex align-items-center flex-grow-1 gap-2">
-            <i
-              v-if="!isFirstEntity(index)"
-              class="mdi mdi-drag-vertical text-muted"
-              style="cursor: grab"
-            ></i>
-            <i v-else class="mdi mdi-lock text-muted"></i>
-            <div>
+              <!-- Lock icon for first (room) entity -->
+              <i v-if="isFirstEntity(index)" class="mdi mdi-lock text-muted"></i>
+              <!-- Drag handle for reordering on desktop (always shown for non-locked) -->
+              <i
+                v-else
+                class="mdi mdi-drag-vertical text-muted"
+                style="cursor: grab"
+              ></i>
+            <div class="flex-grow-1">
               <div class="small fw-bold">{{ getEntityLabel(entity) }}</div>
               <div class="text-muted" style="font-size: 0.75rem">
                 {{ entity }}
               </div>
             </div>
           </div>
-          <button
-            v-if="!isFirstEntity(index)"
-            type="button"
-            class="btn btn-sm btn-outline-danger"
-            title="Remove entity"
-            @click="removeEntity(index)"
-          >
-            <i class="mdi mdi-trash-can"></i>
-          </button>
-          <span v-else class="badge bg-info">Room</span>
+          <span v-if="isFirstEntity(index)" class="badge bg-info">Room</span>
         </div>
       </div>
 
@@ -68,19 +63,18 @@
         @drop.prevent="handleDropOnEmptyList"
       >
         <small class="text-muted d-block">
-          <i class="mdi mdi-cloud-upload-outline me-1"></i>
-          Drag entities here to add
+          <i class="mdi mdi-playlist-plus me-1"></i>
+          No entities added
         </small>
       </div>
     </div>
 
-    <small v-if="help" class="text-muted d-block mt-2">{{ help }}</small>
     <small v-if="error" class="text-danger d-block mt-2">{{ error }}</small>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useHaStore } from "@/stores/haStore";
 
 const props = defineProps({
@@ -92,10 +86,7 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  help: {
-    type: String,
-    default: "",
-  },
+
   required: {
     type: Boolean,
     default: false,
@@ -108,14 +99,30 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  selectedIndex: {
+    type: Number,
+    default: null,
+  },
 });
 
-const emit = defineEmits(["update:modelValue", "all-entities-removed"]);
+const emit = defineEmits(["update:modelValue", "all-entities-removed", "entity-index-selected"]);
 
 const store = useHaStore();
 const isDragOver = ref(false);
 const draggedIndex = ref(null);
 const dragOverIndex = ref(null);
+const selectedEntityListIndex = ref(props.selectedIndex);
+
+watch(() => props.selectedIndex, (val) => {
+  selectedEntityListIndex.value = val;
+});
+
+const selectEntityItem = (index) => {
+  if (isFirstEntity(index)) return;
+  const newIndex = selectedEntityListIndex.value === index ? null : index;
+  selectedEntityListIndex.value = newIndex;
+  emit("entity-index-selected", newIndex);
+};
 
 const entities = computed({
   get: () => props.modelValue || [],
@@ -145,6 +152,22 @@ const getEntityLabel = (entityId) => {
 /** Check if an entity is the first one (room entity - locked) */
 const isFirstEntity = (index) => {
   return props.lockFirstEntity && index === 0 && entities.value.length > 0;
+};
+
+/** Move entity up in the list */
+const moveUp = (index) => {
+  if (index <= (props.lockFirstEntity ? 1 : 0)) return;
+  const arr = [...entities.value];
+  [arr[index - 1], arr[index]] = [arr[index], arr[index - 1]];
+  emit("update:modelValue", arr);
+};
+
+/** Move entity down in the list */
+const moveDown = (index) => {
+  if (index >= entities.value.length - 1) return;
+  const arr = [...entities.value];
+  [arr[index], arr[index + 1]] = [arr[index + 1], arr[index]];
+  emit("update:modelValue", arr);
 };
 
 /** Extract entity ID from drag event */
@@ -263,6 +286,9 @@ const removeEntity = (index) => {
   }
   entities.value = newArray;
 };
+
+// Expose internal methods for testing and parent access
+defineExpose({ moveUp, moveDown, removeEntity });
 </script>
 
 <style scoped>
@@ -359,16 +385,22 @@ const removeEntity = (index) => {
   border: 2px dashed #0d6efd;
 }
 
+.entity-item-selected {
+  background-color: #cfe2ff !important;
+  border-left: 3px solid #0d6efd !important;
+  cursor: pointer;
+}
+
+.entity-item-selected:hover {
+  background-color: #b6d4fe !important;
+}
+
 .list-group-item {
-  cursor: grab;
+  cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .list-group-item:hover {
   background-color: #f8f9fa;
-}
-
-.list-group-item:active {
-  cursor: grabbing;
 }
 </style>

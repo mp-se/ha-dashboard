@@ -8,7 +8,7 @@
         class="tab-button flex-fill py-2 px-1 text-center"
         :class="{ active: activeTab === tab.id }"
         :title="tab.label"
-        @click="activeTab = tab.id"
+        @click="activeTab = tab.id; $emit('tab-changed', tab.id)"
       >
         <i
           :class="`mdi ${tab.icon} fs-4 ${
@@ -32,12 +32,14 @@
         class="tab-pane flex-grow-1 overflow-auto"
       >
         <ViewManager
+          ref="viewManagerRef"
           :views="views"
           :selected-view-name="selectedViewName"
           @view-created="$emit('view-created', $event)"
           @view-deleted="$emit('view-deleted', $event)"
           @view-updated="$emit('view-updated', $event)"
           @view-selected="$emit('view-selected', $event)"
+          @view-index-selected="$emit('view-index-selected', $event)"
         />
       </div>
 
@@ -69,12 +71,27 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import ViewManager from "./ViewManager.vue";
 import EntityPalette from "./EntityPalette.vue";
 import StaticComponentPalette from "./StaticComponentPalette.vue";
 
-defineProps({
+const viewManagerRef = ref(null);
+defineExpose({ viewManagerRef });
+
+defineEmits([
+  "view-created",
+  "view-deleted",
+  "view-updated",
+  "view-selected",
+  "view-index-selected",
+  "add-entity",
+  "remove-entity",
+  "entity-index-selected",
+  "tab-changed",
+]);
+
+const props = defineProps({
   views: {
     type: Array,
     required: true,
@@ -91,18 +108,20 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  initialTab: {
+    type: String,
+    default: "views",
+  },
 });
 
-defineEmits([
-  "view-created",
-  "view-deleted",
-  "view-updated",
-  "view-selected",
-  "add-entity",
-  "remove-entity",
-]);
+const activeTab = ref(props.initialTab);
 
-const activeTab = ref("views");
+watch(
+  () => props.initialTab,
+  (tab) => {
+    if (tab) activeTab.value = tab;
+  },
+);
 
 const tabs = [
   {

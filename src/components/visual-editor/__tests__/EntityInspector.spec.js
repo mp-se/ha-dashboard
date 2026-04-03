@@ -229,22 +229,10 @@ describe("EntityInspector.vue", () => {
   });
 
   describe("Button Actions", () => {
-    it("emits deselect event when deselect button clicked", async () => {
+    it("does not render inline deselect or remove buttons (moved to floating toolbar)", () => {
       wrapper = createWrapper();
-      const deselectBtn = wrapper.find('button[title="Deselect this entity"]');
-      if (deselectBtn.exists()) {
-        await deselectBtn.trigger("click");
-        expect(wrapper.emitted("deselect")).toBeTruthy();
-      }
-    });
-
-    it("emits remove-entity event when remove button clicked", async () => {
-      wrapper = createWrapper();
-      const removeBtn = wrapper.find('button[title="Remove this entity"]');
-      if (removeBtn.exists()) {
-        await removeBtn.trigger("click");
-        expect(wrapper.emitted("remove-entity")).toBeTruthy();
-      }
+      expect(wrapper.find('button[title="Deselect this entity"]').exists()).toBe(false);
+      expect(wrapper.find('button[title="Remove this entity from the view"]').exists()).toBe(false);
     });
   });
 

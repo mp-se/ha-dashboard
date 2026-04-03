@@ -18,6 +18,7 @@
         }"
       >
         <LeftPanelTabs
+          ref="desktopLeftPanelRef"
           :views="availableViews"
           :selected-view-name="selectedViewName"
           :entities-in-view="currentViewEntities"
@@ -25,6 +26,8 @@
           @view-deleted="handleViewDeleted"
           @view-updated="handleViewUpdated"
           @view-selected="selectedViewName = $event"
+          @view-index-selected="onViewIndexSelected"
+          @tab-changed="onPanelTabChanged"
           @add-entity="handleAddEntity"
           @remove-entity="handleRemoveEntityByEntityId"
         />
@@ -81,11 +84,13 @@
           v-if="selectedEntity"
           :entity="selectedEntity"
           :entity-id="selectedEntityId"
+          :entity-list-selected-index="inspectorEntityListIndex"
           @update-type="handleUpdateEntityType"
           @update-attributes="handleUpdateEntityAttributes"
           @update-properties="handleUpdateEntityProperties"
           @remove-entity="handleRemoveEntity(selectedEntityId)"
-          @deselect="selectedEntityId = null"
+          @deselect="selectedEntityId = null; inspectorEntityListIndex = null"
+          @entity-index-selected="inspectorEntityListIndex = $event"
         />
         <div v-else class="p-3 text-muted text-center">
           <i class="mdi mdi-information-outline me-2"></i>
@@ -113,67 +118,36 @@
       />
     </div>
 
-    <!-- Floating toolbar: [Up] [Down] [Delete] [Edit] [+] -->
-    <!-- @touchstart.stop: stops touch bubbling to canvas cards behind the toolbar.
-         Individual buttons use @touchend.prevent to stop the browser generating
-         a ghost click 300ms after touchend (which would fall through to canvas). -->
-    <div v-if="isMobile" class="floating-toolbar" @touchstart.stop>
-      <!-- Move Up — always rendered, disabled at top so layout stays stable -->
-      <button
-        v-show="selectedEntityId !== null"
-        :disabled="selectedEntityId === 0"
-        title="Move Up"
-        class="btn-fab"
-        @touchend.prevent="handleMoveUp()"
-        @click="handleMoveUp()"
-      >
-        <i class="mdi mdi-arrow-up" />
-      </button>
-
-      <!-- Move Down — always rendered, disabled at bottom -->
-      <button
-        v-show="selectedEntityId !== null"
-        :disabled="selectedEntityId !== null && selectedEntityId >= currentViewEntities.length - 1"
-        title="Move Down"
-        class="btn-fab"
-        @touchend.prevent="handleMoveDown()"
-        @click="handleMoveDown()"
-      >
-        <i class="mdi mdi-arrow-down" />
-      </button>
-
-      <!-- Delete (red) -->
-      <button
-        v-show="selectedEntityId !== null"
-        title="Delete"
-        class="btn-fab btn-fab-danger"
-        @touchend.prevent="handleRemoveEntity(selectedEntityId)"
-        @click="handleRemoveEntity(selectedEntityId)"
-      >
-        <i class="mdi mdi-delete" />
-      </button>
-
-      <!-- Edit -->
-      <button
-        v-show="selectedEntityId !== null"
-        title="Edit"
-        class="btn-fab"
-        @touchend.prevent="showMobileInspector = true; showMobilePanel = false"
-        @click="showMobileInspector = true; showMobilePanel = false"
-      >
-        <i class="mdi mdi-pencil" />
-      </button>
-
-      <!-- Add/Close -->
-      <button
-        class="btn-fab"
-        :class="{ 'is-open': showMobilePanel }"
-        :aria-label="showMobilePanel ? 'Close panel' : 'Open panel'"
-        @touchend.prevent="toggleMobilePanel"
-        @click="toggleMobilePanel"
-      >
-        <i :class="showMobilePanel ? 'mdi mdi-close' : 'mdi mdi-plus'" />
-      </button>
+    <!-- Floating toolbar: [Up] [Down] [Delete] [Edit] [+/×]
+         EditorActionBar handles Up/Down/Delete/Edit. Main FAB stays here
+         because it has context-aware open/close logic specific to this view.
+         @touchstart.stop on the wrapper prevents touch bleed to canvas cards. -->
+    <!-- ============================================================
+         UNIFIED FLOATING TOOLBAR — all screen sizes
+         Context-aware buttons based on what is selected/open.
+         Priority: entity-list > inspector > view > card > default
+         ============================================================ -->
+    <div class="floating-toolbar" @touchstart.stop @touchend.stop>
+      <EditorActionBar
+        :show-up="toolbarShowUp"
+        :show-down="toolbarShowDown"
+        :show-edit="toolbarShowEdit"
+        :show-delete="toolbarShowDelete"
+        :show-add="toolbarShowAdd"
+        :show-close="toolbarShowClose"
+        :can-move-up="toolbarCanMoveUp"
+        :can-move-down="toolbarCanMoveDown"
+        edit-label="Edit card properties"
+        delete-label="Delete"
+        add-label="Add"
+        close-label="Close"
+        @move-up="handleToolbarMoveUp"
+        @move-down="handleToolbarMoveDown"
+        @edit="handleToolbarEdit"
+        @delete="handleToolbarDelete"
+        @add="handleToolbarAdd"
+        @close="handleToolbarClose"
+      />
     </div>
 
     <!-- Mobile Panel bottom sheet (palette / views) -->
@@ -184,14 +158,18 @@
         </div>
         <div class="bottom-sheet-content">
           <LeftPanelTabs
+            ref="mobileLeftPanelRef"
             :views="availableViews"
             :selected-view-name="selectedViewName"
             :entities-in-view="currentViewEntities"
             :mobile-mode="true"
+            initial-tab="entities"
             @view-created="handleViewCreated"
             @view-deleted="handleViewDeleted"
             @view-updated="handleViewUpdated"
             @view-selected="selectedViewName = $event"
+            @view-index-selected="onViewIndexSelected"
+            @tab-changed="onPanelTabChanged"
             @add-entity="onMobilePaletteAdd"
             @remove-entity="handleRemoveEntityByEntityId"
           />
@@ -205,22 +183,18 @@
         <div class="bottom-sheet-handle">
           <div class="bottom-sheet-handle-bar" />
         </div>
-        <div class="d-flex align-items-center px-3 pt-2 pb-1">
-          <span class="fw-semibold flex-grow-1">Edit card</span>
-          <button class="btn btn-sm btn-outline-secondary" @click="showMobileInspector = false">
-            <i class="mdi mdi-close" />
-          </button>
-        </div>
         <div class="bottom-sheet-content px-3">
           <EntityInspector
             v-if="selectedEntity"
             :entity="selectedEntity"
             :entity-id="selectedEntityId"
+            :entity-list-selected-index="inspectorEntityListIndex"
             @update-type="handleUpdateEntityType"
             @update-attributes="handleUpdateEntityAttributes"
             @update-properties="handleUpdateEntityProperties"
             @remove-entity="handleRemoveEntity(selectedEntityId)"
             @deselect="onMobileInspectorDeselect"
+            @entity-index-selected="inspectorEntityListIndex = $event"
           />
         </div>
       </div>
@@ -240,7 +214,9 @@ import {
 import EditorCanvas from "../components/visual-editor/EditorCanvas.vue";
 import EntityInspector from "../components/visual-editor/EntityInspector.vue";
 import LeftPanelTabs from "../components/visual-editor/LeftPanelTabs.vue";
+import EditorActionBar from "../components/visual-editor/EditorActionBar.vue";
 import { createLogger } from "../utils/logger";
+import { supportsMultipleEntities } from "../utils/cardPropertyMetadata";
 import "../styles/editor-styles.css";
 
 const logger = createLogger("VisualEditorView");
@@ -259,15 +235,212 @@ const selectedViewName = ref("");
 const selectedEntityId = ref(null);
 const saveTimeout = ref(null);
 
+// Left panel refs (desktop + mobile) — used to call ViewManager methods
+const desktopLeftPanelRef = ref(null);
+const mobileLeftPanelRef = ref(null);
+
+// Active ViewManager proxy — resolves to whichever panel is currently mounted/visible
+const activeViewManager = computed(() =>
+  isMobile.value
+    ? mobileLeftPanelRef.value?.viewManagerRef
+    : desktopLeftPanelRef.value?.viewManagerRef
+);
+
+// Index of the view selected in ViewManager (for toolbar up/down/edit/delete)
+const selectedViewIndex = ref(null);
+
+const onViewIndexSelected = (index) => {
+  selectedViewIndex.value = index;
+};
+
+const onPanelTabChanged = (tab) => {
+  if (tab !== 'views') selectedViewIndex.value = null;
+};
+
 // Mobile bottom sheet state
 const showMobilePanel = ref(false);
 const showMobileInspector = ref(false);
+// When true, selecting from palette adds entity to the current card's entity list
+const addToInspectorMode = ref(false);
+// Index of the entity selected within the inspector's EntityListEditor
+const inspectorEntityListIndex = ref(null);
 
-const toggleMobilePanel = () => {
-  showMobilePanel.value = !showMobilePanel.value;
-  if (showMobilePanel.value) {
-    showMobileInspector.value = false;
+// Reset view and entity list selection when panel closes
+watch(showMobilePanel, (val) => {
+  if (!val) {
+    selectedViewIndex.value = null;
+    activeViewManager.value?.triggerDeselect?.();
   }
+});
+
+// Reset entity list selection when inspector closes
+watch(showMobileInspector, (val) => {
+  if (!val) inspectorEntityListIndex.value = null;
+});
+
+/**
+ * Toolbar state machine — determines which context is active.
+ * Priority: entity-list > inspector > panel-view-selected > panel > card > default
+ */
+const toolbarContext = computed(() => {
+  const panelOpen = showMobilePanel.value;
+  const inspectorOpen = showMobileInspector.value || (!isMobile.value && selectedEntityId.value !== null);
+  if (inspectorOpen && inspectorEntityListIndex.value !== null) return 'entity-list';
+  if (inspectorOpen) return 'inspector';
+  if (panelOpen && selectedViewIndex.value !== null) return 'view-selected';
+  if (panelOpen) return 'panel';
+  if (!isMobile.value && selectedViewIndex.value !== null) return 'view-selected';
+  if (selectedEntityId.value !== null) return 'card-selected';
+  return 'default';
+});
+
+// --- Toolbar visibility ---
+const toolbarShowUp     = computed(() => ['entity-list', 'card-selected', 'view-selected'].includes(toolbarContext.value));
+const toolbarShowDown   = computed(() => ['entity-list', 'card-selected', 'view-selected'].includes(toolbarContext.value));
+const toolbarShowEdit   = computed(() => ['card-selected', 'view-selected'].includes(toolbarContext.value));
+const toolbarShowDelete = computed(() => ['entity-list', 'card-selected', 'view-selected', 'inspector'].includes(toolbarContext.value));
+const toolbarShowAdd    = computed(() => {
+  const ctx = toolbarContext.value;
+  if (ctx === 'inspector') return selectedEntitySupportsMultiple.value;
+  return ['card-selected', 'view-selected', 'panel', 'default'].includes(ctx);
+});
+const toolbarShowClose  = computed(() => toolbarContext.value !== 'default');
+
+// --- Toolbar disabled states ---
+const toolbarCanMoveUp = computed(() => {
+  const ctx = toolbarContext.value;
+  if (ctx === 'entity-list') return inspectorEntityListIndex.value > 0;
+  if (ctx === 'card-selected') return selectedEntityId.value !== null && selectedEntityId.value !== 0;
+  if (ctx === 'view-selected') return selectedViewIndex.value > 0;
+  return false;
+});
+const toolbarCanMoveDown = computed(() => {
+  const ctx = toolbarContext.value;
+  if (ctx === 'entity-list') return inspectorEntityListIndex.value !== null && inspectorEntityListIndex.value < inspectorEntityList.value.length - 1;
+  if (ctx === 'card-selected') return selectedEntityId.value !== null && selectedEntityId.value < currentViewEntities.value.length - 1;
+  if (ctx === 'view-selected') return selectedViewIndex.value !== null && selectedViewIndex.value < (availableViews.value.length - 1);
+  return false;
+});
+
+// --- Toolbar handlers ---
+const handleToolbarMoveUp = () => {
+  const ctx = toolbarContext.value;
+  if (ctx === 'entity-list') handleInspectorEntityMoveUp();
+  else if (ctx === 'card-selected') handleMoveUp();
+  else if (ctx === 'view-selected') activeViewManager.value?.triggerMoveUp(selectedViewIndex.value);
+};
+const handleToolbarMoveDown = () => {
+  const ctx = toolbarContext.value;
+  if (ctx === 'entity-list') handleInspectorEntityMoveDown();
+  else if (ctx === 'card-selected') handleMoveDown();
+  else if (ctx === 'view-selected') activeViewManager.value?.triggerMoveDown(selectedViewIndex.value);
+};
+const handleToolbarEdit = () => {
+  const ctx = toolbarContext.value;
+  if (ctx === 'card-selected') {
+    if (isMobile.value) { showMobileInspector.value = true; showMobilePanel.value = false; }
+  } else if (ctx === 'view-selected') {
+    activeViewManager.value?.triggerEdit(selectedViewIndex.value);
+  }
+};
+const handleToolbarDelete = () => {
+  const ctx = toolbarContext.value;
+  if (ctx === 'entity-list') handleInspectorEntityDelete();
+  else if (ctx === 'card-selected' || ctx === 'inspector') handleRemoveEntity(selectedEntityId.value);
+  else if (ctx === 'view-selected') activeViewManager.value?.triggerDelete(selectedViewIndex.value);
+};
+const handleToolbarAdd = () => {
+  const ctx = toolbarContext.value;
+  if (ctx === 'inspector' && selectedEntitySupportsMultiple.value) {
+    openAddToInspectorPalette();
+  } else if (ctx === 'view-selected' || ctx === 'panel') {
+    activeViewManager.value?.triggerAdd();
+  } else {
+    // card-selected or default — open entity palette
+    if (isMobile.value) { showMobilePanel.value = true; showMobileInspector.value = false; }
+  }
+};
+const handleToolbarClose = () => {
+  const ctx = toolbarContext.value;
+  if (ctx === 'entity-list') {
+    inspectorEntityListIndex.value = null;
+  } else if (ctx === 'inspector') {
+    if (isMobile.value) { showMobileInspector.value = false; }
+    else { selectedEntityId.value = null; inspectorEntityListIndex.value = null; }
+  } else if (ctx === 'panel' || ctx === 'view-selected') {
+    showMobilePanel.value = false;
+    selectedViewIndex.value = null;
+    activeViewManager.value?.triggerDeselect?.();
+  } else if (ctx === 'card-selected') {
+    selectedEntityId.value = null;
+  }
+};
+
+/**
+ * Open palette in add-to-inspector mode (adds entity to current card's array).
+ */
+const openAddToInspectorPalette = () => {
+  addToInspectorMode.value = true;
+  showMobilePanel.value = true;
+  showMobileInspector.value = false;
+  inspectorEntityListIndex.value = null;
+};
+
+/**
+ * Get the entity array from the currently selected card (multi-entity cards).
+ */
+const inspectorEntityList = computed(() => {
+  if (selectedEntityId.value === null) return [];
+  const card = currentViewEntities.value[selectedEntityId.value];
+  if (!card) return [];
+  if (Array.isArray(card.entities)) return card.entities;
+  if (Array.isArray(card.entity)) return card.entity;
+  return [];
+});
+
+/**
+ * Update the entity array on the selected card via the config store.
+ */
+const updateInspectorEntityList = (newArr) => {
+  const viewIndex = store.dashboardConfig?.views?.findIndex(
+    (v) => v.name === selectedViewName.value
+  );
+  if (viewIndex === -1 || viewIndex === undefined) return;
+  const card = store.dashboardConfig.views[viewIndex].entities[selectedEntityId.value];
+  if (!card) return;
+  if (Array.isArray(card.entities)) {
+    card.entities = newArr;
+  } else {
+    card.entity = newArr;
+  }
+  store.dashboardConfig.views[viewIndex].entities = [...store.dashboardConfig.views[viewIndex].entities];
+};
+
+const handleInspectorEntityMoveUp = () => {
+  const idx = inspectorEntityListIndex.value;
+  if (idx === null || idx <= 0) return;
+  const arr = [...inspectorEntityList.value];
+  [arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]];
+  updateInspectorEntityList(arr);
+  inspectorEntityListIndex.value = idx - 1;
+};
+
+const handleInspectorEntityMoveDown = () => {
+  const idx = inspectorEntityListIndex.value;
+  if (idx === null || idx >= inspectorEntityList.value.length - 1) return;
+  const arr = [...inspectorEntityList.value];
+  [arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]];
+  updateInspectorEntityList(arr);
+  inspectorEntityListIndex.value = idx + 1;
+};
+
+const handleInspectorEntityDelete = () => {
+  const idx = inspectorEntityListIndex.value;
+  if (idx === null) return;
+  const arr = [...inspectorEntityList.value];
+  arr.splice(idx, 1);
+  updateInspectorEntityList(arr);
+  inspectorEntityListIndex.value = null;
 };
 
 const onMobileInspectEntity = (entityId) => {
@@ -283,9 +456,18 @@ const onMobileInspectorDeselect = () => {
 
 /**
  * Called when the user taps an entity in the mobile palette.
- * Adds the entity and closes the panel.
+ * If addToInspectorMode, appends the entity to the current card's entity array.
+ * Otherwise, inserts a new card after the selected card.
  */
 const onMobilePaletteAdd = (entityIdOrComponent) => {
+  if (addToInspectorMode.value) {
+    // Add entity to the current card's entity list
+    handleAddEntityToInspector(entityIdOrComponent);
+    showMobilePanel.value = false;
+    showMobileInspector.value = true;
+    addToInspectorMode.value = false;
+    return;
+  }
   if (selectedEntityId.value !== null && currentView.value?.entities) {
     // Insert after the currently selected card
     handleAddEntityAtIndex({
@@ -346,6 +528,27 @@ const selectedEntity = computed(() => {
   }
   return entities.find((_, idx) => idx === selectedEntityId.value);
 });
+
+/** True if the currently selected card supports multiple entities */
+const selectedEntitySupportsMultiple = computed(() => {
+  if (!selectedEntity.value) return false;
+  return supportsMultipleEntities(selectedEntity.value.type || "");
+});
+
+/**
+ * Append an entity ID to the currently selected card's entity array.
+ * Handles single-entity cards by converting them to an array first.
+ */
+const handleAddEntityToInspector = (entityId) => {
+  if (selectedEntityId.value === null || !selectedEntity.value) return;
+  const card = selectedEntity.value;
+  const current = Array.isArray(card.entity)
+    ? [...card.entity]
+    : card.entity
+      ? [card.entity]
+      : [];
+  handleUpdateEntityProperties({ entity: [...current, entityId] });
+};
 
 /**
  * Debounced save function - waits 500ms before saving to allow user to finish editing

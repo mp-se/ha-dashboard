@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
+import { nextTick } from "vue";
 import ViewManager from "@/components/visual-editor/ViewManager.vue";
 import { createPinia, setActivePinia } from "pinia";
 import { useConfigStore } from "@/stores/configStore";
@@ -59,30 +60,30 @@ describe("ViewManager.vue", () => {
       expect(viewItems.length).toBe(2);
     });
 
-    it("displays add view button", () => {
-      const addButton = wrapper.find(".btn-primary");
-      expect(addButton.exists()).toBe(true);
-      expect(addButton.text()).toContain("Add");
+    it("exposes triggerAdd to open new view dialog", () => {
+      expect(typeof wrapper.vm.triggerAdd).toBe("function");
+      wrapper.vm.triggerAdd();
+      expect(wrapper.vm.showModal).toBe(true);
     });
 
-    it("highlights selected view", () => {
-      const selectedView = wrapper.find(".view-item.bg-light.border-primary");
-      expect(selectedView.exists()).toBe(true);
+    it("highlights selected view after click", async () => {
+      const viewItem = wrapper.find(".view-item");
+      await viewItem.trigger("click");
+      expect(wrapper.find(".view-item.bg-light.border-primary").exists()).toBe(true);
     });
   });
 
   describe("View Actions", () => {
-    it("opens new view dialog when add button clicked", async () => {
-      const addButton = wrapper.find(".btn-primary");
-      await addButton.trigger("click");
+    it("opens new view dialog via triggerAdd", async () => {
+      wrapper.vm.triggerAdd();
+      await nextTick();
       expect(wrapper.vm.showModal).toBe(true);
       expect(wrapper.vm.editingView).toBe(null);
     });
 
-    it("opens edit dialog when edit button clicked", async () => {
-      const editButtons = wrapper.findAll(".btn-outline-secondary");
-      const firstEditButton = editButtons[0]; // First view's edit button
-      await firstEditButton.trigger("click");
+    it("opens edit dialog via triggerEdit", async () => {
+      wrapper.vm.triggerEdit(0);
+      await nextTick();
       expect(wrapper.vm.showModal).toBe(true);
       expect(wrapper.vm.editingView).not.toBe(null);
       expect(wrapper.vm.editingView.name).toBe("overview");
@@ -299,32 +300,33 @@ describe("ViewManager.vue", () => {
   });
 
   describe("View Selection", () => {
-    it("emits view-selected event when clicking on a view item", async () => {
-      // Find the left part of the view item (which should be clickable)
+    it("emits view-selected and view-index-selected when clicking a view row", async () => {
       const viewItem = wrapper.find(".view-item");
+      await viewItem.trigger("click");
 
-      // Click on the left side of the view item (the label area)
-      const leftPart = viewItem.find(".d-flex.align-items-center.flex-grow-1");
-      await leftPart.trigger("click");
-
-      // Should emit view-selected event with the view name
       expect(wrapper.emitted("view-selected")).toBeTruthy();
       expect(wrapper.emitted("view-selected")[0]).toEqual(["overview"]);
+      expect(wrapper.emitted("view-index-selected")).toBeTruthy();
+      expect(wrapper.emitted("view-index-selected")[0]).toEqual([0]);
+    });
+
+    it("toggles selection off when same row clicked twice", async () => {
+      const viewItem = wrapper.find(".view-item");
+      await viewItem.trigger("click"); // select
+      await viewItem.trigger("click"); // deselect
+
+      const events = wrapper.emitted("view-index-selected");
+      expect(events[0]).toEqual([0]);
+      expect(events[1]).toEqual([null]);
     });
 
     it("selects different view when clicking on it", async () => {
-      // Click on the second view (lights)
       const viewItems = wrapper.findAll(".view-item");
-      const secondView = viewItems[1];
-      const leftPart = secondView.find(
-        ".d-flex.align-items-center.flex-grow-1",
-      );
+      await viewItems[1].trigger("click");
 
-      await leftPart.trigger("click");
-
-      // Should emit view-selected with 'lights' view name
       expect(wrapper.emitted("view-selected")).toBeTruthy();
       expect(wrapper.emitted("view-selected")[0]).toEqual(["lights"]);
+      expect(wrapper.emitted("view-index-selected")[0]).toEqual([1]);
     });
   });
 });

@@ -1315,97 +1315,59 @@
       <div class="card-section" id="mobile-editor">
         <h2 class="mb-4">📱 Mobile Editor View (375px)</h2>
         <p class="text-muted small mb-4">
-          On mobile, the canvas takes full width. A floating action button in
-          the bottom-right opens a bottom sheet with the Views / Entities /
-          Components panel for drag-and-drop onto the canvas.
+          On mobile, the canvas takes full width. A floating toolbar in the
+          bottom-right shows context-sensitive action buttons. Buttons shown
+          depend on what is currently selected or open.
         </p>
 
         <div class="d-flex gap-4 flex-wrap justify-content-center">
-          <!-- STATE 1: Canvas with FAB closed -->
+          <!-- STATE 1: Canvas view — card selected, panel closed -->
           <div>
             <p class="text-center small text-muted fw-semibold mb-2">
-              Canvas view — panel closed
+              Canvas view — card selected
+            </p>
+            <p class="text-center small text-muted mb-2" style="font-size:0.75rem">
+              Floating toolbar: <strong>[↑] [↓] [✎] [🗑] [+]</strong>
             </p>
             <div
               class="border border-2 bg-white rounded-4 overflow-hidden shadow"
-              style="
-                width: 375px;
-                height: 680px;
-                display: flex;
-                flex-direction: column;
-                position: relative;
-              "
+              style="width:375px;height:680px;display:flex;flex-direction:column;position:relative;"
             >
               <!-- Navbar -->
-              <nav
-                class="navbar bg-light px-2 py-1 d-flex justify-content-between"
-                style="border-bottom: 2px solid #ffc107"
-              >
+              <nav class="navbar bg-light px-2 py-1 d-flex justify-content-between" style="border-bottom:2px solid #ffc107">
                 <div class="d-flex gap-1 align-items-center">
-                  <button
-                    class="btn btn-link nav-link text-decoration-none px-2 py-1"
-                    style="color: #0078d4"
-                    title="Editor"
-                  >
-                    <i
-                      class="mdi mdi-pencil-ruler"
-                      style="font-size: 1.2rem"
-                    ></i>
+                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1" style="color:#0078d4" title="Editor">
+                    <i class="mdi mdi-pencil-ruler" style="font-size:1.2rem"></i>
                   </button>
-                  <button
-                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
-                    title="Devices"
-                  >
-                    <i class="mdi mdi-devices" style="font-size: 1.2rem"></i>
+                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
+                    <i class="mdi mdi-devices" style="font-size:1.2rem"></i>
                   </button>
-                  <button
-                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
-                    title="Raw"
-                  >
-                    <i class="mdi mdi-database" style="font-size: 1.2rem"></i>
+                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
+                    <i class="mdi mdi-database" style="font-size:1.2rem"></i>
                   </button>
                 </div>
                 <div class="d-flex gap-1 align-items-center">
-                  <button class="btn btn-success btn-sm">
-                    <i class="mdi mdi-content-save"></i>
-                  </button>
-                  <button class="btn btn-outline-secondary btn-sm">
-                    <i class="mdi mdi-moon-waning-crescent"></i>
-                  </button>
+                  <button class="btn btn-success btn-sm"><i class="mdi mdi-content-save"></i></button>
+                  <button class="btn btn-outline-secondary btn-sm"><i class="mdi mdi-moon-waning-crescent"></i></button>
                 </div>
               </nav>
 
               <!-- Full-width canvas -->
-              <div
-                style="
-                  flex: 1;
-                  overflow-y: auto;
-                  background: #f0f0f0;
-                  padding: 0.75rem;
-                "
-              >
-                <!-- Selected card highlight -->
-                <div
-                  class="bg-white rounded p-2 mb-2 border border-2 border-primary shadow-sm"
-                >
-                  <div
-                    class="d-flex justify-content-between align-items-center"
-                  >
-                    <span class="small fw-semibold text-primary"
-                      >Temperature</span
-                    >
-                    <span class="small text-muted">sensor</span>
-                  </div>
-                  <div class="small text-muted mt-1">22.1 °C — Living Room</div>
-                </div>
+              <div style="flex:1;overflow-y:auto;background:#f0f0f0;padding:0.75rem;">
                 <div class="bg-white rounded p-2 mb-2 border">
-                  <div
-                    class="d-flex justify-content-between align-items-center"
-                  >
+                  <div class="d-flex justify-content-between align-items-center">
                     <span class="small fw-semibold">Humidity</span>
                     <span class="small text-muted">sensor</span>
                   </div>
-                  <div class="small text-muted mt-1">45 %</div>
+                </div>
+                <!-- Selected card -->
+                <div class="rounded p-2 mb-2 border border-2 shadow-sm"
+                  style="background:#e8f0fe;border-color:#0d6efd!important;">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="small fw-semibold" style="color:#0d6efd">Temperature</span>
+                    <span class="small text-muted">sensor</span>
+                  </div>
+                  <div class="small mt-1" style="color:#0d6efd">22.1 °C — Living Room</div>
                 </div>
                 <div class="bg-white rounded p-2 mb-2 border">
                   <div class="d-flex justify-content-between">
@@ -1419,22 +1381,6 @@
                     <span class="badge bg-secondary small">off</span>
                   </div>
                 </div>
-                <!-- Spacer placeholder -->
-                <div
-                  class="rounded p-2 mb-2 text-center text-muted small"
-                  style="
-                    border: 2px dashed #ccc;
-                    background: repeating-linear-gradient(
-                      45deg,
-                      #f8f8f8,
-                      #f8f8f8 6px,
-                      #eee 6px,
-                      #eee 12px
-                    );
-                  "
-                >
-                  SPACER
-                </div>
                 <div class="bg-white rounded p-2 mb-2 border">
                   <div class="d-flex justify-content-between">
                     <span class="small fw-semibold">Media Player</span>
@@ -1443,265 +1389,375 @@
                 </div>
               </div>
 
-              <!-- FAB button (closed state) -->
-              <button
-                class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center"
-                style="
-                  position: absolute;
-                  bottom: 20px;
-                  right: 20px;
-                  width: 52px;
-                  height: 52px;
-                  font-size: 1.4rem;
-                  z-index: 10;
-                "
-              >
-                <i class="mdi mdi-plus"></i>
-              </button>
+              <!-- Floating toolbar: ↑ ↓ ✎ 🗑 + -->
+              <div style="position:absolute;bottom:20px;right:20px;display:flex;flex-direction:row;gap:8px;z-index:30;">
+                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                  <i class="mdi mdi-arrow-up"></i>
+                </button>
+                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                  <i class="mdi mdi-arrow-down"></i>
+                </button>
+                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                  <i class="mdi mdi-pencil"></i>
+                </button>
+                <button style="width:48px;height:48px;border-radius:50%;background:#dc3545;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                  <i class="mdi mdi-delete"></i>
+                </button>
+                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                  <i class="mdi mdi-plus"></i>
+                </button>
+              </div>
             </div>
           </div>
 
-          <!-- STATE 2: Bottom sheet open -->
+          <!-- STATE 2: Add entity — entities tab open, × close button -->
           <div>
             <p class="text-center small text-muted fw-semibold mb-2">
-              Panel open — bottom sheet
+              Add entity — panel open
+            </p>
+            <p class="text-center small text-muted mb-2" style="font-size:0.75rem">
+              Floating toolbar: <strong>[×]</strong>
             </p>
             <div
               class="border border-2 bg-white rounded-4 overflow-hidden shadow"
-              style="
-                width: 375px;
-                height: 680px;
-                display: flex;
-                flex-direction: column;
-                position: relative;
-              "
+              style="width:375px;height:680px;display:flex;flex-direction:column;position:relative;"
             >
               <!-- Navbar -->
-              <nav
-                class="navbar bg-light px-2 py-1 d-flex justify-content-between"
-                style="border-bottom: 2px solid #ffc107"
-              >
+              <nav class="navbar bg-light px-2 py-1 d-flex justify-content-between" style="border-bottom:2px solid #ffc107">
                 <div class="d-flex gap-1 align-items-center">
-                  <button
-                    class="btn btn-link nav-link text-decoration-none px-2 py-1"
-                    style="color: #0078d4"
-                    title="Editor"
-                  >
-                    <i
-                      class="mdi mdi-pencil-ruler"
-                      style="font-size: 1.2rem"
-                    ></i>
+                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1" style="color:#0078d4">
+                    <i class="mdi mdi-pencil-ruler" style="font-size:1.2rem"></i>
                   </button>
-                  <button
-                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
-                  >
-                    <i class="mdi mdi-devices" style="font-size: 1.2rem"></i>
+                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
+                    <i class="mdi mdi-devices" style="font-size:1.2rem"></i>
                   </button>
-                  <button
-                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
-                  >
-                    <i class="mdi mdi-database" style="font-size: 1.2rem"></i>
+                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
+                    <i class="mdi mdi-database" style="font-size:1.2rem"></i>
                   </button>
                 </div>
                 <div class="d-flex gap-1 align-items-center">
-                  <button class="btn btn-success btn-sm">
-                    <i class="mdi mdi-content-save"></i>
-                  </button>
-                  <button class="btn btn-outline-secondary btn-sm">
-                    <i class="mdi mdi-moon-waning-crescent"></i>
-                  </button>
+                  <button class="btn btn-success btn-sm"><i class="mdi mdi-content-save"></i></button>
+                  <button class="btn btn-outline-secondary btn-sm"><i class="mdi mdi-moon-waning-crescent"></i></button>
                 </div>
               </nav>
 
-              <!-- Dimmed canvas behind sheet -->
-              <div
-                style="
-                  flex: 1;
-                  overflow: hidden;
-                  background: #f0f0f0;
-                  padding: 0.75rem;
-                  opacity: 0.35;
-                "
-              >
-                <div class="bg-white rounded p-2 mb-2 border">
-                  <span class="small fw-semibold">Temperature</span>
-                </div>
-                <div class="bg-white rounded p-2 mb-2 border">
-                  <span class="small fw-semibold">Humidity</span>
-                </div>
-                <div class="bg-white rounded p-2 mb-2 border">
-                  <span class="small fw-semibold">Ceiling Light</span>
-                </div>
+              <!-- Dimmed canvas -->
+              <div style="flex:1;overflow:hidden;background:#f0f0f0;padding:0.75rem;opacity:0.35;">
+                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Temperature</span></div>
+                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Humidity</span></div>
+                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Ceiling Light</span></div>
               </div>
 
-              <!-- Bottom sheet overlay -->
-              <div
-                style="
-                  position: absolute;
-                  bottom: 0;
-                  left: 0;
-                  right: 0;
-                  height: 70%;
-                  background: white;
-                  border-radius: 16px 16px 0 0;
-                  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-                  display: flex;
-                  flex-direction: column;
-                  z-index: 20;
-                "
-              >
-                <!-- Drag handle -->
+              <!-- Bottom sheet — Entities tab active -->
+              <div style="position:absolute;bottom:0;left:0;right:0;height:70%;background:white;border-radius:16px 16px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,0.15);display:flex;flex-direction:column;z-index:20;">
+                <!-- drag handle -->
                 <div class="text-center pt-2 pb-1">
-                  <div
-                    style="
-                      width: 40px;
-                      height: 4px;
-                      background: #ccc;
-                      border-radius: 2px;
-                      margin: 0 auto;
-                    "
-                  ></div>
+                  <div style="width:40px;height:4px;background:#ccc;border-radius:2px;margin:0 auto;"></div>
                 </div>
-                <!-- Tab bar (icons only) -->
+                <!-- Tabs: Views | Entities (active) | Components -->
                 <div class="d-flex border-bottom">
-                  <div
-                    class="flex-fill text-center py-2"
-                    style="
-                      color: #0078d4;
-                      border-bottom: 3px solid #0078d4;
-                      cursor: pointer;
-                    "
-                  >
-                    <i class="mdi mdi-view-list" style="font-size: 1.1rem"></i>
+                  <div class="flex-fill text-center py-2 text-muted" style="cursor:pointer;">
+                    <i class="mdi mdi-view-list" style="font-size:1.1rem"></i>
                   </div>
-                  <div
-                    class="flex-fill text-center py-2 text-muted"
-                    style="cursor: pointer"
-                  >
-                    <i class="mdi mdi-database" style="font-size: 1.1rem"></i>
+                  <div class="flex-fill text-center py-2" style="color:#0d6efd;border-bottom:3px solid #0d6efd;cursor:pointer;">
+                    <i class="mdi mdi-database" style="font-size:1.1rem"></i>
                   </div>
-                  <div
-                    class="flex-fill text-center py-2 text-muted"
-                    style="cursor: pointer"
-                  >
-                    <i class="mdi mdi-shape-plus" style="font-size: 1.1rem"></i>
+                  <div class="flex-fill text-center py-2 text-muted" style="cursor:pointer;">
+                    <i class="mdi mdi-shape-plus" style="font-size:1.1rem"></i>
                   </div>
                 </div>
-                <!-- Entities list (Entities tab) -->
-                <div style="flex: 1; overflow-y: auto; padding: 0.75rem">
-                  <input
-                    class="form-control form-control-sm mb-2"
-                    placeholder="Search entities..."
-                    disabled
-                  />
+                <!-- Entity list -->
+                <div style="flex:1;overflow-y:auto;padding:0.75rem;">
+                  <input class="form-control form-control-sm mb-2" placeholder="Search entities..." />
                   <div class="list-group list-group-flush small">
-                    <div
-                      class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom"
-                    >
+                    <div class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom" style="cursor:pointer;">
                       <i class="mdi mdi-thermometer text-warning"></i>
                       <div>
-                        <div class="fw-semibold" style="font-size: 0.8rem">
-                          Living Room Temp
-                        </div>
-                        <div class="text-muted" style="font-size: 0.72rem">
-                          sensor.living_room_temp
-                        </div>
+                        <div class="fw-semibold" style="font-size:0.8rem">Living Room Temp</div>
+                        <div class="text-muted" style="font-size:0.72rem">sensor.living_room_temp</div>
                       </div>
                     </div>
-                    <div
-                      class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom"
-                    >
+                    <div class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom" style="cursor:pointer;">
                       <i class="mdi mdi-water-percent text-info"></i>
                       <div>
-                        <div class="fw-semibold" style="font-size: 0.8rem">
-                          Humidity
-                        </div>
-                        <div class="text-muted" style="font-size: 0.72rem">
-                          sensor.humidity
-                        </div>
+                        <div class="fw-semibold" style="font-size:0.8rem">Humidity</div>
+                        <div class="text-muted" style="font-size:0.72rem">sensor.humidity</div>
                       </div>
                     </div>
-                    <div
-                      class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom"
-                    >
+                    <div class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom" style="cursor:pointer;">
                       <i class="mdi mdi-lightbulb text-warning"></i>
                       <div>
-                        <div class="fw-semibold" style="font-size: 0.8rem">
-                          Ceiling Light
-                        </div>
-                        <div class="text-muted" style="font-size: 0.72rem">
-                          light.ceiling
-                        </div>
+                        <div class="fw-semibold" style="font-size:0.8rem">Ceiling Light</div>
+                        <div class="text-muted" style="font-size:0.72rem">light.ceiling</div>
                       </div>
                     </div>
-                    <div
-                      class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom"
-                    >
+                    <div class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom" style="cursor:pointer;">
                       <i class="mdi mdi-television text-secondary"></i>
                       <div>
-                        <div class="fw-semibold" style="font-size: 0.8rem">
-                          TV
-                        </div>
-                        <div class="text-muted" style="font-size: 0.72rem">
-                          media_player.tv
-                        </div>
+                        <div class="fw-semibold" style="font-size:0.8rem">TV</div>
+                        <div class="text-muted" style="font-size:0.72rem">media_player.tv</div>
                       </div>
                     </div>
-                    <div
-                      class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0"
-                    >
+                    <div class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0" style="cursor:pointer;">
                       <i class="mdi mdi-fan text-primary"></i>
                       <div>
-                        <div class="fw-semibold" style="font-size: 0.8rem">
-                          Fan
-                        </div>
-                        <div class="text-muted" style="font-size: 0.72rem">
-                          fan.bedroom
-                        </div>
+                        <div class="fw-semibold" style="font-size:0.8rem">Fan</div>
+                        <div class="text-muted" style="font-size:0.72rem">fan.bedroom</div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- FAB (rotated to X when open) -->
-              <button
-                class="btn btn-danger rounded-circle shadow-lg d-flex align-items-center justify-content-center"
-                style="
-                  position: absolute;
-                  bottom: 20px;
-                  right: 20px;
-                  width: 52px;
-                  height: 52px;
-                  font-size: 1.4rem;
-                  z-index: 30;
-                "
-              >
-                <i class="mdi mdi-close"></i>
-              </button>
+              <!-- Floating toolbar: × only -->
+              <div style="position:absolute;bottom:20px;right:20px;display:flex;flex-direction:row;gap:8px;z-index:30;">
+                <button style="width:48px;height:48px;border-radius:50%;background:#6c757d;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                  <i class="mdi mdi-close"></i>
+                </button>
+              </div>
             </div>
           </div>
-
-          <!-- STATE 3: Entity inspector bottom sheet (double-tap / long-press) -->
+          <!-- STATE 3: View editing — views tab, view selected -->
           <div>
             <p class="text-center small text-muted fw-semibold mb-2">
-              Entity inspector — double-tap / long-press
+              View editing — view selected
+            </p>
+            <p class="text-center small text-muted mb-2" style="font-size:0.75rem">
+              Floating toolbar: <strong>[↑] [↓] [✎] [🗑] [+] [×]</strong>
             </p>
             <div
               class="border border-2 bg-white rounded-4 overflow-hidden shadow"
-              style="
-                width: 375px;
-                height: 680px;
-                display: flex;
-                flex-direction: column;
-                position: relative;
-              "
+              style="width:375px;height:680px;display:flex;flex-direction:column;position:relative;"
             >
               <!-- Navbar -->
-              <nav
-                class="navbar bg-light px-2 py-1 d-flex justify-content-between"
-                style="border-bottom: 2px solid #ffc107"
-              >
+              <nav class="navbar bg-light px-2 py-1 d-flex justify-content-between" style="border-bottom:2px solid #ffc107">
+                <div class="d-flex gap-1 align-items-center">
+                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1" style="color:#0078d4">
+                    <i class="mdi mdi-pencil-ruler" style="font-size:1.2rem"></i>
+                  </button>
+                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
+                    <i class="mdi mdi-devices" style="font-size:1.2rem"></i>
+                  </button>
+                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
+                    <i class="mdi mdi-database" style="font-size:1.2rem"></i>
+                  </button>
+                </div>
+                <div class="d-flex gap-1 align-items-center">
+                  <button class="btn btn-success btn-sm"><i class="mdi mdi-content-save"></i></button>
+                  <button class="btn btn-outline-secondary btn-sm"><i class="mdi mdi-moon-waning-crescent"></i></button>
+                </div>
+              </nav>
+
+              <!-- Dimmed canvas -->
+              <div style="flex:1;overflow:hidden;background:#f0f0f0;padding:0.75rem;opacity:0.35;">
+                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Temperature</span></div>
+                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Humidity</span></div>
+                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Ceiling Light</span></div>
+              </div>
+
+              <!-- Bottom sheet — Views tab active -->
+              <div style="position:absolute;bottom:0;left:0;right:0;height:70%;background:white;border-radius:16px 16px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,0.15);display:flex;flex-direction:column;z-index:20;">
+                <!-- drag handle -->
+                <div class="text-center pt-2 pb-1">
+                  <div style="width:40px;height:4px;background:#ccc;border-radius:2px;margin:0 auto;"></div>
+                </div>
+                <!-- Tabs: Views (active) | Entities | Components -->
+                <div class="d-flex border-bottom">
+                  <div class="flex-fill text-center py-2" style="color:#0d6efd;border-bottom:3px solid #0d6efd;cursor:pointer;">
+                    <i class="mdi mdi-view-list" style="font-size:1.1rem"></i>
+                  </div>
+                  <div class="flex-fill text-center py-2 text-muted" style="cursor:pointer;">
+                    <i class="mdi mdi-database" style="font-size:1.1rem"></i>
+                  </div>
+                  <div class="flex-fill text-center py-2 text-muted" style="cursor:pointer;">
+                    <i class="mdi mdi-shape-plus" style="font-size:1.1rem"></i>
+                  </div>
+                </div>
+                <!-- View list -->
+                <div style="flex:1;overflow-y:auto;padding:0.75rem;">
+                  <!-- View row: selected -->
+                  <div class="rounded px-2 py-2 mb-1 d-flex align-items-center justify-content-between border border-2"
+                    style="background:#e8f0fe;border-color:#0d6efd!important;">
+                    <span class="small fw-semibold" style="color:#0d6efd">
+                      <i class="mdi mdi-home me-1"></i>Living Room
+                    </span>
+                    <span class="badge bg-primary" style="font-size:0.65rem">selected</span>
+                  </div>
+                  <!-- View row -->
+                  <div class="rounded px-2 py-2 mb-1 d-flex align-items-center justify-content-between border">
+                    <span class="small fw-semibold text-muted">
+                      <i class="mdi mdi-bed me-1"></i>Bedroom
+                    </span>
+                  </div>
+                  <!-- View row -->
+                  <div class="rounded px-2 py-2 mb-1 d-flex align-items-center justify-content-between border">
+                    <span class="small fw-semibold text-muted">
+                      <i class="mdi mdi-silverware me-1"></i>Kitchen
+                    </span>
+                  </div>
+                  <!-- View row -->
+                  <div class="rounded px-2 py-2 mb-1 d-flex align-items-center justify-content-between border">
+                    <span class="small fw-semibold text-muted">
+                      <i class="mdi mdi-garage me-1"></i>Garage
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Floating toolbar: ↑ ↓ ✎ 🗑 + × -->
+              <div style="position:absolute;bottom:20px;right:20px;display:flex;flex-direction:row;gap:8px;z-index:30;">
+                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                  <i class="mdi mdi-arrow-up"></i>
+                </button>
+                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                  <i class="mdi mdi-arrow-down"></i>
+                </button>
+                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                  <i class="mdi mdi-pencil"></i>
+                </button>
+                <button style="width:48px;height:48px;border-radius:50%;background:#dc3545;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                  <i class="mdi mdi-delete"></i>
+                </button>
+                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                  <i class="mdi mdi-plus"></i>
+                </button>
+                <button style="width:48px;height:48px;border-radius:50%;background:#6c757d;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                  <i class="mdi mdi-close"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE 4: Property editor — card with multiple entities, entity selected -->
+          <div>
+            <p class="text-center small text-muted fw-semibold mb-2">
+              Property editor — entity selected in list
+            </p>
+            <p class="text-center small text-muted mb-2" style="font-size:0.75rem">
+              Floating toolbar: <strong>[↑] [↓] [🗑] [×]</strong>
+            </p>
+            <div
+              class="border border-2 bg-white rounded-4 overflow-hidden shadow"
+              style="width:375px;height:680px;display:flex;flex-direction:column;position:relative;"
+            >
+              <!-- Navbar -->
+              <nav class="navbar bg-light px-2 py-1 d-flex justify-content-between" style="border-bottom:2px solid #ffc107">
+                <div class="d-flex gap-1 align-items-center">
+                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1" style="color:#0078d4">
+                    <i class="mdi mdi-pencil-ruler" style="font-size:1.2rem"></i>
+                  </button>
+                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
+                    <i class="mdi mdi-devices" style="font-size:1.2rem"></i>
+                  </button>
+                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
+                    <i class="mdi mdi-database" style="font-size:1.2rem"></i>
+                  </button>
+                </div>
+                <div class="d-flex gap-1 align-items-center">
+                  <button class="btn btn-success btn-sm"><i class="mdi mdi-content-save"></i></button>
+                  <button class="btn btn-outline-secondary btn-sm"><i class="mdi mdi-moon-waning-crescent"></i></button>
+                </div>
+              </nav>
+
+              <!-- Dimmed canvas -->
+              <div style="flex:1;overflow:hidden;background:#f0f0f0;padding:0.75rem;opacity:0.35;">
+                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Temperature</span></div>
+                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Humidity</span></div>
+                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Ceiling Light</span></div>
+              </div>
+
+              <!-- Inspector bottom sheet -->
+              <div style="position:absolute;bottom:0;left:0;right:0;height:72%;background:white;border-radius:16px 16px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,0.15);display:flex;flex-direction:column;z-index:20;">
+                <!-- drag handle -->
+                <div class="text-center pt-2 pb-1">
+                  <div style="width:40px;height:4px;background:#ccc;border-radius:2px;margin:0 auto;"></div>
+                </div>
+                <!-- Inspector header -->
+                <div class="px-3 py-2 border-bottom d-flex align-items-center gap-2">
+                  <i class="mdi mdi-home-group text-primary" style="font-size:1.1rem"></i>
+                  <span class="fw-semibold small">Room Card — Living Room</span>
+                  <span class="badge bg-secondary ms-auto" style="font-size:0.65rem">HaRoom</span>
+                </div>
+                <!-- Property: card type (non-editable) -->
+                <div style="flex:1;overflow-y:auto;padding:0.75rem">
+                  <!-- Entity list section -->
+                  <div class="mb-2">
+                    <label class="form-label small fw-semibold mb-1">Entities</label>
+                    <!-- Entity row: selected -->
+                    <div class="rounded px-2 py-2 mb-1 d-flex align-items-center border border-2"
+                      style="background:#e8f0fe;border-color:#0d6efd!important;cursor:pointer;">
+                      <i class="mdi mdi-thermometer me-2 text-warning"></i>
+                      <div style="flex:1;min-width:0;">
+                        <div class="small fw-semibold text-truncate" style="color:#0d6efd">Living Room Temp</div>
+                        <div class="text-muted" style="font-size:0.7rem">sensor.living_room_temp</div>
+                      </div>
+                    </div>
+                    <!-- Entity row -->
+                    <div class="rounded px-2 py-2 mb-1 d-flex align-items-center border" style="cursor:pointer;">
+                      <i class="mdi mdi-water-percent me-2 text-info"></i>
+                      <div style="flex:1;min-width:0;">
+                        <div class="small fw-semibold text-truncate">Humidity</div>
+                        <div class="text-muted" style="font-size:0.7rem">sensor.humidity</div>
+                      </div>
+                    </div>
+                    <!-- Entity row -->
+                    <div class="rounded px-2 py-2 mb-1 d-flex align-items-center border" style="cursor:pointer;">
+                      <i class="mdi mdi-lightbulb me-2 text-warning"></i>
+                      <div style="flex:1;min-width:0;">
+                        <div class="small fw-semibold text-truncate">Ceiling Light</div>
+                        <div class="text-muted" style="font-size:0.7rem">light.ceiling</div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Other property row -->
+                  <div class="mb-2">
+                    <label class="form-label small fw-semibold mb-1">Title</label>
+                    <input class="form-control form-control-sm" value="Living Room" />
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label small fw-semibold mb-1">Columns</label>
+                    <input class="form-control form-control-sm" type="number" value="2" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Floating toolbar: ↑ ↓ 🗑 × (entity in list selected) -->
+              <div style="position:absolute;bottom:20px;right:20px;display:flex;flex-direction:row;gap:8px;z-index:30;">
+                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                  <i class="mdi mdi-arrow-up"></i>
+                </button>
+                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                  <i class="mdi mdi-arrow-down"></i>
+                </button>
+                <button style="width:48px;height:48px;border-radius:50%;background:#dc3545;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                  <i class="mdi mdi-delete"></i>
+                </button>
+                <button style="width:48px;height:48px;border-radius:50%;background:#6c757d;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                  <i class="mdi mdi-close"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer
+        style="
+          text-align: center;
+          margin-top: 4rem;
+          padding: 2rem;
+          color: #999;
+          border-top: 1px solid #ddd;
+        "
+      >
+        <p><strong>UI/UX Showcase</strong></p>
+        <p style="font-size: 0.875rem">
+          Desktop &amp; Mobile • Dashboard &amp; Editor • Touch-First Interactions
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>
                 <div class="d-flex gap-1 align-items-center">
                   <button
                     class="btn btn-link nav-link text-decoration-none px-2 py-1"

@@ -1,72 +1,40 @@
 <template>
   <div class="view-manager p-3">
     <!-- Header -->
-    <div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="d-flex align-items-center mb-3">
       <h6 class="mb-0">Views</h6>
-      <button
-        class="btn btn-sm btn-primary"
-        title="Add new view"
-        @click="showNewViewDialog"
-      >
-        <i class="mdi mdi-plus me-1"></i>
-        Add
-      </button>
     </div>
 
     <!-- Views List -->
     <div class="views-list">
       <div
-        v-for="view in views"
+        v-for="(view, index) in views"
         :key="view.name"
-        class="view-item d-flex align-items-center justify-content-between p-2 mb-2 border rounded"
-        :class="{ 'bg-light border-primary': isSelected(view.name) }"
+        class="view-item d-flex align-items-center p-2 mb-2 border rounded"
+        :class="{ 'bg-light border-primary': isIndexSelected(index) }"
+        style="cursor: pointer"
+        role="button"
+        tabindex="0"
+        @click="selectViewByIndex(index, view.name)"
+        @keydown.enter="selectViewByIndex(index, view.name)"
       >
-        <div
-          class="d-flex align-items-center flex-grow-1"
-          style="cursor: pointer"
-          role="button"
-          tabindex="0"
-          @click="selectView(view.name)"
-          @keydown.enter="selectView(view.name)"
-        >
-          <i :class="`mdi ${view.icon} me-2`"></i>
-          <div class="flex-grow-1">
-            <div class="small">{{ view.label }}</div>
-            <div class="text-muted" style="font-size: 0.75rem">
-              {{ view.name }}
-            </div>
+        <i :class="`mdi ${view.icon} me-2`"></i>
+        <div class="flex-grow-1">
+          <div class="small">{{ view.label }}</div>
+          <div class="text-muted" style="font-size: 0.75rem">
+            {{ view.name }}
           </div>
-          <span
-            v-if="view.hidden"
-            class="badge bg-secondary me-2"
-            title="This view is hidden"
-            >Hidden</span
-          >
         </div>
-        <div class="btn-group btn-group-sm" role="group">
-          <button
-            class="btn btn-outline-secondary"
-            title="Edit view properties"
-            @click="editView(view)"
-          >
-            <i class="mdi mdi-pencil"></i>
-          </button>
-          <button
-            class="btn btn-outline-secondary"
-            title="Duplicate view"
-            @click="duplicateView(view)"
-          >
-            <i class="mdi mdi-content-duplicate"></i>
-          </button>
-          <button
-            v-if="views.length > 1"
-            class="btn btn-outline-danger"
-            title="Delete view"
-            @click="confirmDeleteView(view)"
-          >
-            <i class="mdi mdi-delete"></i>
-          </button>
-        </div>
+        <span
+          v-if="view.hidden"
+          class="badge bg-secondary me-2"
+          title="This view is hidden"
+          >Hidden</span
+        >
+        <i
+          v-if="isIndexSelected(index)"
+          class="mdi mdi-check text-primary"
+        />
       </div>
 
       <p v-if="views.length === 0" class="text-muted small mb-0">
@@ -214,9 +182,10 @@ const emit = defineEmits([
   "view-deleted",
   "view-updated",
   "view-selected",
+  "view-index-selected",
 ]);
 
-const props = defineProps({
+defineProps({
   selectedViewName: {
     type: String,
     default: "",
@@ -230,6 +199,7 @@ const showDeleteConfirm = ref(false);
 const editingView = ref(null);
 const viewToDelete = ref(null);
 const nameError = ref("");
+const localSelectedIndex = ref(null);
 
 const formData = ref({
   name: "",
@@ -251,12 +221,18 @@ const isFormValid = computed(() => {
   );
 });
 
-const isSelected = (viewName) => {
-  return viewName === props.selectedViewName;
-};
+const isIndexSelected = (index) => index === localSelectedIndex.value;
 
-const selectView = (viewName) => {
-  emit("view-selected", viewName);
+const selectViewByIndex = (index, viewName) => {
+  if (localSelectedIndex.value === index) {
+    // Toggle off
+    localSelectedIndex.value = null;
+    emit("view-index-selected", null);
+  } else {
+    localSelectedIndex.value = index;
+    emit("view-index-selected", index);
+    emit("view-selected", viewName);
+  }
 };
 
 const validateName = () => {
@@ -347,6 +323,18 @@ const closeModal = () => {
   editingView.value = null;
 };
 
+const moveView = (view, direction) => {
+  const viewsArr = store.dashboardConfig?.views;
+  if (!viewsArr) return;
+  const index = viewsArr.indexOf(view);
+  const newIndex = index + direction;
+  if (newIndex < 0 || newIndex >= viewsArr.length) return;
+  const moved = viewsArr.splice(index, 1)[0];
+  viewsArr.splice(newIndex, 0, moved);
+  store.dashboardConfig.views = [...viewsArr];
+  emit('view-updated', view);
+};
+
 const saveView = () => {
   validateName();
   if (!isFormValid.value) return;
@@ -374,6 +362,27 @@ const saveView = () => {
 
   closeModal();
 };
+
+// --- Exposed methods called by VisualEditorView floating toolbar ---
+const triggerAdd = () => showNewViewDialog();
+const triggerEdit = (idx) => { const v = views.value[idx ?? localSelectedIndex.value]; if (v) editView(v); };
+const triggerDuplicate = (idx) => { const v = views.value[idx ?? localSelectedIndex.value]; if (v) duplicateView(v); };
+const triggerDelete = (idx) => { const v = views.value[idx ?? localSelectedIndex.value]; if (v) confirmDeleteView(v); };
+const triggerMoveUp = (idx) => { const v = views.value[idx ?? localSelectedIndex.value]; if (v) { moveView(v, -1); if (localSelectedIndex.value !== null) { localSelectedIndex.value = localSelectedIndex.value - 1; emit("view-index-selected", localSelectedIndex.value); } } };
+const triggerMoveDown = (idx) => { const v = views.value[idx ?? localSelectedIndex.value]; if (v) { moveView(v, 1); if (localSelectedIndex.value !== null) { localSelectedIndex.value = localSelectedIndex.value + 1; emit("view-index-selected", localSelectedIndex.value); } } };
+const triggerDeselect = () => { localSelectedIndex.value = null; emit("view-index-selected", null); };
+
+defineExpose({
+  triggerAdd,
+  triggerEdit,
+  triggerDelete,
+  triggerDuplicate,
+  triggerMoveUp,
+  triggerMoveDown,
+  triggerDeselect,
+  localSelectedIndex,
+  viewCount: computed(() => views.value.length),
+});
 </script>
 
 <style scoped>

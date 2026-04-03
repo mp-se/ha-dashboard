@@ -28,10 +28,11 @@
         <EntityListEditor
           :model-value="entityArray"
           :lock-first-entity="shouldLockFirstEntity"
+          :selected-index="props.entityListSelectedIndex"
           label="Entities"
-          :help="entityListHelp"
           @update:model-value="updateEntityArray"
           @all-entities-removed="handleAllEntitiesRemoved"
+          @entity-index-selected="$emit('entity-index-selected', $event)"
         />
       </div>
 
@@ -192,27 +193,6 @@
       </div>
     </div>
 
-    <!-- Actions -->
-    <div class="inspector-section">
-      <div class="btn-group w-100" role="group">
-        <button
-          type="button"
-          class="btn btn-outline-secondary btn-sm"
-          title="Deselect this entity"
-          @click="$emit('deselect')"
-        >
-          <i class="mdi mdi-close me-1"></i>Deselect
-        </button>
-        <button
-          type="button"
-          class="btn btn-danger btn-sm"
-          title="Remove this entity from the view"
-          @click="$emit('remove-entity')"
-        >
-          <i class="mdi mdi-trash-can me-1"></i>Remove
-        </button>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -238,6 +218,10 @@ const props = defineProps({
     type: Number,
     default: null,
   },
+  entityListSelectedIndex: {
+    type: Number,
+    default: null,
+  },
 });
 
 const emit = defineEmits([
@@ -246,6 +230,7 @@ const emit = defineEmits([
   "update-properties",
   "remove-entity",
   "deselect",
+  "entity-index-selected",
 ]);
 
 const store = useHaStore();
@@ -347,13 +332,6 @@ const shouldLockFirstEntity = computed(() => {
   return currentType.value === "HaRoom";
 });
 
-/** Dynamic help text based on card type */
-const entityListHelp = computed(() => {
-  if (currentType.value === "HaRoom") {
-    return "Drag to reorder (except the first one). Drop entities from the left panel to add.";
-  }
-  return "Drag to reorder. Drop entities from the left panel to add. If all are removed the component will be deleted.";
-});
 const isArrayEntity = computed(() => {
   // Show EntityListEditor if:
   // 1. Entity is already an array, OR

@@ -135,24 +135,11 @@ describe("EntityInspector.vue", () => {
     }
   });
 
-  it("shows remove entity button", () => {
-    const removeBtn = wrapper.find(".btn-danger");
-    expect(removeBtn.exists()).toBe(true);
-    expect(removeBtn.text()).toContain("Remove");
-  });
-
-  it("emits remove-entity when remove button is clicked", async () => {
-    const removeBtn = wrapper.find(".btn-danger");
-    await removeBtn.trigger("click");
-    expect(wrapper.emitted("remove-entity")).toBeTruthy();
-  });
-
-  it("emits deselect when deselect button is clicked", async () => {
+  it("does not render inline remove or deselect buttons (moved to floating toolbar)", () => {
+    expect(wrapper.find(".btn-danger").exists()).toBe(false);
     const buttons = wrapper.findAll("button");
     const deselectBtn = buttons.find((btn) => btn.text().includes("Deselect"));
-    expect(deselectBtn).toBeDefined();
-    await deselectBtn.trigger("click");
-    expect(wrapper.emitted("deselect")).toBeTruthy();
+    expect(deselectBtn).toBeUndefined();
   });
 
   it("displays list of available component types", () => {
