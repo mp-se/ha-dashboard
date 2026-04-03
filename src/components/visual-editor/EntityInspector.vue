@@ -2,26 +2,6 @@
   <div class="entity-inspector p-3">
     <h6 class="mb-3">Entity Inspector</h6>
 
-    <!-- Reorder controls (mobile) -->
-    <div class="inspector-section mb-3 d-flex gap-2">
-      <button
-        type="button"
-        class="btn btn-sm btn-outline-primary flex-grow-1"
-        title="Move this item up"
-        @click="emit('move-up')"
-      >
-        <i class="mdi mdi-arrow-up"></i> Move Up
-      </button>
-      <button
-        type="button"
-        class="btn btn-sm btn-outline-primary flex-grow-1"
-        title="Move this item down"
-        @click="emit('move-down')"
-      >
-        <i class="mdi mdi-arrow-down"></i> Move Down
-      </button>
-    </div>
-
     <!-- Entity/Getter display (skip for HaEntityList) -->
     <div
       v-if="
@@ -265,8 +245,6 @@ const emit = defineEmits([
   "update-attributes",
   "update-properties",
   "remove-entity",
-  "move-up",
-  "move-down",
   "deselect",
 ]);
 

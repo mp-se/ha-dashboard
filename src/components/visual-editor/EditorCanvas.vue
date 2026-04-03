@@ -49,6 +49,10 @@
             @dragend="handleEntityDragEnd"
             @click.stop="onCardClick(index)"
             @dblclick.stop="emit('inspect-entity', index)"
+            @touchstart="startLongPress($event, index, handleLongPress)"
+            @touchmove="moveLongPress($event)"
+            @touchend="endLongPress"
+            @contextmenu.prevent
           />
           <!-- Drop indicator for EntityList -->
           <div
@@ -71,6 +75,10 @@
           @dragleave="handleEntityDragLeave(index)"
           @drop.prevent="handleEntityDrop(index, $event)"
           @dragend="handleEntityDragEnd"
+          @touchstart="startLongPress($event, index, handleLongPress)"
+          @touchmove="moveLongPress($event)"
+          @touchend="endLongPress"
+          @contextmenu.prevent
         >
           <!-- Drop indicator line (before this item) -->
           <div
@@ -89,6 +97,10 @@
             }"
             @click.stop="onCardClick(index)"
             @dblclick.stop="emit('inspect-entity', index)"
+            @touchstart="startLongPress($event, index, handleLongPress)"
+            @touchmove="moveLongPress($event)"
+            @touchend="endLongPress"
+            @contextmenu.prevent
           >
             <!-- Component preview -->
             <div class="component-wrapper">
@@ -114,6 +126,37 @@
         style="grid-column: 1 / -1; height: 3px"
       ></div>
     </div>
+
+    <!-- Floating toolbar for selected entity -->
+    <div
+      v-if="props.selectedEntityId !== null"
+      class="floating-toolbar"
+      :style="floatingToolbarStyle(props.selectedEntityId)"
+    >
+      <button
+        v-if="props.selectedEntityId > 0"
+        class="btn btn-sm btn-outline-primary"
+        title="Move Up"
+        @click="handleMoveUp"
+      >
+        <i class="mdi mdi-arrow-up"></i>
+      </button>
+      <button
+        v-if="props.selectedEntityId < localEntities.length - 1"
+        class="btn btn-sm btn-outline-primary"
+        title="Move Down"
+        @click="handleMoveDown"
+      >
+        <i class="mdi mdi-arrow-down"></i>
+      </button>
+      <button
+        class="btn btn-sm btn-outline-primary"
+        title="Edit"
+        @click="handleEditSelected"
+      >
+        <i class="mdi mdi-pencil"></i>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -125,6 +168,7 @@ import { useEditorDragDrop } from "../../composables/editor/useEditorDragDrop";
 import { useComponentResolver } from "../../composables/editor/useComponentResolver";
 import { useEditorSelection } from "../../composables/editor/useEditorSelection";
 import { useEditorState } from "../../composables/editor/useEditorState";
+import { useEditorLongPress } from "../../composables/editor/useEditorLongPress";
 
 // Import all Ha* components
 import HaAlarmPanel from "../cards/HaAlarmPanel.vue";
@@ -169,6 +213,14 @@ const props = defineProps({
   mobileInspectMode: {
     type: Boolean,
     default: false,
+  },
+  onMoveUp: {
+    type: Function,
+    default: null,
+  },
+  onMoveDown: {
+    type: Function,
+    default: null,
   },
 });
 
@@ -254,6 +306,13 @@ const { getComponentForEntity, getComponentProps, getComponentClasses } =
 const { isEntitySelected: isEntitySelectedBase, onCardClick: onCardClickBase } =
   useEditorSelection(emit);
 
+// Long-press detection for mobile
+const { startLongPress, moveLongPress, endLongPress } = useEditorLongPress();
+
+const handleLongPress = (index) => {
+  emit("inspect-entity", index);
+};
+
 // Create wrapper functions that include the reactive selectedEntityId
 const isEntitySelected = (index) =>
   isEntitySelectedBase(props.selectedEntityId, index);
@@ -266,6 +325,37 @@ const isSpacer = (entity) => {
 
 const isConditionalComponent = (entity) => {
   return entity?.type === "HaWarning" || entity?.type === "HaError";
+};
+
+// Floating toolbar position
+const floatingToolbarStyle = (index) => {
+  if (!canvasRef.value || !isEntitySelected(index)) {
+    return { display: 'none' };
+  }
+  return {
+    position: 'fixed',
+    bottom: '80px',
+    right: '20px',
+    zIndex: 1000,
+  };
+};
+
+const handleMoveUp = () => {
+  if (props.onMoveUp && props.selectedEntityId !== null) {
+    props.onMoveUp(props.selectedEntityId);
+  }
+};
+
+const handleMoveDown = () => {
+  if (props.onMoveDown && props.selectedEntityId !== null) {
+    props.onMoveDown(props.selectedEntityId);
+  }
+};
+
+const handleEditSelected = () => {
+  if (props.selectedEntityId !== null) {
+    emit('inspect-entity', props.selectedEntityId);
+  }
 };
 </script>
 
@@ -429,5 +519,43 @@ const isConditionalComponent = (entity) => {
   );
   border-radius: 2px;
   box-shadow: 0 0 4px rgba(13, 110, 253, 0.5);
+}
+
+.floating-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.floating-toolbar button {
+  flex-shrink: 0;
+}
+
+.floating-toolbar button i {
+  font-size: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .floating-toolbar {
+    background: #2d3748;
+    border-color: #4a5568;
+  }
 }
 </style>

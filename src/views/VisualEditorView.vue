@@ -50,6 +50,8 @@
         <EditorCanvas
           :entities="currentViewEntities"
           :selected-entity-id="selectedEntityId"
+          :on-move-up="handleMoveUp"
+          :on-move-down="handleMoveDown"
           @select-entity="onSelectEntity"
           @reorder-entities="handleReorderEntities"
           @remove-entity="handleRemoveEntity"
@@ -100,6 +102,8 @@
         :entities="currentViewEntities"
         :selected-entity-id="selectedEntityId"
         :mobile-inspect-mode="true"
+        :on-move-up="handleMoveUp"
+        :on-move-down="handleMoveDown"
         @select-entity="onSelectEntity"
         @reorder-entities="handleReorderEntities"
         @remove-entity="handleRemoveEntity"
@@ -163,8 +167,6 @@
             @update-type="handleUpdateEntityType"
             @update-attributes="handleUpdateEntityAttributes"
             @update-properties="handleUpdateEntityProperties"
-            @move-up="handleMoveUp"
-            @move-down="handleMoveDown"
             @remove-entity="handleRemoveEntity(selectedEntityId)"
             @deselect="onMobileInspectorDeselect"
           />
