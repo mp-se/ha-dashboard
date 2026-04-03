@@ -120,7 +120,7 @@
         v-if="selectedEntityId !== null && selectedEntityId > 0"
         title="Move Up"
         class="btn-fab"
-        @click="handleMoveUp(selectedEntityId)"
+        @click="handleMoveUp()"
       >
         <i class="mdi mdi-arrow-up" />
       </button>
@@ -130,7 +130,7 @@
         v-if="selectedEntityId !== null && selectedEntityId < currentViewEntities.length - 1"
         title="Move Down"
         class="btn-fab"
-        @click="handleMoveDown(selectedEntityId)"
+        @click="handleMoveDown()"
       >
         <i class="mdi mdi-arrow-down" />
       </button>
@@ -562,11 +562,11 @@ const handleMoveUp = () => {
   const entities = store.dashboardConfig.views[viewIndex].entities;
   if (!Array.isArray(entities)) return;
 
-  // Swap with previous item
-  const temp = entities[selectedEntityId.value - 1];
-  entities[selectedEntityId.value - 1] = entities[selectedEntityId.value];
-  entities[selectedEntityId.value] = temp;
-  selectedEntityId.value -= 1;
+  // Swap with previous item using splice for Vue reactivity
+  const currentIndex = selectedEntityId.value;
+  const [removed] = entities.splice(currentIndex, 1);
+  entities.splice(currentIndex - 1, 0, removed);
+  selectedEntityId.value = currentIndex - 1;
   debouncedSave();
 };
 
@@ -582,11 +582,11 @@ const handleMoveDown = () => {
   if (!Array.isArray(entities)) return;
   if (selectedEntityId.value >= entities.length - 1) return; // Already at bottom
 
-  // Swap with next item
-  const temp = entities[selectedEntityId.value + 1];
-  entities[selectedEntityId.value + 1] = entities[selectedEntityId.value];
-  entities[selectedEntityId.value] = temp;
-  selectedEntityId.value += 1;
+  // Swap with next item using splice for Vue reactivity
+  const currentIndex = selectedEntityId.value;
+  const [removed] = entities.splice(currentIndex, 1);
+  entities.splice(currentIndex + 1, 0, removed);
+  selectedEntityId.value = currentIndex + 1;
   debouncedSave();
 };
 
