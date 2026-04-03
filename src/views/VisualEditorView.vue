@@ -113,16 +113,48 @@
       />
     </div>
 
-    <!-- Mobile FAB -->
-    <button
-      v-if="isMobile"
-      class="mobile-fab"
-      :class="{ 'is-open': showMobilePanel }"
-      :aria-label="showMobilePanel ? 'Close panel' : 'Open panel'"
-      @click="toggleMobilePanel"
-    >
-      <i :class="showMobilePanel ? 'mdi mdi-close' : 'mdi mdi-plus'" />
-    </button>
+    <!-- Floating toolbar with all action buttons [Up] [Down] [Edit] [+] -->
+    <div v-if="isMobile && (selectedEntityId !== null || !showMobilePanel)" class="floating-toolbar">
+      <!-- Move Up button (hidden if at top) -->
+      <button
+        v-if="selectedEntityId !== null && selectedEntityId > 0"
+        title="Move Up"
+        class="btn-fab"
+        @click="handleMoveUp(selectedEntityId)"
+      >
+        <i class="mdi mdi-arrow-up" />
+      </button>
+
+      <!-- Move Down button (hidden if at bottom) -->
+      <button
+        v-if="selectedEntityId !== null && selectedEntityId < currentViewEntities.length - 1"
+        title="Move Down"
+        class="btn-fab"
+        @click="handleMoveDown(selectedEntityId)"
+      >
+        <i class="mdi mdi-arrow-down" />
+      </button>
+
+      <!-- Edit button (visible only when a card is selected) -->
+      <button
+        v-if="selectedEntityId !== null"
+        title="Edit"
+        class="btn-fab"
+        @click="showMobileInspector = true; showMobilePanel = false"
+      >
+        <i class="mdi mdi-pencil" />
+      </button>
+
+      <!-- Add/Close button (+ when nothing selected or panel is closed, × when panel is open) -->
+      <button
+        class="btn-fab"
+        :class="{ 'is-open': showMobilePanel }"
+        :aria-label="showMobilePanel ? 'Close panel' : 'Open panel'"
+        @click="toggleMobilePanel"
+      >
+        <i :class="showMobilePanel ? 'mdi mdi-close' : 'mdi mdi-plus'" />
+      </button>
+    </div>
 
     <!-- Mobile Panel bottom sheet (palette / views) -->
     <Transition name="bottom-sheet">

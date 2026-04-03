@@ -383,13 +383,33 @@
   pointer-events: auto;
 }
 
-/* FAB button — bottom-right */
-.mobile-fab {
+/* Floating toolbar — displays [Up] [Down] [Edit] [+] in one row at bottom-right */
+.floating-toolbar {
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
-  width: 3.5rem;
-  height: 3.5rem;
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  align-items: center;
+  z-index: 200;
+  animation: slideInToolbar 0.2s ease-out;
+}
+
+@keyframes slideInToolbar {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.floating-toolbar .btn-fab {
+  width: 3rem;
+  height: 3rem;
   border-radius: 50%;
   background-color: #0d6efd;
   color: #fff;
@@ -398,20 +418,31 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  z-index: 200;
+  font-size: 1.25rem;
   cursor: pointer;
   transition:
     background-color 0.2s ease,
-    transform 0.2s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  padding: 0;
+  flex-shrink: 0;
 }
 
-.mobile-fab:active {
+.floating-toolbar .btn-fab:hover {
+  background-color: #0b5ed7;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.floating-toolbar .btn-fab:active {
   transform: scale(0.92);
 }
 
-.mobile-fab.is-open {
+.floating-toolbar .btn-fab.is-open {
   background-color: #dc3545;
+}
+
+.floating-toolbar .btn-fab.is-open:hover {
+  background-color: #bb2d3b;
 }
 
 /* Bottom sheet container */
@@ -470,12 +501,20 @@
   background-color: #1e1e1e;
 }
 
-[data-bs-theme="dark"] .mobile-fab {
+[data-bs-theme="dark"] .floating-toolbar .btn-fab {
   background-color: #0d6efd;
 }
 
-[data-bs-theme="dark"] .mobile-fab.is-open {
+[data-bs-theme="dark"] .floating-toolbar .btn-fab:hover {
+  background-color: #0b5ed7;
+}
+
+[data-bs-theme="dark"] .floating-toolbar .btn-fab.is-open {
   background-color: #dc3545;
+}
+
+[data-bs-theme="dark"] .floating-toolbar .btn-fab.is-open:hover {
+  background-color: #bb2d3b;
 }
 
 [data-bs-theme="dark"] .canvas-dimmed::after {

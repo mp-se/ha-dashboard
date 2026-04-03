@@ -127,33 +127,6 @@
       ></div>
     </div>
 
-    <!-- Floating toolbar for selected entity -->
-    <div
-      v-if="props.selectedEntityId !== null"
-      class="floating-toolbar"
-      :style="floatingToolbarStyle(props.selectedEntityId)"
-    >
-      <button
-        v-if="props.selectedEntityId > 0"
-        title="Move Up"
-        @click="handleMoveUp"
-      >
-        <i class="mdi mdi-arrow-up"></i>
-      </button>
-      <button
-        v-if="props.selectedEntityId < localEntities.length - 1"
-        title="Move Down"
-        @click="handleMoveDown"
-      >
-        <i class="mdi mdi-arrow-down"></i>
-      </button>
-      <button
-        title="Edit"
-        @click="handleEditSelected"
-      >
-        <i class="mdi mdi-pencil"></i>
-      </button>
-    </div>
   </div>
 </template>
 
@@ -323,37 +296,6 @@ const isSpacer = (entity) => {
 const isConditionalComponent = (entity) => {
   return entity?.type === "HaWarning" || entity?.type === "HaError";
 };
-
-// Floating toolbar position
-const floatingToolbarStyle = (index) => {
-  if (!canvasRef.value || !isEntitySelected(index)) {
-    return { display: 'none' };
-  }
-  return {
-    position: 'fixed',
-    bottom: '90px',
-    right: '10px',
-    zIndex: 1000,
-  };
-};
-
-const handleMoveUp = () => {
-  if (props.onMoveUp && props.selectedEntityId !== null) {
-    props.onMoveUp(props.selectedEntityId);
-  }
-};
-
-const handleMoveDown = () => {
-  if (props.onMoveDown && props.selectedEntityId !== null) {
-    props.onMoveDown(props.selectedEntityId);
-  }
-};
-
-const handleEditSelected = () => {
-  if (props.selectedEntityId !== null) {
-    emit('inspect-entity', props.selectedEntityId);
-  }
-};
 </script>
 
 <style scoped>
@@ -516,68 +458,5 @@ const handleEditSelected = () => {
   );
   border-radius: 2px;
   box-shadow: 0 0 4px rgba(13, 110, 253, 0.5);
-}
-
-.floating-toolbar {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0.75rem;
-  align-items: center;
-  z-index: 1000;
-  animation: slideUp 0.2s ease-out;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.floating-toolbar button {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  background-color: #0d6efd;
-  color: #fff;
-  border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-  flex-shrink: 0;
-  padding: 0;
-}
-
-.floating-toolbar button:hover {
-  background-color: #0b5ed7;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-}
-
-.floating-toolbar button:active {
-  transform: scale(0.92);
-}
-
-.floating-toolbar button i {
-  font-size: 1.25rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  .floating-toolbar button {
-    background-color: #0d6efd;
-  }
-
-  .floating-toolbar button:hover {
-    background-color: #0b5ed7;
-  }
 }
 </style>
