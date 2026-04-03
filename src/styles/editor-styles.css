@@ -426,6 +426,8 @@
     box-shadow 0.2s ease;
   padding: 0;
   flex-shrink: 0;
+  /* Eliminates the 300ms ghost-click delay on mobile browsers */
+  touch-action: manipulation;
 }
 
 .floating-toolbar .btn-fab:hover {
@@ -441,7 +443,10 @@
   opacity: 0.35;
   cursor: not-allowed;
   box-shadow: none;
-  pointer-events: none;
+  /* Do NOT use pointer-events:none here — it causes ghost clicks from the
+     mobile browser to fall through the disabled button onto canvas cards
+     below, which toggles selection to null and hides the toolbar.
+     The native `disabled` attribute already prevents the click handler. */
 }
 
 .floating-toolbar .btn-fab.btn-fab-danger {

@@ -114,14 +114,17 @@
     </div>
 
     <!-- Floating toolbar: [Up] [Down] [Delete] [Edit] [+] -->
-    <!-- @touchstart.stop prevents touch fall-through to canvas cards behind the toolbar -->
-    <div v-if="isMobile" class="floating-toolbar" @touchstart.stop @touchend.stop>
+    <!-- @touchstart.stop: stops touch bubbling to canvas cards behind the toolbar.
+         Individual buttons use @touchend.prevent to stop the browser generating
+         a ghost click 300ms after touchend (which would fall through to canvas). -->
+    <div v-if="isMobile" class="floating-toolbar" @touchstart.stop>
       <!-- Move Up — always rendered, disabled at top so layout stays stable -->
       <button
         v-show="selectedEntityId !== null"
         :disabled="selectedEntityId === 0"
         title="Move Up"
         class="btn-fab"
+        @touchend.prevent="handleMoveUp()"
         @click="handleMoveUp()"
       >
         <i class="mdi mdi-arrow-up" />
@@ -133,6 +136,7 @@
         :disabled="selectedEntityId !== null && selectedEntityId >= currentViewEntities.length - 1"
         title="Move Down"
         class="btn-fab"
+        @touchend.prevent="handleMoveDown()"
         @click="handleMoveDown()"
       >
         <i class="mdi mdi-arrow-down" />
@@ -143,6 +147,7 @@
         v-show="selectedEntityId !== null"
         title="Delete"
         class="btn-fab btn-fab-danger"
+        @touchend.prevent="handleRemoveEntity(selectedEntityId)"
         @click="handleRemoveEntity(selectedEntityId)"
       >
         <i class="mdi mdi-delete" />
@@ -153,6 +158,7 @@
         v-show="selectedEntityId !== null"
         title="Edit"
         class="btn-fab"
+        @touchend.prevent="showMobileInspector = true; showMobilePanel = false"
         @click="showMobileInspector = true; showMobilePanel = false"
       >
         <i class="mdi mdi-pencil" />
@@ -163,6 +169,7 @@
         class="btn-fab"
         :class="{ 'is-open': showMobilePanel }"
         :aria-label="showMobilePanel ? 'Close panel' : 'Open panel'"
+        @touchend.prevent="toggleMobilePanel"
         @click="toggleMobilePanel"
       >
         <i :class="showMobilePanel ? 'mdi mdi-close' : 'mdi mdi-plus'" />
