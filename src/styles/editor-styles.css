@@ -437,6 +437,21 @@
   transform: scale(0.92);
 }
 
+.floating-toolbar .btn-fab:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.floating-toolbar .btn-fab.btn-fab-danger {
+  background-color: #dc3545;
+}
+
+.floating-toolbar .btn-fab.btn-fab-danger:hover {
+  background-color: #bb2d3b;
+}
+
 .floating-toolbar .btn-fab.is-open {
   background-color: #dc3545;
 }

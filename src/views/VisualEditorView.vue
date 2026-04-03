@@ -113,11 +113,12 @@
       />
     </div>
 
-    <!-- Floating toolbar with all action buttons [Up] [Down] [Edit] [+] -->
-    <div v-if="isMobile && (selectedEntityId !== null || !showMobilePanel)" class="floating-toolbar">
-      <!-- Move Up button (hidden if at top) -->
+    <!-- Floating toolbar: [Up] [Down] [Delete] [Edit] [+] -->
+    <div v-if="isMobile" class="floating-toolbar">
+      <!-- Move Up — always rendered, disabled at top so layout stays stable -->
       <button
-        v-if="selectedEntityId !== null && selectedEntityId > 0"
+        v-show="selectedEntityId !== null"
+        :disabled="selectedEntityId === 0"
         title="Move Up"
         class="btn-fab"
         @click="handleMoveUp()"
@@ -125,9 +126,10 @@
         <i class="mdi mdi-arrow-up" />
       </button>
 
-      <!-- Move Down button (hidden if at bottom) -->
+      <!-- Move Down — always rendered, disabled at bottom -->
       <button
-        v-if="selectedEntityId !== null && selectedEntityId < currentViewEntities.length - 1"
+        v-show="selectedEntityId !== null"
+        :disabled="selectedEntityId !== null && selectedEntityId >= currentViewEntities.length - 1"
         title="Move Down"
         class="btn-fab"
         @click="handleMoveDown()"
@@ -135,9 +137,19 @@
         <i class="mdi mdi-arrow-down" />
       </button>
 
-      <!-- Edit button (visible only when a card is selected) -->
+      <!-- Delete (red) -->
       <button
-        v-if="selectedEntityId !== null"
+        v-show="selectedEntityId !== null"
+        title="Delete"
+        class="btn-fab btn-fab-danger"
+        @click="handleRemoveEntity(selectedEntityId)"
+      >
+        <i class="mdi mdi-delete" />
+      </button>
+
+      <!-- Edit -->
+      <button
+        v-show="selectedEntityId !== null"
         title="Edit"
         class="btn-fab"
         @click="showMobileInspector = true; showMobilePanel = false"
@@ -145,7 +157,7 @@
         <i class="mdi mdi-pencil" />
       </button>
 
-      <!-- Add/Close button (+ when nothing selected or panel is closed, × when panel is open) -->
+      <!-- Add/Close -->
       <button
         class="btn-fab"
         :class="{ 'is-open': showMobilePanel }"
@@ -566,6 +578,10 @@ const handleMoveUp = () => {
   const currentIndex = selectedEntityId.value;
   const [removed] = entities.splice(currentIndex, 1);
   entities.splice(currentIndex - 1, 0, removed);
+  
+  // Reassign array to trigger Vue reactivity
+  store.dashboardConfig.views[viewIndex].entities = [...entities];
+  
   selectedEntityId.value = currentIndex - 1;
   debouncedSave();
 };
@@ -586,6 +602,10 @@ const handleMoveDown = () => {
   const currentIndex = selectedEntityId.value;
   const [removed] = entities.splice(currentIndex, 1);
   entities.splice(currentIndex + 1, 0, removed);
+  
+  // Reassign array to trigger Vue reactivity
+  store.dashboardConfig.views[viewIndex].entities = [...entities];
+  
   selectedEntityId.value = currentIndex + 1;
   debouncedSave();
 };
