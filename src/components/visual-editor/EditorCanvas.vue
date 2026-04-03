@@ -135,7 +135,6 @@
     >
       <button
         v-if="props.selectedEntityId > 0"
-        class="btn btn-sm btn-outline-primary"
         title="Move Up"
         @click="handleMoveUp"
       >
@@ -143,14 +142,12 @@
       </button>
       <button
         v-if="props.selectedEntityId < localEntities.length - 1"
-        class="btn btn-sm btn-outline-primary"
         title="Move Down"
         @click="handleMoveDown"
       >
         <i class="mdi mdi-arrow-down"></i>
       </button>
       <button
-        class="btn btn-sm btn-outline-primary"
         title="Edit"
         @click="handleEditSelected"
       >
@@ -523,12 +520,8 @@ const handleEditSelected = () => {
 
 .floating-toolbar {
   display: flex;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  background: white;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  gap: 0.75rem;
+  align-items: center;
   z-index: 1000;
   animation: slideUp 0.2s ease-out;
 }
@@ -545,17 +538,45 @@ const handleEditSelected = () => {
 }
 
 .floating-toolbar button {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background-color: #0d6efd;
+  color: #fff;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   flex-shrink: 0;
+  padding: 0;
+}
+
+.floating-toolbar button:hover {
+  background-color: #0b5ed7;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.floating-toolbar button:active {
+  transform: scale(0.92);
 }
 
 .floating-toolbar button i {
-  font-size: 1rem;
+  font-size: 1.25rem;
 }
 
 @media (prefers-color-scheme: dark) {
-  .floating-toolbar {
-    background: #2d3748;
-    border-color: #4a5568;
+  .floating-toolbar button {
+    background-color: #0d6efd;
+  }
+
+  .floating-toolbar button:hover {
+    background-color: #0b5ed7;
   }
 }
 </style>
