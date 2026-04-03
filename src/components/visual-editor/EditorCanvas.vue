@@ -331,8 +331,8 @@ const floatingToolbarStyle = (index) => {
   }
   return {
     position: 'fixed',
-    bottom: '80px',
-    right: '20px',
+    bottom: '90px',
+    right: '10px',
     zIndex: 1000,
   };
 };
@@ -520,6 +520,7 @@ const handleEditSelected = () => {
 
 .floating-toolbar {
   display: flex;
+  flex-wrap: nowrap;
   gap: 0.75rem;
   align-items: center;
   z-index: 1000;
