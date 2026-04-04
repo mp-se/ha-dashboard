@@ -2,18 +2,44 @@
 
 ## Unreleased
 
-- **Left Panel Tabs**: Replaced the collapsible sections in the visual editor with a more compact tab-based interface for Views, Entities, and Components.
-- Replaced lazy-loaded app views and global component registration with eager imports so the PWA loads from a single, predictable application bundle.
-- Restored the `ViewManager` list to the visual editor left sidebar so view selection and management are available again while editing.
-- Fixed the editor navbar so `DevicesView` and `RawEntityView` are always visible within editor mode, while the extra editor tools remain gated behind Developer Mode.
-- Fixed editor navigation so the Editor tab is only active in the visual editor and developer-only views in the editor navbar are gated behind developer mode again.
+### Mobile Editor
+- **Full mobile editor support**: Visual editor is now fully usable on iPhone, iPad, and any mobile browser/PWA.
+- **Responsive layout**: On screens narrower than 768px the three-column editor reflows to a full-screen canvas with bottom-sheet panels.
+- **Unified floating toolbar**: A fixed bottom-right toolbar replaces all inline action buttons. Context-aware buttons appear based on what is selected:
+  - Nothing selected → `[+]` (open palette)
+  - Card selected → `[↑][↓][✎][🗑][+][×]`
+  - Panel open, view selected → `[↑][↓][✎][🗑][+][×]`
+  - Property editor open → `[↑][↓][🗑][×]` (entity list item selected) or `[🗑][+][×]`
+  - Panel open (entities/components) → `[×]`
+- **Long-press to inspect**: Long-press (500 ms) any card on mobile to open the property editor bottom sheet.
+- **Tap-to-add entities**: Tapping an entity or static component in the mobile palette inserts it immediately after the currently selected card.
+- **Multi-entity cards on mobile**: For cards that support multiple entities (HaRoom, HaGlance, etc.) the `+` button in the property editor adds an entity directly to the card's entity list. Entity list rows are tap-to-select with up/down/delete via the toolbar.
+- **View reordering**: Views in the Views tab can be reordered via the toolbar up/down buttons — no drag required.
+- **Context menu suppressed**: `contextmenu` events are prevented on editor cards to avoid the browser menu appearing on long-press.
+- **`useIsMobile` composable**: New reactive composable (`src/composables/useIsMobile.ts`) tracks `window.innerWidth < 768` with a resize listener. Used across the editor for all mobile/desktop branching.
 
-- **Editor View Navbar Scope**: Kept the dedicated editor navbar active for `editor`, `device`, and `raw` so moving into editor-side views no longer drops back to the normal dashboard navbar.
-- **Editor Navbar Views**: Added persistent `DevicesView` and `RawEntityView` entries to the dedicated editor navbar so those editor-side views are always available without depending on Developer Mode.
-- **Editor Toolbar Cleanup**: Removed the duplicate in-page `Visual Editor` header and moved the editor save action into the dedicated `EditorNavbar`, so editor controls now live in a single top bar.
-- **Editor Navigation Split**: Kept the normal dashboard navbar focused on view navigation and editor entry, while the `EditorNavbar` now owns the editor-only developer tools and save controls.
-- **Improved State Management**: Fixed a synchronization issue where dark mode changes were not being persisted to `localStorage` or correctly applied to the document theme until a page reload. Added a watcher in `App.vue` to ensure real-time theme updates and persistence.
-- **Code Quality**: Added comprehensive unit tests for `App.vue` to verify navbar switching and component rendering logic. Fixed a linting error in `AppNavbar.vue` related to an unused variable.
+### Visual Editor — Desktop Improvements
+- **Restored HTML5 drag-and-drop**: Touch event listeners are now disabled on desktop (`mobileInspectMode=false`) to prevent interference with the browser's drag machinery. Drag-and-drop from the palette and canvas reordering both work correctly again.
+- **`EditorActionBar` generic component**: Extracted reusable `[↑][↓][✎][🗑][+][×]` action bar used consistently in ViewManager and EntityListEditor.
+- **HaHeader default name**: Adding a Header static component now sets `name: "Header"` by default so it is immediately visible on the canvas.
+- **Floating toolbar tab sync**: Switching between Views / Entities / Components tabs in the panel now correctly resets the selected view, keeping toolbar button state accurate.
+- **`drag-drop-touch` polyfill removed**: Replaced with native touch handling; no longer needed.
+
+### Editor UI
+- **Left Panel Tabs**: Replaced collapsible sections with a compact tab-based interface (Views / Entities / Components).
+- **Compact tab icons on mobile**: Tab labels are hidden on small screens; only icons are shown to save space.
+- **Removed inline delete/deselect buttons** from the Entity Inspector — toolbar replaces them for all screen sizes.
+- **Removed "Drag to reorder" hint text** from the entity list editor.
+- **Static component palette**: Entities palette opens by default (instead of Views) when the `+` FAB is tapped on mobile.
+
+### Code Quality
+- **QA skill**: Added `.github/skills/ha-quality/QA.md` — a generic Vue project quality gate skill covering tests, coverage, lint, format, and build.
+- **Coverage exceptions file**: Added `COVERAGE_EXCEPTIONS.md` documenting the three files permitted below 80% with reasons.
+- **New tests**: `useIsMobile` (8 tests), `useEditorLongPress` (12 tests), `ImagePicker.vue` (40 tests, 5.7% → 85%), `useEditorSelection`, `useEditorDragDrop`, `VisualEditorView` move/reorder tests, `EditorActionBar` (24 tests), `ViewManager` reorder tests, `EntityListEditor` selection tests.
+- **Coverage thresholds** updated to reflect current codebase (stmts 86%, branches 79%, funcs 82%, lines 87%).
+- Fixed unused variable lint error in `LeftPanelTabs.spec.ts`.
+- Removed unused `@eslint/eslintrc` and `baseline-browser-mapping` dependencies.
+- Total tests: 2594 passing.
 
 ## March 2026 - v0.7.0
 
