@@ -49,9 +49,9 @@
             @dragend="handleEntityDragEnd"
             @click.stop="onCardClick(index)"
             @dblclick.stop="emit('inspect-entity', index)"
-            @touchstart="startLongPress($event, index, handleLongPress)"
-            @touchmove="moveLongPress($event)"
-            @touchend="endLongPress"
+            @touchstart="mobileInspectMode && startLongPress($event, index, handleLongPress)"
+            @touchmove="mobileInspectMode && moveLongPress($event)"
+            @touchend="mobileInspectMode && endLongPress()"
             @contextmenu.prevent
           />
           <!-- Drop indicator for EntityList -->
@@ -75,9 +75,6 @@
           @dragleave="handleEntityDragLeave(index)"
           @drop.prevent="handleEntityDrop(index, $event)"
           @dragend="handleEntityDragEnd"
-          @touchstart="startLongPress($event, index, handleLongPress)"
-          @touchmove="moveLongPress($event)"
-          @touchend="endLongPress"
           @contextmenu.prevent
         >
           <!-- Drop indicator line (before this item) -->
@@ -97,9 +94,9 @@
             }"
             @click.stop="onCardClick(index)"
             @dblclick.stop="emit('inspect-entity', index)"
-            @touchstart="startLongPress($event, index, handleLongPress)"
-            @touchmove="moveLongPress($event)"
-            @touchend="endLongPress"
+            @touchstart="mobileInspectMode && startLongPress($event, index, handleLongPress)"
+            @touchmove="mobileInspectMode && moveLongPress($event)"
+            @touchend="mobileInspectMode && endLongPress()"
             @contextmenu.prevent
           >
             <!-- Component preview -->

@@ -627,6 +627,16 @@ const onSelectEntity = (entityId) => {
   selectedEntityId.value = entityId;
 };
 
+/**
+ * Returns default properties for static components that need them to be visible.
+ */
+const getStaticComponentDefaults = (type) => {
+  const defaults = {
+    HaHeader: { name: 'Header' },
+  };
+  return defaults[type] ?? {};
+};
+
 const handleAddEntity = (entityIdOrComponent) => {
   if (!currentView.value) return;
 
@@ -653,9 +663,10 @@ const handleAddEntity = (entityIdOrComponent) => {
     typeof entityIdOrComponent === "object" &&
     entityIdOrComponent.type
   ) {
-    // Static component - create entry with just the type
+    // Static component - create entry with type + defaults for required props
     newEntity = {
       type: entityIdOrComponent.type,
+      ...getStaticComponentDefaults(entityIdOrComponent.type),
     };
   } else {
     return;
@@ -695,9 +706,10 @@ const handleAddEntityAtIndex = (payload) => {
     typeof entityIdOrComponent === "object" &&
     entityIdOrComponent.type
   ) {
-    // Static component - create entry with just the type
+    // Static component - create entry with type + defaults for required props
     newEntity = {
       type: entityIdOrComponent.type,
+      ...getStaticComponentDefaults(entityIdOrComponent.type),
     };
   } else {
     return;
