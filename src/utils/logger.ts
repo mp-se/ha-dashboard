@@ -25,15 +25,18 @@ export interface Logger {
 
 export const createLogger = (prefix = ""): Logger => {
   const tag = prefix ? `[${prefix}]` : "";
+  const debugEnabled =
+    import.meta.env.DEV ||
+    String(import.meta.env.VITE_DEBUG_LOGS).toLowerCase() === "true";
 
   return {
     log(...args: unknown[]): void {
-      if (import.meta.env.DEV) {
+      if (debugEnabled) {
         tag ? console.log(tag, ...args) : console.log(...args);
       }
     },
     warn(...args: unknown[]): void {
-      if (import.meta.env.DEV) {
+      if (debugEnabled) {
         tag ? console.warn(tag, ...args) : console.warn(...args);
       }
     },

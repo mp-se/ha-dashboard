@@ -1,5 +1,5 @@
 <template>
-  <header class="sticky-top bg-body shadow-sm">
+  <header class="sticky-top bg-body shadow-sm app-navbar">
     <nav
       v-if="!store.isLoading"
       :class="[
@@ -456,3 +456,11 @@ onMounted(() => {
   });
 });
 </script>
+
+<style scoped>
+.app-navbar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0);
+  background-clip: padding-box;
+}
+</style>

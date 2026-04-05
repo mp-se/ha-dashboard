@@ -107,14 +107,25 @@
       @update:model-value="$emit('update:modelValue', $event)"
     />
 
-    <!-- Image picker -->
+    <!-- Image picker (web/Docker only) — replaced by URL input in native builds -->
     <ImagePicker
-      v-else-if="property.type === 'image'"
+      v-else-if="property.type === 'image' && !IS_NATIVE"
       :model-value="modelValue"
       :label="property.label"
       :help="property.help"
       :required="property.required"
       :placeholder="property.placeholder"
+      :error="error"
+      @update:model-value="$emit('update:modelValue', $event)"
+    />
+
+    <!-- Native image: URL-only input (no upload backend available) -->
+    <TextInput
+      v-else-if="property.type === 'image' && IS_NATIVE"
+      :model-value="modelValue"
+      label="Image URL"
+      help="Enter a URL. Use /local/ paths for images stored in your HA config/www/ folder, e.g. http://homeassistant.local:8123/local/photo.jpg"
+      :required="property.required"
       :error="error"
       @update:model-value="$emit('update:modelValue', $event)"
     />
@@ -133,6 +144,7 @@ import NumberInput from "./NumberInput.vue";
 import SliderInput from "./SliderInput.vue";
 import ImagePicker from "./ImagePicker.vue";
 
+const IS_NATIVE = import.meta.env.VITE_NATIVE_MODE === "true";
 // eslint-disable-next-line no-unused-vars
 const props = defineProps({
   property: {

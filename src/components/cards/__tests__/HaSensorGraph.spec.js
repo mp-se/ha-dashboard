@@ -3,6 +3,7 @@ import { mount, flushPromises } from "@vue/test-utils";
 import HaSensorGraph from "../HaSensorGraph.vue";
 import { createPinia, setActivePinia } from "pinia";
 import { useHaStore } from "@/stores/haStore";
+import { useAuthStore } from "@/stores/authStore";
 
 // Test constants
 const INTERVALS = {
@@ -23,12 +24,14 @@ const UI_TEXT = {
 
 describe("HaSensorGraph.vue", () => {
   let store;
+  let authStore;
   let pinia;
 
   beforeEach(() => {
     pinia = createPinia();
     setActivePinia(pinia);
     store = useHaStore();
+    authStore = useAuthStore();
 
     store.entities = [
       {
@@ -194,8 +197,8 @@ describe("HaSensorGraph.vue", () => {
       const wrapper = createWrapper();
       await flushPromises();
 
-      expect(wrapper.find(".text-danger").exists()).toBe(true);
-      expect(wrapper.text()).toContain("Fetch failed");
+      expect(authStore.lastError).toBeTruthy();
+      expect(authStore.lastError).toContain("Fetch failed");
     });
 
     it("should display message when no data available", async () => {
@@ -226,8 +229,8 @@ describe("HaSensorGraph.vue", () => {
       const wrapper = createWrapper({ entity: "sensor.nonexistent" });
       await flushPromises();
 
-      expect(wrapper.find(".text-danger").exists()).toBe(true);
-      expect(wrapper.text()).toContain(UI_TEXT.NO_ENTITIES);
+      expect(authStore.lastError).toBeTruthy();
+      expect(authStore.lastError).toContain("No valid entities");
     });
   });
 
@@ -507,7 +510,7 @@ describe("HaSensorGraph.vue", () => {
         await flushPromises();
 
         // Should still render graph without errors
-        expect(wrapper.find(".text-danger").exists()).toBe(false);
+        expect(authStore.lastError).toBeFalsy();
         expect(wrapper.find("svg").exists()).toBe(true);
       },
     );
@@ -537,8 +540,8 @@ describe("HaSensorGraph.vue", () => {
       await flushPromises();
 
       // Should display error for non-existent entity
-      expect(wrapper.find(".text-danger").exists()).toBe(true);
-      expect(wrapper.text()).toContain(UI_TEXT.NO_ENTITIES);
+      expect(authStore.lastError).toBeTruthy();
+      expect(authStore.lastError).toContain("No valid entities");
     });
   });
 
@@ -580,7 +583,7 @@ describe("HaSensorGraph.vue", () => {
       await flushPromises();
 
       // Single point should still render without errors
-      expect(wrapper.find(".text-danger").exists()).toBe(false);
+      expect(authStore.lastError).toBeFalsy();
     });
 
     it("should render filled area under graph line", async () => {
@@ -620,7 +623,7 @@ describe("HaSensorGraph.vue", () => {
       await flushPromises();
 
       // Should filter out invalid values and render graph
-      expect(wrapper.find(".text-danger").exists()).toBe(false);
+      expect(authStore.lastError).toBeFalsy();
       expect(wrapper.find("svg").exists()).toBe(true);
     });
 
@@ -670,7 +673,7 @@ describe("HaSensorGraph.vue", () => {
 
       // Should still render graph with tiny variations
       expect(wrapper.find("svg").exists()).toBe(true);
-      expect(wrapper.find(".text-danger").exists()).toBe(false);
+      expect(authStore.lastError).toBeFalsy();
     });
 
     it("should handle entity with identical values", async () => {
@@ -713,15 +716,15 @@ describe("HaSensorGraph.vue", () => {
       await flushPromises();
 
       // Should show error initially
-      expect(wrapper.find(".text-danger").exists()).toBe(true);
-      expect(wrapper.text()).toContain("Network error");
+      expect(authStore.lastError).toBeTruthy();
+      expect(authStore.lastError).toContain("Network error");
 
       // Trigger retry by reloading history
       await wrapper.vm.loadHistory();
       await flushPromises();
 
       // Should now show graph successfully
-      expect(wrapper.find(".text-danger").exists()).toBe(false);
+      expect(authStore.lastError).toBeFalsy();
       expect(wrapper.find("svg").exists()).toBe(true);
     });
 
@@ -761,8 +764,8 @@ describe("HaSensorGraph.vue", () => {
       await wrapper.setProps({ entity: "sensor.nonexistent" });
       await flushPromises();
 
-      expect(wrapper.find(".text-danger").exists()).toBe(true);
-      expect(wrapper.text()).toContain(UI_TEXT.NO_ENTITIES);
+      expect(authStore.lastError).toBeTruthy();
+      expect(authStore.lastError).toContain("No valid entities");
 
       // Add entity back and switch to it
       store.entities = [
@@ -783,7 +786,7 @@ describe("HaSensorGraph.vue", () => {
       await flushPromises();
 
       // Should recover and display graph
-      expect(wrapper.find(".text-danger").exists()).toBe(false);
+      expect(authStore.lastError).toBeFalsy();
       expect(wrapper.text()).toContain("Temperature");
       expect(wrapper.find("svg").exists()).toBe(true);
     });
@@ -793,10 +796,10 @@ describe("HaSensorGraph.vue", () => {
       const wrapper = createWrapper({ entity: "sensor.nonexistent" });
       await flushPromises();
 
-      expect(wrapper.find(".text-danger").exists()).toBe(true);
+      expect(authStore.lastError).toBeTruthy();
       // New error message includes the entity that was provided
-      expect(wrapper.text()).toContain(UI_TEXT.NO_ENTITIES);
-      expect(wrapper.text()).toContain("sensor.nonexistent");
+      expect(authStore.lastError).toContain("No valid entities");
+      expect(authStore.lastError).toContain("sensor.nonexistent");
     });
   });
 
@@ -883,12 +886,11 @@ describe("HaSensorGraph.vue", () => {
 
     it("should handle title when resolvedEntity is null", async () => {
       store.entities = [];
-      const wrapper = createWrapper({ entity: "sensor.missing" });
+      createWrapper({ entity: "sensor.missing" });
       await flushPromises();
 
-      // Should show error, not crash on null title
-      const errorText = wrapper.find(".text-danger");
-      expect(errorText.exists()).toBe(true);
+      // Should set error in authStore, not crash on null title
+      expect(authStore.lastError).toBeTruthy();
     });
   });
 });

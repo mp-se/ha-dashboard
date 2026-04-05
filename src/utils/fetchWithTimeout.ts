@@ -32,6 +32,46 @@ export const fetchWithTimeout = async (
         `Request timeout: Failed to fetch ${url} within ${timeout}ms`,
       );
     }
+
+    const debugEnabled =
+      import.meta.env.DEV ||
+      String(import.meta.env.VITE_DEBUG_LOGS).toLowerCase() === "true";
+    const message =
+      error instanceof Error ? error.message : String(error ?? "Unknown error");
+    const shouldWrap =
+      error instanceof Error &&
+      (message.includes("Load failed") ||
+        message.includes("Failed to fetch") ||
+        message.includes("Network error"));
+
+    if (debugEnabled) {
+      const errorInfo = {
+        url,
+        timeout,
+        name: error instanceof Error ? error.name : undefined,
+        message,
+        stack: error instanceof Error ? error.stack : undefined,
+        code: error instanceof Error ? (error as any).code : undefined,
+      };
+      console.error("[fetchWithTimeout] request failed", errorInfo);
+    }
+
+    if (shouldWrap) {
+      const extraDetail = message.includes("Load failed")
+        ? " This often indicates a native WebView network/CORS/security failure when requesting from capacitor://localhost. Check Home Assistant CORS configuration and certificate trust."
+        : "";
+      const wrappedError = new Error(
+        `[fetchWithTimeout] request failed for ${url}: ${message}${extraDetail}`,
+      );
+      if (error instanceof Error) {
+        wrappedError.name = error.name;
+        (wrappedError as any).stack = error.stack;
+        (wrappedError as any).code = (error as any).code;
+        (wrappedError as any).cause = error;
+      }
+      throw wrappedError;
+    }
+
     throw error;
   }
 };
@@ -53,8 +93,9 @@ export const fetchJsonWithTimeout = async (
 ): Promise<unknown> => {
   const response = await fetchWithTimeout(url, options, timeout);
   if (!response.ok) {
+    const body = await response.text().catch(() => "<unable to read response body>");
     throw new Error(
-      `HTTP error! status: ${response.status} ${response.statusText}`,
+      `HTTP error! status: ${response.status} ${response.statusText} - ${body}`,
     );
   }
   return await response.json();

@@ -20,7 +20,6 @@
         </div>
 
         <div v-if="loading" class="text-center py-4">Loading history…</div>
-        <div v-else-if="error" class="text-danger">{{ error }}</div>
         <div
           v-else-if="!loading && points.length === 0"
           class="text-muted text-center d-flex align-items-center justify-content-center"
@@ -91,6 +90,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useHaStore } from "@/stores/haStore";
+import { useAuthStore } from "@/stores/authStore";
 import { createLogger } from "@/utils/logger";
 
 // Constants
@@ -145,6 +145,7 @@ const props = defineProps({
 });
 
 const store = useHaStore();
+const authStore = useAuthStore();
 const logger = createLogger("HaSensorGraph");
 
 // Entity list: convert single entity to array, handle existing arrays
@@ -173,7 +174,6 @@ const resolvedEntities = computed(() => {
 const resolvedEntity = computed(() => resolvedEntities.value[0]);
 
 const loading = ref(false);
-const error = ref(null);
 const points = ref([]);
 const points2 = ref([]);
 const points3 = ref([]);
@@ -384,12 +384,14 @@ let intervalId = null;
  */
 async function loadHistory() {
   loading.value = true;
-  error.value = null;
   points.value = [];
   points2.value = [];
   points3.value = [];
 
   try {
+    // Clear previous error when starting new load
+    authStore.clearError();
+    
     const entitiesToLoad = resolvedEntities.value.filter(
       (e) => e && e.entity_id,
     );
@@ -420,7 +422,20 @@ async function loadHistory() {
     });
   } catch (e) {
     logger.error(e);
-    error.value = e.message || String(e);
+    // Extract error message safely from various error types
+    let errorMsg = 'Failed to load history data';
+    try {
+      if (e instanceof Error) {
+        errorMsg = e.message || errorMsg;
+      } else if (typeof e === 'string') {
+        errorMsg = e;
+      } else {
+        errorMsg = String(e);
+      }
+    } catch {
+      errorMsg = 'Failed to load history data';
+    }
+    authStore.setError(errorMsg);
   } finally {
     loading.value = false;
   }

@@ -40,7 +40,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 defineProps({
   mobileMode: {
@@ -51,7 +51,9 @@ defineProps({
 
 defineEmits(["add-entity"]);
 
-const staticComponents = ref([
+const IS_NATIVE = import.meta.env.VITE_NATIVE_MODE === "true";
+
+const allStaticComponents = ref([
   {
     type: "HaHeader",
     label: "Header",
@@ -83,6 +85,14 @@ const staticComponents = ref([
     icon: "mdi-image-outline",
   },
 ]);
+
+// In native builds, hide HaImage — the upload backend (app-server.js) is unavailable.
+// Users can still use existing HaImage cards via URL directly.
+const staticComponents = computed(() =>
+  IS_NATIVE
+    ? allStaticComponents.value.filter((c) => c.type !== "HaImage")
+    : allStaticComponents.value,
+);
 
 const handleDragStart = (event, component) => {
   // Store component type in application/json format (same as EntityPalette)

@@ -185,7 +185,10 @@ const toggleDarkMode = () => {
 
 <style scoped>
 .editor-navbar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0);
   border-bottom: 2px solid var(--bs-warning);
+  background-clip: padding-box;
 }
 
 .nav-link.active {

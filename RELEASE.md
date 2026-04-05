@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Error Handling & Diagnostics
+- **Centralized error handling**: Added a global `ErrorBanner` component and consolidated per-card error UI into `authStore` to provide a single consistent place for connection and security warnings.
+- **Component refactor**: `HaSensorGraph.vue` now reports errors via `authStore.setError()` and no longer renders a local error alert.
+- **Tests updated**: Updated HaSensorGraph tests (59 tests) to assert `authStore.lastError` instead of local DOM error elements.
+- **Network/CORS detection improved**: Treats `Failed to fetch` fetch failures as CORS/Security errors and keeps CORS/network errors visible until manually dismissed.
+- **Bugfix**: Fixed an `ErrorBanner.vue` template issue where `lastError` was not referenced correctly, preventing the banner from appearing.
+
+
 ### Mobile Editor
 - **Full mobile editor support**: Visual editor is now fully usable on iPhone, iPad, and any mobile browser/PWA.
 - **Responsive layout**: On screens narrower than 768px the three-column editor reflows to a full-screen canvas with bottom-sheet panels.

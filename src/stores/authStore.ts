@@ -60,7 +60,7 @@ export const useAuthStore = defineStore("auth", () => {
         : error;
 
     if (code === ERR_INVALID_AUTH || code === "invalid_auth") {
-      return "Authentication failed: Invalid access token. Check your VITE_HA_TOKEN.";
+      return "Authentication Error: Invalid access token. Please check your credentials and try again.";
     }
     if (
       code === ERR_CANNOT_CONNECT ||
@@ -73,16 +73,16 @@ export const useAuthStore = defineStore("auth", () => {
         urlStr.startsWith("https://") &&
         /https?:\/\/(\[.*\]|\d+\.\d+\.\d+\.\d+)/.test(urlStr);
       if (isIpWithHttps) {
-        return `Connection failed: Secure connection to ${haUrl.value} rejected. Ensure you have trusted the Home Assistant certificate at this IP in your browser first.`;
+        return `Certificate Validation Error: Your browser does not trust the Home Assistant certificate at ${haUrl.value}. Open the URL in your browser and accept the certificate warning first.`;
       }
-      return `Failed to connect to Home Assistant at ${haUrl.value}. Check URL and network connectivity.`;
+      return `Server Not Found: Unable to connect to Home Assistant at ${haUrl.value}. Please check the URL, ensure Home Assistant is running, and verify your network connection.`;
     }
     if (
       error instanceof TypeError &&
       error.message &&
       error.message.includes("Failed to fetch")
     ) {
-      return `CORS or SSL error: Home Assistant server at ${haUrl.value} does not allow cross-origin requests or has an untrusted certificate. Ensure you can visit the URL in your browser and accept any certificate warnings.`;
+      return `CORS/Security Error: Home Assistant server at ${haUrl.value} is not configured to accept requests from this application. This may be due to CORS settings or an untrusted SSL certificate. Ensure you can access the URL directly in your browser.`;
     }
     return (
       (error && typeof error === "object" && "message" in error

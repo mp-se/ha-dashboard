@@ -9,6 +9,8 @@ import path from "path";
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const baseUrl = env.VITE_BASE_URL || "/";
+  const DEBUG_LOGS =
+    String(env.VITE_DEBUG_LOGS || "").toLowerCase() === "true";
 
   return {
     base: baseUrl,
@@ -178,16 +180,6 @@ export default defineConfig(({ mode }) => {
               }
             }
 
-            // Page components that are always needed
-            if (
-              id.includes("src/components/page-components/") &&
-              (id.includes("AppNavbar") ||
-                id.includes("ErrorBoundary") ||
-                id.includes("CredentialDialog"))
-            ) {
-              return "page-core";
-            }
-
             // View chunks - these are lazy loaded based on navigation
             if (id.includes("src/views/")) {
               if (id.includes("JsonConfigView")) {
@@ -231,8 +223,10 @@ export default defineConfig(({ mode }) => {
       minify: "terser",
       terserOptions: {
         compress: {
-          drop_console: true,
-          pure_funcs: ["console.log", "console.info", "console.warn"],
+          drop_console: !DEBUG_LOGS,
+          pure_funcs: DEBUG_LOGS
+            ? []
+            : ["console.log", "console.info", "console.warn"],
         },
       },
     },

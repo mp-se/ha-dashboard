@@ -337,6 +337,7 @@ export const useEntitiesStore = defineStore("entities", () => {
     if (cached && Date.now() - cached.timestamp < HISTORY_CACHE_TTL)
       return cached.promise;
 
+    let url = "";
     const promise = (async () => {
       try {
         const now = Date.now();
@@ -344,15 +345,26 @@ export const useEntitiesStore = defineStore("entities", () => {
         const start = new Date(startTime).toISOString();
         const end = new Date(now).toISOString();
         const base = authStore.haUrl.replace(/\/$/, "");
-        const url = `${base}/api/history/period/${start}?end_time=${end}&filter_entity_id=${encodeURIComponent(entityId)}&minimal_response=true`;
+        url = `${base}/api/history/period/${start}?end_time=${end}&filter_entity_id=${encodeURIComponent(entityId)}&minimal_response=true`;
+        logger.log("fetchHistory request", {
+          entityId,
+          hours,
+          maxPoints,
+          url,
+        });
 
         const res = await authStore.fetchWithTimeout(url, {
           headers: {
             Authorization: `Bearer ${authStore.accessToken}`,
-            "Content-Type": "application/json",
+            Accept: "application/json",
           },
         });
-        if (!res.ok) throw new Error(`History request failed: ${res.status}`);
+        if (!res.ok) {
+          const responseText = await res.text().catch(() => "<no body>");
+          throw new Error(
+            `History request failed: ${res.status} ${res.statusText} - ${responseText}`,
+          );
+        }
         const body = (await res.json()) as Array<EntityState[]>;
         const arr = body[0] || [];
         const extracted = arr
@@ -370,8 +382,30 @@ export const useEntitiesStore = defineStore("entities", () => {
         }
         return extracted;
       } catch (e) {
-        logger.error("fetchHistory error", e);
-        throw e;
+        const errorDetails =
+          e instanceof Error
+            ? { name: e.name, message: e.message, stack: e.stack }
+            : e;
+        logger.error("fetchHistory error", {
+          entityId,
+          url,
+          hours,
+          maxPoints,
+          error: errorDetails,
+        });
+        if (
+          e instanceof Error &&
+          e.message.startsWith(`History fetch failed for ${entityId}:`)
+        ) {
+          throw e;
+        }
+        const message =
+          e instanceof Error
+            ? e.message
+            : JSON.stringify(e, Object.getOwnPropertyNames(e)) || String(e);
+        throw new Error(
+          `History fetch failed for ${entityId}: ${message}`,
+        );
       }
     })();
 

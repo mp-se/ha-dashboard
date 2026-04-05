@@ -16,7 +16,8 @@
     @edit-credentials="handleEditCredentials"
   />
 
-  <!-- Loading Modal -->
+  <!-- Error Banner - displays connection/CORS/security errors below navbar -->
+  <ErrorBanner />
   <div
     v-if="store.isLoading"
     class="modal fade show d-block"
@@ -91,6 +92,7 @@ import { SWIPE_MIN_DISTANCE } from "./utils/constants";
 import AppNavbar from "./components/page-components/AppNavbar.vue";
 import EditorNavbar from "./components/page-components/EditorNavbar.vue";
 import CredentialDialog from "./components/page-components/CredentialDialog.vue";
+import ErrorBanner from "./components/page-components/ErrorBanner.vue";
 import ErrorBoundary from "./components/page-components/ErrorBoundary.vue";
 import JsonConfigView from "./views/JsonConfigView.vue";
 import DevicesView from "./views/DevicesView.vue";
