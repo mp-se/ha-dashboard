@@ -62,8 +62,8 @@ describe("EditorNavbar.vue", () => {
     const wrapper = mountNavbar();
     await wrapper.find('[title="DevicesView"]').trigger("click");
 
-    expect(wrapper.emitted("update:currentView")).toBeTruthy();
-    expect(wrapper.emitted("update:currentView").at(-1)).toEqual(["device"]);
+    expect(wrapper.emitted("update:current-view")).toBeTruthy();
+    expect(wrapper.emitted("update:current-view").at(-1)).toEqual(["device"]);
   });
 
   it("highlights the editor tab only for the editor view", async () => {
@@ -83,9 +83,6 @@ describe("EditorNavbar.vue", () => {
     await wrapper.vm.$nextTick();
 
     expect(
-      wrapper.find('button[title="Reload dashboard configuration"]').exists(),
-    ).toBe(true);
-    expect(
       wrapper
         .find('button[title="Save current data for local testing"]')
         .exists(),
@@ -96,9 +93,6 @@ describe("EditorNavbar.vue", () => {
     const wrapper = mountNavbar();
     await wrapper.vm.$nextTick();
 
-    expect(
-      wrapper.find('button[title="Reload dashboard configuration"]').exists(),
-    ).toBe(false);
     expect(
       wrapper
         .find('button[title="Save current data for local testing"]')

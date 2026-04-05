@@ -10,6 +10,7 @@ vi.mock("home-assistant-js-websocket", () => {
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
     close: vi.fn(),
+    sendMessagePromise: vi.fn(),
   };
 
   return {
@@ -148,60 +149,64 @@ describe("useAuthStore", () => {
 
       // Invalid auth
       let msg = store.wrapLibraryError(2); // ERR_INVALID_AUTH
-      expect(msg).toContain("Authentication failed");
+      expect(msg).toContain("Invalid access token");
 
       // Connection failure
       store.haUrl = "http://localhost:8123";
       msg = store.wrapLibraryError(1); // ERR_CANNOT_CONNECT
-      expect(msg).toContain("Failed to connect");
+      expect(msg).toContain("Unable to connect");
     });
   });
 
   describe("Service calls", () => {
-    it("should carry out POST requests for service calls", async () => {
+    it("sends a call_service message over the websocket", async () => {
+      const { createConnection } = await import(
+        "home-assistant-js-websocket",
+      );
+      const mockConn = {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        close: vi.fn(),
+        sendMessagePromise: vi.fn().mockResolvedValue(undefined),
+      };
+      createConnection.mockResolvedValueOnce(mockConn);
+
       const store = useAuthStore();
       store.haUrl = "http://ha-url:8123";
       store.accessToken = "token";
 
-      // Mock CSRF token fetch and service call
-      global.fetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ csrf_token: "csrf-token" }),
-        })
-        .mockResolvedValueOnce({ ok: true });
+      await store.connectWebSocket();
 
       await store.callService("light", "turn_on", { entity_id: "light.test" });
 
-      // Verify service call includes the path and method
-      expect(global.fetch).toHaveBeenCalledWith(
-        "http://ha-url:8123/api/services/light/turn_on",
-        expect.objectContaining({
-          method: "POST",
-          body: JSON.stringify({ entity_id: "light.test" }),
-        }),
-      );
+      expect(mockConn.sendMessagePromise).toHaveBeenCalledWith({
+        type: "call_service",
+        domain: "light",
+        service: "turn_on",
+        service_data: { entity_id: "light.test" },
+      });
     });
 
-    it("should handle service call failures", async () => {
+    it("propagates websocket errors for service calls", async () => {
+      const { createConnection } = await import(
+        "home-assistant-js-websocket",
+      );
+      const mockConn = {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        close: vi.fn(),
+        sendMessagePromise: vi.fn().mockRejectedValue(new Error("auth failed")),
+      };
+      createConnection.mockResolvedValueOnce(mockConn);
+
       const store = useAuthStore();
       store.haUrl = "http://ha-url:8123";
       store.accessToken = "token";
 
-      // Mock CSRF token fetch (successful) and failed service call
-      global.fetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ csrf_token: "csrf-token" }),
-        })
-        .mockResolvedValueOnce({
-          ok: false,
-          status: 401,
-          statusText: "Unauthorized",
-        });
+      await store.connectWebSocket();
 
       await expect(store.callService("light", "turn_on", {})).rejects.toThrow(
-        "Authentication failed",
+        "auth failed",
       );
     });
   });
@@ -265,14 +270,14 @@ describe("useAuthStore", () => {
     it("wraps string 'invalid_auth' error code", () => {
       const store = useAuthStore();
       const msg = store.wrapLibraryError("invalid_auth");
-      expect(msg).toContain("Authentication failed");
+      expect(msg).toContain("Invalid access token");
     });
 
     it("wraps string 'cannot_connect' error code", () => {
       const store = useAuthStore();
       store.haUrl = "http://ha:8123";
       const msg = store.wrapLibraryError("cannot_connect");
-      expect(msg).toContain("Failed to connect");
+      expect(msg).toContain("Unable to connect");
     });
   });
 
@@ -506,8 +511,8 @@ describe("useAuthStore", () => {
       store.isLocalMode = true;
       store.haUrl = "http://ha:8123";
       store.accessToken = "tok";
-      await store.callService("light", "turn_on", {});
-      expect(global.fetch).not.toHaveBeenCalled();
+      await expect(store.callService("light", "turn_on", {})).resolves.toBeUndefined();
+      expect(store.getConnection()).toBeNull();
     });
 
     it("returns early when haUrl or accessToken is missing", async () => {
@@ -515,106 +520,62 @@ describe("useAuthStore", () => {
       store.isLocalMode = false;
       store.haUrl = "";
       store.accessToken = "";
-      await store.callService("light", "turn_on", {});
-      expect(global.fetch).not.toHaveBeenCalled();
+      await expect(store.callService("light", "turn_on", {})).resolves.toBeUndefined();
+      expect(store.getConnection()).toBeNull();
     });
 
-    it("throws a 403 forbidden error with correct message", async () => {
+    it("throws when websocket sendMessagePromise rejects (403/Forbidden)", async () => {
+      const { createConnection } = await import("home-assistant-js-websocket");
+      const mockConn = {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        close: vi.fn(),
+        sendMessagePromise: vi.fn().mockRejectedValue(new Error("Forbidden")),
+      };
+      createConnection.mockResolvedValueOnce(mockConn);
+
       const store = useAuthStore();
       store.haUrl = "http://ha:8123";
       store.accessToken = "tok";
-      global.fetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ csrf_token: "csrf-token" }),
-        })
-        .mockResolvedValueOnce({
-          ok: false,
-          status: 403,
-          statusText: "Forbidden",
-        });
-      await expect(store.callService("light", "turn_on", {})).rejects.toThrow(
-        "Access forbidden",
-      );
+      await store.connectWebSocket();
+
+      await expect(store.callService("light", "turn_on", {})).rejects.toThrow("Forbidden");
     });
 
-    it("throws a 404 not found error with correct message", async () => {
+    it("throws when websocket sendMessagePromise rejects (404/Not Found)", async () => {
+      const { createConnection } = await import("home-assistant-js-websocket");
+      const mockConn = {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        close: vi.fn(),
+        sendMessagePromise: vi.fn().mockRejectedValue(new Error("Not Found")),
+      };
+      createConnection.mockResolvedValueOnce(mockConn);
+
       const store = useAuthStore();
       store.haUrl = "http://ha:8123";
       store.accessToken = "tok";
-      global.fetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ csrf_token: "csrf-token" }),
-        })
-        .mockResolvedValueOnce({
-          ok: false,
-          status: 404,
-          statusText: "Not Found",
-        });
-      await expect(store.callService("light", "turn_on", {})).rejects.toThrow(
-        "Service not found",
-      );
+      await store.connectWebSocket();
+
+      await expect(store.callService("light", "turn_on", {})).rejects.toThrow("Not Found");
     });
 
-    it("throws a CORS error when fetch rejects with 'Failed to fetch'", async () => {
+    it("propagates TypeError from websocket as a fetch-like error", async () => {
+      const { createConnection } = await import("home-assistant-js-websocket");
+      const mockConn = {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        close: vi.fn(),
+        sendMessagePromise: vi.fn().mockRejectedValue(new TypeError("Failed to fetch")),
+      };
+      createConnection.mockResolvedValueOnce(mockConn);
+
       const store = useAuthStore();
       store.haUrl = "http://ha:8123";
       store.accessToken = "tok";
-      // CSRF fetch fails, then service call fetch fails
-      global.fetch
-        .mockRejectedValueOnce(new TypeError("Failed to fetch"))
-        .mockRejectedValueOnce(new TypeError("Failed to fetch"));
-      await expect(store.callService("light", "turn_on", {})).rejects.toThrow(
-        "CORS error",
-      );
-    });
+      await store.connectWebSocket();
 
-    it("fetches CSRF token and includes it in service call headers", async () => {
-      const store = useAuthStore();
-      store.haUrl = "http://ha:8123";
-      store.accessToken = "tok";
-
-      // Mock CSRF token fetch
-      global.fetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ csrf_token: "csrf-token-123" }),
-        })
-        .mockResolvedValueOnce({ ok: true }); // Service call response
-
-      await store.callService("light", "turn_on", { entity_id: "light.test" });
-
-      // Verify CSRF token was fetched
-      expect(global.fetch).toHaveBeenNthCalledWith(
-        1,
-        "http://ha:8123/api/",
-        expect.any(Object),
-      );
-
-      // Verify service call includes CSRF token in headers
-      const serviceCallArgs = global.fetch.mock.calls[1];
-      const headers = serviceCallArgs[1].headers;
-      expect(headers["X-CSRF-Token"]).toBe("csrf-token-123");
-    });
-
-    it("continues service call even if CSRF token fetch fails", async () => {
-      const store = useAuthStore();
-      store.haUrl = "http://ha:8123";
-      store.accessToken = "tok";
-
-      // Mock CSRF token fetch failure, then successful service call
-      global.fetch
-        .mockRejectedValueOnce(new Error("CSRF fetch failed"))
-        .mockResolvedValueOnce({ ok: true }); // Service call response
-
-      await store.callService("light", "turn_on", { entity_id: "light.test" });
-
-      // Service call should still succeed without CSRF token
-      expect(global.fetch).toHaveBeenCalledTimes(2);
-      const serviceCallArgs = global.fetch.mock.calls[1];
-      const headers = serviceCallArgs[1].headers;
-      expect(headers["X-CSRF-Token"]).toBeUndefined();
+      await expect(store.callService("light", "turn_on", {})).rejects.toThrow("Failed to fetch");
     });
   });
 

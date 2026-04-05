@@ -313,12 +313,12 @@ describe("AppNavbar.vue", () => {
   });
 
   describe("Menu navigation", () => {
-    it("emits update:currentView when a menu item is clicked", async () => {
+    it("emits update:current-view when a menu item is clicked", async () => {
       const wrapper = mountNavbar({ currentView: "overview" });
       await wrapper.vm.$nextTick();
       const buttons = wrapper.findAll("button.btn-link");
       await buttons[1].trigger("click"); // Click 'lights'
-      expect(wrapper.emitted("update:currentView")).toBeTruthy();
+      expect(wrapper.emitted("update:current-view")).toBeTruthy();
     });
 
     it("opens the password modal before entering the editor when a password is configured", async () => {
@@ -333,18 +333,18 @@ describe("AppNavbar.vue", () => {
       await button.trigger("click");
 
       expect(wrapper.find(".modal").exists()).toBe(true);
-      expect(wrapper.emitted("update:currentView")).toBeFalsy();
+      expect(wrapper.emitted("update:current-view")).toBeFalsy();
     });
 
-    it("emits update:currentView with editor when developer mode is already enabled", async () => {
+    it("emits update:current-view with editor when developer mode is already enabled", async () => {
       authStore.developerMode = true;
       const wrapper = mountNavbar();
       const button = wrapper.find('button[title="Open visual editor"]');
 
       await button.trigger("click");
 
-      expect(wrapper.emitted("update:currentView")).toBeTruthy();
-      expect(wrapper.emitted("update:currentView").at(-1)).toEqual(["editor"]);
+      expect(wrapper.emitted("update:current-view")).toBeTruthy();
+      expect(wrapper.emitted("update:current-view").at(-1)).toEqual(["editor"]);
     });
 
     it("enables developer mode and enters the editor after a valid password", async () => {
@@ -361,8 +361,8 @@ describe("AppNavbar.vue", () => {
       await wrapper.find("button.btn-primary").trigger("click");
 
       expect(authStore.developerMode).toBe(true);
-      expect(wrapper.emitted("update:currentView")).toBeTruthy();
-      expect(wrapper.emitted("update:currentView").at(-1)).toEqual(["editor"]);
+      expect(wrapper.emitted("update:current-view")).toBeTruthy();
+      expect(wrapper.emitted("update:current-view").at(-1)).toEqual(["editor"]);
     });
 
     it("filters out hidden views from menu", async () => {

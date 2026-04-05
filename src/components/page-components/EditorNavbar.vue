@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { computed, ref, toRefs } from "vue";
+import { computed, toRefs, onMounted } from "vue";
 import { useHaStore } from "../../stores/haStore";
 import { useNormalizeIcon } from "../../composables/useNormalizeIcon";
 import { useVisualEditorToolbar } from "../../composables/useVisualEditorToolbar";
+import { createLogger } from "../../utils/logger";
 import DeveloperModeToggle from "./DeveloperModeToggle.vue";
+
+const logger = createLogger("EditorNavbar");
+onMounted(() => {
+  logger.log("[MOUNTED] EditorNavbar is rendering");
+});
 
 const props = defineProps({
   currentView: {
@@ -18,11 +24,10 @@ const props = defineProps({
 
 const { currentView, darkMode } = toRefs(props);
 
-const emit = defineEmits(["update:currentView", "update:darkMode"]);
+const emit = defineEmits(["update:current-view", "update:darkMode"]);
 
 const store = useHaStore();
 const normalizeIcon = useNormalizeIcon();
-const configReloading = ref(false);
 const { hasChanges, isSaving, saveStatus, triggerSave } =
   useVisualEditorToolbar();
 
@@ -41,18 +46,17 @@ const menuItems = computed(() => {
   ];
 });
 
-const handleReloadConfig = async () => {
-  configReloading.value = true;
-
-  try {
-    await store.reloadConfig();
-  } finally {
-    configReloading.value = false;
-  }
-};
-
 const toggleDarkMode = () => {
   emit("update:darkMode", !darkMode.value);
+};
+
+const handleEditorToggle = () => {
+  // Toggle between editor and overview; currentView is auto-unwrapped from toRefs in template,
+  // but we must read it explicitly via .value in script
+  logger.log("[EditorNavbar] handleEditorToggle CALLED with currentView.value =", currentView.value);
+  const nextView = currentView.value === "editor" ? "overview" : "editor";
+  logger.log("[EditorNavbar] About to emit update:current-view with nextView =", nextView);
+  emit("update:current-view", nextView);
 };
 </script>
 
@@ -74,7 +78,7 @@ const toggleDarkMode = () => {
               :aria-current="currentView === 'editor' ? 'page' : undefined"
               title="Editor"
               role="tab"
-              @click="$emit('update:currentView', 'editor')"
+              @click="handleEditorToggle"
             >
               <i
                 :class="`${normalizeIcon('mdi-pencil-ruler')} me-1 nav-icon`"
@@ -89,7 +93,7 @@ const toggleDarkMode = () => {
               :aria-current="currentView === item.name ? 'page' : undefined"
               :title="item.label"
               role="tab"
-              @click="$emit('update:currentView', item.name)"
+              @click="$emit('update:current-view', item.name)"
             >
               <i :class="`${item.icon} me-1 nav-icon`"></i>
               <span class="d-none d-lg-inline">{{ item.label }}</span>
@@ -123,23 +127,6 @@ const toggleDarkMode = () => {
               ></i>
               <span class="d-none d-lg-inline ms-1">
                 {{ isSaving ? "Saving..." : "Save" }}
-              </span>
-            </button>
-
-            <button
-              v-if="store.developerMode"
-              class="btn btn-outline-secondary btn-sm me-2"
-              :disabled="configReloading"
-              title="Reload dashboard configuration"
-              @click="handleReloadConfig"
-            >
-              <i v-if="!configReloading" class="mdi mdi-refresh"></i>
-              <span
-                v-else
-                class="spinner-border spinner-border-sm"
-                role="status"
-              >
-                <span class="visually-hidden">Loading...</span>
               </span>
             </button>
 

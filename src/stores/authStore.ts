@@ -17,8 +17,8 @@ import {
   isCryptoSupported,
 } from "@/utils/secureStorage";
 import { fetchWithTimeout } from "@/utils/fetchWithTimeout";
-import { TIMEOUT_SERVICE_CALL } from "@/utils/constants";
 import type { ServiceCallData } from "@/types";
+import { sendWsMessage } from "@/utils/wsRequest";
 
 export const useAuthStore = defineStore("auth", () => {
   const haUrl: Ref<string> = ref("");
@@ -26,10 +26,10 @@ export const useAuthStore = defineStore("auth", () => {
   const isConnected: Ref<boolean> = ref(false);
   const lastError: Ref<string | null> = ref(null);
   const isLocalMode: Ref<boolean> = ref(
-    import.meta.env.VITE_LOCAL_MODE === "true",
+    (import.meta as any).env.VITE_LOCAL_MODE === "true",
   );
   const developerMode: Ref<boolean> = ref(
-    import.meta.env.VITE_DEVELOPER_MODE === "true",
+    (import.meta as any).env.VITE_DEVELOPER_MODE === "true",
   );
   const credentialsFromConfig: Ref<boolean> = ref(false);
   const needsCredentials: Ref<boolean> = ref(false);
@@ -91,7 +91,7 @@ export const useAuthStore = defineStore("auth", () => {
       (typeof error === "string"
         ? error
         : "Connection error with Home Assistant")
-    );
+    ) as string;
   };
 
   const loadCredentials = async (): Promise<boolean> => {
@@ -130,8 +130,8 @@ export const useAuthStore = defineStore("auth", () => {
     }
 
     // Priority 3: Environment variables (Vite legacy)
-    const envUrl = import.meta.env.VITE_HA_URL;
-    const envToken = import.meta.env.VITE_HA_TOKEN;
+    const envUrl = (import.meta as any).env.VITE_HA_URL;
+    const envToken = (import.meta as any).env.VITE_HA_TOKEN;
     if (envUrl && envToken) {
       haUrl.value = envUrl.trim();
       accessToken.value = envToken.trim();
@@ -189,7 +189,7 @@ export const useAuthStore = defineStore("auth", () => {
         if (onDisconnectedHandler)
           connection.removeEventListener("disconnected", onDisconnectedHandler);
         if (onErrorHandler)
-          connection.removeEventListener("error", onErrorHandler);
+          connection.removeEventListener("error" as any, onErrorHandler);
         connection.close();
       }
 
@@ -240,7 +240,7 @@ export const useAuthStore = defineStore("auth", () => {
 
       connection.addEventListener("ready", onReadyHandler);
       connection.addEventListener("disconnected", onDisconnectedHandler);
-      connection.addEventListener("error", onErrorHandler);
+      connection.addEventListener("error" as any, onErrorHandler);
 
       return connection;
     } catch (error) {
@@ -262,66 +262,26 @@ export const useAuthStore = defineStore("auth", () => {
     }
     if (!haUrl.value || !accessToken.value) return;
     try {
-      const headers: Record<string, string> = {
-        Authorization: `Bearer ${accessToken.value}`,
-        "Content-Type": "application/json",
-      };
-
-      // Fetch and include CSRF token for security
-      try {
-        const csrfResponse = await fetchWithTimeout(
-          `${haUrl.value}/api/`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken.value}`,
-            },
-          },
-          TIMEOUT_SERVICE_CALL,
+      // Use WebSocket exclusively for service calls to avoid native CORS issues
+      if (!connection) {
+        throw new Error(
+          "No WebSocket connection available for service call. Connect via WebSocket before calling services.",
         );
-        if (csrfResponse.ok) {
-          const config = (await csrfResponse.json()) as Record<string, unknown>;
-          if (config.csrf_token && typeof config.csrf_token === "string") {
-            headers["X-CSRF-Token"] = config.csrf_token;
-          }
-        }
-      } catch (csrfError) {
-        logger.warn("Failed to fetch CSRF token:", csrfError);
-        // Continue without CSRF token - not all Home Assistant setups require it
       }
 
-      const response = await fetchWithTimeout(
-        `${haUrl.value}/api/services/${domain}/${service}`,
-        {
-          method: "POST",
-          headers,
-          body: JSON.stringify(data),
-        },
-        TIMEOUT_SERVICE_CALL,
-      );
-      if (!response.ok) {
-        let errorMessage = `Service call failed: ${response.status} ${response.statusText}`;
-        if (response.status === 401) {
-          errorMessage =
-            "Authentication failed: Invalid access token. Please check VITE_HA_TOKEN.";
-        } else if (response.status === 403) {
-          errorMessage =
-            "Access forbidden: Check CORS settings or permissions in Home Assistant.";
-        } else if (response.status === 404) {
-          errorMessage =
-            "Service not found: Verify domain and service are correct.";
-        }
-        throw new Error(errorMessage);
+      try {
+        await sendWsMessage(connection, {
+          type: "call_service",
+          domain,
+          service,
+          service_data: data,
+        });
+        return;
+      } catch (wsErr) {
+        logger.error("WebSocket service call failed:", wsErr);
+        throw wsErr;
       }
     } catch (error) {
-      if (
-        error instanceof TypeError &&
-        error.message.includes("Failed to fetch")
-      ) {
-        logger.error("CORS or network error calling service:", error);
-        throw new Error(
-          `CORS error: Home Assistant server at ${haUrl.value} does not allow cross-origin requests. Ensure CORS is configured properly in Home Assistant.`,
-        );
-      }
       logger.error("Error calling service:", error);
       throw error;
     }

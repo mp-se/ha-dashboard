@@ -6,6 +6,7 @@ import { useForecastStore } from "./forecastStore";
 import { subscribeEntities } from "home-assistant-js-websocket";
 import { fetchJsonWithTimeout } from "@/utils/fetchWithTimeout";
 import { TIMEOUT_CONFIG, TIMEOUT_WEBSOCKET } from "@/utils/constants";
+import { sendWsMessage, unwrapWsResult } from "@/utils/wsRequest";
 
 interface EntityState {
   entity_id: string;
@@ -126,7 +127,7 @@ export const useEntitiesStore = defineStore("entities", () => {
 
   const loadLocalData = async (): Promise<void> => {
     try {
-      const baseUrl = import.meta.env.BASE_URL || "/";
+      const baseUrl = (import.meta as any).env.BASE_URL || "/";
       const dataUrl = baseUrl + "data/local-data.json";
       const data = (await fetchJsonWithTimeout(
         dataUrl,
@@ -322,6 +323,10 @@ export const useEntitiesStore = defineStore("entities", () => {
     string,
     { promise: Promise<HistoryPoint[]>; timestamp: number }
   >();
+  const energyRequestCache = new Map<
+    string,
+    { promise: Promise<EnergyBucket[]>; timestamp: number }
+  >();
   const HISTORY_CACHE_TTL = 5000;
 
   async function fetchHistory(
@@ -337,42 +342,58 @@ export const useEntitiesStore = defineStore("entities", () => {
     if (cached && Date.now() - cached.timestamp < HISTORY_CACHE_TTL)
       return cached.promise;
 
-    let url = "";
     const promise = (async () => {
+      let startTime = 0;
+      let start = "";
+      let end = "";
       try {
         const now = Date.now();
-        const startTime = now - hours * 3600 * 1000;
-        const start = new Date(startTime).toISOString();
-        const end = new Date(now).toISOString();
-        const base = authStore.haUrl.replace(/\/$/, "");
-        url = `${base}/api/history/period/${start}?end_time=${end}&filter_entity_id=${encodeURIComponent(entityId)}&minimal_response=true`;
+        startTime = now - hours * 3600 * 1000;
+        start = new Date(startTime).toISOString();
+        end = new Date(now).toISOString();
+
         logger.log("fetchHistory request", {
           entityId,
           hours,
           maxPoints,
-          url,
+          start,
+          end,
         });
 
-        const res = await authStore.fetchWithTimeout(url, {
-          headers: {
-            Authorization: `Bearer ${authStore.accessToken}`,
-            Accept: "application/json",
-          },
+        // Use WebSocket exclusively for history requests to avoid CORS
+        const connection = authStore.getConnection();
+        const wsResult = await sendWsMessage(connection, {
+          type: "history/history_during_period",
+          start_time: start,
+          end_time: end,
+          entity_ids: [entityId],
+          no_attributes: true,
         });
-        if (!res.ok) {
-          const responseText = await res.text().catch(() => "<no body>");
-          throw new Error(
-            `History request failed: ${res.status} ${res.statusText} - ${responseText}`,
-          );
+
+        logger.log("fetchHistory raw result", { entityId, wsResult });
+        const body = unwrapWsResult(wsResult) as EntityState[][] | EntityState[] | null;
+        if (!body) {
+          throw new Error("Invalid history response from WebSocket");
         }
-        const body = (await res.json()) as Array<EntityState[]>;
-        const arr = body[0] || [];
+        const arr = (Array.isArray(body) && Array.isArray(body[0])) ? (body as EntityState[][])[0] : (Array.isArray(body) ? body as EntityState[] : []);
         const extracted = arr
-          .map((s) => ({
-            t: new Date(s.last_changed as string).getTime(),
-            v: Number(s.state),
-          }))
-          .filter((p) => !Number.isNaN(p.v));
+          .map((s) => {
+            const time = s.last_changed || s.last_updated || s.lu || s.lc || (s as any).t;
+            let ts: number;
+            if (typeof time === "number") {
+               // Home Assistant sometimes sends Unix timestamps in seconds
+               ts = time < 10000000000 ? time * 1000 : time;
+            } else {
+               ts = time ? new Date(time as string).getTime() : 0;
+            }
+            const stateValue = s.state !== undefined ? s.state : (s.s !== undefined ? s.s : (s as any).v);
+            const val = Number(stateValue);
+            return {
+              t: ts,
+              v: val,
+            };
+          })
+          .filter((p) => p.t > 0 && !Number.isNaN(p.v));
         if (extracted.length > maxPoints) {
           const step = extracted.length / maxPoints;
           const sampled: HistoryPoint[] = [];
@@ -388,7 +409,8 @@ export const useEntitiesStore = defineStore("entities", () => {
             : e;
         logger.error("fetchHistory error", {
           entityId,
-          url,
+          start,
+          end,
           hours,
           maxPoints,
           error: errorDetails,
@@ -435,7 +457,7 @@ export const useEntitiesStore = defineStore("entities", () => {
       return [];
 
     const cacheKey = `energy:${entityId}:${days}:${offsetDays}`;
-    const cached = historyRequestCache.get(cacheKey);
+    const cached = energyRequestCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < HISTORY_CACHE_TTL)
       return cached.promise as Promise<EnergyBucket[]>;
 
@@ -445,20 +467,31 @@ export const useEntitiesStore = defineStore("entities", () => {
         const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
         const startIso = startDate.toISOString();
         const endIso = now.toISOString();
-        const base = authStore.haUrl.replace(/\/$/, "");
-        const url = `${base}/api/history/period/${startIso}?end_time=${encodeURIComponent(endIso)}&filter_entity_id=${encodeURIComponent(entityId)}&minimal_response=true`;
 
-        const res = await authStore.fetchWithTimeout(url, {
-          headers: {
-            Authorization: `Bearer ${authStore.accessToken}`,
-            "Content-Type": "application/json",
-          },
+        // Use WebSocket exclusively for energy history requests
+        const connection = authStore.getConnection();
+        const wsResult = await sendWsMessage(connection, {
+          type: "history/history_during_period",
+          start_time: startIso,
+          end_time: endIso,
+          entity_ids: [entityId],
+          no_attributes: true,
         });
-        if (!res.ok)
-          throw new Error(`Energy history request failed: ${res.status}`);
-        const body = (await res.json()) as Array<EntityState[]>;
-        if (!body || !Array.isArray(body) || !body[0]) return [];
-        const entries = body[0];
+
+        const body = unwrapWsResult(wsResult) as EntityState[][] | EntityState[] | null;
+        if (!body || !Array.isArray(body)) return [];
+        // Handle both Array of Arrays and flat Array
+        const entries = Array.isArray(body[0]) ? (body as EntityState[][])[0] : (body as EntityState[]);
+
+        // If WebSocket returned an empty set for this entity, return empty to match expectations
+        if (!entries || entries.length === 0) return [];
+
+        logger.log("fetchEnergyHistory raw result", {
+          entityId,
+          wsResult,
+          extractedCount: entries.length,
+          firstEntry: entries[0],
+        });
 
         const bucketMinutes = days <= 1 ? 60 : 1440;
         const bucketMs = bucketMinutes * 60 * 1000;
@@ -488,9 +521,20 @@ export const useEntitiesStore = defineStore("entities", () => {
         }
 
         entries.forEach((entry) => {
-          const ts = new Date(entry.last_changed as string).getTime();
+          const time = entry.last_changed || entry.last_updated || entry.lu || entry.lc || (entry as any).t;
+          if (!time) return;
+          
+          let ts: number;
+          if (typeof time === "number") {
+             // Home Assistant sometimes sends Unix timestamps in seconds (e.g., 1775327032.757)
+             ts = time < 10000000000 ? time * 1000 : time;
+          } else {
+             ts = new Date(time as string).getTime();
+          }
+
           const bt = Math.floor(ts / bucketMs) * bucketMs;
-          const val = Number(entry.state);
+          const stateValue = entry.state !== undefined ? entry.state : (entry.s !== undefined ? entry.s : (entry as any).v);
+          const val = Number(stateValue);
           if (!Number.isNaN(val) && buckets.has(bt))
             (buckets.get(bt) as { values: number[] }).values.push(val);
         });
@@ -515,11 +559,11 @@ export const useEntitiesStore = defineStore("entities", () => {
       }
     })();
 
-    historyRequestCache.set(cacheKey, {
+    energyRequestCache.set(cacheKey, {
       promise: promise as Promise<EnergyBucket[]>,
       timestamp: Date.now(),
     });
-    setTimeout(() => historyRequestCache.delete(cacheKey), HISTORY_CACHE_TTL);
+    setTimeout(() => energyRequestCache.delete(cacheKey), HISTORY_CACHE_TTL);
     return promise;
   }
 

@@ -34,8 +34,8 @@ export const fetchWithTimeout = async (
     }
 
     const debugEnabled =
-      import.meta.env.DEV ||
-      String(import.meta.env.VITE_DEBUG_LOGS).toLowerCase() === "true";
+      (import.meta as any).env.DEV ||
+      String((import.meta as any).env.VITE_DEBUG_LOGS).toLowerCase() === "true";
     const message =
       error instanceof Error ? error.message : String(error ?? "Unknown error");
     const shouldWrap =
@@ -93,7 +93,16 @@ export const fetchJsonWithTimeout = async (
 ): Promise<unknown> => {
   const response = await fetchWithTimeout(url, options, timeout);
   if (!response.ok) {
-    const body = await response.text().catch(() => "<unable to read response body>");
+    let body = "<unable to read response body>";
+    try {
+      if (response && typeof (response as any).text === "function") {
+        body = await (response as any).text().catch(() => "<unable to read response body>");
+      }
+    } catch (err) {
+      body = "<unable to read response body>";
+      void err;
+    }
+
     throw new Error(
       `HTTP error! status: ${response.status} ${response.statusText} - ${body}`,
     );

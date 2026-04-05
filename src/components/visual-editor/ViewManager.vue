@@ -173,7 +173,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useHaStore } from "../../stores/haStore";
 import IconPicker from "./PropertyEditors/IconPicker.vue";
 
@@ -185,7 +185,7 @@ const emit = defineEmits([
   "view-index-selected",
 ]);
 
-defineProps({
+const props = defineProps({
   selectedViewName: {
     type: String,
     default: "",
@@ -234,6 +234,20 @@ const selectViewByIndex = (index, viewName) => {
     emit("view-selected", viewName);
   }
 };
+
+// Keep localSelectedIndex in sync with parent-controlled selectedViewName
+watch(
+  () => props.selectedViewName,
+  (name) => {
+    if (!name) {
+      localSelectedIndex.value = null;
+      return;
+    }
+    const idx = views.value.findIndex((v) => v.name === name);
+    localSelectedIndex.value = idx !== -1 ? idx : null;
+  },
+  { immediate: true }
+);
 
 const validateName = () => {
   const name = formData.value.name.trim();

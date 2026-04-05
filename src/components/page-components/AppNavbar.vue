@@ -19,7 +19,7 @@
               :aria-current="currentView === item.name ? 'page' : undefined"
               :title="item.label"
               role="tab"
-              @click="$emit('update:currentView', item.name)"
+              @click="$emit('update:current-view', item.name)"
             >
               <i :class="`${item.icon} me-1 nav-icon`"></i>
               <span class="d-none d-lg-inline">{{ item.label }}</span>
@@ -298,7 +298,10 @@ import { useHaStore } from "@/stores/haStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useConfigStore } from "@/stores/configStore";
 import { useNormalizeIcon } from "@/composables/useNormalizeIcon";
+import { createLogger } from "@/utils/logger";
 import PwaInstallModal from "./PwaInstallModal.vue";
+
+const logger = createLogger("AppNavbar");
 
 const props = defineProps({
   /** The currently active view name */
@@ -309,8 +312,12 @@ const props = defineProps({
 
 const { currentView, darkMode } = toRefs(props);
 
+onMounted(() => {
+  logger.log("[MOUNTED] AppNavbar is rendering");
+});
+
 const emit = defineEmits([
-  "update:currentView",
+  "update:current-view",
   "update:darkMode",
   "edit-credentials",
 ]);
@@ -364,7 +371,7 @@ const closeEditorPasswordModal = () => {
 };
 
 const enterEditorMode = () => {
-  emit("update:currentView", "editor");
+  emit("update:current-view", "editor");
 };
 
 const confirmEditorAccess = () => {

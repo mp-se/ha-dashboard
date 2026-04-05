@@ -38,7 +38,8 @@ describe("ViewManager.vue", () => {
 
     wrapper = mount(ViewManager, {
       props: {
-        selectedViewName: "overview",
+        // Start with no selection to test click-to-select behavior
+        selectedViewName: "",
       },
       global: {
         plugins: [pinia],

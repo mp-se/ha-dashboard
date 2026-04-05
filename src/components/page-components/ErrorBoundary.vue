@@ -24,7 +24,13 @@
                 </div>
               </div>
               <div class="d-flex gap-2">
-                <button class="btn btn-primary" @click="retry">
+                <!-- When in the editor view, only offer 'Go to Overview' to exit the editor
+                     Retry may re-render the failing component but is confusing in editor context -->
+                <button
+                  v-if="viewName !== 'editor'"
+                  class="btn btn-primary"
+                  @click="retry"
+                >
                   <i class="mdi mdi-refresh me-1"></i>
                   Retry
                 </button>

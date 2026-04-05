@@ -115,11 +115,13 @@ const dark_mode = ref(false);
 const credentialDialog = ref(null);
 const appVersion = packageJson.version;
 const EDITOR_MODE_VIEWS = ["editor", "device", "raw"] as const;
-const isEditorModeView = computed(() =>
-  EDITOR_MODE_VIEWS.includes(
+const isEditorModeView = computed(() => {
+  const result = EDITOR_MODE_VIEWS.includes(
     currentView.value as (typeof EDITOR_MODE_VIEWS)[number],
-  ),
-);
+  );
+  logger.log(`[isEditorModeView] current view: "${currentView.value}", is editor mode: ${result}`);
+  return result;
+});
 
 // Ensure we react to route changes for navbar switching
 watch(
@@ -127,6 +129,17 @@ watch(
   (newView) => {
     logger.log("View changed to:", newView);
   },
+);
+
+// Automatically exit editor mode if developer mode is disabled
+watch(
+  () => store.developerMode,
+  (isDevMode) => {
+    if (!isDevMode && EDITOR_MODE_VIEWS.includes(currentView.value as any)) {
+      logger.log("Developer mode disabled, exiting editor mode automatically");
+      updateCurrentView("overview");
+    }
+  }
 );
 
 /**
@@ -223,6 +236,7 @@ const handleGoHome = () => {
  * Sync currentView with external events (e.g. from navbars)
  */
 const updateCurrentView = (view) => {
+  console.log("[App] updateCurrentView called with:", view, "current was:", currentView.value);
   currentView.value = view;
 };
 

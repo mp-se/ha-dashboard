@@ -575,10 +575,9 @@ describe("useEntitiesStore", () => {
         ],
       ];
 
-      vi.spyOn(auth, "fetchWithTimeout").mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockHistory,
-      });
+      const conn = makeMockConnection();
+      vi.spyOn(auth, "getConnection").mockReturnValue(conn);
+      conn.sendMessagePromise.mockResolvedValueOnce(mockHistory);
 
       const store = useEntitiesStore();
       const result = await store.fetchHistory("sensor.temp", 24, 200);
@@ -599,10 +598,9 @@ describe("useEntitiesStore", () => {
         state: String(i),
       }));
 
-      vi.spyOn(auth, "fetchWithTimeout").mockResolvedValueOnce({
-        ok: true,
-        json: async () => [points],
-      });
+      const conn = makeMockConnection();
+      vi.spyOn(auth, "getConnection").mockReturnValue(conn);
+      conn.sendMessagePromise.mockResolvedValueOnce([points]);
 
       const store = useEntitiesStore();
       const result = await store.fetchHistory("sensor.temp", 24, 100);
@@ -615,14 +613,13 @@ describe("useEntitiesStore", () => {
       auth.haUrl = "http://ha:8123";
       auth.accessToken = "tok";
 
-      vi.spyOn(auth, "fetchWithTimeout").mockResolvedValueOnce({
-        ok: false,
-        status: 503,
-      });
+      const conn = makeMockConnection();
+      vi.spyOn(auth, "getConnection").mockReturnValue(conn);
+      conn.sendMessagePromise.mockRejectedValueOnce(new Error("503"));
 
       const store = useEntitiesStore();
       await expect(store.fetchHistory("sensor.temp")).rejects.toThrow(
-        "History request failed: 503",
+        /History fetch failed for sensor.temp:.*503/,
       );
     });
 
@@ -632,19 +629,19 @@ describe("useEntitiesStore", () => {
       auth.haUrl = "http://ha:8123";
       auth.accessToken = "tok";
 
-      const mockFetch = vi.spyOn(auth, "fetchWithTimeout").mockResolvedValue({
-        ok: true,
-        json: async () => [
-          [{ last_changed: "2026-02-26T10:00:00Z", state: "22" }],
-        ],
-      });
+      const conn = makeMockConnection();
+      vi.spyOn(auth, "getConnection").mockReturnValue(conn);
+      const _mockFetch = conn.sendMessagePromise.mockResolvedValue([
+        [{ last_changed: "2026-02-26T10:00:00Z", state: "22" }],
+      ]);
+      void _mockFetch;
 
       const store = useEntitiesStore();
       await store.fetchHistory("sensor.temp", 24);
       await store.fetchHistory("sensor.temp", 24);
 
-      // fetchWithTimeout called only once due to caching
-      expect(mockFetch).toHaveBeenCalledTimes(1);
+      // sendMessagePromise called only once due to caching
+      expect(conn.sendMessagePromise).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -685,10 +682,9 @@ describe("useEntitiesStore", () => {
         },
       ];
 
-      vi.spyOn(auth, "fetchWithTimeout").mockResolvedValueOnce({
-        ok: true,
-        json: async () => [entries],
-      });
+      const conn = makeMockConnection();
+      vi.spyOn(auth, "getConnection").mockReturnValue(conn);
+      conn.sendMessagePromise.mockResolvedValueOnce([entries]);
 
       const store = useEntitiesStore();
       const result = await store.fetchEnergyHistory("sensor.energy", 1);
@@ -709,10 +705,9 @@ describe("useEntitiesStore", () => {
         state: "5",
       };
 
-      vi.spyOn(auth, "fetchWithTimeout").mockResolvedValueOnce({
-        ok: true,
-        json: async () => [[entry]],
-      });
+      const conn = makeMockConnection();
+      vi.spyOn(auth, "getConnection").mockReturnValue(conn);
+      conn.sendMessagePromise.mockResolvedValueOnce([[entry]]);
 
       const store = useEntitiesStore();
       const result = await store.fetchEnergyHistory("sensor.energy", 7);
@@ -727,10 +722,9 @@ describe("useEntitiesStore", () => {
       auth.haUrl = "http://ha:8123";
       auth.accessToken = "tok";
 
-      vi.spyOn(auth, "fetchWithTimeout").mockResolvedValueOnce({
-        ok: true,
-        json: async () => [],
-      });
+      const conn = makeMockConnection();
+      vi.spyOn(auth, "getConnection").mockReturnValue(conn);
+      conn.sendMessagePromise.mockResolvedValueOnce([]);
 
       const store = useEntitiesStore();
       const result = await store.fetchEnergyHistory("sensor.energy");
@@ -743,14 +737,13 @@ describe("useEntitiesStore", () => {
       auth.haUrl = "http://ha:8123";
       auth.accessToken = "tok";
 
-      vi.spyOn(auth, "fetchWithTimeout").mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-      });
+      const conn = makeMockConnection();
+      vi.spyOn(auth, "getConnection").mockReturnValue(conn);
+      conn.sendMessagePromise.mockRejectedValueOnce(new Error("500"));
 
       const store = useEntitiesStore();
       await expect(store.fetchEnergyHistory("sensor.energy")).rejects.toThrow(
-        "Energy history request failed: 500",
+        "500",
       );
     });
   });
