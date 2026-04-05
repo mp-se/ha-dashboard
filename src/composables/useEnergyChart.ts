@@ -33,16 +33,15 @@ interface EnergyChartReturn {
   chartHeight: number;
 }
 
+import { formatKValue } from "@/utils/attributeFormatters";
+
 /**
- * Format a value for display (with k abbreviation for thousands)
+ * Format a value for display
  * @param value - Value to format
  * @returns Formatted value
  */
 export function formatValue(value: number): string {
-  if (value >= 1000) {
-    return `${(value / 1000).toFixed(1)}k`;
-  }
-  return value.toFixed(1);
+  return formatKValue(value);
 }
 
 /**

@@ -23,7 +23,7 @@ const seedEntities = [
 ];
 
 describe("EntityPalette.vue", () => {
-  let wrapper;
+  let wrapper: any;
   let entitiesStore;
   let pinia;
 

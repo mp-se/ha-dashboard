@@ -6,9 +6,9 @@ import { createPinia, setActivePinia } from "pinia";
 import { useHaStore } from "../../../stores/haStore";
 
 describe("EntityListEditor.vue", () => {
-  let wrapper;
+  let wrapper: any;
   let pinia;
-  let store;
+  let store: any;
 
   beforeEach(async () => {
     // Create and set pinia

@@ -3,6 +3,7 @@
     v-if="isEditorModeView"
     :current-view="currentView"
     :dark-mode="dark_mode"
+    :previous-view="previousView"
     @update:current-view="updateCurrentView"
     @update:dark-mode="dark_mode = $event"
   />
@@ -67,6 +68,7 @@
         :is="getViewComponent(currentView)"
         :key="currentView"
         :view-name="currentView"
+        :previous-view="previousView"
       />
     </ErrorBoundary>
 
@@ -111,6 +113,7 @@ const viewComponents = {
 const logger = createLogger("App");
 const store = useHaStore();
 const currentView = ref("overview");
+const previousView = ref("overview");
 const dark_mode = ref(false);
 const credentialDialog = ref(null);
 const appVersion = packageJson.version;
@@ -126,8 +129,11 @@ const isEditorModeView = computed(() => {
 // Ensure we react to route changes for navbar switching
 watch(
   () => currentView.value,
-  (newView) => {
-    logger.log("View changed to:", newView);
+  (newView, oldView) => {
+    logger.log("View changed to:", newView, "from:", oldView);
+    if (oldView && !EDITOR_MODE_VIEWS.includes(oldView as any)) {
+      previousView.value = oldView;
+    }
   },
 );
 
@@ -137,7 +143,7 @@ watch(
   (isDevMode) => {
     if (!isDevMode && EDITOR_MODE_VIEWS.includes(currentView.value as any)) {
       logger.log("Developer mode disabled, exiting editor mode automatically");
-      updateCurrentView("overview");
+      updateCurrentView(previousView.value);
     }
   }
 );

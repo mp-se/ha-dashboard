@@ -5,8 +5,8 @@ import { createPinia, setActivePinia } from "pinia";
 import { useHaStore } from "../../stores/haStore";
 
 describe("VisualEditorView - Phase 3: Simplified Integration Tests", () => {
-  let wrapper;
-  let store;
+  let wrapper: any;
+  let store: any;
   let pinia;
 
   beforeEach(() => {

@@ -7,7 +7,7 @@ import { useEntitiesStore } from "../../../stores/entitiesStore";
 import { useHaStore } from "../../../stores/haStore";
 
 describe("EntityInspector.vue", () => {
-  let wrapper;
+  let wrapper: any;
   let pinia;
   let entitiesStore;
 

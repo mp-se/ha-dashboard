@@ -237,13 +237,13 @@ const selectViewByIndex = (index, viewName) => {
 
 // Keep localSelectedIndex in sync with parent-controlled selectedViewName
 watch(
-  () => props.selectedViewName,
-  (name) => {
+  () => [props.selectedViewName, views.value],
+  ([name, currentViews]) => {
     if (!name) {
       localSelectedIndex.value = null;
       return;
     }
-    const idx = views.value.findIndex((v) => v.name === name);
+    const idx = currentViews.findIndex((v) => v.name === name);
     localSelectedIndex.value = idx !== -1 ? idx : null;
   },
   { immediate: true }

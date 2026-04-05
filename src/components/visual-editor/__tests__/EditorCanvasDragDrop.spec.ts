@@ -5,8 +5,8 @@ import { createPinia, setActivePinia } from "pinia";
 import { useHaStore } from "../../../stores/haStore";
 
 describe("EditorCanvas.vue - Drag and Drop (Phase 2)", () => {
-  let wrapper;
-  let haStore;
+  let wrapper: any;
+  let haStore: any;
 
   beforeEach(() => {
     setActivePinia(createPinia());

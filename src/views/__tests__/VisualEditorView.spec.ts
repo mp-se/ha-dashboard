@@ -6,8 +6,8 @@ import { useHaStore } from "../../stores/haStore";
 import { useConfigStore } from "../../stores/configStore";
 
 describe("VisualEditorView.vue", () => {
-  let wrapper;
-  let haStore;
+  let wrapper: any;
+  let haStore: any;
   let pinia;
 
   beforeEach(() => {

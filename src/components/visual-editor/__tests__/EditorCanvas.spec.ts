@@ -5,8 +5,8 @@ import { createPinia, setActivePinia } from "pinia";
 import { useHaStore } from "../../../stores/haStore";
 
 describe("EditorCanvas.vue", () => {
-  let wrapper;
-  let haStore;
+  let wrapper: any;
+  let haStore: any;
 
   beforeEach(() => {
     setActivePinia(createPinia());

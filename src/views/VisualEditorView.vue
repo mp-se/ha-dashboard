@@ -220,10 +220,14 @@ import { supportsMultipleEntities } from "../utils/cardPropertyMetadata";
 import "../styles/editor-styles.css";
 
 const logger = createLogger("VisualEditorView");
-defineProps({
+const props = defineProps({
   viewName: {
     type: String,
     default: "editor",
+  },
+  previousView: {
+    type: String,
+    default: "",
   },
 });
 
@@ -256,6 +260,19 @@ const onViewIndexSelected = (index) => {
 const onPanelTabChanged = (tab) => {
   if (tab !== 'views') selectedViewIndex.value = null;
 };
+
+watch(
+  () => selectedViewName.value,
+  (name) => {
+    if (!name) {
+      selectedViewIndex.value = null;
+      return;
+    }
+    const idx = availableViews.value.findIndex((v) => v.name === name);
+    selectedViewIndex.value = idx !== -1 ? idx : null;
+  },
+  { immediate: true }
+);
 
 // Mobile bottom sheet state
 const showMobilePanel = ref(false);
@@ -497,8 +514,13 @@ watch(
   () => availableViews.value,
   (views) => {
     if (views.length > 0 && !selectedViewName.value) {
-      selectedViewName.value = views[0].name;
-      logger.log("Auto-selected first view:", views[0].name);
+      if (props.previousView && views.some(v => v.name === props.previousView)) {
+        selectedViewName.value = props.previousView;
+        logger.log("Auto-selected previous view:", props.previousView);
+      } else {
+        selectedViewName.value = views[0].name;
+        logger.log("Auto-selected first view:", views[0].name);
+      }
     }
   },
   { immediate: true },

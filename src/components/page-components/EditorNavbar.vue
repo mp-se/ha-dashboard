@@ -20,9 +20,13 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
+  previousView: {
+    type: String,
+    default: "overview",
+  },
 });
 
-const { currentView, darkMode } = toRefs(props);
+const { currentView, darkMode, previousView } = toRefs(props);
 
 const emit = defineEmits(["update:current-view", "update:darkMode"]);
 
@@ -51,10 +55,9 @@ const toggleDarkMode = () => {
 };
 
 const handleEditorToggle = () => {
-  // Toggle between editor and overview; currentView is auto-unwrapped from toRefs in template,
-  // but we must read it explicitly via .value in script
+  // Toggle between editor and the previous view
   logger.log("[EditorNavbar] handleEditorToggle CALLED with currentView.value =", currentView.value);
-  const nextView = currentView.value === "editor" ? "overview" : "editor";
+  const nextView = currentView.value === "editor" ? previousView.value : "editor";
   logger.log("[EditorNavbar] About to emit update:current-view with nextView =", nextView);
   emit("update:current-view", nextView);
 };

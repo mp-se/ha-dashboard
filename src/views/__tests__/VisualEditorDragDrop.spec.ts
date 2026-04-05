@@ -9,8 +9,8 @@ import {
 } from "../../composables/useVisualEditorToolbar";
 
 describe("VisualEditorView.vue - Reordering Integration (Phase 2)", () => {
-  let wrapper;
-  let haStore;
+  let wrapper: any;
+  let haStore: any;
 
   beforeEach(() => {
     const pinia = createPinia();

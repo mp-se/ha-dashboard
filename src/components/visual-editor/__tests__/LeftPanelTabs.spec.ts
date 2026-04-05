@@ -5,7 +5,7 @@ import { createPinia, setActivePinia } from "pinia";
 import { useHaStore } from "../../../stores/haStore";
 
 describe("LeftPanelTabs.vue", () => {
-  let wrapper;
+  let wrapper: any;
   let pinia;
 
   beforeEach(() => {

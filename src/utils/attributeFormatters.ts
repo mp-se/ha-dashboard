@@ -1,4 +1,29 @@
 /**
+ * Format a numeric value for display 
+ * Strips decimals off integers, otherwise limits to fractional digits.
+ * @param {number|string|null} val - Value to format
+ * @param {number} fractionalDigits - Number of decimals
+ * @returns {string} Formatted number
+ */
+export const formatNumericValue = (val: number | string | null | undefined, fractionalDigits = 2): string => {
+  if (val == null || val === "") return "";
+  const num = Number(val);
+  if (isNaN(num)) return String(val);
+  return num % 1 === 0 ? num.toString() : num.toFixed(fractionalDigits);
+};
+
+/**
+ * Format a number with thousands (k) abbreviation
+ * @param {number} value - Value to format
+ * @returns {string} Formatted string
+ */
+export const formatKValue = (value: number): string => {
+  if (value >= 1000) {
+    return `${(value / 1000).toFixed(1)}k`;
+  }
+  return value.toFixed(1);
+};
+/**
  * Utility functions for formatting and labeling entity attributes
  * Used by components that display additional entity attributes
  */

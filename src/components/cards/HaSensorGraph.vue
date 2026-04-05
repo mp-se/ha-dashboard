@@ -216,20 +216,11 @@ const maxVal = computed(() => {
   return Math.max(...allPoints.map((p) => p.v));
 });
 
-/**
- * Formats a numeric value for display (integers without decimals, floats with 2 decimals)
- * @param {number|null} val - Value to format
- * @returns {string} Formatted value
- */
-const formatValue = (val) => {
-  if (val == null) return "";
-  const num = Number(val);
-  return num % 1 === 0 ? num.toString() : num.toFixed(2);
-};
+import { formatNumericValue } from "@/utils/attributeFormatters";
 
-const minDisplay = computed(() => formatValue(minVal.value));
+const minDisplay = computed(() => formatNumericValue(minVal.value));
 
-const maxDisplay = computed(() => formatValue(maxVal.value));
+const maxDisplay = computed(() => formatNumericValue(maxVal.value));
 
 /**
  * Pre-computed graph metrics for performance optimization
