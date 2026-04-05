@@ -34,6 +34,8 @@ const store = useHaStore();
 const normalizeIcon = useNormalizeIcon();
 const { hasChanges, isSaving, saveStatus, triggerSave } =
   useVisualEditorToolbar();
+const isNative = import.meta.env.VITE_NATIVE_MODE === "true";
+const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 
 const menuItems = computed(() => {
   return [
@@ -120,7 +122,7 @@ const handleEditorToggle = () => {
             <button
               class="btn btn-success btn-sm me-2"
               :disabled="!hasChanges || isSaving"
-              title="Save changes to backend"
+              title="Save config to backend"
               @click="triggerSave"
             >
               <i
@@ -129,17 +131,18 @@ const handleEditorToggle = () => {
                 "
               ></i>
               <span class="d-none d-lg-inline ms-1">
-                {{ isSaving ? "Saving..." : "Save" }}
+                {{ isSaving ? "Saving..." : "Save config" }}
               </span>
             </button>
 
             <button
-              v-if="store.developerMode"
+              v-if="store.developerMode && !isNative && isLocalhost"
               class="btn btn-outline-info btn-sm me-2"
               title="Save current data for local testing"
               @click="store.saveLocalData()"
             >
-              <i class="mdi mdi-content-save"></i>
+              <i class="mdi mdi-content-save-outline"></i>
+              <span class="d-none d-lg-inline ms-1">Save local data</span>
             </button>
 
             <button
