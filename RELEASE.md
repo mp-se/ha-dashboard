@@ -41,13 +41,14 @@
 - **Static component palette**: Entities palette opens by default (instead of Views) when the `+` FAB is tapped on mobile.
 
 ### Code Quality
-- **QA skill**: Added `.github/skills/ha-quality/QA.md` — a generic Vue project quality gate skill covering tests, coverage, lint, format, and build.
+- **Test coverage improvements**: Added comprehensive test suites for `App.vue` (30 tests, 50.56% → 88.76% statements) and `ErrorBanner.vue` (23 tests, 0% → 100% statements). These tests cover app initialization, view navigation, dark mode toggling, swipe gestures, developer mode exit, credential dialog handling, and error banner classification/dismissal behavior.
+- **QA skill**: Added `.github/skills/vue-qa/SKILL.md` — a Vue project quality gate skill covering tests, coverage, lint, format, and build.
 - **Coverage exceptions file**: Added `COVERAGE_EXCEPTIONS.md` documenting the three files permitted below 80% with reasons.
 - **New tests**: `useIsMobile` (8 tests), `useEditorLongPress` (12 tests), `ImagePicker.vue` (40 tests, 5.7% → 85%), `useEditorSelection`, `useEditorDragDrop`, `VisualEditorView` move/reorder tests, `EditorActionBar` (24 tests), `ViewManager` reorder tests, `EntityListEditor` selection tests.
 - **Coverage thresholds** updated to reflect current codebase (stmts 86%, branches 79%, funcs 82%, lines 87%).
 - Fixed unused variable lint error in `LeftPanelTabs.spec.ts`.
 - Removed unused `@eslint/eslintrc` and `baseline-browser-mapping` dependencies.
-- Total tests: 2594 passing.
+- Total tests: 2648 passing (56 new tests added this session).
 
 ## March 2026 - v0.7.0
 

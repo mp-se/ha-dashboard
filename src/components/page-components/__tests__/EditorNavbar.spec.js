@@ -107,7 +107,7 @@ describe("EditorNavbar.vue", () => {
     toolbar.setSaveHandler(handler);
 
     const wrapper = mountNavbar();
-    const saveButton = wrapper.find('button[title="Save changes to backend"]');
+    const saveButton = wrapper.find('button[title="Save config to backend"]');
 
     expect(saveButton.exists()).toBe(true);
     expect(saveButton.attributes("disabled")).toBeUndefined();
