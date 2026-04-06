@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### CSS Bootstrap Compliance
+- **Restored keyboard focus indicators**: Re-enabled `:focus-visible` focus states for accessibility (WCAG 2.1 AA compliance). Keyboard users now see clear focus outlines on buttons and interactive elements.
+- **Replaced hardcoded colors with Bootstrap CSS variables**: Converted hardcoded hex colors (e.g., `#007bff`, `#28a745`, `#dc3545`) to Bootstrap CSS variables (`var(--bs-primary)`, `var(--bs-success)`, `var(--bs-danger)`) for better theming consistency.
+- **Standardized border-radius values**: Unified inconsistent border-radius values to use Bootstrap's standard `0.375rem` as default (kept `50%` for circles and other justified exceptions).
+- **Consolidated shadow system**: Replaced all `filter: drop-shadow()` with `box-shadow` for consistency. Updated CSS variables to Bootstrap's box-shadow scale (`--ha-shadow-sm`, `--ha-shadow`, `--ha-shadow-lg`). Eliminates dual shadow rendering.
+- **Documented card styling design rationale**: Created `spec/DESIGN_TOKENS.md` to explain why cards use transparent backgrounds and 2px borders instead of Bootstrap defaults. Added comprehensive CSS comments documenting design decisions and accessibility compliance.
+- **Created comprehensive design system specification**: Added `spec/DESIGN_SYSTEM.md` documenting component architecture, Bootstrap vs. custom decision framework, and implementation guidelines for all 55 dashboard components. Includes taxonomy, patterns, and pitfalls for new component development.
+- **Improved accessibility**: Touch devices suppress visual focus while maintaining keyboard accessibility; keyboard-only focus indicators remain for all users.
+
 ### Error Handling & Diagnostics
 - **Centralized error handling**: Added a global `ErrorBanner` component and consolidated per-card error UI into `authStore` to provide a single consistent place for connection and security warnings.
 - **Component refactor**: `HaSensorGraph.vue` now reports errors via `authStore.setError()` and no longer renders a local error alert.

@@ -3,8 +3,10 @@
  */
 
 :root {
-  --ha-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --ha-shadow-hover: 0 4px 8px rgba(0, 0, 0, 0.15);
+  /* Shadow system: Bootstrap-aligned for consistency */
+  --ha-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);   /* Bootstrap box-shadow-sm */
+  --ha-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);            /* Bootstrap box-shadow */
+  --ha-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);          /* Bootstrap box-shadow-lg */
   --ha-transition: all 0.2s ease;
   --ha-icon-circle-size: 40px;
   --ha-icon-circle-large-size: 80px;
@@ -33,99 +35,61 @@
   color: rgba(255, 255, 255, 0.8) !important;
 }
 
-/* Fix iOS focus state issue - remove tap highlight and prevent focus state from changing colors */
+/* iOS tap highlight removed for touch devices - but restore keyboard focus for accessibility */
 button {
-  -webkit-tap-highlight-color: transparent !important;
   -webkit-appearance: none;
-  outline: none !important;
 }
 
-button:focus,
+/* Restore keyboard focus indicators for accessibility (WCAG 2.1 AA) */
 button:focus-visible,
-button:active {
-  outline: none !important;
-  -webkit-box-shadow: none !important;
-  box-shadow: none !important;
+.btn:focus-visible {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: 2px;
 }
 
-/* Nuclear option: override ALL Bootstrap button focus states */
-.btn:focus,
-.btn:focus-visible,
-.btn:active {
-  outline: none !important;
-  -webkit-box-shadow: none !important;
-  box-shadow: none !important;
-  background-color: transparent !important;
-  background-image: none !important;
-}
-
-/* Exception: Primary buttons should keep their blue background when focused/active */
-.btn-primary:focus,
-.btn-primary:focus-visible,
-.btn-primary:active {
-  background-color: #0078d4 !important;
-  border-color: #0078d4 !important;
-}
-
-/* Specifically for outline buttons in dark mode */
-[data-bs-theme="dark"] .btn-outline-light:focus,
-[data-bs-theme="dark"] .btn-outline-light:focus-visible,
-[data-bs-theme="dark"] .btn-outline-light:active {
-  color: rgba(255, 255, 255, 0.8) !important;
-  background-color: transparent !important;
-  border-color: rgba(255, 255, 255, 0.5) !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-[data-bs-theme="dark"] .btn-outline-dark:focus,
-[data-bs-theme="dark"] .btn-outline-dark:focus-visible,
-[data-bs-theme="dark"] .btn-outline-dark:active {
-  color: rgba(33, 37, 41, 0.8) !important;
-  background-color: transparent !important;
-  border-color: rgba(33, 37, 41, 0.5) !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-/* On touch devices, be even more aggressive */
+/* On touch devices, suppress visual focus state but keep keyboard accessible */
 @media (hover: none) and (pointer: coarse) {
   button,
   .btn {
     -webkit-tap-highlight-color: transparent !important;
   }
 
-  button:focus,
-  button:focus-visible,
-  button:active,
-  .btn:focus,
-  .btn:focus-visible,
-  .btn:active {
-    outline: none !important;
-    -webkit-box-shadow: none !important;
-    box-shadow: none !important;
-    background-color: transparent !important;
-    background-image: none !important;
-  }
-
-  /* Exception: Primary buttons should keep their blue background when focused/active */
-  .btn-primary:focus,
-  .btn-primary:focus-visible,
-  .btn-primary:active {
-    background-color: #0078d4 !important;
-    border-color: #0078d4 !important;
+  /* Hide focus for touch, but keyboard users on touch devices still get outline */
+  button:focus:not(:focus-visible),
+  .btn:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
   }
 }
 
-/* Cards use default Bootstrap styling */
+/* ===========================
+ * CARD STYLING SYSTEM
+ * ===========================
+ * 
+ * DESIGN RATIONALE (see spec/DESIGN_TOKENS.md):
+ * - Transparent background: Allows Home Assistant entity-specific colors to display
+ *   (light entity colors, custom backgrounds, gradients) without white background
+ *   interference. Especially important for dark mode compatibility.
+ * - 2px border: Provides visual prominence/frame definition in dense dashboard layouts.
+ *   Heavier than Bootstrap's 1px default for better card boundary separation.
+ * - Half-opacity rgba borders: Blend with light/dark themes automatically; soft separation.
+ * 
+ * Bootstrap Divergence (Intentional Design Choices):
+ * - Bootstrap default: white background, 1px border, subtle styling
+ * - ha-dashboard: transparent background, 2px border, entity-aware styling
+ */
+
 .card {
+  /* INTENTIONAL: transparent allows entity color overlays (light colors, gradients) */
   background-color: transparent !important;
+  /* INTENTIONAL: 2px border provides stronger frame definition than Bootstrap's 1px */
   border: 2px solid rgba(222, 226, 230, 0.6) !important;
   transition: all 0.2s ease !important;
 }
 
-/* Control cards - more prominent, interactive */
+/* Control cards - more prominent, interactive elements (buttons, controls, toggles) */
 .card-control {
+  /* Primary blue border with 30% opacity for subtle interaction hint */
   border: 2px solid rgba(0, 123, 255, 0.3) !important;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.08),
@@ -133,6 +97,7 @@ button:active {
 }
 
 .card-control:hover {
+  /* Increase border opacity on hover to indicate interactivity */
   border-color: rgba(0, 123, 255, 0.6) !important;
   box-shadow:
     0 4px 12px rgba(0, 0, 0, 0.1),
@@ -141,25 +106,29 @@ button:active {
 }
 
 .card-control.card-active {
-  border-color: #28a745 !important;
+  /* Success green border when control is active/enabled (Bootstrap variable) */
+  border-color: var(--bs-success) !important;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.08),
     0 4px 12px rgba(40, 167, 69, 0.15) !important;
 }
 
-/* Display cards - subtle */
+/* Display cards - subtle, read-only presentation (sensors, gauges, info displays) */
 .card-display {
+  /* Lighter opacity for minimal visual separation on display-only content */
   border: 1px solid rgba(222, 226, 230, 0.4) !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
 
 .card-display:hover {
+  /* Subtle hover effect: slightly darker border and shadow */
   border-color: rgba(222, 226, 230, 0.6) !important;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
 }
 
-/* Status cards - prominent alert styling */
+/* Status cards - prominent alert styling (warnings, notifications, alerts) */
 .card-status {
+  /* Warning yellow border with 50% opacity for alert prominence */
   border: 2px solid rgba(255, 193, 7, 0.5) !important;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.08),
@@ -167,6 +136,7 @@ button:active {
 }
 
 .card-status.error {
+  /* Danger red border for error/critical status states */
   border-color: rgba(220, 53, 69, 0.5) !important;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.08),
@@ -191,7 +161,7 @@ button:active {
 }
 
 .card.border-warning .card-title {
-  color: #6c757d !important;
+  color: var(--bs-secondary-color) !important;
 }
 
 /* Icon Circle Styles */
@@ -207,7 +177,7 @@ button:active {
   height: 100%;
   border-radius: 50%;
   background-color: rgba(248, 249, 250, 0.8);
-  box-shadow: var(--ha-shadow);
+  box-shadow: var(--ha-shadow-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -215,7 +185,6 @@ button:active {
   position: absolute;
   top: 0;
   left: 0;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
   aspect-ratio: 1 / 1;
 }
 
@@ -223,7 +192,7 @@ button:active {
   position: relative;
   z-index: 1;
   font-size: 1.5rem;
-  color: #fff;
+  color: white;
   font-weight: 400;
 }
 
@@ -270,7 +239,7 @@ button:active {
   position: relative;
   z-index: 1;
   font-size: 1rem;
-  color: #fff;
+  color: white;
   font-weight: 400;
 }
 
@@ -324,13 +293,13 @@ button:active {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  filter: drop-shadow(var(--ha-shadow));
+  box-shadow: var(--ha-shadow-sm);
   transition: var(--ha-transition);
   aspect-ratio: 1 / 1;
 }
 
 .ha-control-button:hover .ha-control-circle {
-  filter: drop-shadow(var(--ha-shadow-hover));
+  box-shadow: var(--ha-shadow);
 }
 
 .ha-control-icon {
@@ -352,7 +321,7 @@ button:active {
 
 .ha-sensor-unit {
   font-size: 0.75rem;
-  color: #999;
+  color: var(--bs-secondary-color);
 }
 
 .ha-entity-value {
@@ -362,13 +331,13 @@ button:active {
 
 .ha-entity-unit {
   font-size: 0.75rem;
-  color: #999;
+  color: var(--bs-secondary-color);
 }
 
 /* Attribute Styles */
 .ha-attribute-key {
   font-size: 0.75rem;
-  color: #999;
+  color: var(--bs-secondary-color);
   min-width: 70px;
 }
 
@@ -379,7 +348,7 @@ button:active {
 /* Progress Bar Styles */
 .ha-progress-bar {
   background-color: #e9ecef;
-  border-radius: 0.25rem;
+  border-radius: 0.375rem;
   overflow: hidden;
   transition: width 0.3s ease;
 }
@@ -414,7 +383,7 @@ button:active {
 }
 
 [data-bs-theme="dark"] .card-control.card-active {
-  border-color: #28a745 !important;
+  border-color: var(--bs-success) !important;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.3),
     0 4px 12px rgba(40, 167, 69, 0.15) !important;
@@ -457,11 +426,11 @@ button:active {
 }
 
 [data-bs-theme="dark"] .ha-sensor-unit {
-  color: #ccc;
+  color: #adb5bd;
 }
 
 [data-bs-theme="dark"] .ha-entity-unit {
-  color: #ccc;
+  color: #adb5bd;
 }
 
 [data-bs-theme="dark"] .ha-entity-name {
@@ -469,7 +438,7 @@ button:active {
 }
 
 [data-bs-theme="dark"] .ha-attribute-key {
-  color: #ccc;
+  color: #adb5bd;
 }
 
 /* iOS dark mode fixes - ensure icons and text are visible */
@@ -483,51 +452,9 @@ button:active {
   color: rgba(255, 255, 255, 1) !important;
 }
 
-/* Fix iOS focus/active state issue - prevents white background on buttons */
-@media (hover: none) and (pointer: coarse) {
-  /* Remove all focus backgrounds on touch devices */
-  button:focus,
-  button:focus-visible,
-  .btn:focus,
-  .btn:focus-visible {
-    outline: none;
-    box-shadow: none;
-    background-color: transparent !important;
-  }
-
-  /* Specific button type fixes */
-  .btn-outline-secondary:focus,
-  .btn-outline-secondary:focus-visible {
-    background-color: transparent !important;
-    color: rgba(108, 117, 125, 0.8) !important;
-    border-color: rgba(108, 117, 125, 0.5) !important;
-  }
-
-  .btn-outline-light:focus,
-  .btn-outline-light:focus-visible {
-    background-color: transparent !important;
-    color: rgba(255, 255, 255, 0.8) !important;
-    border-color: rgba(255, 255, 255, 0.5) !important;
-  }
-
-  .btn-outline-dark:focus,
-  .btn-outline-dark:focus-visible {
-    background-color: transparent !important;
-    color: rgba(33, 37, 41, 0.8) !important;
-    border-color: rgba(33, 37, 41, 0.5) !important;
-  }
-
-  [data-bs-theme="dark"] .btn-outline-secondary:focus,
-  [data-bs-theme="dark"] .btn-outline-secondary:focus-visible {
-    background-color: transparent !important;
-    color: rgba(255, 255, 255, 0.8) !important;
-  }
-
-  [data-bs-theme="dark"] .btn-outline-light:focus,
-  [data-bs-theme="dark"] .btn-outline-light:focus-visible {
-    background-color: transparent !important;
-    color: rgba(255, 255, 255, 0.8) !important;
-  }
+/* Ensure button text and icons are visible in dark mode */
+[data-bs-theme="dark"] .btn {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 [data-bs-theme="dark"] .nav-link.active,
@@ -535,18 +462,12 @@ button:active {
   color: rgba(255, 255, 255, 1) !important;
 }
 
-/* Ensure button text and icons are visible in dark mode */
-[data-bs-theme="dark"] .btn {
-  color: rgba(255, 255, 255, 0.8);
-}
-
 [data-bs-theme="dark"] .btn-outline-secondary {
   color: rgba(255, 255, 255, 0.8) !important;
   border-color: rgba(255, 255, 255, 0.3) !important;
 }
 
-[data-bs-theme="dark"] .btn-outline-secondary:hover,
-[data-bs-theme="dark"] .btn-outline-secondary:focus {
+[data-bs-theme="dark"] .btn-outline-secondary:hover {
   color: #fff !important;
   background-color: rgba(255, 255, 255, 0.1) !important;
   border-color: rgba(255, 255, 255, 0.5) !important;
@@ -560,7 +481,7 @@ button:active {
   width: 48px;
   height: 48px;
   border: 2px solid transparent;
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
   font-size: 1.5rem;
   color: #333;
   cursor: pointer;
@@ -574,7 +495,7 @@ button:active {
 }
 
 .preset-btn-icon.active-preset {
-  border-color: #007bff;
+  border-color: var(--bs-primary);
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
   color: #333;
 }
@@ -591,9 +512,9 @@ button:active {
   width: 48px;
   height: 48px;
   border: 2px solid transparent;
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
   font-size: 1.5rem;
-  color: #fff;
+  color: white;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -601,7 +522,7 @@ button:active {
 
 .color-preset-btn-icon.white-preset {
   color: #333;
-  background-color: #ffffff !important;
+  background-color: white !important;
 }
 
 .color-preset-btn-icon:hover:not(:disabled) {
@@ -610,7 +531,7 @@ button:active {
 }
 
 .color-preset-btn-icon.active-color {
-  border-color: #fff;
+  border-color: white;
   box-shadow:
     0 0 0 3px rgba(255, 255, 255, 0.5),
     0 4px 12px rgba(0, 0, 0, 0.2);
@@ -628,7 +549,7 @@ button:active {
 /* HaBeerTap Component */
 .ha-beer-tap .card {
   background-color: #ffffff;
-  border-radius: 1rem;
+  border-radius: 0.375rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition:
     transform 0.2s ease,
@@ -648,12 +569,12 @@ button:active {
   font-size: 1rem;
   font-weight: 600;
   margin: 0;
-  color: #333;
+  color: var(--bs-body-color);
 }
 
 .ha-beer-tap .progress {
   background-color: #e9ecef;
-  border-radius: 0.25rem;
+  border-radius: 0.375rem;
   overflow: hidden;
 }
 
@@ -712,15 +633,15 @@ button:active {
 }
 
 .binary-state-indicator.state-on {
-  color: #28a745;
+  color: var(--bs-success);
 }
 
 .binary-state-indicator.state-off {
-  color: #6c757d;
+  color: var(--bs-secondary-color);
 }
 
 .binary-state-indicator.state-unavailable {
-  color: #ffc107;
+  color: var(--bs-warning);
 }
 
 .state-icon {
@@ -796,7 +717,7 @@ button:active {
 
 .forecast-time {
   font-weight: 600;
-  color: #666;
+  color: var(--bs-secondary-color);
   margin-bottom: 0.25rem;
   white-space: nowrap;
   overflow: hidden;
@@ -806,13 +727,13 @@ button:active {
 .forecast-temp {
   font-weight: 600;
   font-size: 0.875rem;
-  color: #333;
+  color: var(--bs-body-color);
   margin: 0.25rem 0;
 }
 
 .forecast-condition {
   font-size: 0.7rem;
-  color: #555;
+  color: var(--bs-secondary-color);
   margin: 0.25rem 0;
   white-space: nowrap;
   overflow: hidden;
@@ -824,7 +745,7 @@ button:active {
   align-items: center;
   justify-content: center;
   gap: 0.15rem;
-  color: #0078d4;
+  color: var(--bs-primary);
   margin-top: 0.25rem;
   font-size: 0.65rem;
 }
@@ -833,6 +754,7 @@ button:active {
 .ha-entity-list .card {
   background-color: rgba(248, 249, 250, 0.6) !important;
   border: 1px solid rgba(222, 226, 230, 0.4) !important;
+  border-radius: 0.375rem;
 }
 
 [data-bs-theme="dark"] .ha-entity-list .card {
@@ -855,7 +777,7 @@ button:active {
   position: absolute;
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  box-shadow: var(--ha-shadow-sm);
 }
 
 .ha-error .icon-overlay {
@@ -867,17 +789,17 @@ button:active {
 
 /* CredentialDialog Component */
 .credential-dialog .invalid-feedback {
-  color: #dc3545;
+  color: var(--bs-danger);
   font-size: 0.875em;
   margin-top: 0.25rem;
 }
 
 .credential-dialog .form-control.is-invalid {
-  border-color: #dc3545;
+  border-color: var(--bs-danger);
 }
 
 .credential-dialog .form-control.is-invalid:focus {
-  border-color: #dc3545;
+  border-color: var(--bs-danger);
   box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
 }
 
@@ -891,11 +813,11 @@ button:active {
 .ha-energy .card-title {
   font-size: 1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--bs-body-color);
 }
 
 .energy-chart {
-  border-radius: 4px;
+  border-radius: 0.375rem;
   padding: 8px;
   position: relative;
 }
@@ -905,10 +827,10 @@ button:active {
   top: 50%;
   transform: translateY(-50%) translateX(-50%);
   background: white;
-  color: #007bff;
+  color: var(--bs-primary);
   padding: 4px 8px;
-  border: 2px solid #007bff;
-  border-radius: 3px;
+  border: 2px solid var(--bs-primary);
+  border-radius: 0.375rem;
   font-size: 12px;
   font-weight: bold;
   white-space: nowrap;
@@ -917,7 +839,7 @@ button:active {
 }
 
 .chart-axis text {
-  fill: #999;
+  fill: var(--bs-secondary-color);
 }
 
 .chart-bars rect {
@@ -997,11 +919,12 @@ button:active {
 }
 
 .control-object.control-object-disabled .ha-control-circle {
-  filter: grayscale(100%) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
+  box-shadow: var(--ha-shadow-sm);
+  filter: grayscale(100%);
 }
 
 .control-object:hover .ha-control-circle {
-  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+  box-shadow: var(--ha-shadow);
 }
 
 /* HaButton Component */
@@ -1096,7 +1019,7 @@ button:active {
   align-items: center;
   text-align: center;
   padding: 0.75rem;
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
   transition: all 0.2s ease;
   overflow: hidden;
   min-width: 0;
