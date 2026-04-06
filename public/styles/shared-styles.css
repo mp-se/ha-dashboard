@@ -885,7 +885,7 @@ button:active {
 .ha-energy .card-display {
   background: rgba(255, 255, 255, 0.95);
   border: 2px solid var(--bs-border-color);
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
 }
 
 .ha-energy .card-title {
