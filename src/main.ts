@@ -44,18 +44,6 @@ app.config.warnHandler = (
   }
 };
 
-// Auto-register all components globally at startup.
-const allComponentModules = import.meta.glob("./components/**/*.vue", {
-  eager: true,
-}) as Record<string, { default: unknown }>;
-
-for (const [path, module] of Object.entries(allComponentModules)) {
-  // Extract component name from file path (e.g., "HaSensor" from "components/cards/HaSensor.vue")
-  const name = path.split("/").pop()?.replace(".vue", "") || "";
-
-  app.component(name, module.default);
-}
-
 app.mount("#app");
 
 // Register service worker for PWA updates

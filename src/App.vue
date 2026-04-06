@@ -14,7 +14,6 @@
     :dark-mode="dark_mode"
     @update:current-view="updateCurrentView"
     @update:dark-mode="dark_mode = $event"
-    @edit-credentials="handleEditCredentials"
   />
 
   <!-- Error Banner - displays connection/CORS/security errors below navbar -->
@@ -68,7 +67,7 @@
         :is="getViewComponent(currentView)"
         :key="currentView"
         :view-name="currentView"
-        :previous-view="previousView"
+        v-bind="currentView === 'editor' ? { 'previous-view': previousView } : {}"
       />
     </ErrorBoundary>
 
@@ -204,12 +203,8 @@ const onTouchEnd = (e) => {
  * Saves credentials then re-runs initialization.
  */
 const handleCredentialSubmit = async (credentials) => {
-  store.saveCredentials(credentials.haUrl, credentials.accessToken);
+  await store.saveCredentials(credentials.haUrl, credentials.accessToken);
   await store.init();
-};
-
-const handleEditCredentials = () => {
-  credentialDialog.value?.showModal();
 };
 
 /**
@@ -251,7 +246,10 @@ onMounted(async () => {
 
   // Show credentials dialog if config is valid but credentials are missing
   if (!store.configValidationError?.length && store.needsCredentials) {
-    credentialDialog.value?.showModal();
+    credentialDialog.value?.showModal({
+      haUrl: store.haUrl || "",
+      accessToken: store.accessToken || "",
+    });
   }
 
   // Initialize dark mode from localStorage or system preference
@@ -283,7 +281,12 @@ watch(
       !store.isLoading &&
       !store.configValidationError?.length
     ) {
-      setTimeout(() => credentialDialog.value?.showModal(), 0);
+      setTimeout(() => {
+        credentialDialog.value?.showModal({
+          haUrl: store.haUrl || "",
+          accessToken: store.accessToken || "",
+        });
+      }, 0);
     }
   },
 );

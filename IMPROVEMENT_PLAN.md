@@ -45,8 +45,6 @@ Files with zero or near-zero coverage that need dedicated spec files:
 
 - [ ] **`src/composables/editor/useEditorDragDrop.js`** — 35% coverage. Core drag-and-drop logic. No dedicated spec.
 
-- [ ] **`src/components/page-components/DeveloperModeToggle.vue`** — 52% coverage. Security-relevant password-protection gating.
-
 Files with existing tests but low coverage needing improvement:
 
 - [ ] `src/views/VisualEditorView.vue` — 45%

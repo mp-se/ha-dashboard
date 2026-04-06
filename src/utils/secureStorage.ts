@@ -28,21 +28,46 @@ const SALT = "ha-dash-salt-v1";
 /**
  * Generate a device/browser fingerprint from available characteristics
  * This makes the encryption key unique per browser/device installation
+ *
+ * Uses a cached fingerprint stored in localStorage to ensure consistency
+ * across page refreshes (volatile properties like screen size are excluded
+ * from the fingerprint to prevent decryption failures on refresh).
  * @returns {string} Fingerprint string
  */
 function generateDeviceFingerprint(): string {
+  const FINGERPRINT_KEY = "__ha_device_fingerprint__";
+
+  // Check if we have a cached fingerprint
+  try {
+    const cached = localStorage.getItem(FINGERPRINT_KEY);
+    if (cached) {
+      return cached;
+    }
+  } catch {
+    // localStorage might not be available, continue with generation
+  }
+
+  // Generate fingerprint from stable characteristics only
+  // Excluded: screen.width, screen.height (change on zoom/resize)
+  // Excluded: timezone offset (can change with DST)
   const components = [
     navigator.userAgent,
     navigator.language,
-    new Date().getTimezoneOffset().toString(),
-    screen.width.toString(),
-    screen.height.toString(),
     screen.colorDepth.toString(),
     navigator.hardwareConcurrency?.toString() || "0",
     navigator.platform,
   ];
 
-  return components.join("|");
+  const fingerprint = components.join("|");
+
+  // Cache the fingerprint for future use
+  try {
+    localStorage.setItem(FINGERPRINT_KEY, fingerprint);
+  } catch {
+    // localStorage might not be available, but we can still use the fingerprint
+  }
+
+  return fingerprint;
 }
 
 /**

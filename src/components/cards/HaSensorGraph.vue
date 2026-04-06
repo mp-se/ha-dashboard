@@ -388,9 +388,12 @@ async function loadHistory() {
     );
 
     if (entitiesToLoad.length === 0) {
-      throw new Error(
-        `No valid entities provided. Received: ${JSON.stringify(props.entity)}`,
+      // Missing entities should not be treated as connection errors
+      // Just log a warning and stop loading
+      logger.warn(
+        `No valid entities available. Received: ${JSON.stringify(props.entity)}`,
       );
+      return;
     }
 
     logger.log(
@@ -412,21 +415,9 @@ async function loadHistory() {
       logger.log(`Received ${result.length} points for entity ${idx + 1}`);
     });
   } catch (e) {
-    logger.error(e);
-    // Extract error message safely from various error types
-    let errorMsg = 'Failed to load history data';
-    try {
-      if (e instanceof Error) {
-        errorMsg = e.message || errorMsg;
-      } else if (typeof e === 'string') {
-        errorMsg = e;
-      } else {
-        errorMsg = String(e);
-      }
-    } catch {
-      errorMsg = 'Failed to load history data';
-    }
-    authStore.setError(errorMsg);
+    logger.error("Error loading history:", e);
+    // Don't report to global error store - just log locally
+    // Component gracefully degrades to "No numeric history available" message
   } finally {
     loading.value = false;
   }

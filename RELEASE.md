@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Component Consolidation & Refactoring
+- **Unified developer mode & editor access**: Created new `EditorToggleButton` component combining developer mode toggle and visual editor access into a single button with shared password modal. Eliminates duplicate functionality and improves UX.
+- **Centralized dark mode handling**: Created `useDarkMode()` composable to consolidate dark mode toggle logic across `AppNavbar` and `EditorNavbar` components. Centralizes Bootstrap theme switching, localStorage persistence, and iOS focus cleanup (9 comprehensive tests added).
+- **Simplified navbar architecture**: Both navbars now use unified components (`EditorToggleButton`, `useDarkMode`) removing ~80 lines of duplicated code across the application.
+- **Comprehensive test coverage**: Added 34 unit tests for `EditorToggleButton` covering dev mode OFF/ON flows, password authentication, modal interactions, keyboard shortcuts, and edge cases.
+
 ### CSS Bootstrap Compliance
 - **Restored keyboard focus indicators**: Re-enabled `:focus-visible` focus states for accessibility (WCAG 2.1 AA compliance). Keyboard users now see clear focus outlines on buttons and interactive elements.
 - **Replaced hardcoded colors with Bootstrap CSS variables**: Converted hardcoded hex colors (e.g., `#007bff`, `#28a745`, `#dc3545`) to Bootstrap CSS variables (`var(--bs-primary)`, `var(--bs-success)`, `var(--bs-danger)`) for better theming consistency.

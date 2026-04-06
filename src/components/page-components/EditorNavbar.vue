@@ -2,9 +2,10 @@
 import { computed, toRefs, onMounted } from "vue";
 import { useHaStore } from "../../stores/haStore";
 import { useNormalizeIcon } from "../../composables/useNormalizeIcon";
+import { useDarkMode } from "../../composables/useDarkMode";
 import { useVisualEditorToolbar } from "../../composables/useVisualEditorToolbar";
 import { createLogger } from "../../utils/logger";
-import DeveloperModeToggle from "./DeveloperModeToggle.vue";
+import EditorToggleButton from "./EditorToggleButton.vue";
 
 const logger = createLogger("EditorNavbar");
 onMounted(() => {
@@ -32,28 +33,35 @@ const emit = defineEmits(["update:current-view", "update:darkMode"]);
 
 const store = useHaStore();
 const normalizeIcon = useNormalizeIcon();
+const { toggleDarkMode: handleToggleDarkMode } = useDarkMode();
 const { hasChanges, isSaving, saveStatus, triggerSave } =
   useVisualEditorToolbar();
-const isNative = import.meta.env.VITE_NATIVE_MODE === "true";
+const IS_NATIVE = import.meta.env.VITE_NATIVE_MODE === "true";
 const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 
 const menuItems = computed(() => {
-  return [
+  const items = [
     {
       name: "device",
       label: "DevicesView",
       icon: normalizeIcon("mdi-devices") || "mdi mdi-devices",
     },
-    {
+  ];
+
+  // Only show RawEntityView when not in native mode
+  if (!IS_NATIVE) {
+    items.push({
       name: "raw",
       label: "RawEntityView",
       icon: normalizeIcon("mdi-database") || "mdi mdi-database",
-    },
-  ];
+    });
+  }
+
+  return items;
 });
 
 const toggleDarkMode = () => {
-  emit("update:darkMode", !darkMode.value);
+  handleToggleDarkMode(darkMode.value, (key, value) => emit(key, value));
 };
 
 const handleEditorToggle = () => {
@@ -136,7 +144,7 @@ const handleEditorToggle = () => {
             </button>
 
             <button
-              v-if="store.developerMode && !isNative && isLocalhost"
+              v-if="store.developerMode && !IS_NATIVE && isLocalhost"
               class="btn btn-outline-info btn-sm me-2"
               title="Save current data for local testing"
               @click="store.saveLocalData()"
@@ -145,10 +153,18 @@ const handleEditorToggle = () => {
               <span class="d-none d-lg-inline ms-1">Save local data</span>
             </button>
 
+            <!-- Editor Toggle Button (Developer Mode Toggle + Editor Control) -->
+            <EditorToggleButton
+              :is-editor-open="currentView === 'editor'"
+              @open-editor="handleEditorToggle"
+              @close-editor="handleEditorToggle"
+            />
+
             <button
               :class="[
                 'btn',
                 'btn-sm',
+                'me-2',
                 darkMode
                   ? 'btn-outline-light text-light'
                   : 'btn-outline-dark text-dark',
@@ -166,9 +182,6 @@ const handleEditorToggle = () => {
                 "
               ></i>
             </button>
-
-            <!-- Developer Mode Toggle -->
-            <DeveloperModeToggle />
           </div>
         </div>
       </div>

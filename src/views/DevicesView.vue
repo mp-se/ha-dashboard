@@ -56,6 +56,7 @@
         <div class="card h-100 rounded-4">
           <div class="card-body text-start position-relative">
             <button
+              v-if="!IS_NATIVE"
               class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-2"
               type="button"
               title="Copy device JSON to clipboard"
@@ -120,6 +121,7 @@ defineProps({
 
 const store = useHaStore();
 const logger = createLogger("DevicesView");
+const IS_NATIVE = import.meta.env.VITE_NATIVE_MODE === "true";
 
 const selectedArea = ref("");
 const { input: searchText, debounced: debouncedSearch } = useDebouncedRef(

@@ -137,7 +137,7 @@ HaWarning          — Warning alert display
 | **RawEntityView** | Entity raw JSON display | `.container`, `.pre` | `.json-viewer` |
 | **CredentialDialog** | Auth credential input | `.modal`, `.form-control` | `.credential-form` |
 | **ErrorBanner** | Network/error alerts | `.alert`, `.alert-warning` | `.error-banner-container` |
-| **DeveloperModeToggle** | Debug mode toggle | `.btn`, `.btn-outline-secondary` | `.dev-toggle` |
+| **EditorToggleButton** | Dev mode toggle & editor access | `.btn`, `.btn-outline-secondary` | `.editor-toggle` |
 | **ViewLayout** | Dashboard view layout | `.container-fluid`, `.row`, `.col` | `.view-container` |
 
 **Architecture Pattern:** Page components wrap Bootstrap containers and custom layouts:

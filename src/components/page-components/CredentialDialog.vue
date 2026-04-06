@@ -70,7 +70,16 @@
           </div>
 
           <div class="modal-footer">
-            <button type="submit" class="btn btn-primary">Connect</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              @click="show = false"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              {{ formData.haUrl && formData.accessToken ? "Update" : "Connect" }}
+            </button>
           </div>
         </form>
       </div>
@@ -92,14 +101,15 @@ const formData = ref({
 const emit = defineEmits(["credentials"]);
 
 /**
- * Show the credential dialog
+ * Show the credential dialog with optional initial values
+ * @param {Object} initialValues - Object with haUrl and accessToken to pre-fill the form
  */
-const showModal = () => {
+const showModal = (initialValues = {}) => {
   show.value = true;
   submitted.value = false;
   formData.value = {
-    haUrl: "",
-    accessToken: "",
+    haUrl: initialValues.haUrl || "",
+    accessToken: initialValues.accessToken || "",
   };
 };
 

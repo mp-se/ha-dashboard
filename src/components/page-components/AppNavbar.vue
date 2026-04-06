@@ -62,30 +62,17 @@
               title="Not connected to Home Assistant"
             ></i>
 
-            <button
-              class="btn btn-outline-secondary btn-sm me-2"
-              title="Open visual editor"
-              @click="openEditor"
-            >
-              <i :class="normalizeIcon('mdi-pencil-ruler')"></i>
-            </button>
-
-            <!-- Edit credentials button (only if set manually, not from config) -->
-            <button
-              v-if="
-                store.haUrl && store.accessToken && !store.credentialsFromConfig
-              "
-              class="btn btn-outline-secondary btn-sm me-2"
-              title="Edit Home Assistant credentials"
-              @click="$emit('edit-credentials')"
-            >
-              <i class="mdi mdi-pencil"></i>
-            </button>
+            <EditorToggleButton
+              :is-editor-open="currentView === 'editor'"
+              @open-editor="enterEditorMode"
+              @close-editor="closeEditor"
+            />
 
             <button
               :class="[
                 'btn',
                 'btn-sm',
+                'me-2',
                 darkMode
                   ? 'btn-outline-light text-light'
                   : 'btn-outline-dark text-dark',
@@ -107,7 +94,7 @@
             <!-- Manual open for PWA install dialog -->
             <button
               v-if="!isPwaInstalled() && isPwaSupported()"
-              class="btn btn-sm btn-outline-primary ms-2"
+              class="btn btn-sm btn-outline-primary"
               title="Show PWA install dialog"
               @click="openPwaDialog"
             >
@@ -118,68 +105,8 @@
       </div>
     </nav>
 
-    <div
-      v-if="showEditorPasswordModal"
-      class="modal fade show d-block"
-      tabindex="-1"
-      style="background-color: rgba(0, 0, 0, 0.5)"
-    >
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Open Visual Editor</h5>
-            <button
-              type="button"
-              class="btn-close"
-              aria-label="Close"
-              @click="closeEditorPasswordModal"
-            ></button>
-          </div>
-
-          <div class="modal-body">
-            <div class="mb-3">
-              <label class="form-label">Enter Developer Password</label>
-              <input
-                ref="editorPasswordInput"
-                v-model="editorPassword"
-                type="password"
-                class="form-control"
-                placeholder="Password"
-                autocomplete="off"
-                @keyup.enter="confirmEditorAccess"
-              />
-            </div>
-
-            <div v-if="editorPasswordError" class="alert alert-danger mb-0">
-              <i class="mdi mdi-alert-circle me-2"></i>
-              {{ editorPasswordError }}
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              @click="closeEditorPasswordModal"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="btn btn-primary"
-              :disabled="!editorPassword"
-              @click="confirmEditorAccess"
-            >
-              <i class="mdi mdi-shield-lock me-2"></i>
-              Open Visual Editor
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Connection status alert -->
-    <div v-if="!store.isLocalMode">
+    <div v-if="!store.isLocalMode && !store.needsCredentials">
       <div
         v-if="!store.isConnected && store.lastError"
         class="alert alert-danger m-0 p-2 text-truncate"
@@ -293,13 +220,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, toRefs, nextTick } from "vue";
+import { ref, computed, onMounted, watch, toRefs } from "vue";
 import { useHaStore } from "@/stores/haStore";
-import { useAuthStore } from "@/stores/authStore";
-import { useConfigStore } from "@/stores/configStore";
 import { useNormalizeIcon } from "@/composables/useNormalizeIcon";
+import { useDarkMode } from "@/composables/useDarkMode";
 import { createLogger } from "@/utils/logger";
 import PwaInstallModal from "./PwaInstallModal.vue";
+import EditorToggleButton from "./EditorToggleButton.vue";
 
 const logger = createLogger("AppNavbar");
 
@@ -319,20 +246,14 @@ onMounted(() => {
 const emit = defineEmits([
   "update:current-view",
   "update:darkMode",
-  "edit-credentials",
 ]);
 
 const store = useHaStore();
-const authStore = useAuthStore();
-const configStore = useConfigStore();
 const normalizeIcon = useNormalizeIcon();
+const { toggleDarkMode: handleToggleDarkMode } = useDarkMode();
 const pwaInstallModal = ref(null);
-const editorPasswordInput = ref(null);
 const updateAvailable = ref(false);
 const configErrorBanner = ref(false);
-const showEditorPasswordModal = ref(false);
-const editorPassword = ref("");
-const editorPasswordError = ref("");
 
 // Show config error banner automatically whenever validation errors change
 watch(
@@ -359,49 +280,16 @@ const menuItems = computed(() => {
     }));
 });
 
-const hasDeveloperPassword = computed(() => {
-  const appConfig = configStore.dashboardConfig?.app;
-  return !!(appConfig?.password && String(appConfig.password).trim() !== "");
-});
-
-const closeEditorPasswordModal = () => {
-  showEditorPasswordModal.value = false;
-  editorPassword.value = "";
-  editorPasswordError.value = "";
-};
-
+/** Enter editor mode (called when EditorAccessButton emits open-editor) */
 const enterEditorMode = () => {
+  logger.log("[AppNavbar] Entering editor mode");
   emit("update:current-view", "editor");
 };
 
-const confirmEditorAccess = () => {
-  const success = authStore.toggleDeveloperMode(editorPassword.value);
-
-  if (!success) {
-    editorPasswordError.value = "Invalid password";
-    editorPassword.value = "";
-    nextTick(() => editorPasswordInput.value?.focus());
-    return;
-  }
-
-  closeEditorPasswordModal();
-  enterEditorMode();
-};
-
-const openEditor = () => {
-  if (authStore.developerMode) {
-    enterEditorMode();
-    return;
-  }
-
-  if (hasDeveloperPassword.value) {
-    showEditorPasswordModal.value = true;
-    nextTick(() => editorPasswordInput.value?.focus());
-    return;
-  }
-
-  authStore.toggleDeveloperMode("");
-  enterEditorMode();
+/** Close editor mode (called when EditorAccessButton emits close-editor) */
+const closeEditor = () => {
+  logger.log("[AppNavbar] Exiting editor mode");
+  emit("update:current-view", "overview");
 };
 
 const openPwaDialog = () => {
@@ -412,22 +300,9 @@ const openPwaDialog = () => {
   }
 };
 
-/** Toggle dark mode and notify parent via v-model */
+/** Toggle dark mode using shared composable */
 const toggleDarkMode = () => {
-  const newValue = !darkMode.value;
-  const root = document.documentElement;
-  root.setAttribute("data-bs-theme", newValue ? "dark" : "light");
-  root.style.colorScheme = newValue ? "dark" : "light";
-  localStorage.setItem("ha-dashboard-dark-mode", String(newValue));
-  // Remove iOS focus state after click
-  const btn = document.querySelector('[aria-label="Toggle dark mode"]');
-  if (btn) {
-    btn.blur();
-    btn.style.outline = "none";
-    btn.style.boxShadow = "none";
-    btn.style.backgroundColor = "transparent";
-  }
-  emit("update:darkMode", newValue);
+  handleToggleDarkMode(darkMode.value, (key, value) => emit(key, value));
 };
 
 const refreshApp = () => window.location.reload();

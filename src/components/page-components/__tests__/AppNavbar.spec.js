@@ -113,9 +113,9 @@ describe("AppNavbar.vue", () => {
       expect(btn.exists()).toBe(true);
     });
 
-    it("shows the editor entry button on the right side", () => {
+    it("shows the editor toggle button on the right side", () => {
       const wrapper = mountNavbar();
-      const btn = wrapper.find('button[title="Open visual editor"]');
+      const btn = wrapper.findComponent({ name: "EditorToggleButton" });
       expect(btn.exists()).toBe(true);
     });
   });
@@ -273,45 +273,6 @@ describe("AppNavbar.vue", () => {
     });
   });
 
-  describe("Edit credentials button", () => {
-    it("shows edit credentials button when haUrl and token are set and not from config", async () => {
-      store.haUrl = "http://homeassistant.local:8123";
-      store.accessToken = "abc123";
-      store.credentialsFromConfig = false;
-      const wrapper = mountNavbar();
-      await wrapper.vm.$nextTick();
-      const btn = wrapper.find(
-        'button[title="Edit Home Assistant credentials"]',
-      );
-      expect(btn.exists()).toBe(true);
-    });
-
-    it("hides edit credentials button when credentialsFromConfig is true", async () => {
-      store.haUrl = "http://homeassistant.local:8123";
-      store.accessToken = "abc123";
-      store.credentialsFromConfig = true;
-      const wrapper = mountNavbar();
-      await wrapper.vm.$nextTick();
-      const btn = wrapper.find(
-        'button[title="Edit Home Assistant credentials"]',
-      );
-      expect(btn.exists()).toBe(false);
-    });
-
-    it("emits edit-credentials when edit button is clicked", async () => {
-      store.haUrl = "http://homeassistant.local:8123";
-      store.accessToken = "abc123";
-      store.credentialsFromConfig = false;
-      const wrapper = mountNavbar();
-      await wrapper.vm.$nextTick();
-      const btn = wrapper.find(
-        'button[title="Edit Home Assistant credentials"]',
-      );
-      await btn.trigger("click");
-      expect(wrapper.emitted("edit-credentials")).toBeTruthy();
-    });
-  });
-
   describe("Menu navigation", () => {
     it("emits update:current-view when a menu item is clicked", async () => {
       const wrapper = mountNavbar({ currentView: "overview" });
@@ -321,49 +282,36 @@ describe("AppNavbar.vue", () => {
       expect(wrapper.emitted("update:current-view")).toBeTruthy();
     });
 
-    it("opens the password modal before entering the editor when a password is configured", async () => {
-      configStore.dashboardConfig = {
-        ...configStore.dashboardConfig,
-        app: { password: "secret" },
-      };
-
-      const wrapper = mountNavbar();
-      const button = wrapper.find('button[title="Open visual editor"]');
-
-      await button.trigger("click");
-
-      expect(wrapper.find(".modal").exists()).toBe(true);
-      expect(wrapper.emitted("update:current-view")).toBeFalsy();
+  describe("Editor access", () => {
+    it("editor toggle button is rendered and receives correct props", () => {
+      const wrapper = mountNavbar({ currentView: "overview" });
+      const btn = wrapper.findComponent({ name: "EditorToggleButton" });
+      expect(btn.exists()).toBe(true);
+      expect(btn.props("isEditorOpen")).toBe(false);
     });
 
-    it("emits update:current-view with editor when developer mode is already enabled", async () => {
-      authStore.developerMode = true;
+    it("editor toggle button shows editor is open", () => {
+      const wrapper = mountNavbar({ currentView: "editor" });
+      const btn = wrapper.findComponent({ name: "EditorToggleButton" });
+      expect(btn.props("isEditorOpen")).toBe(true);
+    });
+
+    it("emits update:current-view when EditorToggleButton emits open-editor", async () => {
       const wrapper = mountNavbar();
-      const button = wrapper.find('button[title="Open visual editor"]');
-
-      await button.trigger("click");
-
+      const btn = wrapper.findComponent({ name: "EditorToggleButton" });
+      await btn.vm.$emit("open-editor");
       expect(wrapper.emitted("update:current-view")).toBeTruthy();
       expect(wrapper.emitted("update:current-view").at(-1)).toEqual(["editor"]);
     });
 
-    it("enables developer mode and enters the editor after a valid password", async () => {
-      configStore.dashboardConfig = {
-        ...configStore.dashboardConfig,
-        app: { password: "secret" },
-      };
-
-      const wrapper = mountNavbar();
-      await wrapper.find('button[title="Open visual editor"]').trigger("click");
-
-      const passwordInput = wrapper.find('input[type="password"]');
-      await passwordInput.setValue("secret");
-      await wrapper.find("button.btn-primary").trigger("click");
-
-      expect(authStore.developerMode).toBe(true);
+    it("emits update:current-view when EditorToggleButton emits close-editor", async () => {
+      const wrapper = mountNavbar({ currentView: "editor" });
+      const btn = wrapper.findComponent({ name: "EditorToggleButton" });
+      await btn.vm.$emit("close-editor");
       expect(wrapper.emitted("update:current-view")).toBeTruthy();
-      expect(wrapper.emitted("update:current-view").at(-1)).toEqual(["editor"]);
+      expect(wrapper.emitted("update:current-view").at(-1)).toEqual(["overview"]);
     });
+  });
 
     it("filters out hidden views from menu", async () => {
       store.dashboardConfig = {

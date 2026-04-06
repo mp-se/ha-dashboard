@@ -192,14 +192,15 @@ describe("HaSensorGraph.vue", () => {
       await flushPromises();
     });
 
-    it("should display error when history fetch fails", async () => {
+    it("should gracefully handle history fetch failure", async () => {
       store.fetchHistory = vi.fn().mockRejectedValue(new Error("Fetch failed"));
 
       const wrapper = createWrapper();
       await flushPromises();
 
-      expect(authStore.lastError).toBeTruthy();
-      expect(authStore.lastError).toContain("Fetch failed");
+      // Component gracefully handles fetch errors - shows "no data" instead of crashing
+      expect(wrapper.text()).toContain(UI_TEXT.NO_DATA);
+      expect(wrapper.find("svg").exists()).toBe(false);
     });
 
     it("should display message when no data available", async () => {
@@ -224,14 +225,16 @@ describe("HaSensorGraph.vue", () => {
       expect(store.fetchHistory.mock.calls.length).toBeGreaterThan(callCount);
     });
 
-    it("should throw error when no valid entities provided", async () => {
+    it("should not attempt to load history when no valid entities provided", async () => {
       // Entity string not in store -> resolvedEntities becomes [null]
       store.entities = [];
+      store.fetchHistory.mockClear();
       const wrapper = createWrapper({ entity: "sensor.nonexistent" });
       await flushPromises();
 
-      expect(authStore.lastError).toBeTruthy();
-      expect(authStore.lastError).toContain("No valid entities");
+      // Should not set error for missing entities (graceful degradation)
+      // and should not attempt to fetch history
+      expect(store.fetchHistory).not.toHaveBeenCalled();
     });
   });
 
@@ -535,14 +538,14 @@ describe("HaSensorGraph.vue", () => {
       expect(wrapper.text()).toContain("sensor.temperature");
     });
 
-    it("should show error when entity not found in store", async () => {
+    it("should show 'no data' message when entity not found in store", async () => {
       store.entities = [];
       const wrapper = createWrapper({ entity: "sensor.nonexistent" });
       await flushPromises();
 
-      // Should display error for non-existent entity
-      expect(authStore.lastError).toBeTruthy();
-      expect(authStore.lastError).toContain("No valid entities");
+      // Component gracefully handles missing entities - shows "no data" instead of crashing
+      expect(wrapper.text()).toContain(UI_TEXT.NO_DATA);
+      expect(store.fetchHistory).not.toHaveBeenCalled();
     });
   });
 
@@ -716,16 +719,15 @@ describe("HaSensorGraph.vue", () => {
       const wrapper = createWrapper();
       await flushPromises();
 
-      // Should show error initially
-      expect(authStore.lastError).toBeTruthy();
-      expect(authStore.lastError).toContain("Network error");
+      // On error, component gracefully shows "no data" message instead of crashing
+      expect(wrapper.text()).toContain(UI_TEXT.NO_DATA);
+      expect(wrapper.find("svg").exists()).toBe(false);
 
       // Trigger retry by reloading history
       await wrapper.vm.loadHistory();
       await flushPromises();
 
       // Should now show graph successfully
-      expect(authStore.lastError).toBeFalsy();
       expect(wrapper.find("svg").exists()).toBe(true);
     });
 
@@ -765,8 +767,8 @@ describe("HaSensorGraph.vue", () => {
       await wrapper.setProps({ entity: "sensor.nonexistent" });
       await flushPromises();
 
-      expect(authStore.lastError).toBeTruthy();
-      expect(authStore.lastError).toContain("No valid entities");
+      // Component gracefully shows "no data" instead of crashing
+      expect(wrapper.text()).toContain(UI_TEXT.NO_DATA);
 
       // Add entity back and switch to it
       store.entities = [
@@ -787,20 +789,19 @@ describe("HaSensorGraph.vue", () => {
       await flushPromises();
 
       // Should recover and display graph
-      expect(authStore.lastError).toBeFalsy();
       expect(wrapper.text()).toContain("Temperature");
       expect(wrapper.find("svg").exists()).toBe(true);
     });
 
-    it("should display improved error messages with entity details", async () => {
+    it("should gracefully handle missing entities without global errors", async () => {
       store.entities = [];
       const wrapper = createWrapper({ entity: "sensor.nonexistent" });
       await flushPromises();
 
-      expect(authStore.lastError).toBeTruthy();
-      // New error message includes the entity that was provided
-      expect(authStore.lastError).toContain("No valid entities");
-      expect(authStore.lastError).toContain("sensor.nonexistent");
+      // Component gracefully degrades - not setting global errors
+      // Should show "no data" message instead
+      expect(wrapper.text()).toContain(UI_TEXT.NO_DATA);
+      expect(store.fetchHistory).not.toHaveBeenCalled();
     });
   });
 
@@ -887,11 +888,12 @@ describe("HaSensorGraph.vue", () => {
 
     it("should handle title when resolvedEntity is null", async () => {
       store.entities = [];
-      createWrapper({ entity: "sensor.missing" });
+      const wrapper = createWrapper({ entity: "sensor.missing" });
       await flushPromises();
 
-      // Should set error in authStore, not crash on null title
-      expect(authStore.lastError).toBeTruthy();
+      // Component should not crash when entity is not resolved
+      // Gracefully shows "no data" message
+      expect(wrapper.text()).toContain(UI_TEXT.NO_DATA);
     });
   });
 });
