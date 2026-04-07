@@ -2,68 +2,15 @@
 
 ## Unreleased
 
-### Component Consolidation & Refactoring
-- **Unified developer mode & editor access**: Created new `EditorToggleButton` component combining developer mode toggle and visual editor access into a single button with shared password modal. Eliminates duplicate functionality and improves UX.
-- **Centralized dark mode handling**: Created `useDarkMode()` composable to consolidate dark mode toggle logic across `AppNavbar` and `EditorNavbar` components. Centralizes Bootstrap theme switching, localStorage persistence, and iOS focus cleanup (9 comprehensive tests added).
-- **Simplified navbar architecture**: Both navbars now use unified components (`EditorToggleButton`, `useDarkMode`) removing ~80 lines of duplicated code across the application.
-- **Comprehensive test coverage**: Added 34 unit tests for `EditorToggleButton` covering dev mode OFF/ON flows, password authentication, modal interactions, keyboard shortcuts, and edge cases.
-
-### CSS Bootstrap Compliance
-- **Restored keyboard focus indicators**: Re-enabled `:focus-visible` focus states for accessibility (WCAG 2.1 AA compliance). Keyboard users now see clear focus outlines on buttons and interactive elements.
-- **Replaced hardcoded colors with Bootstrap CSS variables**: Converted hardcoded hex colors (e.g., `#007bff`, `#28a745`, `#dc3545`) to Bootstrap CSS variables (`var(--bs-primary)`, `var(--bs-success)`, `var(--bs-danger)`) for better theming consistency.
-- **Standardized border-radius values**: Unified inconsistent border-radius values to use Bootstrap's standard `0.375rem` as default (kept `50%` for circles and other justified exceptions).
-- **Consolidated shadow system**: Replaced all `filter: drop-shadow()` with `box-shadow` for consistency. Updated CSS variables to Bootstrap's box-shadow scale (`--ha-shadow-sm`, `--ha-shadow`, `--ha-shadow-lg`). Eliminates dual shadow rendering.
-- **Documented card styling design rationale**: Created `spec/DESIGN_TOKENS.md` to explain why cards use transparent backgrounds and 2px borders instead of Bootstrap defaults. Added comprehensive CSS comments documenting design decisions and accessibility compliance.
-- **Created comprehensive design system specification**: Added `spec/DESIGN_SYSTEM.md` documenting component architecture, Bootstrap vs. custom decision framework, and implementation guidelines for all 55 dashboard components. Includes taxonomy, patterns, and pitfalls for new component development.
-- **Improved accessibility**: Touch devices suppress visual focus while maintaining keyboard accessibility; keyboard-only focus indicators remain for all users.
-
-### Error Handling & Diagnostics
-- **Centralized error handling**: Added a global `ErrorBanner` component and consolidated per-card error UI into `authStore` to provide a single consistent place for connection and security warnings.
-- **Component refactor**: `HaSensorGraph.vue` now reports errors via `authStore.setError()` and no longer renders a local error alert.
-- **Tests updated**: Updated HaSensorGraph tests (59 tests) to assert `authStore.lastError` instead of local DOM error elements.
-- **Network/CORS detection improved**: Treats `Failed to fetch` fetch failures as CORS/Security errors and keeps CORS/network errors visible until manually dismissed.
-- **Bugfix**: Fixed an `ErrorBanner.vue` template issue where `lastError` was not referenced correctly, preventing the banner from appearing.
-
-
-### Mobile Editor
-- **Full mobile editor support**: Visual editor is now fully usable on iPhone, iPad, and any mobile browser/PWA.
-- **Responsive layout**: On screens narrower than 768px the three-column editor reflows to a full-screen canvas with bottom-sheet panels.
-- **Unified floating toolbar**: A fixed bottom-right toolbar replaces all inline action buttons. Context-aware buttons appear based on what is selected:
-  - Nothing selected → `[+]` (open palette)
-  - Card selected → `[↑][↓][✎][🗑][+][×]`
-  - Panel open, view selected → `[↑][↓][✎][🗑][+][×]`
-  - Property editor open → `[↑][↓][🗑][×]` (entity list item selected) or `[🗑][+][×]`
-  - Panel open (entities/components) → `[×]`
-- **Long-press to inspect**: Long-press (500 ms) any card on mobile to open the property editor bottom sheet.
-- **Tap-to-add entities**: Tapping an entity or static component in the mobile palette inserts it immediately after the currently selected card.
-- **Multi-entity cards on mobile**: For cards that support multiple entities (HaRoom, HaGlance, etc.) the `+` button in the property editor adds an entity directly to the card's entity list. Entity list rows are tap-to-select with up/down/delete via the toolbar.
-- **View reordering**: Views in the Views tab can be reordered via the toolbar up/down buttons — no drag required.
-- **Context menu suppressed**: `contextmenu` events are prevented on editor cards to avoid the browser menu appearing on long-press.
-- **`useIsMobile` composable**: New reactive composable (`src/composables/useIsMobile.ts`) tracks `window.innerWidth < 768` with a resize listener. Used across the editor for all mobile/desktop branching.
-
-### Visual Editor — Desktop Improvements
-- **Restored HTML5 drag-and-drop**: Touch event listeners are now disabled on desktop (`mobileInspectMode=false`) to prevent interference with the browser's drag machinery. Drag-and-drop from the palette and canvas reordering both work correctly again.
-- **`EditorActionBar` generic component**: Extracted reusable `[↑][↓][✎][🗑][+][×]` action bar used consistently in ViewManager and EntityListEditor.
-- **HaHeader default name**: Adding a Header static component now sets `name: "Header"` by default so it is immediately visible on the canvas.
-- **Floating toolbar tab sync**: Switching between Views / Entities / Components tabs in the panel now correctly resets the selected view, keeping toolbar button state accurate.
-- **`drag-drop-touch` polyfill removed**: Replaced with native touch handling; no longer needed.
-
-### Editor UI
-- **Left Panel Tabs**: Replaced collapsible sections with a compact tab-based interface (Views / Entities / Components).
-- **Compact tab icons on mobile**: Tab labels are hidden on small screens; only icons are shown to save space.
-- **Removed inline delete/deselect buttons** from the Entity Inspector — toolbar replaces them for all screen sizes.
-- **Removed "Drag to reorder" hint text** from the entity list editor.
-- **Static component palette**: Entities palette opens by default (instead of Views) when the `+` FAB is tapped on mobile.
-
-### Code Quality
-- **Test coverage improvements**: Added comprehensive test suites for `App.vue` (30 tests, 50.56% → 88.76% statements) and `ErrorBanner.vue` (23 tests, 0% → 100% statements). These tests cover app initialization, view navigation, dark mode toggling, swipe gestures, developer mode exit, credential dialog handling, and error banner classification/dismissal behavior.
-- **QA skill**: Added `.github/skills/vue-qa/SKILL.md` — a Vue project quality gate skill covering tests, coverage, lint, format, and build.
-- **Coverage exceptions file**: Added `COVERAGE_EXCEPTIONS.md` documenting the three files permitted below 80% with reasons.
-- **New tests**: `useIsMobile` (8 tests), `useEditorLongPress` (12 tests), `ImagePicker.vue` (40 tests, 5.7% → 85%), `useEditorSelection`, `useEditorDragDrop`, `VisualEditorView` move/reorder tests, `EditorActionBar` (24 tests), `ViewManager` reorder tests, `EntityListEditor` selection tests.
-- **Coverage thresholds** updated to reflect current codebase (stmts 86%, branches 79%, funcs 82%, lines 87%).
-- Fixed unused variable lint error in `LeftPanelTabs.spec.ts`.
-- Removed unused `@eslint/eslintrc` and `baseline-browser-mapping` dependencies.
-- Total tests: 2648 passing (56 new tests added this session).
+- Bug fixes & editor improvements:
+  - `src/stores/authStore.ts`: Normalize Home Assistant URL at point-of-use (remove trailing slashes/whitespace) to prevent malformed WebSocket paths.
+  - Floating toolbar: mobile-only and dialog-aware (added `isDialogOpen` in `useVisualEditorToolbar`, `ViewManager` updates it to hide toolbar when modals open).
+  - Editor mobile-aware: responsive reflow and mobile interactions (reflow <768px, bottom-sheet panels, long-press to inspect, tap-to-add entities).
+  - Entity palette: session-only runtime persistence via `useEntityPaletteState` (no reload/localStorage persistence).
+  - Visual editor: hide `Delete` action when only one view remains to avoid deleting the last view.
+- Tests & QA:
+  - Added unit tests for URL normalization and visual editor behaviors; updated tests to reset runtime palette state during test runs.
+  - Lint, unit tests, and production build passing.
 
 ## March 2026 - v0.7.0
 

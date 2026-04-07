@@ -53,7 +53,7 @@ defineProps({
 
 defineEmits(["add-entity"]);
 
-const IS_NATIVE = import.meta.env.VITE_NATIVE_MODE === "true";
+const haImageComponent = window.__appCapabilities?.haImageComponent ?? true;
 
 const allStaticComponents = ref([
   {
@@ -88,12 +88,12 @@ const allStaticComponents = ref([
   },
 ]);
 
-// In native builds, hide HaImage — the upload backend (app-server.js) is unavailable.
+// When HaImage component capability is disabled (no upload backend), hide it from the palette.
 // Users can still use existing HaImage cards via URL directly.
 const staticComponents = computed(() =>
-  IS_NATIVE
-    ? allStaticComponents.value.filter((c) => c.type !== "HaImage")
-    : allStaticComponents.value,
+  haImageComponent
+    ? allStaticComponents.value
+    : allStaticComponents.value.filter((c) => c.type !== "HaImage"),
 );
 
 const handleDragStart = (event, component) => {

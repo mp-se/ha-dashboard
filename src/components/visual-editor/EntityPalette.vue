@@ -73,8 +73,8 @@
         :draggable="!mobileMode"
         @dragstart="!mobileMode && handleDragStart($event, entity)"
         @dragend="!mobileMode && handleDragEnd"
-        @touchend.prevent="mobileMode && $emit('add-entity', entity.entity_id)"
-        @click="mobileMode && $emit('add-entity', entity.entity_id)"
+        @touchend.prevent="mobileMode && (console.log('[EntityPalette] touchend on', entity.entity_id), $emit('add-entity', entity.entity_id))"
+        @click="mobileMode && (console.log('[EntityPalette] click on', entity.entity_id), $emit('add-entity', entity.entity_id))"
       >
         <div
           class="btn btn-sm w-100 text-start entity-button entity-button-available"
@@ -101,7 +101,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+/* global process */
+import { computed, onMounted } from "vue";
+import { useEntityPaletteState } from "../../composables/useEntityPaletteState";
 import { useHaStore } from "../../stores/haStore";
 import { createLogger } from "../../utils/logger";
 
@@ -120,8 +122,16 @@ defineEmits(["add-entity", "remove-entity"]);
 
 const store = useHaStore();
 const logger = createLogger("EntityPalette");
-const searchText = ref("");
-const selectedType = ref("");
+// Use runtime-only composable so state persists while page open (no reload persistence)
+const { selectedType, searchText } = useEntityPaletteState();
+
+onMounted(() => {
+  // During tests we want a clean slate for each mount to avoid cross-test pollution.
+  if (typeof process !== "undefined" && process.env && process.env.NODE_ENV === "test") {
+    selectedType.value = "";
+    searchText.value = "";
+  }
+});
 
 const entitiesInViewIds = computed(() => {
   logger.log(

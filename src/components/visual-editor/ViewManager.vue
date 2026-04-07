@@ -176,6 +176,7 @@
 import { ref, computed, watch } from "vue";
 import { useHaStore } from "../../stores/haStore";
 import IconPicker from "./PropertyEditors/IconPicker.vue";
+import { useVisualEditorToolbar } from "../../composables/useVisualEditorToolbar";
 
 const emit = defineEmits([
   "view-created",
@@ -322,6 +323,17 @@ const confirmDeleteView = (view) => {
   viewToDelete.value = view;
   showDeleteConfirm.value = true;
 };
+
+// Inform toolbar when a modal is open so floating toolbar can hide
+const { setDialogOpen } = useVisualEditorToolbar();
+
+watch(showModal, (val) => {
+  setDialogOpen(Boolean(val || showDeleteConfirm.value));
+});
+
+watch(showDeleteConfirm, (val) => {
+  setDialogOpen(Boolean(val || showModal.value));
+});
 
 const deleteView = () => {
   if (viewToDelete.value) {

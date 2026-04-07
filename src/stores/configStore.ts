@@ -26,20 +26,20 @@ export const useConfigStore = defineStore("config", () => {
   const logger = createLogger("configStore");
 
   const loadDashboardConfig = async (): Promise<ValidationResult> => {
-    const IS_NATIVE_MODE = (import.meta as any).env.VITE_NATIVE_MODE === "true";
-    
-    // In native mode, use minimal default config
-    // Capacitor will override localStorage for persistence on native platforms
-    if (IS_NATIVE_MODE) {
+    const nativeLoader = (window as any).__nativeConfigLoader;
+    if (nativeLoader) {
+      logger.log("[Native Mode] loadDashboardConfig via native hook");
+
       try {
-        const defaultConfig = { views: [] };
-        dashboardConfig.value = defaultConfig;
-        configValidationError.value = null;
-        configErrorCount.value = 0;
-        logger.log("[Native Mode] Using default minimal config");
-        return { valid: true, errors: [], errorCount: 0 };
+        const config = await nativeLoader();
+        logger.log("[Native Mode] config loaded, views:", (config as any)?.views?.length ?? 0);
+        const validationResult = validateConfig(config);
+        dashboardConfig.value = config;
+        configValidationError.value = validationResult.valid ? null : validationResult.errors;
+        configErrorCount.value = validationResult.errorCount;
+        return validationResult;
       } catch (error) {
-        logger.error("[Native Mode] Error loading config:", error);
+        logger.error("[Native Mode] Error from native config loader:", error);
         dashboardConfig.value = { views: [] };
         return { valid: true, errors: [], errorCount: 0 };
       }
@@ -301,6 +301,24 @@ export const useConfigStore = defineStore("config", () => {
    * @returns true if save successful, false otherwise
    */
   const saveConfigToBackend = async (config: unknown): Promise<boolean> => {
+    const nativeSaver = (window as any).__nativeConfigSaver;
+    if (nativeSaver) {
+      logger.log("[Native Mode] saveConfigToBackend via native hook");
+
+      try {
+        const success = await nativeSaver(config);
+        if (success) {
+          dashboardConfig.value = config;
+          localStorage.removeItem("dashboardConfigDraft");
+        }
+        logger.log("[Native Mode] save result:", success);
+        return !!success;
+      } catch (error) {
+        logger.error("[Native Mode] Error from native config saver:", error);
+        return false;
+      }
+    }
+
     try {
       const password =
         ((dashboardConfig.value as Record<string, unknown>) || {})?.app

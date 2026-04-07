@@ -83,7 +83,7 @@ const dismissed = ref(false);
 const manualOpen = ref(false);
 
 // In native builds, suppress PWA prompt — the app is already native and doesn't need PWA installation
-const IS_NATIVE = import.meta.env.VITE_NATIVE_MODE === "true";
+const pwaPrompt = window.__appCapabilities?.pwaPrompt ?? true;
 const LOCAL_STORAGE_KEY = "hassio_dashboard_pwa_prompt_dismissed";
 
 const isIos = () => {
@@ -172,7 +172,7 @@ onMounted(() => {
   }
 
   if (store.isLocalMode) return;
-  if (IS_NATIVE) {
+  if (!pwaPrompt) {
     logger.log("[PWA] prompt suppressed (native build)");
     return;
   }
@@ -204,7 +204,7 @@ onUnmounted(() => {
 // If manualOpen is set this runtime-only override allows the user to re-open the modal even
 // if they've previously dismissed it in localStorage.
 const shouldShow = computed(() => {
-  if (IS_NATIVE) return false;
+  if (!pwaPrompt) return false;
   if (isInstalled.value) return false;
   if (store.isLocalMode) return false;
   if (manualOpen.value)
@@ -216,7 +216,7 @@ const shouldShow = computed(() => {
 // Programmatic API for parent components to re-open the prompt on demand. This will temporarily
 // override the dismissed flag at runtime and show the modal (not persisted).
 const showModal = () => {
-  if (IS_NATIVE || isInstalled.value || store.isLocalMode) return;
+  if (!pwaPrompt || isInstalled.value || store.isLocalMode) return;
   manualOpen.value = true;
   try {
     // If a deferred prompt is available we can show the install button, otherwise show iOS instructions (or try showing button)

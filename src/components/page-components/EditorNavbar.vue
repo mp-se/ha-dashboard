@@ -36,7 +36,8 @@ const normalizeIcon = useNormalizeIcon();
 const { toggleDarkMode: handleToggleDarkMode } = useDarkMode();
 const { hasChanges, isSaving, saveStatus, triggerSave } =
   useVisualEditorToolbar();
-const IS_NATIVE = import.meta.env.VITE_NATIVE_MODE === "true";
+const showRawEntityView = (window as any).__appCapabilities?.rawEntityView ?? true;
+const showLocalDataSave = (window as any).__appCapabilities?.localDataSave ?? true;
 const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 
 const menuItems = computed(() => {
@@ -48,8 +49,8 @@ const menuItems = computed(() => {
     },
   ];
 
-  // Only show RawEntityView when not in native mode
-  if (!IS_NATIVE) {
+  // Optionally show RawEntityView based on platform capability flag
+  if (showRawEntityView) {
     items.push({
       name: "raw",
       label: "RawEntityView",
@@ -144,7 +145,7 @@ const handleEditorToggle = () => {
             </button>
 
             <button
-              v-if="store.developerMode && !IS_NATIVE && isLocalhost"
+              v-if="store.developerMode && showLocalDataSave && isLocalhost"
               class="btn btn-outline-info btn-sm me-2"
               title="Save current data for local testing"
               @click="store.saveLocalData()"

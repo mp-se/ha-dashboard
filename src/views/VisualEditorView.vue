@@ -127,7 +127,7 @@
          Context-aware buttons based on what is selected/open.
          Priority: entity-list > inspector > view > card > default
          ============================================================ -->
-    <div v-if="isMobile" class="floating-toolbar" @touchstart.stop @touchend.stop>
+    <div v-if="isMobile && !isDialogOpen" class="floating-toolbar" @touchstart.stop @touchend.stop>
       <EditorActionBar
         :show-up="toolbarShowUp"
         :show-down="toolbarShowDown"
@@ -234,6 +234,7 @@ const props = defineProps({
 const store = useHaStore();
 const configStore = useConfigStore();
 const { isMobile } = useIsMobile();
+const { isDialogOpen } = useVisualEditorToolbar();
 
 const selectedViewName = ref("");
 const selectedEntityId = ref(null);
@@ -315,7 +316,11 @@ const toolbarContext = computed(() => {
 const toolbarShowUp     = computed(() => ['entity-list', 'card-selected', 'view-selected'].includes(toolbarContext.value));
 const toolbarShowDown   = computed(() => ['entity-list', 'card-selected', 'view-selected'].includes(toolbarContext.value));
 const toolbarShowEdit   = computed(() => ['card-selected', 'view-selected'].includes(toolbarContext.value));
-const toolbarShowDelete = computed(() => ['entity-list', 'card-selected', 'view-selected', 'inspector'].includes(toolbarContext.value));
+const toolbarShowDelete = computed(() => {
+  const ctx = toolbarContext.value;
+  if (ctx === 'view-selected') return (availableViews.value || []).length > 1;
+  return ['entity-list', 'card-selected', 'inspector'].includes(ctx);
+});
 const toolbarShowAdd    = computed(() => {
   const ctx = toolbarContext.value;
   if (ctx === 'inspector') return selectedEntitySupportsMultiple.value;
@@ -477,6 +482,11 @@ const onMobileInspectorDeselect = () => {
  * Otherwise, inserts a new card after the selected card.
  */
 const onMobilePaletteAdd = (entityIdOrComponent) => {
+  console.log('[VisualEditorView] onMobilePaletteAdd', entityIdOrComponent, 'currentView:', currentView.value?.name, 'selectedEntityId:', selectedEntityId.value);
+  // If no view is selected yet, auto-select the first available one
+  if (!currentView.value && availableViews.value.length > 0) {
+    selectedViewName.value = availableViews.value[0].name;
+  }
   if (addToInspectorMode.value) {
     // Add entity to the current card's entity list
     handleAddEntityToInspector(entityIdOrComponent);
@@ -660,6 +670,10 @@ const getStaticComponentDefaults = (type) => {
 };
 
 const handleAddEntity = (entityIdOrComponent) => {
+  // Auto-select first view if none is selected (e.g. editor opened before view selection)
+  if (!currentView.value && availableViews.value.length > 0) {
+    selectedViewName.value = availableViews.value[0].name;
+  }
   if (!currentView.value) return;
 
   const viewIndex = store.dashboardConfig.views.findIndex(

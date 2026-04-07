@@ -109,7 +109,7 @@
 
     <!-- Image picker (web/Docker only) — replaced by URL input in native builds -->
     <ImagePicker
-      v-else-if="property.type === 'image' && !IS_NATIVE"
+      v-else-if="property.type === 'image' && imageUpload"
       :model-value="modelValue"
       :label="property.label"
       :help="property.help"
@@ -121,7 +121,7 @@
 
     <!-- Native image: URL-only input (no upload backend available) -->
     <TextInput
-      v-else-if="property.type === 'image' && IS_NATIVE"
+      v-else-if="property.type === 'image' && !imageUpload"
       :model-value="modelValue"
       label="Image URL"
       help="Enter a URL. Use /local/ paths for images stored in your HA config/www/ folder, e.g. http://homeassistant.local:8123/local/photo.jpg"
@@ -144,7 +144,7 @@ import NumberInput from "./NumberInput.vue";
 import SliderInput from "./SliderInput.vue";
 import ImagePicker from "./ImagePicker.vue";
 
-const IS_NATIVE = import.meta.env.VITE_NATIVE_MODE === "true";
+const imageUpload = window.__appCapabilities?.imageUpload ?? true;
 // eslint-disable-next-line no-unused-vars
 const props = defineProps({
   property: {

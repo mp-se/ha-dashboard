@@ -6,6 +6,7 @@ const hasChanges = ref(false);
 const isSaving = ref(false);
 const saveStatus = ref("");
 const saveHandler = ref<SaveHandler | null>(null);
+const isDialogOpen = ref(false);
 
 export const useVisualEditorToolbar = () => {
   const setHasChanges = (value: boolean) => {
@@ -24,6 +25,10 @@ export const useVisualEditorToolbar = () => {
     saveHandler.value = handler;
   };
 
+  const setDialogOpen = (value: boolean) => {
+    isDialogOpen.value = value;
+  };
+
   const triggerSave = async () => {
     if (!saveHandler.value || isSaving.value) {
       return;
@@ -36,10 +41,12 @@ export const useVisualEditorToolbar = () => {
     hasChanges,
     isSaving,
     saveStatus,
+    isDialogOpen,
     setHasChanges,
     setIsSaving,
     setSaveStatus,
     setSaveHandler,
+    setDialogOpen,
     triggerSave,
   };
 };

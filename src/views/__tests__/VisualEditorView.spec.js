@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { useHaStore } from "../../stores/haStore";
 import { mount } from "@vue/test-utils";
 import VisualEditorView from "../VisualEditorView.vue";
 import { createPinia, setActivePinia } from "pinia";
@@ -317,5 +318,68 @@ describe("VisualEditorView.vue", () => {
       await wrapper.vm.$nextTick();
       expect(wrapper.vm.selectedViewName).toBe("view-1");
     });
+  });
+
+  it("hides floating toolbar when a dialog is open", async () => {
+    // Simulate mobile viewport
+    global.innerWidth = 375;
+    window.dispatchEvent(new Event('resize'));
+
+    const toolbar = useVisualEditorToolbar();
+
+    const wrapper = mount(VisualEditorView, {
+      global: {
+        components: {
+          ViewManager: mockViewManager,
+          EntityPalette: mockEntityPalette,
+          StaticComponentPalette: mockStaticComponentPalette,
+          EditorCanvas: mockEditorCanvas,
+          EntityInspector: mockEntityInspector,
+        },
+      },
+    });
+
+    // Initially toolbar should be visible on mobile when no dialog
+    expect(wrapper.find('.floating-toolbar').exists()).toBe(true);
+
+    // Open dialog
+    toolbar.setDialogOpen(true);
+    await wrapper.vm.$nextTick();
+    expect(wrapper.find('.floating-toolbar').exists()).toBe(false);
+
+    // Close dialog
+    toolbar.setDialogOpen(false);
+    await wrapper.vm.$nextTick();
+    expect(wrapper.find('.floating-toolbar').exists()).toBe(true);
+  });
+
+  it("does not show delete when only one view exists", async () => {
+    // Simulate mobile viewport
+    global.innerWidth = 375;
+    window.dispatchEvent(new Event('resize'));
+
+    const ha = useHaStore();
+    // Set single view
+    ha.dashboardConfig = { views: [ { name: 'overview', label: 'Overview', icon: 'mdi-home-outline', hidden: false, entities: [] } ] };
+
+    const wrapper = mount(VisualEditorView, {
+      global: {
+        components: {
+          ViewManager: mockViewManager,
+          EntityPalette: mockEntityPalette,
+          StaticComponentPalette: mockStaticComponentPalette,
+          EditorCanvas: mockEditorCanvas,
+          EntityInspector: mockEntityInspector,
+        },
+      },
+    });
+
+    // Select the only view
+    wrapper.vm.selectedViewName = 'overview';
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find('.floating-toolbar').exists()).toBe(true);
+    // Delete button (mdi-delete) should not be present when only one view
+    expect(wrapper.find('i.mdi-delete').exists()).toBe(false);
   });
 });
