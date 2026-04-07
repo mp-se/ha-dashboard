@@ -51,6 +51,7 @@ For any change that impacts UI appearance or interaction:
   - Components: `HaPascalCase.vue`
   - Composables: `usePascalCase.js`
   - Constants: `UPPER_SNAKE_CASE`
+  - Environment-based constants (from `import.meta.env`): `UPPER_SNAKE_CASE` (e.g., `IS_NATIVE_MODE`, `VITE_NATIVE_MODE`)
   - Functions/Properties: `camelCase`
 - **Styling**: Use scoped styles (`<style scoped>`), Bootstrap classes, and shared classes from `public/styles/shared-styles.css`.
 

@@ -13,8 +13,7 @@
       :class="{ 'drop-zone-active': isDragOver }"
     >
       <i class="mdi mdi-information-outline me-2"></i>
-      No entities in this view. Drag entities from the palette on the left or
-      add them by clicking.
+      No entities in this view.
     </div>
 
     <!-- Grid layout for draggable entities -->

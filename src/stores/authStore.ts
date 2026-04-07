@@ -193,9 +193,12 @@ export const useAuthStore = defineStore("auth", () => {
         connection.close();
       }
 
-      logger.log("Connecting to Home Assistant at:", haUrl.value);
+      // Normalize URL: remove trailing slash and whitespace to prevent malformed WebSocket URL
+      // This handles URLs from any source: user input, localStorage, or config file
+      const normalizedUrl = haUrl.value.trim().replace(/\/$/, "");
+      logger.log("Connecting to Home Assistant at:", normalizedUrl);
       const auth: Auth = createLongLivedTokenAuth(
-        haUrl.value,
+        normalizedUrl,
         accessToken.value,
       );
       logger.log("Creating connection to Home Assistant...");

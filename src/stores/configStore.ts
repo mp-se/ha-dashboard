@@ -26,86 +26,124 @@ export const useConfigStore = defineStore("config", () => {
   const logger = createLogger("configStore");
 
   const loadDashboardConfig = async (): Promise<ValidationResult> => {
+    const IS_NATIVE_MODE = (import.meta as any).env.VITE_NATIVE_MODE === "true";
+    
+    // In native mode, use minimal default config
+    // Capacitor will override localStorage for persistence on native platforms
+    if (IS_NATIVE_MODE) {
+      try {
+        const defaultConfig = { views: [] };
+        dashboardConfig.value = defaultConfig;
+        configValidationError.value = null;
+        configErrorCount.value = 0;
+        logger.log("[Native Mode] Using default minimal config");
+        return { valid: true, errors: [], errorCount: 0 };
+      } catch (error) {
+        logger.error("[Native Mode] Error loading config:", error);
+        dashboardConfig.value = { views: [] };
+        return { valid: true, errors: [], errorCount: 0 };
+      }
+    }
+
+    // Server mode: load from HTTP
     try {
       const baseUrl = import.meta.env.BASE_URL || "/";
       const configUrl = baseUrl + "data/dashboard-config.json";
-      const response = await fetchWithTimeout(configUrl, {}, TIMEOUT_CONFIG);
-
-      if (!response.ok) {
-        return {
-          valid: false,
-          errors: [
-            {
-              message: `Failed to load config: ${response.status} ${response.statusText}`,
-            },
-          ],
-          errorCount: 1,
-        };
-      }
-
-      // Very simple JSON loading to match tests and standard behavior
-      let config: unknown;
+      
       try {
-        if (typeof response.text === "function") {
-          const text = await response.text();
-          config = parseJSON(text); // Use json-parse-even-better-errors for detailed messages
-        } else if (typeof response.json === "function") {
-          config = await response.json();
-        } else {
-          config = response;
+        const response = await fetchWithTimeout(configUrl, {}, TIMEOUT_CONFIG);
+
+        if (!response.ok) {
+          return {
+            valid: false,
+            errors: [
+              {
+                message: `Failed to load config: ${response.status} ${response.statusText}`,
+              },
+            ],
+            errorCount: 1,
+          };
         }
-      } catch (e) {
-        const error = e as Record<string, unknown>;
-        const line = (error.line as number) || 1;
-        const columnMatch = (error.message as string)?.match(/position (\d+)/);
-        const column =
-          (error.column as number) ||
-          (columnMatch ? Number(columnMatch[1]) : 0);
+
+        // Very simple JSON loading to match tests and standard behavior
+        let config: unknown;
+        try {
+          if (typeof response.text === "function") {
+            const text = await response.text();
+            config = parseJSON(text); // Use json-parse-even-better-errors for detailed messages
+          } else if (typeof response.json === "function") {
+            config = await response.json();
+          } else {
+            config = response;
+          }
+        } catch (e) {
+          const error = e as Record<string, unknown>;
+          const line = (error.line as number) || 1;
+          const columnMatch = (error.message as string)?.match(/position (\d+)/);
+          const column =
+            (error.column as number) ||
+            (columnMatch ? Number(columnMatch[1]) : 0);
+          return {
+            valid: false,
+            errors: [
+              {
+                message: `JSON syntax error: ${error.message} (line ${line}, column ${column})`,
+                line: line,
+                column: column,
+              },
+            ],
+            errorCount: 1,
+          };
+        }
+
+        if (config && typeof config === "object") {
+          for (const sym of Object.getOwnPropertySymbols(config)) {
+            delete (config as Record<symbol, unknown>)[sym];
+          }
+        }
+
+        const validationResult = validateConfig(config);
+        dashboardConfig.value = config;
+
+        if (!validationResult.valid) {
+          configValidationError.value = validationResult.errors;
+          configErrorCount.value = validationResult.errorCount;
+        } else {
+          configValidationError.value = null;
+          configErrorCount.value = 0;
+        }
+
+        // Sync settings to authStore if it's initialized
+        const authStore = useAuthStore();
+        const configObj = config as Record<string, unknown> | null;
+        if (configObj?.app && typeof configObj.app === "object") {
+          const appConfig = configObj.app as Record<string, unknown>;
+          if (appConfig.developerMode !== undefined) {
+            authStore.developerMode = Boolean(appConfig.developerMode);
+          }
+          if (appConfig.localMode !== undefined) {
+            authStore.isLocalMode = Boolean(appConfig.localMode);
+          }
+        }
+
+        return validationResult;
+      } catch (fetchError) {
+        // Network/CORS error during fetch
+        const errorMsg = (fetchError as Record<string, unknown>)?.message as string || String(fetchError);
+        
+        logger.error("Error loading dashboard config:", fetchError);
         return {
           valid: false,
           errors: [
             {
-              message: `JSON syntax error: ${error.message} (line ${line}, column ${column})`,
-              line: line,
-              column: column,
+              message: `Failed to fetch config: ${errorMsg}`,
             },
           ],
           errorCount: 1,
         };
       }
-
-      if (config && typeof config === "object") {
-        for (const sym of Object.getOwnPropertySymbols(config)) {
-          delete (config as Record<symbol, unknown>)[sym];
-        }
-      }
-
-      const validationResult = validateConfig(config);
-      dashboardConfig.value = config;
-
-      if (!validationResult.valid) {
-        configValidationError.value = validationResult.errors;
-        configErrorCount.value = validationResult.errorCount;
-      } else {
-        configValidationError.value = null;
-        configErrorCount.value = 0;
-      }
-
-      // Sync settings to authStore if it's initialized
-      const authStore = useAuthStore();
-      const configObj = config as Record<string, unknown> | null;
-      if (configObj?.app && typeof configObj.app === "object") {
-        const appConfig = configObj.app as Record<string, unknown>;
-        if (appConfig.developerMode !== undefined) {
-          authStore.developerMode = Boolean(appConfig.developerMode);
-        }
-        if (appConfig.localMode !== undefined) {
-          authStore.isLocalMode = Boolean(appConfig.localMode);
-        }
-      }
-
-      return validationResult;
     } catch (error) {
+      // Outer catch for any other errors
       logger.error("Error loading dashboard config:", error);
       return {
         valid: false,

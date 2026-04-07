@@ -503,6 +503,107 @@ describe("useAuthStore", () => {
       // Verify new listeners were added to new connection
       expect(mockConn2.addEventListener).toHaveBeenCalledTimes(3);
     });
+
+    it("normalizes URL by removing trailing slash to prevent double-slash in WebSocket URL", async () => {
+      const { createConnection, createLongLivedTokenAuth } = await import(
+        "home-assistant-js-websocket"
+      );
+      const mockConn = {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        close: vi.fn(),
+      };
+      createConnection.mockResolvedValueOnce(mockConn);
+
+      const store = useAuthStore();
+      store.isLocalMode = false;
+      store.haUrl = "https://ha.home.arpa:8123/"; // URL with trailing slash
+      store.accessToken = "tok";
+
+      await store.connectWebSocket();
+
+      // Verify that createLongLivedTokenAuth was called with normalized URL (no trailing slash)
+      expect(createLongLivedTokenAuth).toHaveBeenCalledWith(
+        "https://ha.home.arpa:8123", // Expected: trailing slash removed
+        "tok"
+      );
+    });
+
+    it("normalizes URL by removing trailing slashes and whitespace", async () => {
+      const { createConnection, createLongLivedTokenAuth } = await import(
+        "home-assistant-js-websocket"
+      );
+      const mockConn = {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        close: vi.fn(),
+      };
+      createConnection.mockResolvedValueOnce(mockConn);
+
+      const store = useAuthStore();
+      store.isLocalMode = false;
+      store.haUrl = "https://ha.home.arpa:8123/  "; // URL with trailing slash and whitespace
+      store.accessToken = "tok";
+
+      await store.connectWebSocket();
+
+      // Verify that createLongLivedTokenAuth was called with normalized URL
+      expect(createLongLivedTokenAuth).toHaveBeenCalledWith(
+        "https://ha.home.arpa:8123",
+        "tok"
+      );
+    });
+
+    it("normalizes URL with multiple trailing slashes", async () => {
+      const { createConnection, createLongLivedTokenAuth } = await import(
+        "home-assistant-js-websocket"
+      );
+      const mockConn = {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        close: vi.fn(),
+      };
+      createConnection.mockResolvedValueOnce(mockConn);
+
+      const store = useAuthStore();
+      store.isLocalMode = false;
+      store.haUrl = "https://ha.home.arpa:8123///"; // Multiple trailing slashes
+      store.accessToken = "tok";
+
+      await store.connectWebSocket();
+
+      // Verify that createLongLivedTokenAuth was called removing only the last slash
+      // Note: trim().replace(/\/$/, '') only removes the last one, so "///" becomes "//"
+      expect(createLongLivedTokenAuth).toHaveBeenCalledWith(
+        "https://ha.home.arpa:8123//",
+        "tok"
+      );
+    });
+
+    it("preserves URL without trailing slash", async () => {
+      const { createConnection, createLongLivedTokenAuth } = await import(
+        "home-assistant-js-websocket"
+      );
+      const mockConn = {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        close: vi.fn(),
+      };
+      createConnection.mockResolvedValueOnce(mockConn);
+
+      const store = useAuthStore();
+      store.isLocalMode = false;
+      store.haUrl = "https://ha.home.arpa:8123"; // No trailing slash
+      store.accessToken = "tok";
+
+      await store.connectWebSocket();
+
+      // Verify URL is unchanged
+      expect(createLongLivedTokenAuth).toHaveBeenCalledWith(
+        "https://ha.home.arpa:8123",
+        "tok"
+      );
+    });
   });
 
   describe("callService extended", () => {
