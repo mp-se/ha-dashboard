@@ -48,9 +48,9 @@
             @dragend="handleEntityDragEnd"
             @click.stop="onCardClick(index)"
             @dblclick.stop="emit('inspect-entity', index)"
-            @touchstart="mobileInspectMode && startLongPress($event, index, handleLongPress)"
+            @touchstart="mobileInspectMode ? startLongPress($event, index, handleLongPress) : undefined"
             @touchmove="mobileInspectMode && moveLongPress($event)"
-            @touchend="mobileInspectMode && endLongPress()"
+            @touchend.stop="mobileInspectMode ? endLongPress() : onCardClick(index)"
             @contextmenu.prevent
           />
           <!-- Drop indicator for EntityList -->
@@ -93,9 +93,9 @@
             }"
             @click.stop="onCardClick(index)"
             @dblclick.stop="emit('inspect-entity', index)"
-            @touchstart="mobileInspectMode && startLongPress($event, index, handleLongPress)"
+            @touchstart="mobileInspectMode ? startLongPress($event, index, handleLongPress) : undefined"
             @touchmove="mobileInspectMode && moveLongPress($event)"
-            @touchend="mobileInspectMode && endLongPress()"
+            @touchend.stop="mobileInspectMode ? endLongPress() : onCardClick(index)"
             @contextmenu.prevent
           >
             <!-- Component preview -->
@@ -314,7 +314,8 @@ const isConditionalComponent = (entity) => {
   border: 1px solid #dee2e6;
   border-radius: 4px;
   transition: all 0.2s ease;
-  cursor: move;
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
 .editor-overlay:hover {
@@ -435,7 +436,8 @@ const isConditionalComponent = (entity) => {
   border: 1px solid #dee2e6;
   border-radius: 4px;
   transition: all 0.2s ease;
-  cursor: move;
+  cursor: pointer;
+  touch-action: manipulation;
   z-index: 10;
 }
 

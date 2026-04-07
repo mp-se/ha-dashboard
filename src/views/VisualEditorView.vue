@@ -127,7 +127,7 @@
          Context-aware buttons based on what is selected/open.
          Priority: entity-list > inspector > view > card > default
          ============================================================ -->
-    <div class="floating-toolbar" @touchstart.stop @touchend.stop>
+    <div v-if="isMobile" class="floating-toolbar" @touchstart.stop @touchend.stop>
       <EditorActionBar
         :show-up="toolbarShowUp"
         :show-down="toolbarShowDown"

@@ -120,6 +120,11 @@
   cursor: move;
 }
 
+.entity-item-tappable {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
 .entity-item[draggable="true"]:hover {
   opacity: 0.8;
 }

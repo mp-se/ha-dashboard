@@ -11,10 +11,12 @@
         v-for="component in staticComponents"
         :key="component.type"
         class="component-item mb-2"
+        :class="{ 'component-item-tappable': mobileMode }"
         :draggable="!mobileMode"
         @dragstart="!mobileMode && handleDragStart($event, component)"
         @dragend="!mobileMode && handleDragEnd"
-        @click="mobileMode ? $emit('add-entity', { type: component.type }) : undefined"
+        @touchend.prevent="mobileMode && $emit('add-entity', { type: component.type })"
+        @click="mobileMode && $emit('add-entity', { type: component.type })"
       >
         <div
           class="btn btn-sm w-100 text-start component-button"
@@ -137,6 +139,11 @@ const handleDragEnd = (event) => {
 
 .component-item {
   transition: opacity 0.2s ease;
+}
+
+.component-item-tappable .component-button {
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
 .fw-500 {

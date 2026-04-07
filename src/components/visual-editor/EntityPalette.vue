@@ -69,10 +69,12 @@
         v-else
         :key="entity.entity_id"
         class="entity-item mb-2"
+        :class="{ 'entity-item-tappable': mobileMode }"
         :draggable="!mobileMode"
         @dragstart="!mobileMode && handleDragStart($event, entity)"
         @dragend="!mobileMode && handleDragEnd"
-        @click="mobileMode ? $emit('add-entity', entity.entity_id) : undefined"
+        @touchend.prevent="mobileMode && $emit('add-entity', entity.entity_id)"
+        @click="mobileMode && $emit('add-entity', entity.entity_id)"
       >
         <div
           class="btn btn-sm w-100 text-start entity-button entity-button-available"
@@ -254,8 +256,11 @@ const handleDragEnd = () => {
 .entity-button-available:hover {
   background-color: #f1f5f9 !important;
   border-color: #94a3b8 !important;
-  cursor: grab;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+}
+
+.entity-item:not(.entity-item-tappable) .entity-button-available:hover {
+  cursor: grab;
 }
 
 .entity-button-available:active {
