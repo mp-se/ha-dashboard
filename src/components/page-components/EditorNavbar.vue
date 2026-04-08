@@ -97,6 +97,23 @@ const handleExport = async () => {
 const handleImportClick = async () => {
   importErrors.value = [];
   importSuccess.value = null;
+
+  // Confirm overwrite/back up
+  const doImport = window.confirm(
+    "Importing a configuration will overwrite the current dashboard. Continue? (A local backup will be created automatically)"
+  );
+  if (!doImport) return;
+
+  // create a local backup (best-effort)
+  try {
+    const backupKey = `dashboard-config-backup-${Date.now()}`;
+    const current = JSON.stringify(store.dashboardConfig || {});
+    localStorage.setItem(backupKey, current);
+    console.log("Created local backup", backupKey);
+  } catch (e) {
+    console.warn("Failed to create local backup before import", e);
+  }
+
   // If a native import hook is injected at runtime, call it. Otherwise open file input.
   const nativeImport = (window as any).__nativeImport;
   if (typeof nativeImport === "function") {
@@ -104,9 +121,13 @@ const handleImportClick = async () => {
     try {
       const res = await nativeImport({});
       // Native import expected to write file; reload config
-      await configStore.loadDashboardConfig();
-      importSuccess.value = "Imported configuration successfully";
-      showImportExport.value = false;
+      const validation = await configStore.loadDashboardConfig();
+      if (validation.valid) {
+        importSuccess.value = "Imported configuration successfully";
+        setTimeout(() => { showImportExport.value = false; importSuccess.value = null; }, 900);
+      } else {
+        importErrors.value = validation.errors.map((e) => String(e.message || e));
+      }
     } catch (err) {
       importErrors.value = [String(err) || "Native import failed"];
     } finally {
@@ -200,8 +221,14 @@ const handleMenuClick = (item: { name: string }) => {
   emit("update:current-view", item.name);
 };
 
-// Focus modal dialog when opened so it's interactive
+// Focus modal dialog when opened so it's interactive and add Escape handler
 watch(showImportExport, async (val) => {
+  const onKeyDown = (ev: KeyboardEvent) => {
+    if (ev.key === "Escape") {
+      showImportExport.value = false;
+    }
+  };
+
   if (val) {
     await nextTick();
     try {
@@ -212,6 +239,9 @@ watch(showImportExport, async (val) => {
     } catch (e) {
       // ignore
     }
+    document.addEventListener("keydown", onKeyDown);
+  } else {
+    document.removeEventListener("keydown", onKeyDown);
   }
 });
 
@@ -363,9 +393,16 @@ const handleEditorToggle = () => {
             </ul>
           </div>
 
+          <div v-if="importSuccess" class="alert alert-success">
+            {{ importSuccess }}
+          </div>
+
           <div class="d-flex gap-2">
             <button class="btn btn-outline-primary" @click="handleExport">Export configuration</button>
-            <button class="btn btn-outline-secondary" @click="handleImportClick" :disabled="importInProgress">Import configuration</button>
+            <button class="btn btn-outline-secondary" @click="handleImportClick" :disabled="importInProgress">
+              <span v-if="importInProgress" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+              Import configuration
+            </button>
           </div>
 
           <input
