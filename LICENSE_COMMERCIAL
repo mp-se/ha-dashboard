@@ -1,0 +1,114 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                ║
+║                    HA-DASHBOARD — COMMERCIAL LICENSE AGREEMENT                 ║
+║                                                                                ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+Copyright (c) 2024-2026 Magnus
+Source: https://github.com/mp-se/ha-dashboard
+
+────────────────────────────────────────────────────────────────────────────────
+
+OVERVIEW
+
+This Commercial License governs the use of HA-Dashboard software by parties who
+wish to redistribute, resell, package, or commercially deploy this software
+without releasing their full source code under GPL v3.
+
+This license is granted by Magnus ("Licensor") to the purchasing entity
+("Licensee") upon execution of a written agreement and payment of the
+applicable license fee.
+
+────────────────────────────────────────────────────────────────────────────────
+
+WHO NEEDS THIS LICENSE?
+
+You must obtain a Commercial License if you:
+
+  • Distribute HA-Dashboard (or a derivative work) as a product or service
+    WITHOUT releasing your full source code under GPL v3
+
+  • Package HA-Dashboard into an app, SaaS platform, or commercial offering
+
+  • Rebrand or resell HA-Dashboard as your own product
+
+  • Deploy HA-Dashboard commercially for clients or customers
+
+  • Use HA-Dashboard in a commercial product or service
+
+  • Offer HA-Dashboard on any marketplace or distribution platform
+
+────────────────────────────────────────────────────────────────────────────────
+
+WHAT THE COMMERCIAL LICENSE GRANTS
+
+Upon execution of a written agreement with the Licensor, the Licensee receives:
+
+  ✓ The right to incorporate HA-Dashboard into proprietary, closed-source
+    products and services without triggering GPL v3 source disclosure
+    obligations
+
+  ✓ The right to distribute such products commercially without quantity limits
+
+  ✓ The right to modify HA-Dashboard without publishing those modifications
+
+  ✓ A royalty-free license for the agreed scope/term as defined in the
+    signed agreement
+
+────────────────────────────────────────────────────────────────────────────────
+
+REQUIREMENTS UNDER COMMERCIAL LICENSE
+
+Regardless of the license tier, the Licensee must:
+
+  1. Retain all "Copyright (c) Magnus" notices in source code and
+     documentation
+
+  2. Display a copyright notice in any "About", "System Info", or
+     equivalent screen in the product UI:
+         "Portions copyright (c) Magnus — https://github.com/mp-se/ha-dashboard"
+
+  3. Not sublicense, resell, or transfer the Commercial License rights
+     to any third party without prior written consent from the Licensor
+
+  4. Not misrepresent the origin of the software or remove attribution
+
+────────────────────────────────────────────────────────────────────────────────
+
+NO WARRANTY
+
+THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+LICENSOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM
+THE USE OF THIS SOFTWARE.
+
+────────────────────────────────────────────────────────────────────────────────
+
+HOW TO OBTAIN A COMMERCIAL LICENSE
+
+To inquire about commercial licensing terms and pricing, contact:
+
+  Name:    Magnus
+  Email:   mpersson42(at)gmail.com
+  GitHub:  https://github.com/mp-se
+
+Please include in your inquiry:
+  • Intended use / product description
+  • Intended distribution / deployment model
+  • Whether you are an individual or business entity
+
+────────────────────────────────────────────────────────────────────────────────
+
+VIOLATION & ENFORCEMENT
+
+Unauthorized commercial distribution or resale without a valid Commercial
+License constitutes:
+
+  • A breach of copyright under applicable law
+  • A violation of the GPL v3 (if GPL terms are also not met)
+
+The Licensor reserves the right to pursue all available legal remedies
+including injunctive relief and damages for unauthorized commercial use.
+
+────────────────────────────────────────────────────────────────────────────────
