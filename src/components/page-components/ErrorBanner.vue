@@ -71,7 +71,11 @@ const errorType = computed(() => {
   ) {
     return "certificate";
   }
-  if (error.includes("cors") || error.includes("cross-origin") || error.includes("failed to fetch")) {
+  if (
+    error.includes("cors") ||
+    error.includes("cross-origin") ||
+    error.includes("failed to fetch")
+  ) {
     return "cors";
   }
   if (error.includes("authentication") || error.includes("invalid")) {

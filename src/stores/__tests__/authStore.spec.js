@@ -160,9 +160,7 @@ describe("useAuthStore", () => {
 
   describe("Service calls", () => {
     it("sends a call_service message over the websocket", async () => {
-      const { createConnection } = await import(
-        "home-assistant-js-websocket",
-      );
+      const { createConnection } = await import("home-assistant-js-websocket");
       const mockConn = {
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
@@ -188,9 +186,7 @@ describe("useAuthStore", () => {
     });
 
     it("propagates websocket errors for service calls", async () => {
-      const { createConnection } = await import(
-        "home-assistant-js-websocket",
-      );
+      const { createConnection } = await import("home-assistant-js-websocket");
       const mockConn = {
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
@@ -505,9 +501,8 @@ describe("useAuthStore", () => {
     });
 
     it("normalizes URL by removing trailing slash to prevent double-slash in WebSocket URL", async () => {
-      const { createConnection, createLongLivedTokenAuth } = await import(
-        "home-assistant-js-websocket"
-      );
+      const { createConnection, createLongLivedTokenAuth } =
+        await import("home-assistant-js-websocket");
       const mockConn = {
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
@@ -525,14 +520,13 @@ describe("useAuthStore", () => {
       // Verify that createLongLivedTokenAuth was called with normalized URL (no trailing slash)
       expect(createLongLivedTokenAuth).toHaveBeenCalledWith(
         "https://ha.home.arpa:8123", // Expected: trailing slash removed
-        "tok"
+        "tok",
       );
     });
 
     it("normalizes URL by removing trailing slashes and whitespace", async () => {
-      const { createConnection, createLongLivedTokenAuth } = await import(
-        "home-assistant-js-websocket"
-      );
+      const { createConnection, createLongLivedTokenAuth } =
+        await import("home-assistant-js-websocket");
       const mockConn = {
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
@@ -550,14 +544,13 @@ describe("useAuthStore", () => {
       // Verify that createLongLivedTokenAuth was called with normalized URL
       expect(createLongLivedTokenAuth).toHaveBeenCalledWith(
         "https://ha.home.arpa:8123",
-        "tok"
+        "tok",
       );
     });
 
     it("normalizes URL with multiple trailing slashes", async () => {
-      const { createConnection, createLongLivedTokenAuth } = await import(
-        "home-assistant-js-websocket"
-      );
+      const { createConnection, createLongLivedTokenAuth } =
+        await import("home-assistant-js-websocket");
       const mockConn = {
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
@@ -576,14 +569,13 @@ describe("useAuthStore", () => {
       // Note: trim().replace(/\/$/, '') only removes the last one, so "///" becomes "//"
       expect(createLongLivedTokenAuth).toHaveBeenCalledWith(
         "https://ha.home.arpa:8123//",
-        "tok"
+        "tok",
       );
     });
 
     it("preserves URL without trailing slash", async () => {
-      const { createConnection, createLongLivedTokenAuth } = await import(
-        "home-assistant-js-websocket"
-      );
+      const { createConnection, createLongLivedTokenAuth } =
+        await import("home-assistant-js-websocket");
       const mockConn = {
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
@@ -601,7 +593,7 @@ describe("useAuthStore", () => {
       // Verify URL is unchanged
       expect(createLongLivedTokenAuth).toHaveBeenCalledWith(
         "https://ha.home.arpa:8123",
-        "tok"
+        "tok",
       );
     });
   });
@@ -612,7 +604,9 @@ describe("useAuthStore", () => {
       store.isLocalMode = true;
       store.haUrl = "http://ha:8123";
       store.accessToken = "tok";
-      await expect(store.callService("light", "turn_on", {})).resolves.toBeUndefined();
+      await expect(
+        store.callService("light", "turn_on", {}),
+      ).resolves.toBeUndefined();
       expect(store.getConnection()).toBeNull();
     });
 
@@ -621,7 +615,9 @@ describe("useAuthStore", () => {
       store.isLocalMode = false;
       store.haUrl = "";
       store.accessToken = "";
-      await expect(store.callService("light", "turn_on", {})).resolves.toBeUndefined();
+      await expect(
+        store.callService("light", "turn_on", {}),
+      ).resolves.toBeUndefined();
       expect(store.getConnection()).toBeNull();
     });
 
@@ -640,7 +636,9 @@ describe("useAuthStore", () => {
       store.accessToken = "tok";
       await store.connectWebSocket();
 
-      await expect(store.callService("light", "turn_on", {})).rejects.toThrow("Forbidden");
+      await expect(store.callService("light", "turn_on", {})).rejects.toThrow(
+        "Forbidden",
+      );
     });
 
     it("throws when websocket sendMessagePromise rejects (404/Not Found)", async () => {
@@ -658,7 +656,9 @@ describe("useAuthStore", () => {
       store.accessToken = "tok";
       await store.connectWebSocket();
 
-      await expect(store.callService("light", "turn_on", {})).rejects.toThrow("Not Found");
+      await expect(store.callService("light", "turn_on", {})).rejects.toThrow(
+        "Not Found",
+      );
     });
 
     it("propagates TypeError from websocket as a fetch-like error", async () => {
@@ -667,7 +667,9 @@ describe("useAuthStore", () => {
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
         close: vi.fn(),
-        sendMessagePromise: vi.fn().mockRejectedValue(new TypeError("Failed to fetch")),
+        sendMessagePromise: vi
+          .fn()
+          .mockRejectedValue(new TypeError("Failed to fetch")),
       };
       createConnection.mockResolvedValueOnce(mockConn);
 
@@ -676,7 +678,9 @@ describe("useAuthStore", () => {
       store.accessToken = "tok";
       await store.connectWebSocket();
 
-      await expect(store.callService("light", "turn_on", {})).rejects.toThrow("Failed to fetch");
+      await expect(store.callService("light", "turn_on", {})).rejects.toThrow(
+        "Failed to fetch",
+      );
     });
   });
 

@@ -11,7 +11,7 @@ const logger = createLogger("useDarkMode");
  *
  * Usage:
  *   const { toggleDarkMode } = useDarkMode();
- *   
+ *
  *   @click="toggleDarkMode(currentValue)"
  */
 export function useDarkMode() {
@@ -20,7 +20,10 @@ export function useDarkMode() {
    * @param currentValue - Current dark mode state (boolean)
    * @returns Function to call with emit callback
    */
-  const toggleDarkMode = (currentValue: boolean, emit: (key: string, value: boolean) => void) => {
+  const toggleDarkMode = (
+    currentValue: boolean,
+    emit: (key: string, value: boolean) => void,
+  ) => {
     const newValue = !currentValue;
     const root = document.documentElement;
 

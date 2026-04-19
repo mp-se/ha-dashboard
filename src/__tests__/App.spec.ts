@@ -166,7 +166,9 @@ describe("App.vue", () => {
       const wrapper = mount(App);
       await wrapper.vm.$nextTick();
 
-      expect(document.documentElement.getAttribute("data-bs-theme")).toBe("dark");
+      expect(document.documentElement.getAttribute("data-bs-theme")).toBe(
+        "dark",
+      );
     });
 
     it("initializes dark mode from system preference when not in localStorage", async () => {
@@ -194,7 +196,8 @@ describe("App.vue", () => {
       const wrapper = mount(App);
       await wrapper.vm.$nextTick();
 
-      const initialTheme = document.documentElement.getAttribute("data-bs-theme");
+      const initialTheme =
+        document.documentElement.getAttribute("data-bs-theme");
 
       await wrapper
         .findComponent({ name: "AppNavbar" })
@@ -232,7 +235,9 @@ describe("App.vue", () => {
 
     it("renders ErrorBanner component", () => {
       const wrapper = mount(App);
-      expect(wrapper.findComponent({ name: "ErrorBanner" }).exists()).toBe(true);
+      expect(wrapper.findComponent({ name: "ErrorBanner" }).exists()).toBe(
+        true,
+      );
     });
   });
 
@@ -326,7 +331,7 @@ describe("App.vue", () => {
 
         expect(store.saveCredentials).toHaveBeenCalledWith(
           "http://localhost:8123",
-          "test-token"
+          "test-token",
         );
       }
     });
@@ -442,7 +447,7 @@ describe("App.vue", () => {
     it("renders ErrorBoundary component", () => {
       const wrapper = mount(App);
       expect(wrapper.findComponent({ name: "ErrorBoundary" }).exists()).toBe(
-        true
+        true,
       );
     });
 
@@ -501,7 +506,7 @@ describe("App.vue", () => {
       await wrapper.vm.$nextTick();
 
       expect(wrapper.findComponent({ name: "CredentialDialog" }).exists()).toBe(
-        true
+        true,
       );
     });
   });
@@ -573,7 +578,7 @@ describe("App.vue", () => {
 
       // Dialog should not show because there is a config error
       expect(wrapper.findComponent({ name: "CredentialDialog" }).exists()).toBe(
-        true
+        true,
       );
       // But it shouldn't be forced to show due to validation error
     });
@@ -591,7 +596,7 @@ describe("App.vue", () => {
       await wrapper.vm.$nextTick();
 
       expect(wrapper.findComponent({ name: "CredentialDialog" }).exists()).toBe(
-        true
+        true,
       );
     });
 

@@ -27,7 +27,9 @@ describe("useDarkMode", () => {
 
     toggleDarkMode(true, emitMock);
 
-    expect(document.documentElement.getAttribute("data-bs-theme")).toBe("light");
+    expect(document.documentElement.getAttribute("data-bs-theme")).toBe(
+      "light",
+    );
     expect(document.documentElement.style.colorScheme).toBe("light");
     expect(localStorage.getItem("ha-dashboard-dark-mode")).toBe("false");
     expect(emitMock).toHaveBeenCalledWith("update:darkMode", false);
@@ -41,7 +43,9 @@ describe("useDarkMode", () => {
     expect(document.documentElement.getAttribute("data-bs-theme")).toBe("dark");
 
     toggleDarkMode(true, emitMock);
-    expect(document.documentElement.getAttribute("data-bs-theme")).toBe("light");
+    expect(document.documentElement.getAttribute("data-bs-theme")).toBe(
+      "light",
+    );
   });
 
   it("should set colorScheme style for browser UI elements", () => {

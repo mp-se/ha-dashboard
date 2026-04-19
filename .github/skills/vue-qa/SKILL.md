@@ -173,4 +173,3 @@ describe("MyComponent - bug: <short description>", () => {
 - Do not replicate functionallity that already exists in the project — check for existing utilities, composables, or components before creating new ones
 - Identify duplicated functionallity and extract it into a shared utility or composable to DRY up the codebase
 - UI should be optimized for user experience and support mobile and desktop layouts; use the project's responsive design utilities and patterns
-

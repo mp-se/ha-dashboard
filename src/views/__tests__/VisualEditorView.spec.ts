@@ -152,7 +152,9 @@ describe("VisualEditorView.vue", () => {
       });
       expect(wrapper.vm.currentViewEntities.length).toBe(initial + 1);
       expect(
-        wrapper.vm.currentViewEntities[wrapper.vm.currentViewEntities.length - 1].entity,
+        wrapper.vm.currentViewEntities[
+          wrapper.vm.currentViewEntities.length - 1
+        ].entity,
       ).toBe("sensor.last");
     });
 
@@ -459,7 +461,9 @@ describe("VisualEditorView.vue", () => {
       wrapper.vm.selectedEntityId = null;
       wrapper.vm.onMobilePaletteAdd("sensor.new");
       const entities = haStore.dashboardConfig.views[0].entities;
-      expect(entities[entities.length - 1]).toMatchObject({ entity: "sensor.new" });
+      expect(entities[entities.length - 1]).toMatchObject({
+        entity: "sensor.new",
+      });
     });
 
     it("inserts after the selected card index", () => {

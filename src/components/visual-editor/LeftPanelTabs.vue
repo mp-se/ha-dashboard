@@ -28,7 +28,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         class="tab-button flex-fill py-2 px-1 text-center"
         :class="{ active: activeTab === tab.id }"
         :title="tab.label"
-        @click="activeTab = tab.id; $emit('tab-changed', tab.id)"
+        @click="
+          activeTab = tab.id;
+          $emit('tab-changed', tab.id);
+        "
       >
         <i
           :class="`mdi ${tab.icon} fs-4 ${

@@ -98,7 +98,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
               Cancel
             </button>
             <button type="submit" class="btn btn-primary">
-              {{ formData.haUrl && formData.accessToken ? "Update" : "Connect" }}
+              {{
+                formData.haUrl && formData.accessToken ? "Update" : "Connect"
+              }}
             </button>
           </div>
         </form>

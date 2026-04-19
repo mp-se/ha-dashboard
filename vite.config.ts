@@ -9,8 +9,7 @@ import path from "path";
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const baseUrl = env.VITE_BASE_URL || "/";
-  const DEBUG_LOGS =
-    String(env.VITE_DEBUG_LOGS || "").toLowerCase() === "true";
+  const DEBUG_LOGS = String(env.VITE_DEBUG_LOGS || "").toLowerCase() === "true";
 
   return {
     base: baseUrl,

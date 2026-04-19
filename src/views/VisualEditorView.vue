@@ -109,7 +109,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
           @update-attributes="handleUpdateEntityAttributes"
           @update-properties="handleUpdateEntityProperties"
           @remove-entity="handleRemoveEntity(selectedEntityId)"
-          @deselect="selectedEntityId = null; inspectorEntityListIndex = null"
+          @deselect="
+            selectedEntityId = null;
+            inspectorEntityListIndex = null;
+          "
           @entity-index-selected="inspectorEntityListIndex = $event"
         />
         <div v-else class="p-3 text-muted text-center">
@@ -122,7 +125,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     <!-- ============================================================
          MOBILE: full-width canvas + FAB + bottom sheets
          ============================================================ -->
-    <div v-else class="mobile-editor-canvas" :class="{ 'canvas-dimmed': showMobilePanel || showMobileInspector }">
+    <div
+      v-else
+      class="mobile-editor-canvas"
+      :class="{ 'canvas-dimmed': showMobilePanel || showMobileInspector }"
+    >
       <EditorCanvas
         :entities="currentViewEntities"
         :selected-entity-id="selectedEntityId"
@@ -147,7 +154,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
          Context-aware buttons based on what is selected/open.
          Priority: entity-list > inspector > view > card > default
          ============================================================ -->
-    <div v-if="isMobile && !isDialogOpen" class="floating-toolbar" @touchstart.stop @touchend.stop>
+    <div
+      v-if="isMobile && !isDialogOpen"
+      class="floating-toolbar"
+      @touchstart.stop
+      @touchend.stop
+    >
       <EditorActionBar
         :show-up="toolbarShowUp"
         :show-down="toolbarShowDown"
@@ -268,7 +280,7 @@ const mobileLeftPanelRef = ref(null);
 const activeViewManager = computed(() =>
   isMobile.value
     ? mobileLeftPanelRef.value?.viewManagerRef
-    : desktopLeftPanelRef.value?.viewManagerRef
+    : desktopLeftPanelRef.value?.viewManagerRef,
 );
 
 // Index of the view selected in ViewManager (for toolbar up/down/edit/delete)
@@ -279,7 +291,7 @@ const onViewIndexSelected = (index) => {
 };
 
 const onPanelTabChanged = (tab) => {
-  if (tab !== 'views') selectedViewIndex.value = null;
+  if (tab !== "views") selectedViewIndex.value = null;
 };
 
 watch(
@@ -292,7 +304,7 @@ watch(
     const idx = availableViews.value.findIndex((v) => v.name === name);
     selectedViewIndex.value = idx !== -1 ? idx : null;
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 // Mobile bottom sheet state
@@ -322,98 +334,139 @@ watch(showMobileInspector, (val) => {
  */
 const toolbarContext = computed(() => {
   const panelOpen = showMobilePanel.value;
-  const inspectorOpen = showMobileInspector.value || (!isMobile.value && selectedEntityId.value !== null);
-  if (inspectorOpen && inspectorEntityListIndex.value !== null) return 'entity-list';
-  if (inspectorOpen) return 'inspector';
-  if (panelOpen && selectedViewIndex.value !== null) return 'view-selected';
-  if (panelOpen) return 'panel';
-  if (!isMobile.value && selectedViewIndex.value !== null) return 'view-selected';
-  if (selectedEntityId.value !== null) return 'card-selected';
-  return 'default';
+  const inspectorOpen =
+    showMobileInspector.value ||
+    (!isMobile.value && selectedEntityId.value !== null);
+  if (inspectorOpen && inspectorEntityListIndex.value !== null)
+    return "entity-list";
+  if (inspectorOpen) return "inspector";
+  if (panelOpen && selectedViewIndex.value !== null) return "view-selected";
+  if (panelOpen) return "panel";
+  if (!isMobile.value && selectedViewIndex.value !== null)
+    return "view-selected";
+  if (selectedEntityId.value !== null) return "card-selected";
+  return "default";
 });
 
 // --- Toolbar visibility ---
-const toolbarShowUp     = computed(() => ['entity-list', 'card-selected', 'view-selected'].includes(toolbarContext.value));
-const toolbarShowDown   = computed(() => ['entity-list', 'card-selected', 'view-selected'].includes(toolbarContext.value));
-const toolbarShowEdit   = computed(() => ['card-selected', 'view-selected'].includes(toolbarContext.value));
+const toolbarShowUp = computed(() =>
+  ["entity-list", "card-selected", "view-selected"].includes(
+    toolbarContext.value,
+  ),
+);
+const toolbarShowDown = computed(() =>
+  ["entity-list", "card-selected", "view-selected"].includes(
+    toolbarContext.value,
+  ),
+);
+const toolbarShowEdit = computed(() =>
+  ["card-selected", "view-selected"].includes(toolbarContext.value),
+);
 const toolbarShowDelete = computed(() => {
   const ctx = toolbarContext.value;
-  if (ctx === 'view-selected') return (availableViews.value || []).length > 1;
-  return ['entity-list', 'card-selected', 'inspector'].includes(ctx);
+  if (ctx === "view-selected") return (availableViews.value || []).length > 1;
+  return ["entity-list", "card-selected", "inspector"].includes(ctx);
 });
-const toolbarShowAdd    = computed(() => {
+const toolbarShowAdd = computed(() => {
   const ctx = toolbarContext.value;
-  if (ctx === 'inspector') return selectedEntitySupportsMultiple.value;
-  return ['card-selected', 'view-selected', 'panel', 'default'].includes(ctx);
+  if (ctx === "inspector") return selectedEntitySupportsMultiple.value;
+  return ["card-selected", "view-selected", "panel", "default"].includes(ctx);
 });
-const toolbarShowClose  = computed(() => toolbarContext.value !== 'default');
+const toolbarShowClose = computed(() => toolbarContext.value !== "default");
 
 // --- Toolbar disabled states ---
 const toolbarCanMoveUp = computed(() => {
   const ctx = toolbarContext.value;
-  if (ctx === 'entity-list') return inspectorEntityListIndex.value > 0;
-  if (ctx === 'card-selected') return selectedEntityId.value !== null && selectedEntityId.value !== 0;
-  if (ctx === 'view-selected') return selectedViewIndex.value > 0;
+  if (ctx === "entity-list") return inspectorEntityListIndex.value > 0;
+  if (ctx === "card-selected")
+    return selectedEntityId.value !== null && selectedEntityId.value !== 0;
+  if (ctx === "view-selected") return selectedViewIndex.value > 0;
   return false;
 });
 const toolbarCanMoveDown = computed(() => {
   const ctx = toolbarContext.value;
-  if (ctx === 'entity-list') return inspectorEntityListIndex.value !== null && inspectorEntityListIndex.value < inspectorEntityList.value.length - 1;
-  if (ctx === 'card-selected') return selectedEntityId.value !== null && selectedEntityId.value < currentViewEntities.value.length - 1;
-  if (ctx === 'view-selected') return selectedViewIndex.value !== null && selectedViewIndex.value < (availableViews.value.length - 1);
+  if (ctx === "entity-list")
+    return (
+      inspectorEntityListIndex.value !== null &&
+      inspectorEntityListIndex.value < inspectorEntityList.value.length - 1
+    );
+  if (ctx === "card-selected")
+    return (
+      selectedEntityId.value !== null &&
+      selectedEntityId.value < currentViewEntities.value.length - 1
+    );
+  if (ctx === "view-selected")
+    return (
+      selectedViewIndex.value !== null &&
+      selectedViewIndex.value < availableViews.value.length - 1
+    );
   return false;
 });
 
 // --- Toolbar handlers ---
 const handleToolbarMoveUp = () => {
   const ctx = toolbarContext.value;
-  if (ctx === 'entity-list') handleInspectorEntityMoveUp();
-  else if (ctx === 'card-selected') handleMoveUp();
-  else if (ctx === 'view-selected') activeViewManager.value?.triggerMoveUp(selectedViewIndex.value);
+  if (ctx === "entity-list") handleInspectorEntityMoveUp();
+  else if (ctx === "card-selected") handleMoveUp();
+  else if (ctx === "view-selected")
+    activeViewManager.value?.triggerMoveUp(selectedViewIndex.value);
 };
 const handleToolbarMoveDown = () => {
   const ctx = toolbarContext.value;
-  if (ctx === 'entity-list') handleInspectorEntityMoveDown();
-  else if (ctx === 'card-selected') handleMoveDown();
-  else if (ctx === 'view-selected') activeViewManager.value?.triggerMoveDown(selectedViewIndex.value);
+  if (ctx === "entity-list") handleInspectorEntityMoveDown();
+  else if (ctx === "card-selected") handleMoveDown();
+  else if (ctx === "view-selected")
+    activeViewManager.value?.triggerMoveDown(selectedViewIndex.value);
 };
 const handleToolbarEdit = () => {
   const ctx = toolbarContext.value;
-  if (ctx === 'card-selected') {
-    if (isMobile.value) { showMobileInspector.value = true; showMobilePanel.value = false; }
-  } else if (ctx === 'view-selected') {
+  if (ctx === "card-selected") {
+    if (isMobile.value) {
+      showMobileInspector.value = true;
+      showMobilePanel.value = false;
+    }
+  } else if (ctx === "view-selected") {
     activeViewManager.value?.triggerEdit(selectedViewIndex.value);
   }
 };
 const handleToolbarDelete = () => {
   const ctx = toolbarContext.value;
-  if (ctx === 'entity-list') handleInspectorEntityDelete();
-  else if (ctx === 'card-selected' || ctx === 'inspector') handleRemoveEntity(selectedEntityId.value);
-  else if (ctx === 'view-selected') activeViewManager.value?.triggerDelete(selectedViewIndex.value);
+  if (ctx === "entity-list") handleInspectorEntityDelete();
+  else if (ctx === "card-selected" || ctx === "inspector")
+    handleRemoveEntity(selectedEntityId.value);
+  else if (ctx === "view-selected")
+    activeViewManager.value?.triggerDelete(selectedViewIndex.value);
 };
 const handleToolbarAdd = () => {
   const ctx = toolbarContext.value;
-  if (ctx === 'inspector' && selectedEntitySupportsMultiple.value) {
+  if (ctx === "inspector" && selectedEntitySupportsMultiple.value) {
     openAddToInspectorPalette();
-  } else if (ctx === 'view-selected' || ctx === 'panel') {
+  } else if (ctx === "view-selected" || ctx === "panel") {
     activeViewManager.value?.triggerAdd();
   } else {
     // card-selected or default — open entity palette
-    if (isMobile.value) { showMobilePanel.value = true; showMobileInspector.value = false; }
+    if (isMobile.value) {
+      showMobilePanel.value = true;
+      showMobileInspector.value = false;
+    }
   }
 };
 const handleToolbarClose = () => {
   const ctx = toolbarContext.value;
-  if (ctx === 'entity-list') {
+  if (ctx === "entity-list") {
     inspectorEntityListIndex.value = null;
-  } else if (ctx === 'inspector') {
-    if (isMobile.value) { showMobileInspector.value = false; }
-    else { selectedEntityId.value = null; inspectorEntityListIndex.value = null; }
-  } else if (ctx === 'panel' || ctx === 'view-selected') {
+  } else if (ctx === "inspector") {
+    if (isMobile.value) {
+      showMobileInspector.value = false;
+    } else {
+      selectedEntityId.value = null;
+      inspectorEntityListIndex.value = null;
+    }
+  } else if (ctx === "panel" || ctx === "view-selected") {
     showMobilePanel.value = false;
     selectedViewIndex.value = null;
     activeViewManager.value?.triggerDeselect?.();
-  } else if (ctx === 'card-selected') {
+  } else if (ctx === "card-selected") {
     selectedEntityId.value = null;
   }
 };
@@ -445,17 +498,20 @@ const inspectorEntityList = computed(() => {
  */
 const updateInspectorEntityList = (newArr) => {
   const viewIndex = store.dashboardConfig?.views?.findIndex(
-    (v) => v.name === selectedViewName.value
+    (v) => v.name === selectedViewName.value,
   );
   if (viewIndex === -1 || viewIndex === undefined) return;
-  const card = store.dashboardConfig.views[viewIndex].entities[selectedEntityId.value];
+  const card =
+    store.dashboardConfig.views[viewIndex].entities[selectedEntityId.value];
   if (!card) return;
   if (Array.isArray(card.entities)) {
     card.entities = newArr;
   } else {
     card.entity = newArr;
   }
-  store.dashboardConfig.views[viewIndex].entities = [...store.dashboardConfig.views[viewIndex].entities];
+  store.dashboardConfig.views[viewIndex].entities = [
+    ...store.dashboardConfig.views[viewIndex].entities,
+  ];
 };
 
 const handleInspectorEntityMoveUp = () => {
@@ -502,7 +558,14 @@ const onMobileInspectorDeselect = () => {
  * Otherwise, inserts a new card after the selected card.
  */
 const onMobilePaletteAdd = (entityIdOrComponent) => {
-  console.log('[VisualEditorView] onMobilePaletteAdd', entityIdOrComponent, 'currentView:', currentView.value?.name, 'selectedEntityId:', selectedEntityId.value);
+  console.log(
+    "[VisualEditorView] onMobilePaletteAdd",
+    entityIdOrComponent,
+    "currentView:",
+    currentView.value?.name,
+    "selectedEntityId:",
+    selectedEntityId.value,
+  );
   // If no view is selected yet, auto-select the first available one
   if (!currentView.value && availableViews.value.length > 0) {
     selectedViewName.value = availableViews.value[0].name;
@@ -544,7 +607,10 @@ watch(
   () => availableViews.value,
   (views) => {
     if (views.length > 0 && !selectedViewName.value) {
-      if (props.previousView && views.some(v => v.name === props.previousView)) {
+      if (
+        props.previousView &&
+        views.some((v) => v.name === props.previousView)
+      ) {
         selectedViewName.value = props.previousView;
         logger.log("Auto-selected previous view:", props.previousView);
       } else {
@@ -684,7 +750,7 @@ const onSelectEntity = (entityId) => {
  */
 const getStaticComponentDefaults = (type) => {
   const defaults = {
-    HaHeader: { name: 'Header' },
+    HaHeader: { name: "Header" },
   };
   return defaults[type] ?? {};
 };
@@ -857,10 +923,10 @@ const handleMoveUp = () => {
   const currentIndex = selectedEntityId.value;
   const [removed] = entities.splice(currentIndex, 1);
   entities.splice(currentIndex - 1, 0, removed);
-  
+
   // Reassign array to trigger Vue reactivity
   store.dashboardConfig.views[viewIndex].entities = [...entities];
-  
+
   selectedEntityId.value = currentIndex - 1;
   debouncedSave();
 };
@@ -881,10 +947,10 @@ const handleMoveDown = () => {
   const currentIndex = selectedEntityId.value;
   const [removed] = entities.splice(currentIndex, 1);
   entities.splice(currentIndex + 1, 0, removed);
-  
+
   // Reassign array to trigger Vue reactivity
   store.dashboardConfig.views[viewIndex].entities = [...entities];
-  
+
   selectedEntityId.value = currentIndex + 1;
   debouncedSave();
 };

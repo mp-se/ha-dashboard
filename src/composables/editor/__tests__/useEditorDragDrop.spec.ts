@@ -198,8 +198,13 @@ describe("useEditorDragDrop", () => {
 
   describe("handleEntityDragEnd", () => {
     it("resets isDragging, dragOverIndex, and isDropping", () => {
-      const { handleEntityDragStart, handleEntityDragEnd, isDragging, dragOverIndex, isDropping } =
-        useEditorDragDrop(localEntities, emit);
+      const {
+        handleEntityDragStart,
+        handleEntityDragEnd,
+        isDragging,
+        dragOverIndex,
+        isDropping,
+      } = useEditorDragDrop(localEntities, emit);
       const startEvent = makeDragEvent();
       handleEntityDragStart(0, startEvent);
       handleEntityDragEnd();

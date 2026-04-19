@@ -68,9 +68,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             @dragend="handleEntityDragEnd"
             @click.stop="onCardClick(index)"
             @dblclick.stop="emit('inspect-entity', index)"
-            @touchstart="mobileInspectMode ? startLongPress($event, index, handleLongPress) : undefined"
+            @touchstart="
+              mobileInspectMode
+                ? startLongPress($event, index, handleLongPress)
+                : undefined
+            "
             @touchmove="mobileInspectMode && moveLongPress($event)"
-            @touchend.stop="mobileInspectMode ? endLongPress() : onCardClick(index)"
+            @touchend.stop="
+              mobileInspectMode ? endLongPress() : onCardClick(index)
+            "
             @contextmenu.prevent
           />
           <!-- Drop indicator for EntityList -->
@@ -113,9 +119,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             }"
             @click.stop="onCardClick(index)"
             @dblclick.stop="emit('inspect-entity', index)"
-            @touchstart="mobileInspectMode ? startLongPress($event, index, handleLongPress) : undefined"
+            @touchstart="
+              mobileInspectMode
+                ? startLongPress($event, index, handleLongPress)
+                : undefined
+            "
             @touchmove="mobileInspectMode && moveLongPress($event)"
-            @touchend.stop="mobileInspectMode ? endLongPress() : onCardClick(index)"
+            @touchend.stop="
+              mobileInspectMode ? endLongPress() : onCardClick(index)
+            "
             @contextmenu.prevent
           >
             <!-- Component preview -->
@@ -142,7 +154,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         style="grid-column: 1 / -1; height: 3px"
       ></div>
     </div>
-
   </div>
 </template>
 

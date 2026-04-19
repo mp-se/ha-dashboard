@@ -25,8 +25,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     <hr />
 
     <p class="fw-normal">
-      HA-Dashboard is a customizable Home Assistant dashboard built with Vue 3. It provides a
-      visual editor for creating and managing entity cards with a responsive, mobile-friendly design.
+      HA-Dashboard is a customizable Home Assistant dashboard built with Vue 3.
+      It provides a visual editor for creating and managing entity cards with a
+      responsive, mobile-friendly design.
     </p>
 
     <p class="h4">Dual License</p>
@@ -38,8 +39,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     <div class="alert alert-info">
       <h5>GPL v3 License (Open Source)</h5>
       <p class="mb-0">
-        Free to use, modify, and distribute for non-commercial purposes. If you distribute this
-        software, you must also distribute your modifications under the same GPL v3 license.
+        Free to use, modify, and distribute for non-commercial purposes. If you
+        distribute this software, you must also distribute your modifications
+        under the same GPL v3 license.
       </p>
       <p class="small text-muted mt-2 mb-0">
         See <code>LICENSE</code> file for full terms.
@@ -49,29 +51,35 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     <div class="alert alert-info">
       <h5>Commercial License</h5>
       <p class="mb-0">
-        If you wish to use this software in a commercial product, package it as an application, or
-        deploy it without releasing your source code, you must obtain a commercial license.
+        If you wish to use this software in a commercial product, package it as
+        an application, or deploy it without releasing your source code, you
+        must obtain a commercial license.
       </p>
       <p class="small text-muted mt-2 mb-0">
-        See <code>LICENSE_COMMERCIAL</code> file for terms and contact information.
+        See <code>LICENSE_COMMERCIAL</code> file for terms and contact
+        information.
       </p>
     </div>
 
     <p class="h4 mt-4">Attribution</p>
 
     <p class="fw-normal">
-      Portions copyright (c) Magnus — <a href="https://github.com/mp-se/ha-dashboard" target="_blank">https://github.com/mp-se/ha-dashboard</a>
+      Portions copyright (c) Magnus —
+      <a href="https://github.com/mp-se/ha-dashboard" target="_blank"
+        >https://github.com/mp-se/ha-dashboard</a
+      >
     </p>
 
     <p class="h4 mt-4">Disclaimer</p>
 
     <p class="fw-normal">
-      THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-      INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-      PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
-      ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-      ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
+      THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+      OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+      NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+      DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+      OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+      USE OR OTHER DEALINGS IN THE SOFTWARE.
     </p>
   </div>
 </template>

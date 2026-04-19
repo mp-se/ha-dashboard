@@ -8,6 +8,7 @@
 ## Overview
 
 The ha-dashboard component architecture uses **dual-layer design**:
+
 - **Bootstrap Infrastructure Layer** — Grid system, utilities, form controls, modal system
 - **Custom Component Layer** — Entity-specific cards, visual editors, dashboard layout
 
@@ -20,10 +21,12 @@ This specification documents the architectural patterns and decision framework f
 The dashboard contains **55 total Vue components** organized into 5 categories:
 
 ### 1. Entity Cards (26 components)
+
 **Location:** `src/components/cards/`  
 **Purpose:** Render individual Home Assistant entities with type-specific UI
 
 **Bootstrap Usage:**
+
 - Card container system (`.card`, `.card-body`, `.card-control`, `.card-display`, `.card-status`)
 - Layout utilities (`.d-flex`, `.align-items-center`, `.justify-content-center`, `.gap-3`)
 - Typography (`.card-title`, `.text-start`, `.text-center`, `.text-muted`)
@@ -31,6 +34,7 @@ The dashboard contains **55 total Vue components** organized into 5 categories:
 - Form controls (`.form-range`, `.form-label`)
 
 **Custom Styling:**
+
 - `.color-preset-btn-icon` — Light color preset buttons
 - `.gauge-display` — Gauges and meter displays
 - `.chart-container` — Energy/history charts
@@ -38,6 +42,7 @@ The dashboard contains **55 total Vue components** organized into 5 categories:
 - Entity-specific height/width constraints
 
 **Card Components:**
+
 ```
 HaAlarmPanel       — Home security system control
 HaBeerTap          — Fermentation monitoring (gravity, temperature)
@@ -67,6 +72,7 @@ HaWarning          — Warning alert display
 ```
 
 **Architecture Pattern:** All cards follow the same pattern:
+
 ```vue
 <div class="card card-control h-100 rounded-4 shadow-lg">
   <div class="card-body d-flex align-items-center justify-content-between">
@@ -79,33 +85,35 @@ HaWarning          — Warning alert display
 ---
 
 ### 2. Visual Editor Components (18 components)
+
 **Location:** `src/components/visual-editor/`  
 **Purpose:** Implement the drag-drop UI editor and dashboard configuration
 
 **Key Components:**
 
-| Component | Bootstrap Usage | Custom Classes | Purpose |
-|-----------|-----------------|-----------------|---------|
-| **EditorCanvas** | `.container-fluid` | `.editor-canvas`, `.card-outline` | Card drag-drop surface |
-| **ViewManager** | `.list-group`, `.list-group-item` | `.view-tabs` | View reordering UI |
-| **EntityInspector** | `.form-control`, `.form-select` | `.inspector-panel` | Property editor for entities |
-| **PropertyEditorFactory** | `.form-label`, `.form-group` | `.editor-field` | Form field wrapper |
-| **SliderInput** | `.form-range`, `.badge` | `.property-editor` | Numeric slider input |
-| **TextInput** | `.form-control` | `.property-editor` | Text input field |
-| **TextAreaInput** | `.form-control` | `.property-editor` | Multiline text |
-| **SelectInput** | `.form-select` | `.property-editor` | Dropdown select |
-| **BooleanToggle** | `.form-check`, `.form-check-input` | `.toggle-switch` | Boolean toggle |
-| **NumberInput** | `.form-control` | `.property-editor` | Numeric input |
-| **ColorPicker** | `.form-control`, `.input-group` | `.color-picker-palette` | Color selection |
-| **IconPicker** | Modal system | `.icon-search`, `.icon-grid` | Icon browser |
-| **ImagePicker** | Modal system | `.image-preview` | Image uploader |
-| **EntityListEditor** | `.list-group`, `.btn-group` | `.entity-list-editor` | Multi-entity management |
-| **EditorActionBar** | `.btn-group` | `.floating-toolbar` | Mobile touch toolbar |
-| **StaticComponentPalette** | `.card`, `.btn` | `.palette-grid` | Component library |
-| **EntityPalette** | `.card`, `.list-group` | `.entity-search` | Entity search/select |
-| **LeftPanelTabs** | `.nav-tabs`, `.tab-pane` | `.editor-panel` | Editor sidebar tabs |
+| Component                  | Bootstrap Usage                    | Custom Classes                    | Purpose                      |
+| -------------------------- | ---------------------------------- | --------------------------------- | ---------------------------- |
+| **EditorCanvas**           | `.container-fluid`                 | `.editor-canvas`, `.card-outline` | Card drag-drop surface       |
+| **ViewManager**            | `.list-group`, `.list-group-item`  | `.view-tabs`                      | View reordering UI           |
+| **EntityInspector**        | `.form-control`, `.form-select`    | `.inspector-panel`                | Property editor for entities |
+| **PropertyEditorFactory**  | `.form-label`, `.form-group`       | `.editor-field`                   | Form field wrapper           |
+| **SliderInput**            | `.form-range`, `.badge`            | `.property-editor`                | Numeric slider input         |
+| **TextInput**              | `.form-control`                    | `.property-editor`                | Text input field             |
+| **TextAreaInput**          | `.form-control`                    | `.property-editor`                | Multiline text               |
+| **SelectInput**            | `.form-select`                     | `.property-editor`                | Dropdown select              |
+| **BooleanToggle**          | `.form-check`, `.form-check-input` | `.toggle-switch`                  | Boolean toggle               |
+| **NumberInput**            | `.form-control`                    | `.property-editor`                | Numeric input                |
+| **ColorPicker**            | `.form-control`, `.input-group`    | `.color-picker-palette`           | Color selection              |
+| **IconPicker**             | Modal system                       | `.icon-search`, `.icon-grid`      | Icon browser                 |
+| **ImagePicker**            | Modal system                       | `.image-preview`                  | Image uploader               |
+| **EntityListEditor**       | `.list-group`, `.btn-group`        | `.entity-list-editor`             | Multi-entity management      |
+| **EditorActionBar**        | `.btn-group`                       | `.floating-toolbar`               | Mobile touch toolbar         |
+| **StaticComponentPalette** | `.card`, `.btn`                    | `.palette-grid`                   | Component library            |
+| **EntityPalette**          | `.card`, `.list-group`             | `.entity-search`                  | Entity search/select         |
+| **LeftPanelTabs**          | `.nav-tabs`, `.tab-pane`           | `.editor-panel`                   | Editor sidebar tabs          |
 
 **Bootstrap Usage Pattern:** Property editors leverage Bootstrap forms heavily:
+
 ```html
 <label class="form-label small mb-1">Entity Name</label>
 <input class="form-control" type="text" />
@@ -115,32 +123,35 @@ HaWarning          — Warning alert display
 ---
 
 ### 3. Sub-Components (2 components)
+
 **Location:** `src/components/sub-components/`  
 **Purpose:** Reusable UI elements embedded in cards
 
-| Component | Purpose | Bootstrap | Custom |
-|-----------|---------|-----------|--------|
-| **IconCircle** | Circular icon container with background | `.rounded-circle` | `.ha-icon-circle`, `.ha-icon-circle-large` |
-| **EntityAttributeList** | Key-value attribute display | `.list-unstyled` | `.attribute-item` |
+| Component               | Purpose                                 | Bootstrap         | Custom                                     |
+| ----------------------- | --------------------------------------- | ----------------- | ------------------------------------------ |
+| **IconCircle**          | Circular icon container with background | `.rounded-circle` | `.ha-icon-circle`, `.ha-icon-circle-large` |
+| **EntityAttributeList** | Key-value attribute display             | `.list-unstyled`  | `.attribute-item`                          |
 
 ---
 
 ### 4. Page Components (8 components)
+
 **Location:** `src/components/page-components/`  
 **Purpose:** Top-level layout and page-level UI
 
-| Component | Purpose | Bootstrap | Custom |
-|-----------|---------|-----------|--------|
-| **AppNavbar** | Dashboard navigation header | `.navbar`, `.nav`, `.nav-item` | `.app-logo`, `.breadcrumb` |
-| **EditorNavbar** | Visual editor navigation | `.navbar`, `.btn-group` | `.editor-breadcrumb` |
-| **PwaInstallModal** | PWA installation prompt | `.modal`, `.modal-dialog` | `.pwa-prompt-card` |
-| **RawEntityView** | Entity raw JSON display | `.container`, `.pre` | `.json-viewer` |
-| **CredentialDialog** | Auth credential input | `.modal`, `.form-control` | `.credential-form` |
-| **ErrorBanner** | Network/error alerts | `.alert`, `.alert-warning` | `.error-banner-container` |
-| **EditorToggleButton** | Dev mode toggle & editor access | `.btn`, `.btn-outline-secondary` | `.editor-toggle` |
-| **ViewLayout** | Dashboard view layout | `.container-fluid`, `.row`, `.col` | `.view-container` |
+| Component              | Purpose                         | Bootstrap                          | Custom                     |
+| ---------------------- | ------------------------------- | ---------------------------------- | -------------------------- |
+| **AppNavbar**          | Dashboard navigation header     | `.navbar`, `.nav`, `.nav-item`     | `.app-logo`, `.breadcrumb` |
+| **EditorNavbar**       | Visual editor navigation        | `.navbar`, `.btn-group`            | `.editor-breadcrumb`       |
+| **PwaInstallModal**    | PWA installation prompt         | `.modal`, `.modal-dialog`          | `.pwa-prompt-card`         |
+| **RawEntityView**      | Entity raw JSON display         | `.container`, `.pre`               | `.json-viewer`             |
+| **CredentialDialog**   | Auth credential input           | `.modal`, `.form-control`          | `.credential-form`         |
+| **ErrorBanner**        | Network/error alerts            | `.alert`, `.alert-warning`         | `.error-banner-container`  |
+| **EditorToggleButton** | Dev mode toggle & editor access | `.btn`, `.btn-outline-secondary`   | `.editor-toggle`           |
+| **ViewLayout**         | Dashboard view layout           | `.container-fluid`, `.row`, `.col` | `.view-container`          |
 
 **Architecture Pattern:** Page components wrap Bootstrap containers and custom layouts:
+
 ```vue
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <!-- Standard navbar structure -->
@@ -150,11 +161,12 @@ HaWarning          — Warning alert display
 ---
 
 ### 5. Containers (1 component)
+
 **Location:** `src/components/containers/`  
 **Purpose:** Layout and content organization
 
-| Component | Purpose | Bootstrap |
-|-----------|---------|-----------|
+| Component      | Purpose                | Bootstrap                                        |
+| -------------- | ---------------------- | ------------------------------------------------ |
 | **EntityList** | Scrollable entity list | `.list-group`, `.list-group-item`, `.scrollable` |
 
 ---
@@ -302,7 +314,7 @@ HaWarning          — Warning alert display
 
    ```css
    [data-bs-theme="dark"] .card-control {
-     border-color: rgba(0, 123, 255, 0.5);  /* Brighter for dark mode */
+     border-color: rgba(0, 123, 255, 0.5); /* Brighter for dark mode */
    }
    ```
 
@@ -331,13 +343,13 @@ HaWarning          — Warning alert display
 
    ```vue
    <script setup>
-   import { useIsMobile } from '@/composables/useIsMobile';
-   
+   import { useIsMobile } from "@/composables/useIsMobile";
+
    const isMobile = useIsMobile();
-   
+
    // Render different UI on mobile vs desktop
    </script>
-   
+
    <template>
      <div v-if="!isMobile" class="desktop-layout">
        <!-- Desktop 3-column editor -->
@@ -356,15 +368,16 @@ HaWarning          — Warning alert display
 
 **Used by:** All 26 entity cards  
 **Structure:**
+
 ```vue
 <template>
   <div
     :class="[
-      'card',                          /* Bootstrap card container */
-      'card-control',                  /* Custom variant */
-      'h-100',                         /* Bootstrap utility */
-      'rounded-4',                     /* Border radius utility */
-      'shadow-lg',                     /* Bootstrap shadow */
+      'card' /* Bootstrap card container */,
+      'card-control' /* Custom variant */,
+      'h-100' /* Bootstrap utility */,
+      'rounded-4' /* Border radius utility */,
+      'shadow-lg' /* Bootstrap shadow */,
     ]"
   >
     <div class="card-body d-flex align-items-center">
@@ -379,6 +392,7 @@ HaWarning          — Warning alert display
 ```
 
 **Decision Points:**
+
 - Use `.card-control` for interactive elements (buttons, toggles)
 - Use `.card-display` for read-only info (sensors, gauges)
 - Use `.card-status` for alerts/warnings
@@ -390,6 +404,7 @@ HaWarning          — Warning alert display
 
 **Used by:** 15+ property editors  
 **Structure:**
+
 ```vue
 <template>
   <div class="property-editor">
@@ -412,6 +427,7 @@ HaWarning          — Warning alert display
 ```
 
 **Decision Points:**
+
 - Always use Bootstrap `.form-*` classes for inputs
 - Use custom class for grouping if editor needs special layout
 - Custom styling only for error states, validation UI
@@ -422,6 +438,7 @@ HaWarning          — Warning alert display
 
 **Used by:** ImagePicker, IconPicker, PwaInstallModal  
 **Structure:**
+
 ```vue
 <template>
   <div v-if="isVisible" class="modal fade show d-block">
@@ -449,6 +466,7 @@ HaWarning          — Warning alert display
 ```
 
 **Decision Points:**
+
 - Always use Bootstrap `.modal-*` structure
 - Use custom classes for content inside modal body
 - No custom modal logic (use Bootstrap's fade/show classes)
@@ -459,11 +477,12 @@ HaWarning          — Warning alert display
 
 **Used by:** EditorCanvas, ViewManager, mobile-aware components  
 **Structure:**
+
 ```vue
 <script setup>
-import { useIsMobile } from '@/composables/useIsMobile';
+import { useIsMobile } from "@/composables/useIsMobile";
 
-const isMobile = useIsMobile();  // Reactively tracks window < 768px
+const isMobile = useIsMobile(); // Reactively tracks window < 768px
 </script>
 
 <template>
@@ -472,7 +491,7 @@ const isMobile = useIsMobile();  // Reactively tracks window < 768px
     <div class="col-3">Sidebar</div>
     <div class="col-9">Canvas</div>
   </div>
-  
+
   <!-- Mobile layout -->
   <div v-else class="fullscreen-mobile">
     <div class="canvas-main">Canvas</div>
@@ -497,6 +516,7 @@ const isMobile = useIsMobile();  // Reactively tracks window < 768px
 ```
 
 **Decision Points:**
+
 - Use `useIsMobile()` for all responsive branching logic
 - Don't use Bootstrap's `.d-none .d-md-block` pattern (less readable)
 - Custom styling for mobile-specific layouts (full-screen canvas, bottom sheets)
@@ -514,6 +534,7 @@ const isMobile = useIsMobile();  // Reactively tracks window < 768px
    - No custom CSS needed
 
 2. **Component-Scoped Styles** (component-specific customization)
+
    ```vue
    <style scoped>
    .my-component {
@@ -527,30 +548,32 @@ const isMobile = useIsMobile();  // Reactively tracks window < 768px
    - Examples: `.card-control`, `.ha-icon-circle`, `.ha-shadow`
 
 4. **Design Tokens** (theme-level variables)
-   - See `spec/DESIGN_TOKENS.md`
+   - See `spec/VISUAL_DESIGN_TOKENS.md`
    - CSS variables: `--bs-primary`, `--ha-shadow`, etc.
 
 ### File Organization
 
 **Component Location Rules:**
 
-| Type | Location | Pattern |
-|------|----------|---------|
-| Entity Card | `src/components/cards/Ha*.vue` | Prefix `Ha` (HaSensor, HaLight) |
-| Editor Component | `src/components/visual-editor/*.vue` | Full word names (EditorCanvas, ViewManager) |
-| Property Editor | `src/components/visual-editor/PropertyEditors/*.vue` | Suffix `Input` (SliderInput, ColorPicker) |
-| Sub-Component | `src/components/sub-components/*.vue` | Reusable units (IconCircle, EntityAttributeList) |
-| Page Component | `src/components/page-components/*.vue` | Full-page layouts (AppNavbar, ViewLayout) |
-| Container | `src/components/containers/*.vue` | Rarely used (EntityList for list layout) |
+| Type             | Location                                             | Pattern                                          |
+| ---------------- | ---------------------------------------------------- | ------------------------------------------------ |
+| Entity Card      | `src/components/cards/Ha*.vue`                       | Prefix `Ha` (HaSensor, HaLight)                  |
+| Editor Component | `src/components/visual-editor/*.vue`                 | Full word names (EditorCanvas, ViewManager)      |
+| Property Editor  | `src/components/visual-editor/PropertyEditors/*.vue` | Suffix `Input` (SliderInput, ColorPicker)        |
+| Sub-Component    | `src/components/sub-components/*.vue`                | Reusable units (IconCircle, EntityAttributeList) |
+| Page Component   | `src/components/page-components/*.vue`               | Full-page layouts (AppNavbar, ViewLayout)        |
+| Container        | `src/components/containers/*.vue`                    | Rarely used (EntityList for list layout)         |
 
 ### Naming Conventions
 
 **CSS Classes:**
+
 - Bootstrap utilities: Compound format (`.d-flex`, `.align-items-center`)
 - Custom classes: Kebab-case with component prefix (`.card-control`, `.ha-icon-circle`)
 - Scoped styles: Simple names (`.property-editor`, `.color-palette`)
 
 **Vue Components:**
+
 - Cards: `Ha<EntityType>.vue` (HaSensor, HaLight, HaButton)
 - Editors: `<Noun><Verb>.vue` (EditorCanvas, PropertyEditorFactory)
 - Inputs: `<Type>Input.vue` (SliderInput, TextInput, ColorPicker)
@@ -558,6 +581,7 @@ const isMobile = useIsMobile();  // Reactively tracks window < 768px
 ### Accessibility Compliance
 
 **All Components Must:**
+
 - Use semantic HTML (`.btn`, `.form-control`, `<label for="">`)
 - Provide ARIA labels for icon-only buttons (`aria-label="..."`)
 - Use `:focus-visible` for keyboard navigation (Bootstrap applies automatically)
@@ -565,6 +589,7 @@ const isMobile = useIsMobile();  // Reactively tracks window < 768px
 - Maintain contrast ratios (4.5:1 for normal text)
 
 **Bootstrap Ensures:**
+
 - Focus states via `.btn:focus-visible` outline
 - Form validation via `.form-control:invalid` styling
 - Keyboard navigation through standard HTML elements
@@ -581,6 +606,7 @@ If a complex custom component is needed but Bootstrap can partially meet the req
 4. **Document divergence** — Add CSS comments explaining why Bootstrap wasn't sufficient
 
 **Example: ColorPicker**
+
 ```vue
 <!-- Starts with Bootstrap form structure -->
 <div class="property-editor form-group">
@@ -595,10 +621,9 @@ If a complex custom component is needed but Bootstrap can partially meet the req
       @click="selectColor(color)"
     />
   </div>
-  
-  <!-- Falls back to Bootstrap form control for input -->
-  <input type="text" class="form-control" :value="modelValue" />
-</div>
+
+<!-- Falls back to Bootstrap form control for input -->
+<input type="text" class="form-control" :value="modelValue" />
 ```
 
 ---
@@ -607,14 +632,14 @@ If a complex custom component is needed but Bootstrap can partially meet the req
 
 **As of April 6, 2026:**
 
-| Category | Count | Bootstrap? | Custom? |
-|----------|-------|-----------|---------|
-| Entity Cards | 26 | ✅ Yes (heavy) | ✅ Yes (card variants) |
-| Editor Components | 18 | ✅ Yes (heavy) | ✅ Yes (editor UI) |
-| Sub-Components | 2 | ✅ Minor | ✅ Yes (icon, attributes) |
-| Page Components | 8 | ✅ Yes (heavy) | ✅ Yes (nav, layout) |
-| Containers | 1 | ✅ Yes | ❌ No |
-| **TOTAL** | **55** | **100%** | **~70%** |
+| Category          | Count  | Bootstrap?     | Custom?                   |
+| ----------------- | ------ | -------------- | ------------------------- |
+| Entity Cards      | 26     | ✅ Yes (heavy) | ✅ Yes (card variants)    |
+| Editor Components | 18     | ✅ Yes (heavy) | ✅ Yes (editor UI)        |
+| Sub-Components    | 2      | ✅ Minor       | ✅ Yes (icon, attributes) |
+| Page Components   | 8      | ✅ Yes (heavy) | ✅ Yes (nav, layout)      |
+| Containers        | 1      | ✅ Yes         | ❌ No                     |
+| **TOTAL**         | **55** | **100%**       | **~70%**                  |
 
 **Bootstrap Penetration:** 100% — All components use Bootstrap as infrastructure  
 **Custom Styling Penetration:** ~70% — Custom styling used for 1-2 classes per component on average
@@ -624,6 +649,7 @@ If a complex custom component is needed but Bootstrap can partially meet the req
 ## Common Pitfalls & Solutions
 
 ### Pitfall 1: Creating Custom Button When `.btn` Exists
+
 ```vue
 <!-- ❌ WRONG: Custom button styling -->
 <button class="custom-button">Submit</button>
@@ -643,6 +669,7 @@ If a complex custom component is needed but Bootstrap can partially meet the req
 ```
 
 ### Pitfall 2: Grid Layout Without Bootstrap `.row/.col`
+
 ```vue
 <!-- ❌ WRONG: Custom grid -->
 <div class="custom-grid">
@@ -666,6 +693,7 @@ If a complex custom component is needed but Bootstrap can partially meet the req
 ```
 
 ### Pitfall 3: Spacing Utilities Instead of Custom CSS
+
 ```vue
 <!-- ❌ WRONG: Custom spacing -->
 <div class="custom-container">
@@ -687,6 +715,7 @@ If a complex custom component is needed but Bootstrap can partially meet the req
 ```
 
 ### Pitfall 4: Dark Mode Without Theme Variables
+
 ```vue
 <!-- ❌ WRONG: Hardcoded dark mode colors -->
 <div class="status-card">
@@ -768,11 +797,13 @@ Start with component requirement
 ## Future Improvements
 
 ### Potential Documentation Enhancements
+
 - Per-component migration guide (HaSensor → Bootstrap compliance)
 - Interactive component gallery (`component-showcase.html`)
 - Visual coverage matrix (which Bootstrap classes used in which components)
 
 ### Potential Code Improvements
+
 - Audit custom CSS classes for consolidation
 - Reduce `.card-*` variants to Bootstrap standards (if feasible)
 - Document why `.card-display` exists (vs Bootstrap default)
@@ -781,8 +812,7 @@ Start with component requirement
 
 ## Related Documentation
 
-- **Design Tokens:** `spec/DESIGN_TOKENS.md` — CSS variables and elevation system
+- **Design Tokens:** `spec/VISUAL_DESIGN_TOKENS.md` — CSS variables and elevation system
 - **Dashboard Schema:** `spec/DASHBOARD_SCHEMA.md` — Data structure and storage
 - **Visual Editor Logic:** `spec/VISUAL_EDITOR_LOGIC.md` — Editor component behavior
 - **Copilot Instructions:** `.github/copilot-instructions.md` — Component patterns and requirements
-

@@ -65,12 +65,9 @@ function makeMockXhr(overrides = {}) {
 function stubXhr(overrides = {}) {
   const xhr = makeMockXhr(overrides);
   // Regular function so `new XMLHttpRequest()` works; returning an object replaces `this`
-  vi.stubGlobal(
-    "XMLHttpRequest",
-    function MockXHR() {
-      return xhr;
-    },
-  );
+  vi.stubGlobal("XMLHttpRequest", function MockXHR() {
+    return xhr;
+  });
   return xhr;
 }
 
@@ -397,13 +394,11 @@ describe("uploadFiles", () => {
     });
     xhrInstance = mockXhr;
 
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: () =>
-          Promise.resolve({ success: true, data: { images: mockImages } }),
-      });
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({ success: true, data: { images: mockImages } }),
+    });
     vi.stubGlobal("fetch", fetchMock);
 
     const wrapper = mount(ImagePicker, { props: { modelValue: "" } });

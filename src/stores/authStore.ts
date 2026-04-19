@@ -104,14 +104,12 @@ export const useAuthStore = defineStore("auth", () => {
     ) {
       return `CORS/Security Error: Home Assistant server at ${haUrl.value} is not configured to accept requests from this application. This may be due to CORS settings or an untrusted SSL certificate. Ensure you can access the URL directly in your browser.`;
     }
-    return (
-      (error && typeof error === "object" && "message" in error
-        ? (error as Record<string, unknown>).message
-        : null) ||
+    return ((error && typeof error === "object" && "message" in error
+      ? (error as Record<string, unknown>).message
+      : null) ||
       (typeof error === "string"
         ? error
-        : "Connection error with Home Assistant")
-    ) as string;
+        : "Connection error with Home Assistant")) as string;
   };
 
   const loadCredentials = async (): Promise<boolean> => {

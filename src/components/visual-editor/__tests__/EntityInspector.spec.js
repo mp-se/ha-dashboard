@@ -231,8 +231,14 @@ describe("EntityInspector.vue", () => {
   describe("Button Actions", () => {
     it("does not render inline deselect or remove buttons (moved to floating toolbar)", () => {
       wrapper = createWrapper();
-      expect(wrapper.find('button[title="Deselect this entity"]').exists()).toBe(false);
-      expect(wrapper.find('button[title="Remove this entity from the view"]').exists()).toBe(false);
+      expect(
+        wrapper.find('button[title="Deselect this entity"]').exists(),
+      ).toBe(false);
+      expect(
+        wrapper
+          .find('button[title="Remove this entity from the view"]')
+          .exists(),
+      ).toBe(false);
     });
   });
 

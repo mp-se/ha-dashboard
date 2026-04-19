@@ -93,8 +93,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         :draggable="!mobileMode"
         @dragstart="!mobileMode && handleDragStart($event, entity)"
         @dragend="!mobileMode && handleDragEnd"
-        @touchend.prevent="mobileMode && (console.log('[EntityPalette] touchend on', entity.entity_id), $emit('add-entity', entity.entity_id))"
-        @click="mobileMode && (console.log('[EntityPalette] click on', entity.entity_id), $emit('add-entity', entity.entity_id))"
+        @touchend.prevent="
+          mobileMode &&
+          (console.log('[EntityPalette] touchend on', entity.entity_id),
+          $emit('add-entity', entity.entity_id))
+        "
+        @click="
+          mobileMode &&
+          (console.log('[EntityPalette] click on', entity.entity_id),
+          $emit('add-entity', entity.entity_id))
+        "
       >
         <div
           class="btn btn-sm w-100 text-start entity-button entity-button-available"
@@ -103,7 +111,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
           <div class="d-flex justify-content-between align-items-center">
             <div class="flex-grow-1">
               <div class="small">
-                <i :class="mobileMode ? 'mdi mdi-plus-circle-outline me-1' : 'mdi mdi-drag-vertical me-1'"></i>
+                <i
+                  :class="
+                    mobileMode
+                      ? 'mdi mdi-plus-circle-outline me-1'
+                      : 'mdi mdi-drag-vertical me-1'
+                  "
+                ></i>
                 {{
                   entity.attributes?.friendly_name ||
                   entity.entity_id.split(".")[1]
@@ -147,7 +161,11 @@ const { selectedType, searchText } = useEntityPaletteState();
 
 onMounted(() => {
   // During tests we want a clean slate for each mount to avoid cross-test pollution.
-  if (typeof process !== "undefined" && process.env && process.env.NODE_ENV === "test") {
+  if (
+    typeof process !== "undefined" &&
+    process.env &&
+    process.env.NODE_ENV === "test"
+  ) {
     selectedType.value = "";
     searchText.value = "";
   }

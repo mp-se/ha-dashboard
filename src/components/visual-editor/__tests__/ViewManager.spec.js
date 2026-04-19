@@ -70,7 +70,9 @@ describe("ViewManager.vue", () => {
     it("highlights selected view after click", async () => {
       const viewItem = wrapper.find(".view-item");
       await viewItem.trigger("click");
-      expect(wrapper.find(".view-item.bg-light.border-primary").exists()).toBe(true);
+      expect(wrapper.find(".view-item.bg-light.border-primary").exists()).toBe(
+        true,
+      );
     });
   });
 

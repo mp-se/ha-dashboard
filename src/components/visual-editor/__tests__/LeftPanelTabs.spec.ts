@@ -179,9 +179,14 @@ describe("LeftPanelTabs.vue", () => {
 
   it("passes through view-updated from ViewManager", async () => {
     const viewManager = wrapper.findComponent({ name: "ViewManager" });
-    await viewManager.vm.$emit("view-updated", { name: "home", label: "Home v2" });
+    await viewManager.vm.$emit("view-updated", {
+      name: "home",
+      label: "Home v2",
+    });
     expect(wrapper.emitted("view-updated")).toBeTruthy();
-    expect(wrapper.emitted("view-updated")[0]).toEqual([{ name: "home", label: "Home v2" }]);
+    expect(wrapper.emitted("view-updated")[0]).toEqual([
+      { name: "home", label: "Home v2" },
+    ]);
   });
 
   it("passes through add-entity from EntityPalette", async () => {

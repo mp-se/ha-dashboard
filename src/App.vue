@@ -87,7 +87,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         :is="getViewComponent(currentView)"
         :key="currentView"
         :view-name="currentView"
-        v-bind="currentView === 'editor' ? { 'previous-view': previousView } : {}"
+        v-bind="
+          currentView === 'editor' ? { 'previous-view': previousView } : {}
+        "
       />
     </ErrorBoundary>
 
@@ -141,7 +143,9 @@ const isEditorModeView = computed(() => {
   const result = EDITOR_MODE_VIEWS.includes(
     currentView.value as (typeof EDITOR_MODE_VIEWS)[number],
   );
-  logger.log(`[isEditorModeView] current view: "${currentView.value}", is editor mode: ${result}`);
+  logger.log(
+    `[isEditorModeView] current view: "${currentView.value}", is editor mode: ${result}`,
+  );
   return result;
 });
 
@@ -164,7 +168,7 @@ watch(
       logger.log("Developer mode disabled, exiting editor mode automatically");
       updateCurrentView(previousView.value);
     }
-  }
+  },
 );
 
 /**
@@ -257,7 +261,12 @@ const handleGoHome = () => {
  * Sync currentView with external events (e.g. from navbars)
  */
 const updateCurrentView = (view) => {
-  console.log("[App] updateCurrentView called with:", view, "current was:", currentView.value);
+  console.log(
+    "[App] updateCurrentView called with:",
+    view,
+    "current was:",
+    currentView.value,
+  );
   currentView.value = view;
 };
 

@@ -37,11 +37,16 @@ const normalizeIcon = useNormalizeIcon();
 const { toggleDarkMode: handleToggleDarkMode } = useDarkMode();
 const { hasChanges, isSaving, saveStatus, triggerSave } =
   useVisualEditorToolbar();
-const showRawEntityView = (window as any).__appCapabilities?.rawEntityView ?? true;
-const showLocalDataSave = (window as any).__appCapabilities?.localDataSave ?? true;
+const showRawEntityView =
+  (window as any).__appCapabilities?.rawEntityView ?? true;
+const showLocalDataSave =
+  (window as any).__appCapabilities?.localDataSave ?? true;
 // Import/Export is enabled by the native build; default to false in source
-const configImportExport = (window as any).__appCapabilities?.configImportExport ?? false;
-const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+const configImportExport =
+  (window as any).__appCapabilities?.configImportExport ?? false;
+const isLocalhost =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
 
 // Import/Export modal state
 const showImportExport = ref(false);
@@ -100,7 +105,7 @@ const handleImportClick = async () => {
 
   // Confirm overwrite/back up
   const doImport = window.confirm(
-    "Importing a configuration will overwrite the current dashboard. Continue? (A local backup will be created automatically)"
+    "Importing a configuration will overwrite the current dashboard. Continue? (A local backup will be created automatically)",
   );
   if (!doImport) return;
 
@@ -119,17 +124,22 @@ const handleImportClick = async () => {
   if (typeof nativeImport === "function") {
     importInProgress.value = true;
     try {
-      const res = await nativeImport({});
+      await nativeImport({});
       // Native import expected to write file; reload config
       const validation = await configStore.loadDashboardConfig();
       if (validation.valid) {
         importSuccess.value = "Imported configuration successfully";
-        setTimeout(() => { showImportExport.value = false; importSuccess.value = null; }, 900);
+        setTimeout(() => {
+          showImportExport.value = false;
+          importSuccess.value = null;
+        }, 900);
       } else {
-        importErrors.value = validation.errors.map((e) => String(e.message || e));
+        importErrors.value = validation.errors.map((e) =>
+          String(e.message || e),
+        );
       }
-    } catch (err) {
-      importErrors.value = [String(err) || "Native import failed"];
+    } catch {
+      importErrors.value = ["Native import failed"];
     } finally {
       importInProgress.value = false;
     }
@@ -150,7 +160,7 @@ const handleFileSelected = async (e: Event) => {
     let parsed: unknown;
     try {
       parsed = JSON.parse(text);
-    } catch (err) {
+    } catch {
       importErrors.value = ["Invalid JSON file"];
       return;
     }
@@ -236,7 +246,7 @@ watch(showImportExport, async (val) => {
         modalDialogRef.value.setAttribute("tabindex", "-1");
         (modalDialogRef.value as HTMLElement).focus();
       }
-    } catch (e) {
+    } catch {
       // ignore
     }
     document.addEventListener("keydown", onKeyDown);
@@ -251,9 +261,16 @@ const toggleDarkMode = () => {
 
 const handleEditorToggle = () => {
   // Toggle between editor and the previous view
-  logger.log("[EditorNavbar] handleEditorToggle CALLED with currentView.value =", currentView.value);
-  const nextView = currentView.value === "editor" ? previousView.value : "editor";
-  logger.log("[EditorNavbar] About to emit update:current-view with nextView =", nextView);
+  logger.log(
+    "[EditorNavbar] handleEditorToggle CALLED with currentView.value =",
+    currentView.value,
+  );
+  const nextView =
+    currentView.value === "editor" ? previousView.value : "editor";
+  logger.log(
+    "[EditorNavbar] About to emit update:current-view with nextView =",
+    nextView,
+  );
   emit("update:current-view", nextView);
 };
 </script>
@@ -395,16 +412,37 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     </nav>
   </header>
   <!-- Import / Export Modal -->
-  <div v-if="showImportExport" class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" style="z-index:2000;">
-    <div class="modal-backdrop fade show" style="z-index:1990"></div>
-    <div ref="modalDialogRef" class="modal-dialog modal-dialog-centered" role="document" style="z-index:2001; outline: none;" tabindex="-1">
+  <div
+    v-if="showImportExport"
+    class="modal fade show d-block"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    style="z-index: 2000"
+  >
+    <div class="modal-backdrop fade show" style="z-index: 1990"></div>
+    <div
+      ref="modalDialogRef"
+      class="modal-dialog modal-dialog-centered"
+      role="document"
+      style="z-index: 2001; outline: none"
+      tabindex="-1"
+    >
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Import / Export Configuration</h5>
-          <button type="button" class="btn-close" aria-label="Close" @click="showImportExport = false"></button>
+          <button
+            type="button"
+            class="btn-close"
+            aria-label="Close"
+            @click="showImportExport = false"
+          ></button>
         </div>
         <div class="modal-body">
-          <p class="mb-2">You can export the current dashboard configuration or import a previously exported JSON file.</p>
+          <p class="mb-2">
+            You can export the current dashboard configuration or import a
+            previously exported JSON file.
+          </p>
 
           <div v-if="importErrors.length" class="alert alert-danger">
             <strong>Import errors:</strong>
@@ -418,9 +456,20 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
           </div>
 
           <div class="d-flex gap-2">
-            <button class="btn btn-outline-primary" @click="handleExport">Export configuration</button>
-            <button class="btn btn-outline-secondary" @click="handleImportClick" :disabled="importInProgress">
-              <span v-if="importInProgress" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+            <button class="btn btn-outline-primary" @click="handleExport">
+              Export configuration
+            </button>
+            <button
+              class="btn btn-outline-secondary"
+              :disabled="importInProgress"
+              @click="handleImportClick"
+            >
+              <span
+                v-if="importInProgress"
+                class="spinner-border spinner-border-sm me-1"
+                role="status"
+                aria-hidden="true"
+              ></span>
               Import configuration
             </button>
           </div>
@@ -429,12 +478,18 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             ref="fileInputRef"
             type="file"
             accept="application/json"
-            style="display:none"
+            style="display: none"
             @change="handleFileSelected"
           />
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="showImportExport = false">Close</button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            @click="showImportExport = false"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>

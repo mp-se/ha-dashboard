@@ -51,10 +51,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
           title="This view is hidden"
           >Hidden</span
         >
-        <i
-          v-if="isIndexSelected(index)"
-          class="mdi mdi-check text-primary"
-        />
+        <i v-if="isIndexSelected(index)" class="mdi mdi-check text-primary" />
       </div>
 
       <p v-if="views.length === 0" class="text-muted small mb-0">
@@ -267,7 +264,7 @@ watch(
     const idx = currentViews.findIndex((v) => v.name === name);
     localSelectedIndex.value = idx !== -1 ? idx : null;
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 const validateName = () => {
@@ -378,7 +375,7 @@ const moveView = (view, direction) => {
   const moved = viewsArr.splice(index, 1)[0];
   viewsArr.splice(newIndex, 0, moved);
   store.dashboardConfig.views = [...viewsArr];
-  emit('view-updated', view);
+  emit("view-updated", view);
 };
 
 const saveView = () => {
@@ -411,12 +408,42 @@ const saveView = () => {
 
 // --- Exposed methods called by VisualEditorView floating toolbar ---
 const triggerAdd = () => showNewViewDialog();
-const triggerEdit = (idx) => { const v = views.value[idx ?? localSelectedIndex.value]; if (v) editView(v); };
-const triggerDuplicate = (idx) => { const v = views.value[idx ?? localSelectedIndex.value]; if (v) duplicateView(v); };
-const triggerDelete = (idx) => { const v = views.value[idx ?? localSelectedIndex.value]; if (v) confirmDeleteView(v); };
-const triggerMoveUp = (idx) => { const v = views.value[idx ?? localSelectedIndex.value]; if (v) { moveView(v, -1); if (localSelectedIndex.value !== null) { localSelectedIndex.value = localSelectedIndex.value - 1; emit("view-index-selected", localSelectedIndex.value); } } };
-const triggerMoveDown = (idx) => { const v = views.value[idx ?? localSelectedIndex.value]; if (v) { moveView(v, 1); if (localSelectedIndex.value !== null) { localSelectedIndex.value = localSelectedIndex.value + 1; emit("view-index-selected", localSelectedIndex.value); } } };
-const triggerDeselect = () => { localSelectedIndex.value = null; emit("view-index-selected", null); };
+const triggerEdit = (idx) => {
+  const v = views.value[idx ?? localSelectedIndex.value];
+  if (v) editView(v);
+};
+const triggerDuplicate = (idx) => {
+  const v = views.value[idx ?? localSelectedIndex.value];
+  if (v) duplicateView(v);
+};
+const triggerDelete = (idx) => {
+  const v = views.value[idx ?? localSelectedIndex.value];
+  if (v) confirmDeleteView(v);
+};
+const triggerMoveUp = (idx) => {
+  const v = views.value[idx ?? localSelectedIndex.value];
+  if (v) {
+    moveView(v, -1);
+    if (localSelectedIndex.value !== null) {
+      localSelectedIndex.value = localSelectedIndex.value - 1;
+      emit("view-index-selected", localSelectedIndex.value);
+    }
+  }
+};
+const triggerMoveDown = (idx) => {
+  const v = views.value[idx ?? localSelectedIndex.value];
+  if (v) {
+    moveView(v, 1);
+    if (localSelectedIndex.value !== null) {
+      localSelectedIndex.value = localSelectedIndex.value + 1;
+      emit("view-index-selected", localSelectedIndex.value);
+    }
+  }
+};
+const triggerDeselect = () => {
+  localSelectedIndex.value = null;
+  emit("view-index-selected", null);
+};
 
 defineExpose({
   triggerAdd,

@@ -57,7 +57,9 @@ describe("EditorToggleButton.vue", () => {
     });
 
     it("shows pencil-ruler icon when developer mode is ON", () => {
-      useAuthStore.mockReturnValue(createMockAuthStore({ developerMode: true }));
+      useAuthStore.mockReturnValue(
+        createMockAuthStore({ developerMode: true }),
+      );
       const wrapper = mount(EditorToggleButton, {
         props: { isEditorOpen: false },
         global: { plugins: [pinia] },
@@ -92,7 +94,9 @@ describe("EditorToggleButton.vue", () => {
     });
 
     it("shows 'Open visual editor' when dev mode is ON and editor is closed", () => {
-      useAuthStore.mockReturnValue(createMockAuthStore({ developerMode: true }));
+      useAuthStore.mockReturnValue(
+        createMockAuthStore({ developerMode: true }),
+      );
       const wrapper = mount(EditorToggleButton, {
         props: { isEditorOpen: false },
         global: { plugins: [pinia] },
@@ -103,7 +107,9 @@ describe("EditorToggleButton.vue", () => {
     });
 
     it("shows 'Close visual editor' when dev mode is ON and editor is open", () => {
-      useAuthStore.mockReturnValue(createMockAuthStore({ developerMode: true }));
+      useAuthStore.mockReturnValue(
+        createMockAuthStore({ developerMode: true }),
+      );
       const wrapper = mount(EditorToggleButton, {
         props: { isEditorOpen: true },
         global: { plugins: [pinia] },

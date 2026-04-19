@@ -263,10 +263,7 @@ onMounted(() => {
   logger.log("[MOUNTED] AppNavbar is rendering");
 });
 
-const emit = defineEmits([
-  "update:current-view",
-  "update:darkMode",
-]);
+const emit = defineEmits(["update:current-view", "update:darkMode"]);
 
 const store = useHaStore();
 const normalizeIcon = useNormalizeIcon();

@@ -52,10 +52,15 @@ export const useConfigStore = defineStore("config", () => {
 
       try {
         const config = await nativeLoader();
-        logger.log("[Native Mode] config loaded, views:", (config as any)?.views?.length ?? 0);
+        logger.log(
+          "[Native Mode] config loaded, views:",
+          (config as any)?.views?.length ?? 0,
+        );
         const validationResult = validateConfig(config);
         dashboardConfig.value = config;
-        configValidationError.value = validationResult.valid ? null : validationResult.errors;
+        configValidationError.value = validationResult.valid
+          ? null
+          : validationResult.errors;
         configErrorCount.value = validationResult.errorCount;
         return validationResult;
       } catch (error) {
@@ -69,7 +74,7 @@ export const useConfigStore = defineStore("config", () => {
     try {
       const baseUrl = import.meta.env.BASE_URL || "/";
       const configUrl = baseUrl + "data/dashboard-config.json";
-      
+
       try {
         const response = await fetchWithTimeout(configUrl, {}, TIMEOUT_CONFIG);
 
@@ -99,7 +104,9 @@ export const useConfigStore = defineStore("config", () => {
         } catch (e) {
           const error = e as Record<string, unknown>;
           const line = (error.line as number) || 1;
-          const columnMatch = (error.message as string)?.match(/position (\d+)/);
+          const columnMatch = (error.message as string)?.match(
+            /position (\d+)/,
+          );
           const column =
             (error.column as number) ||
             (columnMatch ? Number(columnMatch[1]) : 0);
@@ -149,8 +156,10 @@ export const useConfigStore = defineStore("config", () => {
         return validationResult;
       } catch (fetchError) {
         // Network/CORS error during fetch
-        const errorMsg = (fetchError as Record<string, unknown>)?.message as string || String(fetchError);
-        
+        const errorMsg =
+          ((fetchError as Record<string, unknown>)?.message as string) ||
+          String(fetchError);
+
         logger.error("Error loading dashboard config:", fetchError);
         return {
           valid: false,

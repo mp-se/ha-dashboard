@@ -212,7 +212,7 @@ const confirmAccess = () => {
   }
 
   logger.log(
-    `[EditorToggleButton] Developer mode enabled with password, action: ${modalAction.value}`
+    `[EditorToggleButton] Developer mode enabled with password, action: ${modalAction.value}`,
   );
   closeModal();
 

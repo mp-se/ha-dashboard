@@ -282,36 +282,40 @@ describe("AppNavbar.vue", () => {
       expect(wrapper.emitted("update:current-view")).toBeTruthy();
     });
 
-  describe("Editor access", () => {
-    it("editor toggle button is rendered and receives correct props", () => {
-      const wrapper = mountNavbar({ currentView: "overview" });
-      const btn = wrapper.findComponent({ name: "EditorToggleButton" });
-      expect(btn.exists()).toBe(true);
-      expect(btn.props("isEditorOpen")).toBe(false);
-    });
+    describe("Editor access", () => {
+      it("editor toggle button is rendered and receives correct props", () => {
+        const wrapper = mountNavbar({ currentView: "overview" });
+        const btn = wrapper.findComponent({ name: "EditorToggleButton" });
+        expect(btn.exists()).toBe(true);
+        expect(btn.props("isEditorOpen")).toBe(false);
+      });
 
-    it("editor toggle button shows editor is open", () => {
-      const wrapper = mountNavbar({ currentView: "editor" });
-      const btn = wrapper.findComponent({ name: "EditorToggleButton" });
-      expect(btn.props("isEditorOpen")).toBe(true);
-    });
+      it("editor toggle button shows editor is open", () => {
+        const wrapper = mountNavbar({ currentView: "editor" });
+        const btn = wrapper.findComponent({ name: "EditorToggleButton" });
+        expect(btn.props("isEditorOpen")).toBe(true);
+      });
 
-    it("emits update:current-view when EditorToggleButton emits open-editor", async () => {
-      const wrapper = mountNavbar();
-      const btn = wrapper.findComponent({ name: "EditorToggleButton" });
-      await btn.vm.$emit("open-editor");
-      expect(wrapper.emitted("update:current-view")).toBeTruthy();
-      expect(wrapper.emitted("update:current-view").at(-1)).toEqual(["editor"]);
-    });
+      it("emits update:current-view when EditorToggleButton emits open-editor", async () => {
+        const wrapper = mountNavbar();
+        const btn = wrapper.findComponent({ name: "EditorToggleButton" });
+        await btn.vm.$emit("open-editor");
+        expect(wrapper.emitted("update:current-view")).toBeTruthy();
+        expect(wrapper.emitted("update:current-view").at(-1)).toEqual([
+          "editor",
+        ]);
+      });
 
-    it("emits update:current-view when EditorToggleButton emits close-editor", async () => {
-      const wrapper = mountNavbar({ currentView: "editor" });
-      const btn = wrapper.findComponent({ name: "EditorToggleButton" });
-      await btn.vm.$emit("close-editor");
-      expect(wrapper.emitted("update:current-view")).toBeTruthy();
-      expect(wrapper.emitted("update:current-view").at(-1)).toEqual(["overview"]);
+      it("emits update:current-view when EditorToggleButton emits close-editor", async () => {
+        const wrapper = mountNavbar({ currentView: "editor" });
+        const btn = wrapper.findComponent({ name: "EditorToggleButton" });
+        await btn.vm.$emit("close-editor");
+        expect(wrapper.emitted("update:current-view")).toBeTruthy();
+        expect(wrapper.emitted("update:current-view").at(-1)).toEqual([
+          "overview",
+        ]);
+      });
     });
-  });
 
     it("filters out hidden views from menu", async () => {
       store.dashboardConfig = {

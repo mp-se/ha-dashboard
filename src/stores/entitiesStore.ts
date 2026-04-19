@@ -391,22 +391,36 @@ export const useEntitiesStore = defineStore("entities", () => {
         });
 
         logger.log("fetchHistory raw result", { entityId, wsResult });
-        const body = unwrapWsResult(wsResult) as EntityState[][] | EntityState[] | null;
+        const body = unwrapWsResult(wsResult) as
+          | EntityState[][]
+          | EntityState[]
+          | null;
         if (!body) {
           throw new Error("Invalid history response from WebSocket");
         }
-        const arr = (Array.isArray(body) && Array.isArray(body[0])) ? (body as EntityState[][])[0] : (Array.isArray(body) ? body as EntityState[] : []);
+        const arr =
+          Array.isArray(body) && Array.isArray(body[0])
+            ? (body as EntityState[][])[0]
+            : Array.isArray(body)
+              ? (body as EntityState[])
+              : [];
         const extracted = arr
           .map((s) => {
-            const time = s.last_changed || s.last_updated || s.lu || s.lc || (s as any).t;
+            const time =
+              s.last_changed || s.last_updated || s.lu || s.lc || (s as any).t;
             let ts: number;
             if (typeof time === "number") {
-               // Home Assistant sometimes sends Unix timestamps in seconds
-               ts = time < 10000000000 ? time * 1000 : time;
+              // Home Assistant sometimes sends Unix timestamps in seconds
+              ts = time < 10000000000 ? time * 1000 : time;
             } else {
-               ts = time ? new Date(time as string).getTime() : 0;
+              ts = time ? new Date(time as string).getTime() : 0;
             }
-            const stateValue = s.state !== undefined ? s.state : (s.s !== undefined ? s.s : (s as any).v);
+            const stateValue =
+              s.state !== undefined
+                ? s.state
+                : s.s !== undefined
+                  ? s.s
+                  : (s as any).v;
             const val = Number(stateValue);
             return {
               t: ts,
@@ -445,9 +459,7 @@ export const useEntitiesStore = defineStore("entities", () => {
           e instanceof Error
             ? e.message
             : JSON.stringify(e, Object.getOwnPropertyNames(e)) || String(e);
-        throw new Error(
-          `History fetch failed for ${entityId}: ${message}`,
-        );
+        throw new Error(`History fetch failed for ${entityId}: ${message}`);
       }
     })();
 
@@ -498,10 +510,15 @@ export const useEntitiesStore = defineStore("entities", () => {
           no_attributes: true,
         });
 
-        const body = unwrapWsResult(wsResult) as EntityState[][] | EntityState[] | null;
+        const body = unwrapWsResult(wsResult) as
+          | EntityState[][]
+          | EntityState[]
+          | null;
         if (!body || !Array.isArray(body)) return [];
         // Handle both Array of Arrays and flat Array
-        const entries = Array.isArray(body[0]) ? (body as EntityState[][])[0] : (body as EntityState[]);
+        const entries = Array.isArray(body[0])
+          ? (body as EntityState[][])[0]
+          : (body as EntityState[]);
 
         // If WebSocket returned an empty set for this entity, return empty to match expectations
         if (!entries || entries.length === 0) return [];
@@ -541,19 +558,29 @@ export const useEntitiesStore = defineStore("entities", () => {
         }
 
         entries.forEach((entry) => {
-          const time = entry.last_changed || entry.last_updated || entry.lu || entry.lc || (entry as any).t;
+          const time =
+            entry.last_changed ||
+            entry.last_updated ||
+            entry.lu ||
+            entry.lc ||
+            (entry as any).t;
           if (!time) return;
-          
+
           let ts: number;
           if (typeof time === "number") {
-             // Home Assistant sometimes sends Unix timestamps in seconds (e.g., 1775327032.757)
-             ts = time < 10000000000 ? time * 1000 : time;
+            // Home Assistant sometimes sends Unix timestamps in seconds (e.g., 1775327032.757)
+            ts = time < 10000000000 ? time * 1000 : time;
           } else {
-             ts = new Date(time as string).getTime();
+            ts = new Date(time as string).getTime();
           }
 
           const bt = Math.floor(ts / bucketMs) * bucketMs;
-          const stateValue = entry.state !== undefined ? entry.state : (entry.s !== undefined ? entry.s : (entry as any).v);
+          const stateValue =
+            entry.state !== undefined
+              ? entry.state
+              : entry.s !== undefined
+                ? entry.s
+                : (entry as any).v;
           const val = Number(stateValue);
           if (!Number.isNaN(val) && buckets.has(bt))
             (buckets.get(bt) as { values: number[] }).values.push(val);

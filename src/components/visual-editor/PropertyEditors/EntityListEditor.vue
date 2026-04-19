@@ -23,7 +23,8 @@
             'entity-item-locked': isFirstEntity(index),
             'entity-item-dragging': draggedIndex === index,
             'list-group-drop-active': isDragOver,
-            'entity-item-selected': selectedEntityListIndex === index && !isFirstEntity(index),
+            'entity-item-selected':
+              selectedEntityListIndex === index && !isFirstEntity(index),
           }"
           @click="selectEntityItem(index)"
           @dragstart="startDrag($event, index)"
@@ -34,14 +35,14 @@
           @dragend="endDrag"
         >
           <div class="d-flex align-items-center flex-grow-1 gap-2">
-              <!-- Lock icon for first (room) entity -->
-              <i v-if="isFirstEntity(index)" class="mdi mdi-lock text-muted"></i>
-              <!-- Drag handle for reordering on desktop (always shown for non-locked) -->
-              <i
-                v-else
-                class="mdi mdi-drag-vertical text-muted"
-                style="cursor: grab"
-              ></i>
+            <!-- Lock icon for first (room) entity -->
+            <i v-if="isFirstEntity(index)" class="mdi mdi-lock text-muted"></i>
+            <!-- Drag handle for reordering on desktop (always shown for non-locked) -->
+            <i
+              v-else
+              class="mdi mdi-drag-vertical text-muted"
+              style="cursor: grab"
+            ></i>
             <div class="flex-grow-1">
               <div class="small fw-bold">{{ getEntityLabel(entity) }}</div>
               <div class="text-muted" style="font-size: 0.75rem">
@@ -105,7 +106,11 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["update:modelValue", "all-entities-removed", "entity-index-selected"]);
+const emit = defineEmits([
+  "update:modelValue",
+  "all-entities-removed",
+  "entity-index-selected",
+]);
 
 const store = useHaStore();
 const isDragOver = ref(false);
@@ -113,9 +118,12 @@ const draggedIndex = ref(null);
 const dragOverIndex = ref(null);
 const selectedEntityListIndex = ref(props.selectedIndex);
 
-watch(() => props.selectedIndex, (val) => {
-  selectedEntityListIndex.value = val;
-});
+watch(
+  () => props.selectedIndex,
+  (val) => {
+    selectedEntityListIndex.value = val;
+  },
+);
 
 const selectEntityItem = (index) => {
   if (isFirstEntity(index)) return;

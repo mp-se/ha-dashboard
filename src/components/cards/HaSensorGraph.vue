@@ -402,7 +402,7 @@ async function loadHistory() {
   try {
     // Clear previous error when starting new load
     authStore.clearError();
-    
+
     const entitiesToLoad = resolvedEntities.value.filter(
       (e) => e && e.entity_id,
     );

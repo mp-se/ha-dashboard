@@ -1,6 +1,6 @@
 # Release Notes
 
-## Unreleased
+## April 2026 - v0.8.0
 
 - Bug fixes & editor improvements:
   - `src/stores/authStore.ts`: Normalize Home Assistant URL at point-of-use (remove trailing slashes/whitespace) to prevent malformed WebSocket paths.

@@ -315,7 +315,9 @@ describe("ErrorBanner.vue", () => {
       await wrapper.vm.$nextTick();
       await flushPromises();
 
-      expect(wrapper.find('.btn-close[aria-label="Close"]').exists()).toBe(true);
+      expect(wrapper.find('.btn-close[aria-label="Close"]').exists()).toBe(
+        true,
+      );
     });
   });
 

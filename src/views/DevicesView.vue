@@ -141,7 +141,8 @@ defineProps({
 
 const store = useHaStore();
 const logger = createLogger("DevicesView");
-const clipboardDeviceJson = window.__appCapabilities?.clipboardDeviceJson ?? true;
+const clipboardDeviceJson =
+  window.__appCapabilities?.clipboardDeviceJson ?? true;
 
 const selectedArea = ref("");
 const { input: searchText, debounced: debouncedSearch } = useDebouncedRef(

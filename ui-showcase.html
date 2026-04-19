@@ -61,8 +61,8 @@
         📱 UI/UX Showcase - Mobile Editor & Dialogs
       </h1>
       <p class="text-center text-muted mb-5">
-        Here are the proposed UI changes for optimizing the dashboard on
-        mobile devices and small screens.
+        Here are the proposed UI changes for optimizing the dashboard on mobile
+        devices and small screens.
       </p>
 
       <!-- DESKTOP DASHBOARD VIEW REFERENCE -->
@@ -543,10 +543,13 @@
 
       <!-- MOBILE DASHBOARD VIEW -->
       <div class="card-section" id="mobile-dashboard">
-        <h2 class="mb-4">📱 Small Screen Dashboard View (375px - Responsive)</h2>
+        <h2 class="mb-4">
+          📱 Small Screen Dashboard View (375px - Responsive)
+        </h2>
         <p class="text-muted small mb-4">
-          On small screens, the navbar shows only icons. Cards stack in a responsive grid
-          that adapts to available screen width, with optimized spacing and touch targets.
+          On small screens, the navbar shows only icons. Cards stack in a
+          responsive grid that adapts to available screen width, with optimized
+          spacing and touch targets.
         </p>
 
         <div
@@ -1326,48 +1329,92 @@
             <p class="text-center small text-muted fw-semibold mb-2">
               Canvas view — card selected
             </p>
-            <p class="text-center small text-muted mb-2" style="font-size:0.75rem">
+            <p
+              class="text-center small text-muted mb-2"
+              style="font-size: 0.75rem"
+            >
               Floating toolbar: <strong>[↑] [↓] [✎] [🗑] [+]</strong>
             </p>
             <div
               class="border border-2 bg-white rounded-4 overflow-hidden shadow"
-              style="width:375px;height:680px;display:flex;flex-direction:column;position:relative;"
+              style="
+                width: 375px;
+                height: 680px;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+              "
             >
               <!-- Navbar -->
-              <nav class="navbar bg-light px-2 py-1 d-flex justify-content-between" style="border-bottom:2px solid #ffc107">
+              <nav
+                class="navbar bg-light px-2 py-1 d-flex justify-content-between"
+                style="border-bottom: 2px solid #ffc107"
+              >
                 <div class="d-flex gap-1 align-items-center">
-                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1" style="color:#0078d4" title="Editor">
-                    <i class="mdi mdi-pencil-ruler" style="font-size:1.2rem"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none px-2 py-1"
+                    style="color: #0078d4"
+                    title="Editor"
+                  >
+                    <i
+                      class="mdi mdi-pencil-ruler"
+                      style="font-size: 1.2rem"
+                    ></i>
                   </button>
-                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
-                    <i class="mdi mdi-devices" style="font-size:1.2rem"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
+                  >
+                    <i class="mdi mdi-devices" style="font-size: 1.2rem"></i>
                   </button>
-                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
-                    <i class="mdi mdi-database" style="font-size:1.2rem"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
+                  >
+                    <i class="mdi mdi-database" style="font-size: 1.2rem"></i>
                   </button>
                 </div>
                 <div class="d-flex gap-1 align-items-center">
-                  <button class="btn btn-success btn-sm"><i class="mdi mdi-content-save"></i></button>
-                  <button class="btn btn-outline-secondary btn-sm"><i class="mdi mdi-moon-waning-crescent"></i></button>
+                  <button class="btn btn-success btn-sm">
+                    <i class="mdi mdi-content-save"></i>
+                  </button>
+                  <button class="btn btn-outline-secondary btn-sm">
+                    <i class="mdi mdi-moon-waning-crescent"></i>
+                  </button>
                 </div>
               </nav>
 
               <!-- Full-width canvas -->
-              <div style="flex:1;overflow-y:auto;background:#f0f0f0;padding:0.75rem;">
+              <div
+                style="
+                  flex: 1;
+                  overflow-y: auto;
+                  background: #f0f0f0;
+                  padding: 0.75rem;
+                "
+              >
                 <div class="bg-white rounded p-2 mb-2 border">
-                  <div class="d-flex justify-content-between align-items-center">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
                     <span class="small fw-semibold">Humidity</span>
                     <span class="small text-muted">sensor</span>
                   </div>
                 </div>
                 <!-- Selected card -->
-                <div class="rounded p-2 mb-2 border border-2 shadow-sm"
-                  style="background:#e8f0fe;border-color:#0d6efd!important;">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <span class="small fw-semibold" style="color:#0d6efd">Temperature</span>
+                <div
+                  class="rounded p-2 mb-2 border border-2 shadow-sm"
+                  style="background: #e8f0fe; border-color: #0d6efd !important"
+                >
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span class="small fw-semibold" style="color: #0d6efd"
+                      >Temperature</span
+                    >
                     <span class="small text-muted">sensor</span>
                   </div>
-                  <div class="small mt-1" style="color:#0d6efd">22.1 °C — Living Room</div>
+                  <div class="small mt-1" style="color: #0d6efd">
+                    22.1 °C — Living Room
+                  </div>
                 </div>
                 <div class="bg-white rounded p-2 mb-2 border">
                   <div class="d-flex justify-content-between">
@@ -1390,20 +1437,100 @@
               </div>
 
               <!-- Floating toolbar: ↑ ↓ ✎ 🗑 + -->
-              <div style="position:absolute;bottom:20px;right:20px;display:flex;flex-direction:row;gap:8px;z-index:30;">
-                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+              <div
+                style="
+                  position: absolute;
+                  bottom: 20px;
+                  right: 20px;
+                  display: flex;
+                  flex-direction: row;
+                  gap: 8px;
+                  z-index: 30;
+                "
+              >
+                <button
+                  style="
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 50%;
+                    background: #0d6efd;
+                    border: none;
+                    color: #fff;
+                    font-size: 1.2rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+                  "
+                >
                   <i class="mdi mdi-arrow-up"></i>
                 </button>
-                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                <button
+                  style="
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 50%;
+                    background: #0d6efd;
+                    border: none;
+                    color: #fff;
+                    font-size: 1.2rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+                  "
+                >
                   <i class="mdi mdi-arrow-down"></i>
                 </button>
-                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                <button
+                  style="
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 50%;
+                    background: #0d6efd;
+                    border: none;
+                    color: #fff;
+                    font-size: 1.2rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+                  "
+                >
                   <i class="mdi mdi-pencil"></i>
                 </button>
-                <button style="width:48px;height:48px;border-radius:50%;background:#dc3545;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                <button
+                  style="
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 50%;
+                    background: #dc3545;
+                    border: none;
+                    color: #fff;
+                    font-size: 1.2rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+                  "
+                >
                   <i class="mdi mdi-delete"></i>
                 </button>
-                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                <button
+                  style="
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 50%;
+                    background: #0d6efd;
+                    border: none;
+                    color: #fff;
+                    font-size: 1.2rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+                  "
+                >
                   <i class="mdi mdi-plus"></i>
                 </button>
               </div>
@@ -1415,94 +1542,207 @@
             <p class="text-center small text-muted fw-semibold mb-2">
               Add entity — panel open
             </p>
-            <p class="text-center small text-muted mb-2" style="font-size:0.75rem">
+            <p
+              class="text-center small text-muted mb-2"
+              style="font-size: 0.75rem"
+            >
               Floating toolbar: <strong>[×]</strong>
             </p>
             <div
               class="border border-2 bg-white rounded-4 overflow-hidden shadow"
-              style="width:375px;height:680px;display:flex;flex-direction:column;position:relative;"
+              style="
+                width: 375px;
+                height: 680px;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+              "
             >
               <!-- Navbar -->
-              <nav class="navbar bg-light px-2 py-1 d-flex justify-content-between" style="border-bottom:2px solid #ffc107">
+              <nav
+                class="navbar bg-light px-2 py-1 d-flex justify-content-between"
+                style="border-bottom: 2px solid #ffc107"
+              >
                 <div class="d-flex gap-1 align-items-center">
-                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1" style="color:#0078d4">
-                    <i class="mdi mdi-pencil-ruler" style="font-size:1.2rem"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none px-2 py-1"
+                    style="color: #0078d4"
+                  >
+                    <i
+                      class="mdi mdi-pencil-ruler"
+                      style="font-size: 1.2rem"
+                    ></i>
                   </button>
-                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
-                    <i class="mdi mdi-devices" style="font-size:1.2rem"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
+                  >
+                    <i class="mdi mdi-devices" style="font-size: 1.2rem"></i>
                   </button>
-                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
-                    <i class="mdi mdi-database" style="font-size:1.2rem"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
+                  >
+                    <i class="mdi mdi-database" style="font-size: 1.2rem"></i>
                   </button>
                 </div>
                 <div class="d-flex gap-1 align-items-center">
-                  <button class="btn btn-success btn-sm"><i class="mdi mdi-content-save"></i></button>
-                  <button class="btn btn-outline-secondary btn-sm"><i class="mdi mdi-moon-waning-crescent"></i></button>
+                  <button class="btn btn-success btn-sm">
+                    <i class="mdi mdi-content-save"></i>
+                  </button>
+                  <button class="btn btn-outline-secondary btn-sm">
+                    <i class="mdi mdi-moon-waning-crescent"></i>
+                  </button>
                 </div>
               </nav>
 
               <!-- Dimmed canvas -->
-              <div style="flex:1;overflow:hidden;background:#f0f0f0;padding:0.75rem;opacity:0.35;">
-                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Temperature</span></div>
-                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Humidity</span></div>
-                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Ceiling Light</span></div>
+              <div
+                style="
+                  flex: 1;
+                  overflow: hidden;
+                  background: #f0f0f0;
+                  padding: 0.75rem;
+                  opacity: 0.35;
+                "
+              >
+                <div class="bg-white rounded p-2 mb-2 border">
+                  <span class="small fw-semibold">Temperature</span>
+                </div>
+                <div class="bg-white rounded p-2 mb-2 border">
+                  <span class="small fw-semibold">Humidity</span>
+                </div>
+                <div class="bg-white rounded p-2 mb-2 border">
+                  <span class="small fw-semibold">Ceiling Light</span>
+                </div>
               </div>
 
               <!-- Bottom sheet — Entities tab active -->
-              <div style="position:absolute;bottom:0;left:0;right:0;height:70%;background:white;border-radius:16px 16px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,0.15);display:flex;flex-direction:column;z-index:20;">
+              <div
+                style="
+                  position: absolute;
+                  bottom: 0;
+                  left: 0;
+                  right: 0;
+                  height: 70%;
+                  background: white;
+                  border-radius: 16px 16px 0 0;
+                  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+                  display: flex;
+                  flex-direction: column;
+                  z-index: 20;
+                "
+              >
                 <!-- drag handle -->
                 <div class="text-center pt-2 pb-1">
-                  <div style="width:40px;height:4px;background:#ccc;border-radius:2px;margin:0 auto;"></div>
+                  <div
+                    style="
+                      width: 40px;
+                      height: 4px;
+                      background: #ccc;
+                      border-radius: 2px;
+                      margin: 0 auto;
+                    "
+                  ></div>
                 </div>
                 <!-- Tabs: Views | Entities (active) | Components -->
                 <div class="d-flex border-bottom">
-                  <div class="flex-fill text-center py-2 text-muted" style="cursor:pointer;">
-                    <i class="mdi mdi-view-list" style="font-size:1.1rem"></i>
+                  <div
+                    class="flex-fill text-center py-2 text-muted"
+                    style="cursor: pointer"
+                  >
+                    <i class="mdi mdi-view-list" style="font-size: 1.1rem"></i>
                   </div>
-                  <div class="flex-fill text-center py-2" style="color:#0d6efd;border-bottom:3px solid #0d6efd;cursor:pointer;">
-                    <i class="mdi mdi-database" style="font-size:1.1rem"></i>
+                  <div
+                    class="flex-fill text-center py-2"
+                    style="
+                      color: #0d6efd;
+                      border-bottom: 3px solid #0d6efd;
+                      cursor: pointer;
+                    "
+                  >
+                    <i class="mdi mdi-database" style="font-size: 1.1rem"></i>
                   </div>
-                  <div class="flex-fill text-center py-2 text-muted" style="cursor:pointer;">
-                    <i class="mdi mdi-shape-plus" style="font-size:1.1rem"></i>
+                  <div
+                    class="flex-fill text-center py-2 text-muted"
+                    style="cursor: pointer"
+                  >
+                    <i class="mdi mdi-shape-plus" style="font-size: 1.1rem"></i>
                   </div>
                 </div>
                 <!-- Entity list -->
-                <div style="flex:1;overflow-y:auto;padding:0.75rem;">
-                  <input class="form-control form-control-sm mb-2" placeholder="Search entities..." />
+                <div style="flex: 1; overflow-y: auto; padding: 0.75rem">
+                  <input
+                    class="form-control form-control-sm mb-2"
+                    placeholder="Search entities..."
+                  />
                   <div class="list-group list-group-flush small">
-                    <div class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom" style="cursor:pointer;">
+                    <div
+                      class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom"
+                      style="cursor: pointer"
+                    >
                       <i class="mdi mdi-thermometer text-warning"></i>
                       <div>
-                        <div class="fw-semibold" style="font-size:0.8rem">Living Room Temp</div>
-                        <div class="text-muted" style="font-size:0.72rem">sensor.living_room_temp</div>
+                        <div class="fw-semibold" style="font-size: 0.8rem">
+                          Living Room Temp
+                        </div>
+                        <div class="text-muted" style="font-size: 0.72rem">
+                          sensor.living_room_temp
+                        </div>
                       </div>
                     </div>
-                    <div class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom" style="cursor:pointer;">
+                    <div
+                      class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom"
+                      style="cursor: pointer"
+                    >
                       <i class="mdi mdi-water-percent text-info"></i>
                       <div>
-                        <div class="fw-semibold" style="font-size:0.8rem">Humidity</div>
-                        <div class="text-muted" style="font-size:0.72rem">sensor.humidity</div>
+                        <div class="fw-semibold" style="font-size: 0.8rem">
+                          Humidity
+                        </div>
+                        <div class="text-muted" style="font-size: 0.72rem">
+                          sensor.humidity
+                        </div>
                       </div>
                     </div>
-                    <div class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom" style="cursor:pointer;">
+                    <div
+                      class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom"
+                      style="cursor: pointer"
+                    >
                       <i class="mdi mdi-lightbulb text-warning"></i>
                       <div>
-                        <div class="fw-semibold" style="font-size:0.8rem">Ceiling Light</div>
-                        <div class="text-muted" style="font-size:0.72rem">light.ceiling</div>
+                        <div class="fw-semibold" style="font-size: 0.8rem">
+                          Ceiling Light
+                        </div>
+                        <div class="text-muted" style="font-size: 0.72rem">
+                          light.ceiling
+                        </div>
                       </div>
                     </div>
-                    <div class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom" style="cursor:pointer;">
+                    <div
+                      class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0 border-bottom"
+                      style="cursor: pointer"
+                    >
                       <i class="mdi mdi-television text-secondary"></i>
                       <div>
-                        <div class="fw-semibold" style="font-size:0.8rem">TV</div>
-                        <div class="text-muted" style="font-size:0.72rem">media_player.tv</div>
+                        <div class="fw-semibold" style="font-size: 0.8rem">
+                          TV
+                        </div>
+                        <div class="text-muted" style="font-size: 0.72rem">
+                          media_player.tv
+                        </div>
                       </div>
                     </div>
-                    <div class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0" style="cursor:pointer;">
+                    <div
+                      class="list-group-item px-2 py-2 d-flex align-items-center gap-2 border-0"
+                      style="cursor: pointer"
+                    >
                       <i class="mdi mdi-fan text-primary"></i>
                       <div>
-                        <div class="fw-semibold" style="font-size:0.8rem">Fan</div>
-                        <div class="text-muted" style="font-size:0.72rem">fan.bedroom</div>
+                        <div class="fw-semibold" style="font-size: 0.8rem">
+                          Fan
+                        </div>
+                        <div class="text-muted" style="font-size: 0.72rem">
+                          fan.bedroom
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1510,8 +1750,32 @@
               </div>
 
               <!-- Floating toolbar: × only -->
-              <div style="position:absolute;bottom:20px;right:20px;display:flex;flex-direction:row;gap:8px;z-index:30;">
-                <button style="width:48px;height:48px;border-radius:50%;background:#6c757d;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+              <div
+                style="
+                  position: absolute;
+                  bottom: 20px;
+                  right: 20px;
+                  display: flex;
+                  flex-direction: row;
+                  gap: 8px;
+                  z-index: 30;
+                "
+              >
+                <button
+                  style="
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 50%;
+                    background: #6c757d;
+                    border: none;
+                    color: #fff;
+                    font-size: 1.2rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+                  "
+                >
                   <i class="mdi mdi-close"></i>
                 </button>
               </div>
@@ -1522,81 +1786,169 @@
             <p class="text-center small text-muted fw-semibold mb-2">
               View editing — view selected
             </p>
-            <p class="text-center small text-muted mb-2" style="font-size:0.75rem">
+            <p
+              class="text-center small text-muted mb-2"
+              style="font-size: 0.75rem"
+            >
               Floating toolbar: <strong>[↑] [↓] [✎] [🗑] [+] [×]</strong>
             </p>
             <div
               class="border border-2 bg-white rounded-4 overflow-hidden shadow"
-              style="width:375px;height:680px;display:flex;flex-direction:column;position:relative;"
+              style="
+                width: 375px;
+                height: 680px;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+              "
             >
               <!-- Navbar -->
-              <nav class="navbar bg-light px-2 py-1 d-flex justify-content-between" style="border-bottom:2px solid #ffc107">
+              <nav
+                class="navbar bg-light px-2 py-1 d-flex justify-content-between"
+                style="border-bottom: 2px solid #ffc107"
+              >
                 <div class="d-flex gap-1 align-items-center">
-                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1" style="color:#0078d4">
-                    <i class="mdi mdi-pencil-ruler" style="font-size:1.2rem"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none px-2 py-1"
+                    style="color: #0078d4"
+                  >
+                    <i
+                      class="mdi mdi-pencil-ruler"
+                      style="font-size: 1.2rem"
+                    ></i>
                   </button>
-                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
-                    <i class="mdi mdi-devices" style="font-size:1.2rem"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
+                  >
+                    <i class="mdi mdi-devices" style="font-size: 1.2rem"></i>
                   </button>
-                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
-                    <i class="mdi mdi-database" style="font-size:1.2rem"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
+                  >
+                    <i class="mdi mdi-database" style="font-size: 1.2rem"></i>
                   </button>
                 </div>
                 <div class="d-flex gap-1 align-items-center">
-                  <button class="btn btn-success btn-sm"><i class="mdi mdi-content-save"></i></button>
-                  <button class="btn btn-outline-secondary btn-sm"><i class="mdi mdi-moon-waning-crescent"></i></button>
+                  <button class="btn btn-success btn-sm">
+                    <i class="mdi mdi-content-save"></i>
+                  </button>
+                  <button class="btn btn-outline-secondary btn-sm">
+                    <i class="mdi mdi-moon-waning-crescent"></i>
+                  </button>
                 </div>
               </nav>
 
               <!-- Dimmed canvas -->
-              <div style="flex:1;overflow:hidden;background:#f0f0f0;padding:0.75rem;opacity:0.35;">
-                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Temperature</span></div>
-                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Humidity</span></div>
-                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Ceiling Light</span></div>
+              <div
+                style="
+                  flex: 1;
+                  overflow: hidden;
+                  background: #f0f0f0;
+                  padding: 0.75rem;
+                  opacity: 0.35;
+                "
+              >
+                <div class="bg-white rounded p-2 mb-2 border">
+                  <span class="small fw-semibold">Temperature</span>
+                </div>
+                <div class="bg-white rounded p-2 mb-2 border">
+                  <span class="small fw-semibold">Humidity</span>
+                </div>
+                <div class="bg-white rounded p-2 mb-2 border">
+                  <span class="small fw-semibold">Ceiling Light</span>
+                </div>
               </div>
 
               <!-- Bottom sheet — Views tab active -->
-              <div style="position:absolute;bottom:0;left:0;right:0;height:70%;background:white;border-radius:16px 16px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,0.15);display:flex;flex-direction:column;z-index:20;">
+              <div
+                style="
+                  position: absolute;
+                  bottom: 0;
+                  left: 0;
+                  right: 0;
+                  height: 70%;
+                  background: white;
+                  border-radius: 16px 16px 0 0;
+                  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+                  display: flex;
+                  flex-direction: column;
+                  z-index: 20;
+                "
+              >
                 <!-- drag handle -->
                 <div class="text-center pt-2 pb-1">
-                  <div style="width:40px;height:4px;background:#ccc;border-radius:2px;margin:0 auto;"></div>
+                  <div
+                    style="
+                      width: 40px;
+                      height: 4px;
+                      background: #ccc;
+                      border-radius: 2px;
+                      margin: 0 auto;
+                    "
+                  ></div>
                 </div>
                 <!-- Tabs: Views (active) | Entities | Components -->
                 <div class="d-flex border-bottom">
-                  <div class="flex-fill text-center py-2" style="color:#0d6efd;border-bottom:3px solid #0d6efd;cursor:pointer;">
-                    <i class="mdi mdi-view-list" style="font-size:1.1rem"></i>
+                  <div
+                    class="flex-fill text-center py-2"
+                    style="
+                      color: #0d6efd;
+                      border-bottom: 3px solid #0d6efd;
+                      cursor: pointer;
+                    "
+                  >
+                    <i class="mdi mdi-view-list" style="font-size: 1.1rem"></i>
                   </div>
-                  <div class="flex-fill text-center py-2 text-muted" style="cursor:pointer;">
-                    <i class="mdi mdi-database" style="font-size:1.1rem"></i>
+                  <div
+                    class="flex-fill text-center py-2 text-muted"
+                    style="cursor: pointer"
+                  >
+                    <i class="mdi mdi-database" style="font-size: 1.1rem"></i>
                   </div>
-                  <div class="flex-fill text-center py-2 text-muted" style="cursor:pointer;">
-                    <i class="mdi mdi-shape-plus" style="font-size:1.1rem"></i>
+                  <div
+                    class="flex-fill text-center py-2 text-muted"
+                    style="cursor: pointer"
+                  >
+                    <i class="mdi mdi-shape-plus" style="font-size: 1.1rem"></i>
                   </div>
                 </div>
                 <!-- View list -->
-                <div style="flex:1;overflow-y:auto;padding:0.75rem;">
+                <div style="flex: 1; overflow-y: auto; padding: 0.75rem">
                   <!-- View row: selected -->
-                  <div class="rounded px-2 py-2 mb-1 d-flex align-items-center justify-content-between border border-2"
-                    style="background:#e8f0fe;border-color:#0d6efd!important;">
-                    <span class="small fw-semibold" style="color:#0d6efd">
+                  <div
+                    class="rounded px-2 py-2 mb-1 d-flex align-items-center justify-content-between border border-2"
+                    style="
+                      background: #e8f0fe;
+                      border-color: #0d6efd !important;
+                    "
+                  >
+                    <span class="small fw-semibold" style="color: #0d6efd">
                       <i class="mdi mdi-home me-1"></i>Living Room
                     </span>
-                    <span class="badge bg-primary" style="font-size:0.65rem">selected</span>
+                    <span class="badge bg-primary" style="font-size: 0.65rem"
+                      >selected</span
+                    >
                   </div>
                   <!-- View row -->
-                  <div class="rounded px-2 py-2 mb-1 d-flex align-items-center justify-content-between border">
+                  <div
+                    class="rounded px-2 py-2 mb-1 d-flex align-items-center justify-content-between border"
+                  >
                     <span class="small fw-semibold text-muted">
                       <i class="mdi mdi-bed me-1"></i>Bedroom
                     </span>
                   </div>
                   <!-- View row -->
-                  <div class="rounded px-2 py-2 mb-1 d-flex align-items-center justify-content-between border">
+                  <div
+                    class="rounded px-2 py-2 mb-1 d-flex align-items-center justify-content-between border"
+                  >
                     <span class="small fw-semibold text-muted">
                       <i class="mdi mdi-silverware me-1"></i>Kitchen
                     </span>
                   </div>
                   <!-- View row -->
-                  <div class="rounded px-2 py-2 mb-1 d-flex align-items-center justify-content-between border">
+                  <div
+                    class="rounded px-2 py-2 mb-1 d-flex align-items-center justify-content-between border"
+                  >
                     <span class="small fw-semibold text-muted">
                       <i class="mdi mdi-garage me-1"></i>Garage
                     </span>
@@ -1605,23 +1957,117 @@
               </div>
 
               <!-- Floating toolbar: ↑ ↓ ✎ 🗑 + × -->
-              <div style="position:absolute;bottom:20px;right:20px;display:flex;flex-direction:row;gap:8px;z-index:30;">
-                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+              <div
+                style="
+                  position: absolute;
+                  bottom: 20px;
+                  right: 20px;
+                  display: flex;
+                  flex-direction: row;
+                  gap: 8px;
+                  z-index: 30;
+                "
+              >
+                <button
+                  style="
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 50%;
+                    background: #0d6efd;
+                    border: none;
+                    color: #fff;
+                    font-size: 1.2rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+                  "
+                >
                   <i class="mdi mdi-arrow-up"></i>
                 </button>
-                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                <button
+                  style="
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 50%;
+                    background: #0d6efd;
+                    border: none;
+                    color: #fff;
+                    font-size: 1.2rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+                  "
+                >
                   <i class="mdi mdi-arrow-down"></i>
                 </button>
-                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                <button
+                  style="
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 50%;
+                    background: #0d6efd;
+                    border: none;
+                    color: #fff;
+                    font-size: 1.2rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+                  "
+                >
                   <i class="mdi mdi-pencil"></i>
                 </button>
-                <button style="width:48px;height:48px;border-radius:50%;background:#dc3545;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                <button
+                  style="
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 50%;
+                    background: #dc3545;
+                    border: none;
+                    color: #fff;
+                    font-size: 1.2rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+                  "
+                >
                   <i class="mdi mdi-delete"></i>
                 </button>
-                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                <button
+                  style="
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 50%;
+                    background: #0d6efd;
+                    border: none;
+                    color: #fff;
+                    font-size: 1.2rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+                  "
+                >
                   <i class="mdi mdi-plus"></i>
                 </button>
-                <button style="width:48px;height:48px;border-radius:50%;background:#6c757d;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+                <button
+                  style="
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 50%;
+                    background: #6c757d;
+                    border: none;
+                    color: #fff;
+                    font-size: 1.2rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+                  "
+                >
                   <i class="mdi mdi-close"></i>
                 </button>
               </div>
@@ -1633,46 +2079,88 @@
             <p class="text-center small text-muted fw-semibold mb-2">
               Entity Inspector — separate web view
             </p>
-            <p class="text-center small text-muted mb-2" style="font-size:0.75rem">
+            <p
+              class="text-center small text-muted mb-2"
+              style="font-size: 0.75rem"
+            >
               Shows detailed properties and attributes for selected entity
             </p>
             <div
               class="border border-2 bg-white rounded-4 overflow-hidden shadow"
-              style="width:375px;height:680px;display:flex;flex-direction:column;"
+              style="
+                width: 375px;
+                height: 680px;
+                display: flex;
+                flex-direction: column;
+              "
             >
               <!-- Navbar -->
-              <nav class="navbar bg-light px-2 py-1 d-flex justify-content-between" style="border-bottom:2px solid #ffc107">
+              <nav
+                class="navbar bg-light px-2 py-1 d-flex justify-content-between"
+                style="border-bottom: 2px solid #ffc107"
+              >
                 <div class="d-flex gap-1 align-items-center">
-                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1" style="color:#0078d4" title="Editor">
-                    <i class="mdi mdi-pencil-ruler" style="font-size:1.2rem"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none px-2 py-1"
+                    style="color: #0078d4"
+                    title="Editor"
+                  >
+                    <i
+                      class="mdi mdi-pencil-ruler"
+                      style="font-size: 1.2rem"
+                    ></i>
                   </button>
-                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
-                    <i class="mdi mdi-devices" style="font-size:1.2rem"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
+                  >
+                    <i class="mdi mdi-devices" style="font-size: 1.2rem"></i>
                   </button>
-                  <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
-                    <i class="mdi mdi-database" style="font-size:1.2rem"></i>
+                  <button
+                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
+                  >
+                    <i class="mdi mdi-database" style="font-size: 1.2rem"></i>
                   </button>
                 </div>
                 <div class="d-flex gap-1 align-items-center">
-                  <button class="btn btn-success btn-sm"><i class="mdi mdi-content-save"></i></button>
-                  <button class="btn btn-outline-secondary btn-sm"><i class="mdi mdi-moon-waning-crescent"></i></button>
+                  <button class="btn btn-success btn-sm">
+                    <i class="mdi mdi-content-save"></i>
+                  </button>
+                  <button class="btn btn-outline-secondary btn-sm">
+                    <i class="mdi mdi-moon-waning-crescent"></i>
+                  </button>
                 </div>
               </nav>
 
               <!-- Inspector content -->
-              <div style="flex:1;overflow-y:auto;padding:1rem;background:#fff;">
+              <div
+                style="
+                  flex: 1;
+                  overflow-y: auto;
+                  padding: 1rem;
+                  background: #fff;
+                "
+              >
                 <!-- Inspector header -->
-                <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
-                  <i class="mdi mdi-lightbulb text-warning" style="font-size:1.3rem"></i>
+                <div
+                  class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom"
+                >
+                  <i
+                    class="mdi mdi-lightbulb text-warning"
+                    style="font-size: 1.3rem"
+                  ></i>
                   <div class="flex-grow-1">
                     <div class="fw-semibold small">Ceiling Light</div>
-                    <div class="text-muted" style="font-size:0.75rem">light.ceiling</div>
+                    <div class="text-muted" style="font-size: 0.75rem">
+                      light.ceiling
+                    </div>
                   </div>
                 </div>
 
                 <!-- Component type -->
                 <div class="mb-3">
-                  <label class="small fw-semibold text-muted mb-1 d-block">Component Type</label>
+                  <label class="small fw-semibold text-muted mb-1 d-block"
+                    >Component Type</label
+                  >
                   <select class="form-select form-select-sm">
                     <option selected>HaSwitch</option>
                     <option>HaLight</option>
@@ -1682,33 +2170,56 @@
 
                 <!-- Basic properties -->
                 <div class="mb-3">
-                  <div class="small fw-semibold text-muted mb-2">Properties</div>
-                  
+                  <div class="small fw-semibold text-muted mb-2">
+                    Properties
+                  </div>
+
                   <div class="mb-2">
                     <label class="form-label small mb-1">Title</label>
-                    <input class="form-control form-control-sm" value="Ceiling Light" />
+                    <input
+                      class="form-control form-control-sm"
+                      value="Ceiling Light"
+                    />
                   </div>
 
                   <div class="mb-2">
                     <label class="form-label small mb-1">Show Icon</label>
                     <div class="form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="showicon2" checked />
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="showicon2"
+                        checked
+                      />
                     </div>
                   </div>
 
                   <div class="mb-2">
                     <label class="form-label small mb-1">Icon</label>
-                    <input class="form-control form-control-sm" value="mdi:lightbulb" />
+                    <input
+                      class="form-control form-control-sm"
+                      value="mdi:lightbulb"
+                    />
                   </div>
                 </div>
 
                 <!-- Attributes section -->
                 <div class="mb-3">
-                  <div class="small fw-semibold text-muted mb-2">Attributes</div>
+                  <div class="small fw-semibold text-muted mb-2">
+                    Attributes
+                  </div>
                   <div class="border rounded p-2 small mb-2">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                      <span class="text-monospace" style="font-size:0.75rem">brightness</span>
-                      <span class="badge bg-secondary" style="font-size:0.65rem">number</span>
+                    <div
+                      class="d-flex justify-content-between align-items-center mb-1"
+                    >
+                      <span class="text-monospace" style="font-size: 0.75rem"
+                        >brightness</span
+                      >
+                      <span
+                        class="badge bg-secondary"
+                        style="font-size: 0.65rem"
+                        >number</span
+                      >
                     </div>
                   </div>
                   <select class="form-select form-select-sm">
@@ -1718,8 +2229,12 @@
 
                 <!-- Actions -->
                 <div class="d-flex gap-2">
-                  <button class="btn btn-sm btn-outline-danger flex-grow-1">Remove</button>
-                  <button class="btn btn-sm btn-primary flex-grow-1">Save</button>
+                  <button class="btn btn-sm btn-outline-danger flex-grow-1">
+                    Remove
+                  </button>
+                  <button class="btn btn-sm btn-primary flex-grow-1">
+                    Save
+                  </button>
                 </div>
               </div>
             </div>
@@ -1738,10 +2253,10 @@
       >
         <p><strong>UI/UX Showcase</strong></p>
         <p style="font-size: 0.875rem">
-          Desktop &amp; Mobile • Dashboard &amp; Editor • Touch-First Interactions
+          Desktop &amp; Mobile • Dashboard &amp; Editor • Touch-First
+          Interactions
         </p>
       </footer>
     </div>
   </body>
 </html>
-

@@ -10,9 +10,7 @@ const MOBILE_BREAKPOINT = 768;
  */
 export function useIsMobile(breakpoint = MOBILE_BREAKPOINT) {
   const isMobile = ref(
-    typeof window !== "undefined"
-      ? window.innerWidth < breakpoint
-      : false,
+    typeof window !== "undefined" ? window.innerWidth < breakpoint : false,
   );
 
   const onResize = () => {

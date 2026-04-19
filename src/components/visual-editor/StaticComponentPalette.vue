@@ -35,7 +35,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         :draggable="!mobileMode"
         @dragstart="!mobileMode && handleDragStart($event, component)"
         @dragend="!mobileMode && handleDragEnd"
-        @touchend.prevent="mobileMode && $emit('add-entity', { type: component.type })"
+        @touchend.prevent="
+          mobileMode && $emit('add-entity', { type: component.type })
+        "
         @click="mobileMode && $emit('add-entity', { type: component.type })"
       >
         <div

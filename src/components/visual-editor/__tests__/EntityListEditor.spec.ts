@@ -171,7 +171,9 @@ describe("EntityListEditor.vue", () => {
       wrapper.vm.removeEntity(1); // Remove second entity (light.bedroom)
       await nextTick();
 
-      const updatedEntities = wrapper.emitted("update:modelValue")![0][0] as string[];
+      const updatedEntities = wrapper.emitted(
+        "update:modelValue",
+      )![0][0] as string[];
       expect(updatedEntities).not.toContain("light.bedroom");
       expect(updatedEntities).toContain("light.living_room");
       expect(updatedEntities).toContain("switch.garage");

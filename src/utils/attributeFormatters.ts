@@ -19,13 +19,16 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 /**
- * Format a numeric value for display 
+ * Format a numeric value for display
  * Strips decimals off integers, otherwise limits to fractional digits.
  * @param {number|string|null} val - Value to format
  * @param {number} fractionalDigits - Number of decimals
  * @returns {string} Formatted number
  */
-export const formatNumericValue = (val: number | string | null | undefined, fractionalDigits = 2): string => {
+export const formatNumericValue = (
+  val: number | string | null | undefined,
+  fractionalDigits = 2,
+): string => {
   if (val == null || val === "") return "";
   const num = Number(val);
   if (isNaN(num)) return String(val);

@@ -96,7 +96,9 @@ export const fetchJsonWithTimeout = async (
     let body = "<unable to read response body>";
     try {
       if (response && typeof (response as any).text === "function") {
-        body = await (response as any).text().catch(() => "<unable to read response body>");
+        body = await (response as any)
+          .text()
+          .catch(() => "<unable to read response body>");
       }
     } catch (err) {
       body = "<unable to read response body>";

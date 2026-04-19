@@ -57,22 +57,30 @@ describe("EditorActionBar", () => {
   describe("disabled states", () => {
     it("disables Up button when canMoveUp=false", () => {
       const wrapper = mountBar({ canMoveUp: false });
-      expect(wrapper.find('[title="Move up"]').attributes("disabled")).toBeDefined();
+      expect(
+        wrapper.find('[title="Move up"]').attributes("disabled"),
+      ).toBeDefined();
     });
 
     it("enables Up button when canMoveUp=true", () => {
       const wrapper = mountBar({ canMoveUp: true });
-      expect(wrapper.find('[title="Move up"]').attributes("disabled")).toBeUndefined();
+      expect(
+        wrapper.find('[title="Move up"]').attributes("disabled"),
+      ).toBeUndefined();
     });
 
     it("disables Down button when canMoveDown=false", () => {
       const wrapper = mountBar({ canMoveDown: false });
-      expect(wrapper.find('[title="Move down"]').attributes("disabled")).toBeDefined();
+      expect(
+        wrapper.find('[title="Move down"]').attributes("disabled"),
+      ).toBeDefined();
     });
 
     it("enables Down button when canMoveDown=true", () => {
       const wrapper = mountBar({ canMoveDown: true });
-      expect(wrapper.find('[title="Move down"]').attributes("disabled")).toBeUndefined();
+      expect(
+        wrapper.find('[title="Move down"]').attributes("disabled"),
+      ).toBeUndefined();
     });
   });
 
@@ -83,12 +91,20 @@ describe("EditorActionBar", () => {
     });
 
     it("uses custom editLabel", () => {
-      const wrapper = mountBar({ showEdit: true, editLabel: "Edit view properties" });
-      expect(wrapper.find('[title="Edit view properties"]').exists()).toBe(true);
+      const wrapper = mountBar({
+        showEdit: true,
+        editLabel: "Edit view properties",
+      });
+      expect(wrapper.find('[title="Edit view properties"]').exists()).toBe(
+        true,
+      );
     });
 
     it("uses custom deleteLabel", () => {
-      const wrapper = mountBar({ showDelete: true, deleteLabel: "Remove entity" });
+      const wrapper = mountBar({
+        showDelete: true,
+        deleteLabel: "Remove entity",
+      });
       expect(wrapper.find('[title="Remove entity"]').exists()).toBe(true);
     });
   });
@@ -96,11 +112,17 @@ describe("EditorActionBar", () => {
   describe("button styling", () => {
     it("Delete button has btn-fab-danger class", () => {
       const wrapper = mountBar({ showDelete: true });
-      expect(wrapper.find('[title="Delete"]').classes()).toContain("btn-fab-danger");
+      expect(wrapper.find('[title="Delete"]').classes()).toContain(
+        "btn-fab-danger",
+      );
     });
 
     it("all buttons have btn-fab class", () => {
-      const wrapper = mountBar({ showEdit: true, showDelete: true, showAdd: true });
+      const wrapper = mountBar({
+        showEdit: true,
+        showDelete: true,
+        showAdd: true,
+      });
       const buttons = wrapper.findAll(".btn-fab");
       expect(buttons.length).toBeGreaterThanOrEqual(4); // up, down, delete, edit, add
     });
