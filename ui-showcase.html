@@ -61,8 +61,8 @@
         📱 UI/UX Showcase - Mobile Editor & Dialogs
       </h1>
       <p class="text-center text-muted mb-5">
-        Here are the proposed UI changes for optimizing the Visual Editor on
-        mobile devices (iOS/Android via Capacitor).
+        Here are the proposed UI changes for optimizing the dashboard on
+        mobile devices and small screens.
       </p>
 
       <!-- DESKTOP DASHBOARD VIEW REFERENCE -->
@@ -543,10 +543,10 @@
 
       <!-- MOBILE DASHBOARD VIEW -->
       <div class="card-section" id="mobile-dashboard">
-        <h2 class="mb-4">📱 Mobile Dashboard View (375px)</h2>
+        <h2 class="mb-4">📱 Small Screen Dashboard View (375px - Responsive)</h2>
         <p class="text-muted small mb-4">
-          On mobile, the navbar shows only icons. Cards stack in a single column
-          with the same content as desktop.
+          On small screens, the navbar shows only icons. Cards stack in a responsive grid
+          that adapts to available screen width, with optimized spacing and touch targets.
         </p>
 
         <div
@@ -1628,22 +1628,22 @@
             </div>
           </div>
 
-          <!-- STATE 4: Property editor — card with multiple entities, entity selected -->
+          <!-- STATE 4: Entity Inspector — full view -->
           <div>
             <p class="text-center small text-muted fw-semibold mb-2">
-              Property editor — entity selected in list
+              Entity Inspector — separate web view
             </p>
             <p class="text-center small text-muted mb-2" style="font-size:0.75rem">
-              Floating toolbar: <strong>[↑] [↓] [🗑] [×]</strong>
+              Shows detailed properties and attributes for selected entity
             </p>
             <div
               class="border border-2 bg-white rounded-4 overflow-hidden shadow"
-              style="width:375px;height:680px;display:flex;flex-direction:column;position:relative;"
+              style="width:375px;height:680px;display:flex;flex-direction:column;"
             >
               <!-- Navbar -->
               <nav class="navbar bg-light px-2 py-1 d-flex justify-content-between" style="border-bottom:2px solid #ffc107">
                 <div class="d-flex gap-1 align-items-center">
-                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1" style="color:#0078d4">
+                  <button class="btn btn-link nav-link text-decoration-none px-2 py-1" style="color:#0078d4" title="Editor">
                     <i class="mdi mdi-pencil-ruler" style="font-size:1.2rem"></i>
                   </button>
                   <button class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1">
@@ -1659,82 +1659,68 @@
                 </div>
               </nav>
 
-              <!-- Dimmed canvas -->
-              <div style="flex:1;overflow:hidden;background:#f0f0f0;padding:0.75rem;opacity:0.35;">
-                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Temperature</span></div>
-                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Humidity</span></div>
-                <div class="bg-white rounded p-2 mb-2 border"><span class="small fw-semibold">Ceiling Light</span></div>
-              </div>
-
-              <!-- Inspector bottom sheet -->
-              <div style="position:absolute;bottom:0;left:0;right:0;height:72%;background:white;border-radius:16px 16px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,0.15);display:flex;flex-direction:column;z-index:20;">
-                <!-- drag handle -->
-                <div class="text-center pt-2 pb-1">
-                  <div style="width:40px;height:4px;background:#ccc;border-radius:2px;margin:0 auto;"></div>
-                </div>
+              <!-- Inspector content -->
+              <div style="flex:1;overflow-y:auto;padding:1rem;background:#fff;">
                 <!-- Inspector header -->
-                <div class="px-3 py-2 border-bottom d-flex align-items-center gap-2">
-                  <i class="mdi mdi-home-group text-primary" style="font-size:1.1rem"></i>
-                  <span class="fw-semibold small">Room Card — Living Room</span>
-                  <span class="badge bg-secondary ms-auto" style="font-size:0.65rem">HaRoom</span>
-                </div>
-                <!-- Property: card type (non-editable) -->
-                <div style="flex:1;overflow-y:auto;padding:0.75rem">
-                  <!-- Entity list section -->
-                  <div class="mb-2">
-                    <label class="form-label small fw-semibold mb-1">Entities</label>
-                    <!-- Entity row: selected -->
-                    <div class="rounded px-2 py-2 mb-1 d-flex align-items-center border border-2"
-                      style="background:#e8f0fe;border-color:#0d6efd!important;cursor:pointer;">
-                      <i class="mdi mdi-thermometer me-2 text-warning"></i>
-                      <div style="flex:1;min-width:0;">
-                        <div class="small fw-semibold text-truncate" style="color:#0d6efd">Living Room Temp</div>
-                        <div class="text-muted" style="font-size:0.7rem">sensor.living_room_temp</div>
-                      </div>
-                    </div>
-                    <!-- Entity row -->
-                    <div class="rounded px-2 py-2 mb-1 d-flex align-items-center border" style="cursor:pointer;">
-                      <i class="mdi mdi-water-percent me-2 text-info"></i>
-                      <div style="flex:1;min-width:0;">
-                        <div class="small fw-semibold text-truncate">Humidity</div>
-                        <div class="text-muted" style="font-size:0.7rem">sensor.humidity</div>
-                      </div>
-                    </div>
-                    <!-- Entity row -->
-                    <div class="rounded px-2 py-2 mb-1 d-flex align-items-center border" style="cursor:pointer;">
-                      <i class="mdi mdi-lightbulb me-2 text-warning"></i>
-                      <div style="flex:1;min-width:0;">
-                        <div class="small fw-semibold text-truncate">Ceiling Light</div>
-                        <div class="text-muted" style="font-size:0.7rem">light.ceiling</div>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- Other property row -->
-                  <div class="mb-2">
-                    <label class="form-label small fw-semibold mb-1">Title</label>
-                    <input class="form-control form-control-sm" value="Living Room" />
-                  </div>
-                  <div class="mb-2">
-                    <label class="form-label small fw-semibold mb-1">Columns</label>
-                    <input class="form-control form-control-sm" type="number" value="2" />
+                <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                  <i class="mdi mdi-lightbulb text-warning" style="font-size:1.3rem"></i>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold small">Ceiling Light</div>
+                    <div class="text-muted" style="font-size:0.75rem">light.ceiling</div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Floating toolbar: ↑ ↓ 🗑 × (entity in list selected) -->
-              <div style="position:absolute;bottom:20px;right:20px;display:flex;flex-direction:row;gap:8px;z-index:30;">
-                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
-                  <i class="mdi mdi-arrow-up"></i>
-                </button>
-                <button style="width:48px;height:48px;border-radius:50%;background:#0d6efd;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
-                  <i class="mdi mdi-arrow-down"></i>
-                </button>
-                <button style="width:48px;height:48px;border-radius:50%;background:#dc3545;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
-                  <i class="mdi mdi-delete"></i>
-                </button>
-                <button style="width:48px;height:48px;border-radius:50%;background:#6c757d;border:none;color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
-                  <i class="mdi mdi-close"></i>
-                </button>
+                <!-- Component type -->
+                <div class="mb-3">
+                  <label class="small fw-semibold text-muted mb-1 d-block">Component Type</label>
+                  <select class="form-select form-select-sm">
+                    <option selected>HaSwitch</option>
+                    <option>HaLight</option>
+                    <option>HaFan</option>
+                  </select>
+                </div>
+
+                <!-- Basic properties -->
+                <div class="mb-3">
+                  <div class="small fw-semibold text-muted mb-2">Properties</div>
+                  
+                  <div class="mb-2">
+                    <label class="form-label small mb-1">Title</label>
+                    <input class="form-control form-control-sm" value="Ceiling Light" />
+                  </div>
+
+                  <div class="mb-2">
+                    <label class="form-label small mb-1">Show Icon</label>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="showicon2" checked />
+                    </div>
+                  </div>
+
+                  <div class="mb-2">
+                    <label class="form-label small mb-1">Icon</label>
+                    <input class="form-control form-control-sm" value="mdi:lightbulb" />
+                  </div>
+                </div>
+
+                <!-- Attributes section -->
+                <div class="mb-3">
+                  <div class="small fw-semibold text-muted mb-2">Attributes</div>
+                  <div class="border rounded p-2 small mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span class="text-monospace" style="font-size:0.75rem">brightness</span>
+                      <span class="badge bg-secondary" style="font-size:0.65rem">number</span>
+                    </div>
+                  </div>
+                  <select class="form-select form-select-sm">
+                    <option>-- Add attribute --</option>
+                  </select>
+                </div>
+
+                <!-- Actions -->
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-danger flex-grow-1">Remove</button>
+                  <button class="btn btn-sm btn-primary flex-grow-1">Save</button>
+                </div>
               </div>
             </div>
           </div>
@@ -1758,234 +1744,4 @@
     </div>
   </body>
 </html>
-                <div class="d-flex gap-1 align-items-center">
-                  <button
-                    class="btn btn-link nav-link text-decoration-none px-2 py-1"
-                    style="color: #0078d4"
-                    title="Editor"
-                  >
-                    <i
-                      class="mdi mdi-pencil-ruler"
-                      style="font-size: 1.2rem"
-                    ></i>
-                  </button>
-                  <button
-                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
-                  >
-                    <i class="mdi mdi-devices" style="font-size: 1.2rem"></i>
-                  </button>
-                  <button
-                    class="btn btn-link nav-link text-decoration-none text-muted px-2 py-1"
-                  >
-                    <i class="mdi mdi-database" style="font-size: 1.2rem"></i>
-                  </button>
-                </div>
-                <div class="d-flex gap-1 align-items-center">
-                  <button class="btn btn-success btn-sm">
-                    <i class="mdi mdi-content-save"></i>
-                  </button>
-                  <button class="btn btn-outline-secondary btn-sm">
-                    <i class="mdi mdi-moon-waning-crescent"></i>
-                  </button>
-                </div>
-              </nav>
 
-              <!-- Canvas — dimmed, selected card highlighted -->
-              <div
-                style="
-                  flex: 1;
-                  overflow: hidden;
-                  background: #f0f0f0;
-                  padding: 0.75rem;
-                  opacity: 0.35;
-                "
-              >
-                <div class="bg-white rounded p-2 mb-2 border">
-                  <span class="small fw-semibold">Temperature</span>
-                </div>
-                <!-- selected card -->
-                <div
-                  class="rounded p-2 mb-2 border border-2"
-                  style="background: #e8f0fe; border-color: #0078d4 !important"
-                >
-                  <span class="small fw-semibold" style="color: #0078d4"
-                    >Ceiling Light</span
-                  >
-                  <span class="badge bg-warning text-dark small ms-2">on</span>
-                </div>
-                <div class="bg-white rounded p-2 mb-2 border">
-                  <span class="small fw-semibold">Floor Lamp</span>
-                </div>
-              </div>
-
-              <!-- Entity Inspector bottom sheet -->
-              <div
-                style="
-                  position: absolute;
-                  bottom: 0;
-                  left: 0;
-                  right: 0;
-                  height: 72%;
-                  background: white;
-                  border-radius: 16px 16px 0 0;
-                  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-                  display: flex;
-                  flex-direction: column;
-                  z-index: 20;
-                "
-              >
-                <!-- Drag handle -->
-                <div class="text-center pt-2 pb-1">
-                  <div
-                    style="
-                      width: 40px;
-                      height: 4px;
-                      background: #ccc;
-                      border-radius: 2px;
-                      margin: 0 auto;
-                    "
-                  ></div>
-                </div>
-                <!-- Inspector header -->
-                <div
-                  class="d-flex justify-content-between align-items-center px-3 pt-1 pb-2 border-bottom"
-                >
-                  <span class="fw-semibold" style="font-size: 0.9rem"
-                    >Entity Inspector</span
-                  >
-                  <button
-                    class="btn btn-sm btn-outline-secondary py-0 px-2"
-                    style="font-size: 0.75rem"
-                  >
-                    <i class="mdi mdi-close"></i>
-                  </button>
-                </div>
-                <!-- Inspector body -->
-                <div style="flex: 1; overflow-y: auto; padding: 0.75rem">
-                  <!-- Entity ID -->
-                  <div class="mb-3">
-                    <div class="small fw-semibold text-muted mb-1">
-                      Entity ID
-                    </div>
-                    <div
-                      class="small text-monospace bg-light rounded px-2 py-1"
-                      style="font-size: 0.78rem"
-                    >
-                      light.ceiling
-                    </div>
-                  </div>
-                  <!-- Component type -->
-                  <div class="mb-3">
-                    <label class="small fw-semibold text-muted mb-1 d-block"
-                      >Component Type</label
-                    >
-                    <select class="form-select form-select-sm" disabled>
-                      <option selected>HaSwitch (Default)</option>
-                    </select>
-                  </div>
-                  <!-- Properties -->
-                  <div class="mb-3">
-                    <div class="small fw-semibold text-muted mb-2">
-                      Properties
-                    </div>
-                    <!-- Name -->
-                    <div class="mb-2">
-                      <label class="small text-muted mb-1 d-block">Name</label>
-                      <input
-                        class="form-control form-control-sm"
-                        value="Ceiling Light"
-                        disabled
-                      />
-                    </div>
-                    <!-- Show icon toggle -->
-                    <div
-                      class="mb-2 d-flex justify-content-between align-items-center"
-                    >
-                      <label class="small text-muted">Show Icon</label>
-                      <div class="form-check form-switch mb-0">
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          checked
-                          disabled
-                          style="cursor: default"
-                        />
-                      </div>
-                    </div>
-                    <!-- Icon -->
-                    <div class="mb-2">
-                      <label class="small text-muted mb-1 d-block">Icon</label>
-                      <div class="input-group input-group-sm">
-                        <span class="input-group-text"
-                          ><i class="mdi mdi-lightbulb"></i
-                        ></span>
-                        <input
-                          class="form-control"
-                          value="mdi:lightbulb"
-                          disabled
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <!-- Attributes -->
-                  <div class="mb-2">
-                    <div class="small fw-semibold text-muted mb-2">
-                      Attributes
-                    </div>
-                    <div
-                      class="d-flex align-items-center justify-content-between border rounded px-2 py-1 mb-1 small"
-                    >
-                      <span class="text-monospace" style="font-size: 0.77rem"
-                        >brightness</span
-                      >
-                      <span
-                        class="badge bg-secondary"
-                        style="font-size: 0.65rem"
-                        >num</span
-                      >
-                    </div>
-                    <select class="form-select form-select-sm mt-2" disabled>
-                      <option>-- Add attribute --</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <!-- FAB hidden behind sheet (shown for context) -->
-              <button
-                class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center"
-                style="
-                  position: absolute;
-                  bottom: 20px;
-                  right: 20px;
-                  width: 52px;
-                  height: 52px;
-                  font-size: 1.4rem;
-                  z-index: 10;
-                  opacity: 0.3;
-                "
-              >
-                <i class="mdi mdi-plus"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <footer
-        style="
-          text-align: center;
-          margin-top: 4rem;
-          padding: 2rem;
-          color: #999;
-          border-top: 1px solid #ddd;
-        "
-      >
-        <p><strong>UI/UX Showcase</strong></p>
-        <p style="font-size: 0.875rem">
-          Desktop & Mobile • Dashboard & Editor • Touch-First Interactions
-        </p>
-      </footer>
-    </div>
-  </body>
-</html>
