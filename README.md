@@ -4,7 +4,6 @@
 ![Docker Pulls](https://img.shields.io/docker/pulls/mpse2/ha-dashboard)
 ![Docker Image Size](https://img.shields.io/docker/image-size/mpse2/ha-dashboard/latest)
 ![GitHub Actions](https://img.shields.io/github/actions/workflow/status/mp-se/ha-dashboard/publish.yml)
-![License](https://img.shields.io/github/license/mp-se/ha-dashboard)
 ![Last Commit](https://img.shields.io/github/last-commit/mp-se/ha-dashboard)
 
 # Home Assistant Dashboard
