@@ -1,5 +1,14 @@
 # Release Notes
 
+## Unreleased
+
+- Improved error handling when Home Assistant server is not reachable:
+  - Fixed configuration dialog appearing incorrectly when config is loaded but server is unavailable.
+  - Only show credential dialog when credentials are actually missing; show error banner with retry option when server connection fails.
+  - Added "Retry Connection" button to error banner for server-not-found, certificate validation, and CORS errors.
+  - Updated `haStore.ts` to only set `needsCredentials` flag when credentials are actually missing, not on every connection error.
+  - **Fixed ErrorBanner not displaying errors set before component mount**: Added immediate watcher to catch errors that occur during initialization.
+
 ## April 2026 - v0.8.0
 
 - Bug fixes & editor improvements:

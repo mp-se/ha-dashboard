@@ -128,27 +128,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     <!-- Connection status alert -->
     <div v-if="!store.isLocalMode && !store.needsCredentials">
       <div
-        v-if="!store.isConnected && store.lastError"
-        class="alert alert-danger m-0 p-2 text-truncate"
-        role="alert"
-      >
-        <div class="d-flex justify-content-between align-items-center">
-          <div class="me-2 small text-truncate">
-            {{ store.lastError }}
-          </div>
-          <div>
-            <button
-              class="btn btn-sm btn-danger me-2"
-              title="Retry connection"
-              @click="store.retryConnection()"
-            >
-              Retry
-            </button>
-          </div>
-        </div>
-      </div>
-      <div
-        v-else-if="!store.isConnected && store.isInitialized"
+        v-if="!store.isConnected && store.isInitialized && !store.lastError"
         class="alert alert-warning m-0 p-2"
         role="alert"
       >

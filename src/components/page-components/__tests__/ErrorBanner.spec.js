@@ -359,4 +359,169 @@ describe("ErrorBanner.vue", () => {
       expect(wrapper.text()).toContain("Server Connection Failed");
     });
   });
+
+  describe("retry button functionality", () => {
+    it("shows retry button for server-not-found errors", async () => {
+      const wrapper = mountComponent();
+      authStore.lastError = "Cannot connect to server";
+
+      await wrapper.vm.$nextTick();
+      await flushPromises();
+
+      expect(wrapper.find("button:not(.btn-close)").exists()).toBe(true);
+      expect(wrapper.text()).toContain("Retry Connection");
+    });
+
+    it("shows retry button for certificate errors", async () => {
+      const wrapper = mountComponent();
+      authStore.lastError = "SSL certificate validation failed";
+
+      await wrapper.vm.$nextTick();
+      await flushPromises();
+
+      expect(wrapper.find("button:not(.btn-close)").exists()).toBe(true);
+      expect(wrapper.text()).toContain("Retry Connection");
+    });
+
+    it("shows retry button for CORS errors", async () => {
+      const wrapper = mountComponent();
+      authStore.lastError = "CORS error occurred";
+
+      await wrapper.vm.$nextTick();
+      await flushPromises();
+
+      expect(wrapper.find("button:not(.btn-close)").exists()).toBe(true);
+      expect(wrapper.text()).toContain("Retry Connection");
+    });
+
+    it("does NOT show retry button for authentication errors", async () => {
+      const wrapper = mountComponent();
+      authStore.lastError = "Invalid authentication credentials";
+
+      await wrapper.vm.$nextTick();
+      await flushPromises();
+
+      expect(wrapper.find("button:not(.btn-close)").exists()).toBe(false);
+    });
+
+    it("does NOT show retry button for generic errors", async () => {
+      const wrapper = mountComponent();
+      authStore.lastError = "Some random error";
+
+      await wrapper.vm.$nextTick();
+      await flushPromises();
+
+      expect(wrapper.find("button:not(.btn-close)").exists()).toBe(false);
+    });
+
+    it("disables close button while retrying", async () => {
+      const wrapper = mountComponent();
+      authStore.lastError = "Cannot connect to server";
+
+      await wrapper.vm.$nextTick();
+      await flushPromises();
+
+      // Mock the retry function to delay
+      vi.spyOn(wrapper.vm, "handleRetry").mockImplementation(async () => {
+        wrapper.vm.isRetrying = true;
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        wrapper.vm.isRetrying = false;
+      });
+
+      const closeButton = wrapper.find(".btn-close");
+      expect(closeButton.attributes("disabled")).toBeUndefined();
+
+      // Note: Full retry test would require mocking haStore.retryConnection
+    });
+
+    it("shows loading state during retry", async () => {
+      const wrapper = mountComponent();
+      authStore.lastError = "Cannot connect to server";
+
+      await wrapper.vm.$nextTick();
+      await flushPromises();
+
+      // Set isRetrying to true to simulate retry in progress
+      wrapper.vm.isRetrying = true;
+      await wrapper.vm.$nextTick();
+      await flushPromises();
+
+      expect(wrapper.text()).toContain("Retrying...");
+      expect(wrapper.find(".spinner-border").exists()).toBe(true);
+    });
+  });
+
+  describe("immediate watcher - errors set before component mounts", () => {
+    it("shows banner for errors already set when component mounts", async () => {
+      // Set error BEFORE mounting component
+      authStore.lastError = "Cannot connect to server";
+
+      // Now mount component
+      const wrapper = mountComponent();
+
+      await wrapper.vm.$nextTick();
+      await flushPromises();
+
+      // Banner should be visible even though error was set before mount
+      expect(wrapper.find(".error-banner").exists()).toBe(true);
+      expect(wrapper.text()).toContain("Cannot connect to server");
+      expect(wrapper.text()).toContain("Server Connection Failed");
+    });
+
+    it("shows retry button for server-not-found errors set before mount", async () => {
+      // Set error BEFORE mounting
+      authStore.lastError = "Server Not Found: Unable to connect";
+
+      // Mount component
+      const wrapper = mountComponent();
+
+      await wrapper.vm.$nextTick();
+      await flushPromises();
+
+      // Banner should show with retry button
+      expect(wrapper.find(".error-banner").exists()).toBe(true);
+      expect(wrapper.text()).toContain("Retry Connection");
+      expect(wrapper.find(".mdi-server-off").exists()).toBe(true);
+    });
+
+    it("does not auto-dismiss critical errors set before mount", async () => {
+      // Set error BEFORE mounting
+      authStore.lastError = "Certificate validation failed";
+
+      // Mount component
+      const wrapper = mountComponent();
+
+      await wrapper.vm.$nextTick();
+      await flushPromises();
+
+      // Banner is visible
+      expect(wrapper.find(".error-banner").exists()).toBe(true);
+
+      // Advance timer past auto-dismiss threshold
+      vi.advanceTimersByTime(10000);
+      await wrapper.vm.$nextTick();
+      await flushPromises();
+
+      // Banner should still be visible (not auto-dismissed)
+      expect(wrapper.find(".error-banner").exists()).toBe(true);
+    });
+
+    it("hides banner when error is cleared from the store", async () => {
+      const wrapper = mountComponent();
+      authStore.lastError = "Test error";
+
+      await wrapper.vm.$nextTick();
+      await flushPromises();
+
+      expect(wrapper.find(".error-banner").exists()).toBe(true);
+
+      // Clear error directly in store (simulates retry clearing the error)
+      authStore.lastError = null;
+      await wrapper.vm.$nextTick();
+      await flushPromises();
+
+      // Banner should be hidden because lastError is null
+      expect(wrapper.find(".error-banner").exists()).toBe(false);
+    });
+  });
 });

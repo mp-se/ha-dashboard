@@ -110,7 +110,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useHaStore } from "@/stores/haStore";
-import { useAuthStore } from "@/stores/authStore";
 import { createLogger } from "@/utils/logger";
 
 // Constants
@@ -165,7 +164,6 @@ const props = defineProps({
 });
 
 const store = useHaStore();
-const authStore = useAuthStore();
 const logger = createLogger("HaSensorGraph");
 
 // Entity list: convert single entity to array, handle existing arrays
@@ -400,9 +398,6 @@ async function loadHistory() {
   points3.value = [];
 
   try {
-    // Clear previous error when starting new load
-    authStore.clearError();
-
     const entitiesToLoad = resolvedEntities.value.filter(
       (e) => e && e.entity_id,
     );
