@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Fixed visual editor buttons missing in browser (desktop) view after mobile floating toolbar was introduced:
+  - Restored inline "Deselect" and "Remove" buttons in `EntityInspector` for desktop; hidden on mobile where the floating toolbar handles them.
+  - Restored per-entity trash button in `EntityListEditor` for multi-entity cards on desktop; hidden on mobile.
+
 - Improved error handling when Home Assistant server is not reachable:
   - Fixed configuration dialog appearing incorrectly when config is loaded but server is unavailable.
   - Only show credential dialog when credentials are actually missing; show error banner with retry option when server connection fails.
