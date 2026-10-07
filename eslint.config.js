@@ -14,6 +14,14 @@ export default [
   // ESLint recommended rules
   js.configs.recommended,
 
+  // Preserve the project's existing lint policy across ESLint 10's new recommended rules.
+  {
+    rules: {
+      "no-useless-assignment": "off",
+      "preserve-caught-error": "off",
+    },
+  },
+
   // Vue 3 recommended rules (flat config variant from eslint-plugin-vue v9)
   ...pluginVue.configs["flat/recommended"],
 
