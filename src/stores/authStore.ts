@@ -150,7 +150,7 @@ export const useAuthStore = defineStore("auth", () => {
     // Priority 3: Environment variables (Vite legacy)
     const envUrl = (import.meta as any).env.VITE_HA_URL;
     const envToken = (import.meta as any).env.VITE_HA_TOKEN;
-    if (envUrl && envToken) {
+    if (import.meta.env.DEV && envUrl && envToken) {
       haUrl.value = envUrl.trim();
       accessToken.value = envToken.trim();
       credentialsFromConfig.value = true;

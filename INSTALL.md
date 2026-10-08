@@ -147,7 +147,15 @@ cp server.crt ca.crt
 
 1. **Generate or prepare SSL certificates** (see [SSL Certificate Setup](#ssl-certificate-setup))
 
-2. **Configure the dashboard** by editing `public/data/dashboard-config.json`:
+2. **Set the dashboard sign-in password** in `.env`:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Set `EDITOR_PASSWORD` to a long, unique password. If it is blank, the server uses the legacy `app.password` value from the mounted configuration. With neither set, private configuration and write APIs stay locked.
+
+3. **Configure the dashboard** by editing `public/data/dashboard-config.json`:
 
    ```json
    {
@@ -175,13 +183,15 @@ cp server.crt ca.crt
    }
    ```
 
-3. **Start the container**:
+   Docker mounts this file as server data. Nginx blocks direct HTTP access; the app reads it after sign-in. Do not put `EDITOR_PASSWORD` in a Vite `VITE_*` variable.
+
+4. **Start the container**:
 
    ```bash
    docker-compose up -d
    ```
 
-4. **Access the dashboard**:
+5. **Access the dashboard**:
    - Navigate to `https://localhost:8443` (if running locally)
    - Or use your configured domain with the port mapped in `docker-compose.yml`
 
@@ -224,17 +234,11 @@ ports:
   - "443:443" # HTTPS
 ```
 
-### Environment Variables (Optional)
+### Environment Variables
 
-The dashboard reads credentials from `dashboard-config.json` by default. If you prefer to use environment variables:
+`EDITOR_PASSWORD` configures the sign-in required to load and edit the server configuration. The Home Assistant URL and token can remain in the mounted config; after sign-in the app caches them in the browser's secure-storage helper for offline use. Vite variables are embedded in the built frontend, so do not use `VITE_HA_TOKEN` for secrets.
 
-```bash
-docker-compose run -e VITE_HA_URL=https://ha.home.local:8123 \
-                   -e VITE_HA_TOKEN=your_token_here \
-                   hassio-dashboard
-```
-
-**Note**: Configuration in `dashboard-config.json` takes precedence over environment variables.
+The browser keeps a last-known dashboard configuration so it can open away from the LAN. The Home Assistant URL/token are stored separately from that snapshot. A saved dashboard is read-only until the device signs in to the server again.
 
 ### Viewing Logs
 

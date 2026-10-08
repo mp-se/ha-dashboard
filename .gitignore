@@ -10,6 +10,7 @@ public/data/images/*.png
 public/data/dashboard-config.json
 public/data/local-data.json
 dist/data/dashboard-config.json
+graphify-out/
 copy*.sh
 *dashboard-config.json
 *local-data.json

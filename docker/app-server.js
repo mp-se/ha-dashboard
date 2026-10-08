@@ -7,13 +7,14 @@ import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import multer from "multer";
 import sharp from "sharp";
+import { randomBytes, timingSafeEqual } from "crypto";
 
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load configuration with cached editor password
+// Configuration remains on the mounted data volume and is never served as a static file.
 function loadConfig() {
   const dataDir = process.env.DATA_DIR || "/usr/share/nginx/html/data";
   const configPath = path.join(dataDir, "dashboard-config.json");
@@ -25,7 +26,8 @@ function loadConfig() {
       throw new Error(`Config file not found: ${configPath}`);
     }
     const configData = JSON.parse(fs.readFileSync(configPath, "utf-8"));
-    editorPassword = configData.app?.password || ""; // Empty password is acceptable
+    editorPassword =
+      process.env.EDITOR_PASSWORD || configData.app?.password || "";
   } catch (error) {
     console.error("[ERROR] Failed to load config:", error.message);
     process.exit(1); // Exit if config file missing or invalid
@@ -76,23 +78,39 @@ const log = {
 };
 
 const config = loadConfig();
+const SESSION_COOKIE = "ha_dashboard_session";
+const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const sessions = new Map();
+const loginFailures = new Map();
 
 // Backup sequence tracking (must be declared BEFORE initializeBackupSequence is called)
 let nextBackupSequence = 1;
 
 initializeBackupSequence(config.backupDir);
 const app = express();
+app.set("trust proxy", 1);
 
 // Apply middleware
-app.use(cors());
-app.use(bodyParser.json());
+const allowedOrigins = new Set(
+  [
+    process.env.APP_ORIGIN,
+    ...(process.env.NODE_ENV === "production"
+      ? []
+      : ["http://localhost:5173", "http://127.0.0.1:5173"]),
+  ].filter(Boolean),
+);
+app.use(
+  cors({
+    origin: (origin, callback) =>
+      callback(null, !origin || allowedOrigins.has(origin)),
+    credentials: true,
+  }),
+);
+app.use(bodyParser.json({ limit: "2mb" }));
 
 // Add request logging middleware for debugging
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
-  if (req.method === "POST" || req.method === "PUT") {
-    console.log("  Body size:", Object.keys(req.body || {}).length, "fields");
-  }
   next();
 });
 
@@ -103,24 +121,27 @@ const upload = multer({
       cb(null, config.imagesDir);
     },
     filename: (req, file, cb) => {
-      // Sanitize filename and keep original extension
-      const ext = path.extname(file.originalname);
+      // Use a known raster extension rather than trusting the uploaded suffix.
+      const mimeExtensions = {
+        "image/jpeg": ".jpg",
+        "image/png": ".png",
+        "image/gif": ".gif",
+        "image/webp": ".webp",
+      };
+      const ext = mimeExtensions[file.mimetype];
       const name = path.basename(file.originalname, ext);
       const sanitized = name.replace(/[^a-z0-9-_]/gi, "_").toLowerCase();
       cb(null, `${sanitized}${ext}`);
     },
   }),
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB per file
+    fileSize: 10 * 1024 * 1024,
+    files: 10,
+    fields: 10,
+    parts: 20,
   },
   fileFilter: (req, file, cb) => {
-    const allowedMimes = [
-      "image/jpeg",
-      "image/png",
-      "image/gif",
-      "image/webp",
-      "image/svg+xml",
-    ];
+    const allowedMimes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
     if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);
     } else {
@@ -209,32 +230,79 @@ function cleanupOldBackups(filePath) {
 }
 
 // Authentication middleware
+function safeEqual(left, right) {
+  const a = Buffer.from(String(left));
+  const b = Buffer.from(String(right));
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+function getCookie(req, name) {
+  const cookies = req.headers.cookie || "";
+  for (const item of cookies.split(";")) {
+    const separator = item.indexOf("=");
+    if (separator < 0) continue;
+    if (item.slice(0, separator).trim() === name) {
+      return item.slice(separator + 1).trim();
+    }
+  }
+  return "";
+}
+
+function verifyRequestOrigin(req, res, next) {
+  const origin = req.get("origin");
+  if (!origin) return next();
+  try {
+    const parsed = new URL(origin);
+    if (parsed.host === req.get("host") || allowedOrigins.has(origin)) {
+      return next();
+    }
+  } catch {
+    // Reject malformed Origin headers below.
+  }
+  return res
+    .status(403)
+    .json({ success: false, error: "Invalid request origin" });
+}
+
+function setSessionCookie(req, res, token) {
+  const secure = req.secure || process.env.NODE_ENV === "production";
+  res.cookie(SESSION_COOKIE, token, {
+    httpOnly: true,
+    secure,
+    sameSite: "strict",
+    path: "/",
+    maxAge: SESSION_TTL_MS,
+  });
+}
+
 const authenticate = (req, res, next) => {
+  res.set("Cache-Control", "no-store");
   if (!config.editorPassword) {
-    // Password disabled in development (empty or not configured)
-    return next();
-  }
-
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    log.warn("Authentication failed: Missing or invalid authorization header");
-    return res.status(401).json({
+    return res.status(503).json({
       success: false,
-      error: "Authentication failed",
+      error: "Server authentication is not configured",
     });
   }
 
-  const token = authHeader.substring(7);
-  if (token !== config.editorPassword) {
-    log.warn("Authentication failed: Invalid token/password");
-    return res.status(401).json({
-      success: false,
-      error: "Authentication failed",
-    });
+  const token = getCookie(req, SESSION_COOKIE);
+  const expiresAt = sessions.get(token);
+  if (!token || !expiresAt || expiresAt <= Date.now()) {
+    if (token) sessions.delete(token);
+    return res
+      .status(401)
+      .json({ success: false, error: "Authentication required" });
   }
 
+  sessions.set(token, Date.now() + SESSION_TTL_MS);
   next();
 };
+
+function privateConfigResponse() {
+  const configPath = path.join(config.dataDir, "dashboard-config.json");
+  const dashboardConfig = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+  if (dashboardConfig.app) delete dashboardConfig.app.password;
+  return dashboardConfig;
+}
 
 // Routes
 
@@ -249,9 +317,100 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+app.post("/api/session/login", verifyRequestOrigin, (req, res) => {
+  if (!config.editorPassword) {
+    return res.status(503).json({
+      success: false,
+      error: "Server authentication is not configured",
+    });
+  }
+
+  const now = Date.now();
+  const client = req.ip || req.socket.remoteAddress || "unknown";
+  const failure = loginFailures.get(client);
+  if (failure && failure.resetAt <= now) loginFailures.delete(client);
+  if (failure && failure.count >= 10 && failure.resetAt > now) {
+    return res
+      .status(429)
+      .json({ success: false, error: "Too many login attempts" });
+  }
+
+  const password =
+    typeof req.body?.password === "string" ? req.body.password : "";
+  if (!safeEqual(password, config.editorPassword)) {
+    const current = loginFailures.get(client);
+    loginFailures.set(client, {
+      count: current && current.resetAt > now ? current.count + 1 : 1,
+      resetAt:
+        current && current.resetAt > now
+          ? current.resetAt
+          : now + 15 * 60 * 1000,
+    });
+    return res.status(401).json({ success: false, error: "Invalid password" });
+  }
+
+  loginFailures.delete(client);
+  for (const [session, expiresAt] of sessions) {
+    if (expiresAt <= now) sessions.delete(session);
+  }
+  const token = randomBytes(32).toString("base64url");
+  sessions.set(token, now + SESSION_TTL_MS);
+  setSessionCookie(req, res, token);
+  res.set("Cache-Control", "no-store").json({ success: true });
+});
+
+app.post("/api/session/logout", verifyRequestOrigin, (req, res) => {
+  const token = getCookie(req, SESSION_COOKIE);
+  if (token) sessions.delete(token);
+  res.clearCookie(SESSION_COOKIE, {
+    httpOnly: true,
+    secure: req.secure || process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
+  });
+  res.set("Cache-Control", "no-store").json({ success: true });
+});
+
+app.get("/api/session", authenticate, (req, res) => {
+  res
+    .set("Cache-Control", "no-store")
+    .json({ success: true, authenticated: true });
+});
+
+app.get("/api/config", authenticate, (req, res) => {
+  try {
+    res
+      .set("Cache-Control", "no-store")
+      .json({ success: true, data: privateConfigResponse() });
+  } catch (error) {
+    log.error("Error loading dashboard config:", error);
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to load configuration" });
+  }
+});
+
+app.get("/api/data/local", authenticate, (req, res) => {
+  const localDataPath = path.join(config.dataDir, "local-data.json");
+  try {
+    if (!fs.existsSync(localDataPath)) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Local data not found" });
+    }
+    const data = JSON.parse(fs.readFileSync(localDataPath, "utf-8"));
+    res.set("Cache-Control", "no-store").json({ success: true, data });
+  } catch (error) {
+    log.error("Error loading local data:", error);
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to load local data" });
+  }
+});
+
 // Save config (with timestamped backup including milliseconds)
 // Save requests are queued - only one save at a time to prevent race conditions
-app.post("/api/config", authenticate, async (req, res) => {
+app.post("/api/config", verifyRequestOrigin, authenticate, async (req, res) => {
   try {
     // Validate that the body is a plain object (not a string, array, etc.)
     if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
@@ -264,6 +423,22 @@ app.post("/api/config", authenticate, async (req, res) => {
     // Enqueue save operation to serialize concurrent requests
     const result = await enqueueSave(async () => {
       const filePath = path.join(config.dataDir, "dashboard-config.json");
+      const nextConfig = structuredClone(req.body);
+      const existingConfig = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+      if (existingConfig.app?.password) {
+        nextConfig.app = {
+          ...(nextConfig.app || {}),
+          password: existingConfig.app.password,
+        };
+      } else if (nextConfig.app) {
+        delete nextConfig.app.password;
+      }
+      if (existingConfig.haConfig?.accessToken) {
+        nextConfig.haConfig = {
+          ...(nextConfig.haConfig || {}),
+          accessToken: existingConfig.haConfig.accessToken,
+        };
+      }
 
       // Create backup if file exists (in /backups/ subdirectory, Nginx protected)
       let backupPath = null;
@@ -283,7 +458,11 @@ app.post("/api/config", authenticate, async (req, res) => {
       }
 
       // Write new config to main file
-      fs.writeFileSync(filePath, JSON.stringify(req.body, null, 2));
+      const temporaryPath = `${filePath}.${randomBytes(8).toString("hex")}.tmp`;
+      fs.writeFileSync(temporaryPath, JSON.stringify(nextConfig, null, 2), {
+        mode: 0o600,
+      });
+      fs.renameSync(temporaryPath, filePath);
       log.info(`Config saved successfully to ${filePath}`);
 
       // Cleanup old backups (enforces BACKUP_LIMIT=30)
@@ -313,37 +492,43 @@ app.post("/api/config", authenticate, async (req, res) => {
 });
 
 // Image upload endpoint
-app.post("/api/images/upload", upload.array("images", 20), async (req, res) => {
-  try {
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({
+app.post(
+  "/api/images/upload",
+  verifyRequestOrigin,
+  authenticate,
+  upload.array("images", 20),
+  async (req, res) => {
+    try {
+      if (!req.files || req.files.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: "No files provided",
+        });
+      }
+
+      const uploadedImages = req.files.map((file) => ({
+        id: file.filename,
+        url: `/api/images/${file.filename}`,
+        name: path.parse(file.filename).name,
+        size: file.size,
+      }));
+
+      log.info(`Uploaded ${uploadedImages.length} image(s)`);
+      res.json({
+        success: true,
+        data: {
+          images: uploadedImages,
+        },
+      });
+    } catch (error) {
+      log.error("Error uploading images:", error);
+      res.status(500).json({
         success: false,
-        error: "No files provided",
+        error: error.message || "Failed to upload images",
       });
     }
-
-    const uploadedImages = req.files.map((file) => ({
-      id: file.filename,
-      url: `/api/images/${file.filename}`,
-      name: path.parse(file.filename).name,
-      size: file.size,
-    }));
-
-    log.info(`Uploaded ${uploadedImages.length} image(s)`);
-    res.json({
-      success: true,
-      data: {
-        images: uploadedImages,
-      },
-    });
-  } catch (error) {
-    log.error("Error uploading images:", error);
-    res.status(500).json({
-      success: false,
-      error: error.message || "Failed to upload images",
-    });
-  }
-});
+  },
+);
 
 // Get list of available images
 app.get("/api/images", (req, res) => {
@@ -510,7 +695,7 @@ app.get("/api/images/:id", async (req, res) => {
 });
 
 // Delete image
-app.delete("/api/images/:id", (req, res) => {
+app.delete("/api/images/:id", verifyRequestOrigin, authenticate, (req, res) => {
   try {
     const filename = req.params.id;
     // Prevent directory traversal

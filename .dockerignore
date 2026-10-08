@@ -2,6 +2,9 @@ dist/data/*
 !dist/data/.gitkeep
 .env
 .env.local
+public/data/dashboard-config.json
+public/data/local-data.json
+public/data/backups/
 node_modules/
 .git/
 coverage/

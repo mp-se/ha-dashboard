@@ -6,6 +6,9 @@ services:
     ports:
       - "8080:80"
       - "8443:443"
+    environment:
+      # Overrides app.password from the mounted config; set a strong value in .env.
+      EDITOR_PASSWORD: ${EDITOR_PASSWORD:-}
     volumes:
       - ./public/data:/usr/share/nginx/html/data:rw
       - ./docker/ssl:/etc/nginx/ssl:ro

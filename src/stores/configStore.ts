@@ -27,6 +27,8 @@ import parseJSON from "json-parse-even-better-errors";
 import { fetchWithTimeout } from "@/utils/fetchWithTimeout";
 import { TIMEOUT_CONFIG } from "@/utils/constants";
 
+const DASHBOARD_CONFIG_CACHE_KEY = "dashboard-config";
+
 interface ValidationError {
   message: string;
   line?: number;
@@ -43,9 +45,156 @@ export const useConfigStore = defineStore("config", () => {
   const dashboardConfig: Ref<unknown> = ref(null);
   const configValidationError: Ref<ValidationError[] | null> = ref(null);
   const configErrorCount: Ref<number> = ref(0);
+  const serverAuthEnabled: Ref<boolean> = ref(false);
+  const serverAuthenticated: Ref<boolean> = ref(false);
+  const needsServerLogin: Ref<boolean> = ref(false);
+  const hasCachedDashboardConfig: Ref<boolean> = ref(false);
+  const isUsingCachedConfig: Ref<boolean> = ref(false);
+  const serverLoginError: Ref<string | null> = ref(null);
   const logger = createLogger("configStore");
 
-  const loadDashboardConfig = async (): Promise<ValidationResult> => {
+  const getApiUrl = (path: string): string => {
+    const apiBaseUrl =
+      import.meta.env.VITE_API_URL || import.meta.env.BASE_URL || "/";
+    const base = apiBaseUrl.endsWith("/") ? apiBaseUrl : `${apiBaseUrl}/`;
+    return `${base}api/${path}`;
+  };
+
+  const getStaticConfigUrl = (): string =>
+    `${import.meta.env.BASE_URL || "/"}data/dashboard-config.json`;
+
+  const cacheSafeConfig = (config: unknown): void => {
+    if (!config || typeof config !== "object" || Array.isArray(config)) return;
+    const snapshot = JSON.parse(JSON.stringify(config)) as Record<
+      string,
+      unknown
+    >;
+    if (snapshot.app && typeof snapshot.app === "object") {
+      delete (snapshot.app as Record<string, unknown>).password;
+    }
+    if (snapshot.haConfig && typeof snapshot.haConfig === "object") {
+      delete (snapshot.haConfig as Record<string, unknown>).accessToken;
+    }
+    try {
+      localStorage.setItem(
+        DASHBOARD_CONFIG_CACHE_KEY,
+        JSON.stringify(snapshot),
+      );
+      hasCachedDashboardConfig.value = true;
+    } catch (error) {
+      logger.warn("Unable to cache dashboard configuration:", error);
+    }
+  };
+
+  const applyConfig = async (
+    config: unknown,
+    options: { authenticated?: boolean; cached?: boolean } = {},
+  ): Promise<ValidationResult> => {
+    const authStore = useAuthStore();
+    const configObject = config as Record<string, unknown> | null;
+    const haConfig = configObject?.haConfig as
+      Record<string, unknown> | undefined;
+    const haUrl = typeof haConfig?.haUrl === "string" ? haConfig.haUrl : "";
+    const accessToken =
+      typeof haConfig?.accessToken === "string" ? haConfig.accessToken : "";
+    if (haUrl && accessToken) {
+      try {
+        await authStore.saveCredentials(haUrl, accessToken);
+      } catch (error) {
+        logger.warn("Could not persist Home Assistant credentials:", error);
+        authStore.haUrl = haUrl;
+        authStore.accessToken = accessToken;
+      }
+      authStore.credentialsFromConfig = true;
+    }
+
+    if (configObject?.app && typeof configObject.app === "object") {
+      delete (configObject.app as Record<string, unknown>).password;
+    }
+    if (haConfig && "accessToken" in haConfig) haConfig.accessToken = "";
+
+    const validationResult = validateConfig(config);
+    dashboardConfig.value = config;
+    configValidationError.value = validationResult.valid
+      ? null
+      : validationResult.errors;
+    configErrorCount.value = validationResult.errorCount;
+    isUsingCachedConfig.value = options.cached ?? false;
+
+    if (options.authenticated) cacheSafeConfig(config);
+    const appConfig = configObject?.app as Record<string, unknown> | undefined;
+    if (appConfig) {
+      if (appConfig.developerMode !== undefined) {
+        authStore.developerMode = Boolean(appConfig.developerMode);
+      }
+      if (appConfig.localMode !== undefined) {
+        authStore.isLocalMode = Boolean(appConfig.localMode);
+      }
+    }
+    return validationResult;
+  };
+
+  const loadCachedConfig = async (): Promise<ValidationResult | null> => {
+    try {
+      const cached = localStorage.getItem(DASHBOARD_CONFIG_CACHE_KEY);
+      if (!cached) return null;
+      const result = await applyConfig(parseJSON(cached), { cached: true });
+      cacheSafeConfig(dashboardConfig.value);
+      hasCachedDashboardConfig.value = true;
+      return result;
+    } catch (error) {
+      logger.warn("Ignoring invalid cached dashboard configuration:", error);
+      localStorage.removeItem(DASHBOARD_CONFIG_CACHE_KEY);
+      hasCachedDashboardConfig.value = false;
+      return null;
+    }
+  };
+
+  const refreshConfigInBackground = async (): Promise<void> => {
+    try {
+      const response = await fetchWithTimeout(
+        getApiUrl("config"),
+        { credentials: "include", cache: "no-store" },
+        TIMEOUT_CONFIG,
+      );
+      if (response.status === 401 || response.status === 503) {
+        serverAuthEnabled.value = true;
+        serverAuthenticated.value = false;
+        needsServerLogin.value = true;
+        return;
+      }
+      if (response.status !== 404 && response.ok) {
+        serverAuthEnabled.value = true;
+        serverAuthenticated.value = true;
+        needsServerLogin.value = false;
+        const payload = await response.json();
+        await applyConfig(payload.data ?? payload, { authenticated: true });
+        return;
+      }
+      const staticResponse = await fetchWithTimeout(
+        getStaticConfigUrl(),
+        { cache: "no-store" },
+        TIMEOUT_CONFIG,
+      );
+      if (staticResponse.ok) {
+        const staticConfig = parseJSON(await staticResponse.text());
+        serverAuthEnabled.value = false;
+        serverAuthenticated.value = false;
+        needsServerLogin.value = false;
+        await applyConfig(staticConfig, { authenticated: true });
+        cacheSafeConfig(staticConfig);
+      }
+    } catch (error) {
+      logger.log(
+        "Dashboard refresh deferred while server is unavailable",
+        error,
+      );
+    }
+  };
+
+  const loadDashboardConfig = async (
+    forceRefresh = false,
+  ): Promise<ValidationResult> => {
     const nativeLoader = (window as any).__nativeConfigLoader;
     if (nativeLoader) {
       logger.log("[Native Mode] loadDashboardConfig via native hook");
@@ -70,121 +219,132 @@ export const useConfigStore = defineStore("config", () => {
       }
     }
 
-    // Server mode: load from HTTP
+    serverLoginError.value = null;
+    isUsingCachedConfig.value = false;
+
+    const cachedConfig = await loadCachedConfig();
+    if (cachedConfig && !forceRefresh) {
+      void refreshConfigInBackground();
+      return cachedConfig;
+    }
+
     try {
-      const baseUrl = import.meta.env.BASE_URL || "/";
-      const configUrl = baseUrl + "data/dashboard-config.json";
+      const response = await fetchWithTimeout(
+        getApiUrl("config"),
+        { credentials: "include", cache: "no-store" },
+        TIMEOUT_CONFIG,
+      );
 
-      try {
-        const response = await fetchWithTimeout(configUrl, {}, TIMEOUT_CONFIG);
-
-        if (!response.ok) {
-          return {
+      if (response.status === 401 || response.status === 503) {
+        serverAuthEnabled.value = true;
+        serverAuthenticated.value = false;
+        needsServerLogin.value = true;
+        const cached = await loadCachedConfig();
+        return (
+          cached ?? {
             valid: false,
             errors: [
               {
-                message: `Failed to load config: ${response.status} ${response.statusText}`,
+                message:
+                  response.status === 503
+                    ? "Server authentication is not configured."
+                    : "Sign in to load the dashboard configuration.",
               },
             ],
             errorCount: 1,
-          };
-        }
-
-        // Very simple JSON loading to match tests and standard behavior
-        let config: unknown;
-        try {
-          if (typeof response.text === "function") {
-            const text = await response.text();
-            config = parseJSON(text); // Use json-parse-even-better-errors for detailed messages
-          } else if (typeof response.json === "function") {
-            config = await response.json();
-          } else {
-            config = response;
           }
-        } catch (e) {
-          const error = e as Record<string, unknown>;
-          const line = (error.line as number) || 1;
-          const columnMatch = (error.message as string)?.match(
-            /position (\d+)/,
-          );
-          const column =
-            (error.column as number) ||
-            (columnMatch ? Number(columnMatch[1]) : 0);
-          return {
-            valid: false,
-            errors: [
-              {
-                message: `JSON syntax error: ${error.message} (line ${line}, column ${column})`,
-                line: line,
-                column: column,
-              },
-            ],
-            errorCount: 1,
-          };
-        }
-
-        if (config && typeof config === "object") {
-          for (const sym of Object.getOwnPropertySymbols(config)) {
-            delete (config as Record<symbol, unknown>)[sym];
-          }
-        }
-
-        const validationResult = validateConfig(config);
-        dashboardConfig.value = config;
-
-        if (!validationResult.valid) {
-          configValidationError.value = validationResult.errors;
-          configErrorCount.value = validationResult.errorCount;
-        } else {
-          configValidationError.value = null;
-          configErrorCount.value = 0;
-        }
-
-        // Sync settings to authStore if it's initialized
-        const authStore = useAuthStore();
-        const configObj = config as Record<string, unknown> | null;
-        if (configObj?.app && typeof configObj.app === "object") {
-          const appConfig = configObj.app as Record<string, unknown>;
-          if (appConfig.developerMode !== undefined) {
-            authStore.developerMode = Boolean(appConfig.developerMode);
-          }
-          if (appConfig.localMode !== undefined) {
-            authStore.isLocalMode = Boolean(appConfig.localMode);
-          }
-        }
-
-        return validationResult;
-      } catch (fetchError) {
-        // Network/CORS error during fetch
-        const errorMsg =
-          ((fetchError as Record<string, unknown>)?.message as string) ||
-          String(fetchError);
-
-        logger.error("Error loading dashboard config:", fetchError);
-        return {
-          valid: false,
-          errors: [
-            {
-              message: `Failed to fetch config: ${errorMsg}`,
-            },
-          ],
-          errorCount: 1,
-        };
+        );
       }
+
+      if (response.status !== 404 && response.ok) {
+        serverAuthEnabled.value = true;
+        serverAuthenticated.value = true;
+        needsServerLogin.value = false;
+        const payload = await response.json();
+        return await applyConfig(payload.data ?? payload, {
+          authenticated: true,
+        });
+      }
+
+      // Static hosting (for example the public demo) has no backend API.
+      const staticResponse = await fetchWithTimeout(
+        getStaticConfigUrl(),
+        { cache: "no-store" },
+        TIMEOUT_CONFIG,
+      );
+      if (!staticResponse.ok) throw new Error(`HTTP ${staticResponse.status}`);
+      const staticConfig = parseJSON(await staticResponse.text());
+      serverAuthEnabled.value = false;
+      serverAuthenticated.value = false;
+      needsServerLogin.value = false;
+      const validation = await applyConfig(staticConfig, {
+        authenticated: true,
+      });
+      cacheSafeConfig(staticConfig);
+      return validation;
     } catch (error) {
-      // Outer catch for any other errors
-      logger.error("Error loading dashboard config:", error);
+      logger.warn(
+        "Dashboard server unavailable; trying cached configuration",
+        error,
+      );
+      const cached = await loadCachedConfig();
+      if (cached) return cached;
+
       return {
         valid: false,
         errors: [
           {
-            message:
-              ((error as Record<string, unknown>).message as string) ||
-              "Unknown error loading config",
+            message: `Failed to load dashboard configuration: ${error instanceof Error ? error.message : String(error)}`,
           },
         ],
         errorCount: 1,
       };
+    }
+  };
+
+  const loginToServer = async (password: string): Promise<boolean> => {
+    serverLoginError.value = null;
+    try {
+      const response = await fetch(getApiUrl("session/login"), {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      if (!response.ok) {
+        serverLoginError.value =
+          response.status === 429
+            ? "Too many attempts. Wait a few minutes and try again."
+            : response.status === 503
+              ? "Server authentication is not configured."
+              : "Incorrect password.";
+        return false;
+      }
+      serverAuthEnabled.value = true;
+      serverAuthenticated.value = true;
+      needsServerLogin.value = false;
+      const result = await loadDashboardConfig(true);
+      if (!result.valid) {
+        serverLoginError.value =
+          "Signed in, but the dashboard configuration is invalid.";
+      }
+      return result.valid;
+    } catch (error) {
+      serverLoginError.value =
+        error instanceof Error ? error.message : String(error);
+      return false;
+    }
+  };
+
+  const logoutFromServer = async (): Promise<void> => {
+    try {
+      await fetch(getApiUrl("session/logout"), {
+        method: "POST",
+        credentials: "include",
+      });
+    } finally {
+      serverAuthenticated.value = false;
+      needsServerLogin.value = true;
     }
   };
 
@@ -349,36 +509,19 @@ export const useConfigStore = defineStore("config", () => {
     }
 
     try {
-      const password =
-        ((dashboardConfig.value as Record<string, unknown>) || {})?.app
-          ?.password || ("" as string);
-
-      if (!password) {
-        logger.warn(
-          "Editor password not configured in config, skipping backend save",
-        );
-        return false;
-      }
-
-      // Development: VITE_API_URL env var points to localhost:3000
-      // Production: Uses BASE_URL (app served with Nginx /api/ proxy to localhost:3000)
-      const apiBaseUrl =
-        (import.meta.env.VITE_API_URL as string) ||
-        (import.meta.env.BASE_URL as string) ||
-        "/";
-      const apiUrl =
-        apiBaseUrl + (apiBaseUrl.endsWith("/") ? "api/config" : "/api/config");
-
-      const response = await fetch(apiUrl, {
+      const response = await fetch(getApiUrl("config"), {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${password}`,
-        },
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(config),
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          serverAuthEnabled.value = true;
+          serverAuthenticated.value = false;
+          needsServerLogin.value = true;
+        }
         let errorMsg = "Failed to save config";
         try {
           const errorData = (await response.json()) as Record<string, unknown>;
@@ -396,6 +539,9 @@ export const useConfigStore = defineStore("config", () => {
 
       // Clear draft from local storage after successful save
       localStorage.removeItem("dashboardConfigDraft");
+      dashboardConfig.value = config;
+      cacheSafeConfig(config);
+      isUsingCachedConfig.value = false;
 
       return true;
     } catch (error) {
@@ -408,7 +554,15 @@ export const useConfigStore = defineStore("config", () => {
     dashboardConfig,
     configValidationError,
     configErrorCount,
+    serverAuthEnabled,
+    serverAuthenticated,
+    needsServerLogin,
+    hasCachedDashboardConfig,
+    isUsingCachedConfig,
+    serverLoginError,
     loadDashboardConfig,
+    loginToServer,
+    logoutFromServer,
     reloadConfig,
     addView,
     updateView,

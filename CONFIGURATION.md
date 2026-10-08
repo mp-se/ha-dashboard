@@ -1794,32 +1794,29 @@ chmod 755 public/data
 
 ## Backend Server API
 
-The server provides REST API endpoints for configuration management. All requests must include Bearer token authentication (derived from the dashboard password).
+The server provides REST API endpoints for configuration management. Dashboard config reads and all writes require a server session. The session is issued after entering `EDITOR_PASSWORD` (or the legacy `app.password`) and is stored in an HttpOnly cookie.
 
 ### Authentication
 
-All protected endpoints require Bearer token authentication:
+Sign in and save the session cookie:
 
 ```
-Authorization: Bearer {password}
+POST /api/session/login
+Content-Type: application/json
+
+{"password":"your-dashboard-password"}
 ```
 
-The password comes from `dashboard-config.json`:
-
-```json
-{
-  "app": {
-    "password": "my-secure-password",
-    "title": "My Dashboard"
-  }
-}
-```
+For Docker deployments, set `EDITOR_PASSWORD` in `.env`. If unset, the backend uses `app.password` from the mounted `dashboard-config.json`. Nginx denies direct access to that file and its backups. The API response omits `app.password`; the app removes the HA token from its dashboard snapshot and stores it separately in the browser.
 
 **Example Request:**
 
 ```bash
-curl -X POST http://localhost:8080/api/config \
-  -H "Authorization: Bearer my-secure-password" \
+curl -k -c cookies.txt -b cookies.txt https://localhost:8443/api/session/login \
+  -H "Content-Type: application/json" \
+  -d '{"password":"your-dashboard-password"}'
+curl -k -b cookies.txt https://localhost:8443/api/config
+curl -k -b cookies.txt -X POST https://localhost:8443/api/config \
   -H "Content-Type: application/json" \
   -d '{"app": {"title": "Updated"}, "views": []}'
 ```
@@ -1829,6 +1826,14 @@ curl -X POST http://localhost:8080/api/config \
 #### GET /api/health
 
 Health check endpoint. Requires no authentication.
+
+#### POST /api/session/login, POST /api/session/logout, GET /api/session
+
+Create, clear, or inspect the seven-day server session. Login attempts are rate-limited. The browser session cookie is HttpOnly and SameSite=Strict; it is marked Secure when served over HTTPS.
+
+#### GET /api/config
+
+Load the dashboard configuration. Requires an authenticated session and returns `Cache-Control: no-store`. The `app.password` field is removed from the response.
 
 **Request:**
 
@@ -1863,7 +1868,7 @@ Before saving, the server:
 
 ```bash
 POST /api/config
-Authorization: Bearer {password}
+Cookie: ha_dashboard_session=<session-cookie>
 Content-Type: application/json
 
 {
@@ -1887,13 +1892,13 @@ Content-Type: application/json
 
 **Errors:**
 
-- **401**: Missing or invalid authentication header
+- **401**: Missing or expired server session
 - **400**: Invalid JSON in request body
 - **500**: File system error (permissions, disk space)
 
 #### GET /api/data/local
 
-Load local data for offline mode. Requires **no authentication**.
+Load local data for offline mode. Requires an authenticated session on the Docker backend. Static demo hosting reads its public example file directly.
 
 This endpoint loads data from `public/data/local-data.json` if it exists. Used when the dashboard is in `localMode`.
 

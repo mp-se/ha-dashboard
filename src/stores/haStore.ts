@@ -49,6 +49,11 @@ export const useHaStore = defineStore("ha", () => {
       logger.log("Step 1: Loading dashboard configuration...");
       await config.loadDashboardConfig();
 
+      if (config.needsServerLogin && !config.dashboardConfig) {
+        auth.isLoading = false;
+        return;
+      }
+
       // Sync developerMode/localMode from config to auth
       const configObj = config.dashboardConfig as Record<
         string,
