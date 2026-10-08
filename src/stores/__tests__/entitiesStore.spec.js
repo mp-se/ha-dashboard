@@ -157,10 +157,9 @@ describe("useEntitiesStore", () => {
     });
 
     it("should handle local data load failure", async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-      });
+      global.fetch
+        .mockResolvedValueOnce({ ok: false, status: 404 })
+        .mockResolvedValueOnce({ ok: false, status: 404 });
 
       const store = useEntitiesStore();
       await expect(store.loadLocalData()).rejects.toThrow(

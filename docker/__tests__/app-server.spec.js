@@ -18,6 +18,7 @@ import request from "supertest";
 let testDataDir = "";
 let testBackupDir = "";
 let app;
+let sessionCookie;
 
 /**
  * Setup test environment folders
@@ -66,6 +67,11 @@ describe("Backend Server (app-server.js)", () => {
     // Dynamically import app once with test environment set up
     const appModule = await import("../app-server.js");
     app = appModule.default;
+    const login = await request(app)
+      .post("/api/session/login")
+      .send({ password: "test-password" });
+    expect(login.status).toBe(200);
+    sessionCookie = login.headers["set-cookie"];
   });
 
   afterAll(() => {
@@ -89,7 +95,9 @@ describe("Backend Server (app-server.js)", () => {
 
   describe("API Health Endpoint", () => {
     it("should return 200 with health status", async () => {
-      const response = await request(app).get("/api/health");
+      const response = await request(app)
+        .get("/api/health")
+        .set("Origin", "http://localhost:5173");
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -133,7 +141,7 @@ describe("Backend Server (app-server.js)", () => {
     it("should save config with valid token", async () => {
       const response = await request(app)
         .post("/api/config")
-        .set("Authorization", "Bearer test-password")
+        .set("Cookie", sessionCookie)
         .set("Content-Type", "application/json")
         .send({ app: { title: "Updated Dashboard" } });
 
@@ -153,7 +161,7 @@ describe("Backend Server (app-server.js)", () => {
     it("should create backup before overwriting config", async () => {
       const response = await request(app)
         .post("/api/config")
-        .set("Authorization", "Bearer test-password")
+        .set("Cookie", sessionCookie)
         .set("Content-Type", "application/json")
         .send({ app: { title: "Backup Test" } });
 
@@ -175,7 +183,7 @@ describe("Backend Server (app-server.js)", () => {
     it("should handle invalid JSON in request body", async () => {
       const response = await request(app)
         .post("/api/config")
-        .set("Authorization", "Bearer test-password")
+        .set("Cookie", sessionCookie)
         .set("Content-Type", "application/json")
         .send('"invalid json"');
 
@@ -188,7 +196,7 @@ describe("Backend Server (app-server.js)", () => {
     it("should use sequence number for backups", async () => {
       const response = await request(app)
         .post("/api/config")
-        .set("Authorization", "Bearer test-password")
+        .set("Cookie", sessionCookie)
         .set("Content-Type", "application/json")
         .send({ app: { title: "Sequence Test" } });
 
@@ -207,7 +215,9 @@ describe("Backend Server (app-server.js)", () => {
 
   describe("Error Handling", () => {
     it("should include CORS headers in response", async () => {
-      const response = await request(app).get("/api/health");
+      const response = await request(app)
+        .get("/api/health")
+        .set("Origin", "http://localhost:5173");
 
       expect(response.headers["access-control-allow-origin"]).toBeDefined();
     });
@@ -226,7 +236,7 @@ describe("Backend Server (app-server.js)", () => {
       for (let i = 0; i < 3; i++) {
         const response = await request(app)
           .post("/api/config")
-          .set("Authorization", "Bearer test-password")
+          .set("Cookie", sessionCookie)
           .set("Content-Type", "application/json")
           .send({ app: { title: `Update ${i}` } });
 

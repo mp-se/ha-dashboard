@@ -46,8 +46,9 @@ describe("useConfigStore", () => {
       };
 
       global.fetch.mockResolvedValueOnce({
+        status: 200,
         ok: true,
-        text: async () => JSON.stringify(configData),
+        json: async () => ({ data: configData }),
       });
 
       const store = useConfigStore();
@@ -62,24 +63,25 @@ describe("useConfigStore", () => {
     });
 
     it("should handle configuration load failure", async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: "Not Found",
-      });
+      global.fetch
+        .mockResolvedValueOnce({ status: 404, ok: false })
+        .mockResolvedValueOnce({ status: 404, ok: false });
 
       const store = useConfigStore();
       const result = await store.loadDashboardConfig();
 
       expect(result.valid).toBe(false);
-      expect(result.errors[0].message).toContain("404 Not Found");
+      expect(result.errors[0].message).toContain("HTTP 404");
       expect(store.dashboardConfig).toBeNull();
     });
 
     it("should handle syntactically invalid JSON", async () => {
       global.fetch.mockResolvedValueOnce({
+        status: 200,
         ok: true,
-        text: async () => "{ invalid json }",
+        json: async () => {
+          throw new Error("JSON syntax error");
+        },
       });
 
       const store = useConfigStore();
@@ -116,8 +118,9 @@ describe("useConfigStore", () => {
       });
 
       global.fetch.mockResolvedValueOnce({
+        status: 200,
         ok: true,
-        text: async () => JSON.stringify({ app: {} }),
+        json: async () => ({ data: { app: {} } }),
       });
 
       const store = useConfigStore();
@@ -130,8 +133,9 @@ describe("useConfigStore", () => {
 
     it("does not sync app flags when config has no app key", async () => {
       global.fetch.mockResolvedValueOnce({
+        status: 200,
         ok: true,
-        text: async () => JSON.stringify({ views: [] }),
+        json: async () => ({ data: { views: [] } }),
       });
 
       const store = useConfigStore();
@@ -161,8 +165,9 @@ describe("useConfigStore", () => {
     it("uses response.json() when text() is unavailable", async () => {
       const configData = { views: [{ name: "home" }] };
       global.fetch.mockResolvedValueOnce({
+        status: 200,
         ok: true,
-        json: async () => configData,
+        json: async () => ({ data: configData }),
         // No text() method
       });
 
@@ -192,8 +197,9 @@ describe("useConfigStore", () => {
   describe("reloadConfig", () => {
     it("preserves existing credentials after reload in non-local mode", async () => {
       global.fetch.mockResolvedValueOnce({
+        status: 200,
         ok: true,
-        text: async () => JSON.stringify({ views: [] }),
+        json: async () => ({ data: { views: [] } }),
       });
 
       const store = useConfigStore();
