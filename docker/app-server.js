@@ -390,6 +390,137 @@ app.get("/api/config", authenticate, (req, res) => {
   }
 });
 
+app.get("/api/config/backups", authenticate, (req, res) => {
+  try {
+    const backups = fs
+      .readdirSync(config.backupDir)
+      .map((name) => {
+        const match = /^dashboard-config\.json\.backup\.(\d+)\.json$/.exec(
+          name,
+        );
+        if (!match) return null;
+        const sequence = Number(match[1]);
+        const backupPath = path.join(config.backupDir, name);
+        return {
+          sequence,
+          createdAt: fs.statSync(backupPath).mtime.toISOString(),
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.sequence - a.sequence);
+
+    res.set("Cache-Control", "no-store").json({
+      success: true,
+      data: { backups },
+    });
+  } catch (error) {
+    log.error("Error listing configuration backups:", error);
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to list configuration backups" });
+  }
+});
+
+app.post(
+  "/api/config/restore",
+  verifyRequestOrigin,
+  authenticate,
+  async (req, res) => {
+    const sequence = req.body?.sequence;
+    if (!Number.isSafeInteger(sequence) || sequence < 1) {
+      return res
+        .status(400)
+        .json({ success: false, error: "A valid backup sequence is required" });
+    }
+
+    try {
+      await enqueueSave(async () => {
+        const backupPath = path.join(
+          config.backupDir,
+          `dashboard-config.json.backup.${sequence}.json`,
+        );
+        if (!fs.existsSync(backupPath)) {
+          const error = new Error("Configuration backup not found");
+          error.statusCode = 404;
+          throw error;
+        }
+
+        const filePath = path.join(config.dataDir, "dashboard-config.json");
+        const currentConfig = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+        const restoredConfig = JSON.parse(fs.readFileSync(backupPath, "utf-8"));
+        if (
+          !restoredConfig ||
+          typeof restoredConfig !== "object" ||
+          Array.isArray(restoredConfig) ||
+          !Array.isArray(restoredConfig.views) ||
+          (restoredConfig.app !== undefined &&
+            (!restoredConfig.app ||
+              typeof restoredConfig.app !== "object" ||
+              Array.isArray(restoredConfig.app))) ||
+          (restoredConfig.haConfig !== undefined &&
+            (!restoredConfig.haConfig ||
+              typeof restoredConfig.haConfig !== "object" ||
+              Array.isArray(restoredConfig.haConfig)))
+        ) {
+          const error = new Error("Configuration backup is invalid");
+          error.statusCode = 400;
+          throw error;
+        }
+
+        // Keep active credentials; a dashboard rollback must not revoke access.
+        if (currentConfig.app?.password) {
+          restoredConfig.app = {
+            ...(restoredConfig.app || {}),
+            password: currentConfig.app.password,
+          };
+        } else if (restoredConfig.app) {
+          delete restoredConfig.app.password;
+        }
+        restoredConfig.haConfig = { ...(restoredConfig.haConfig || {}) };
+        for (const credentialKey of ["haUrl", "accessToken"]) {
+          if (currentConfig.haConfig?.[credentialKey]) {
+            restoredConfig.haConfig[credentialKey] =
+              currentConfig.haConfig[credentialKey];
+          } else {
+            delete restoredConfig.haConfig[credentialKey];
+          }
+        }
+
+        const recoveryBackupPath = path.join(
+          config.backupDir,
+          `dashboard-config.json.backup.${nextBackupSequence++}.json`,
+        );
+        fs.copyFileSync(filePath, recoveryBackupPath);
+        const temporaryPath = `${filePath}.${randomBytes(8).toString("hex")}.tmp`;
+        fs.writeFileSync(
+          temporaryPath,
+          JSON.stringify(restoredConfig, null, 2),
+          {
+            mode: 0o600,
+          },
+        );
+        fs.renameSync(temporaryPath, filePath);
+        cleanupOldBackups(filePath);
+      });
+
+      res.set("Cache-Control", "no-store").json({
+        success: true,
+        data: { restored: true },
+      });
+    } catch (error) {
+      if (error.statusCode === 404 || error.statusCode === 400) {
+        return res
+          .status(error.statusCode)
+          .json({ success: false, error: error.message });
+      }
+      log.error("Error restoring configuration backup:", error);
+      res
+        .status(500)
+        .json({ success: false, error: "Failed to restore configuration" });
+    }
+  },
+);
+
 app.get("/api/data/local", authenticate, (req, res) => {
   const localDataPath = path.join(config.dataDir, "local-data.json");
   try {

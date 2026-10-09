@@ -40,4 +40,29 @@ describe("useVisualEditorToolbar", () => {
 
     expect(handler).not.toHaveBeenCalled();
   });
+
+  it("tracks undo and redo availability and invokes history handlers", () => {
+    const toolbar = useVisualEditorToolbar();
+    const handlers = {
+      undo: vi.fn(),
+      redo: vi.fn(),
+      discard: vi.fn(),
+      resetSavedBaseline: vi.fn(),
+    };
+
+    toolbar.setHistoryHandlers(handlers);
+    toolbar.setHistoryState(true, false);
+    expect(toolbar.canUndo.value).toBe(true);
+    expect(toolbar.canRedo.value).toBe(false);
+
+    toolbar.triggerUndo();
+    toolbar.triggerRedo();
+    toolbar.triggerDiscard();
+    toolbar.triggerResetSavedBaseline();
+
+    expect(handlers.undo).toHaveBeenCalledOnce();
+    expect(handlers.redo).toHaveBeenCalledOnce();
+    expect(handlers.discard).toHaveBeenCalledOnce();
+    expect(handlers.resetSavedBaseline).toHaveBeenCalledOnce();
+  });
 });

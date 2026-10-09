@@ -35,8 +35,18 @@ const emit = defineEmits(["update:current-view", "update:darkMode"]);
 const store = useHaStore();
 const normalizeIcon = useNormalizeIcon();
 const { toggleDarkMode: handleToggleDarkMode } = useDarkMode();
-const { hasChanges, isSaving, saveStatus, triggerSave } =
-  useVisualEditorToolbar();
+const {
+  hasChanges,
+  isSaving,
+  saveStatus,
+  canUndo,
+  canRedo,
+  triggerSave,
+  triggerUndo,
+  triggerRedo,
+  triggerDiscard,
+  triggerResetSavedBaseline,
+} = useVisualEditorToolbar();
 const showRawEntityView =
   (window as any).__appCapabilities?.rawEntityView ?? true;
 const showLocalDataSave =
@@ -55,8 +65,46 @@ const fileInputRef = ref<HTMLInputElement | null>(null);
 const importInProgress = ref(false);
 const importSuccess = ref<string | null>(null);
 const modalDialogRef = ref<HTMLElement | null>(null);
+const configBackups = ref<Array<{ sequence: number; createdAt: string }>>([]);
+const loadingBackups = ref(false);
+const restoringBackupSequence = ref<number | null>(null);
+const backupError = ref("");
 
 const configStore = useConfigStore();
+
+const loadConfigBackups = async () => {
+  loadingBackups.value = true;
+  backupError.value = "";
+  try {
+    configBackups.value = await configStore.listConfigBackups();
+  } catch (error) {
+    backupError.value =
+      error instanceof Error ? error.message : "Could not load saved versions";
+  } finally {
+    loadingBackups.value = false;
+  }
+};
+
+const restoreConfigBackup = async (backup: { sequence: number }) => {
+  const confirmed = window.confirm(
+    "Restore this saved dashboard version? The current configuration will first be backed up, and unsaved edits will be replaced.",
+  );
+  if (!confirmed) return;
+
+  restoringBackupSequence.value = backup.sequence;
+  backupError.value = "";
+  try {
+    const restored = await configStore.restoreConfigBackup(backup.sequence);
+    if (!restored) throw new Error("Could not restore this saved version");
+    triggerResetSavedBaseline();
+    showImportExport.value = false;
+  } catch (error) {
+    backupError.value =
+      error instanceof Error ? error.message : "Could not restore this version";
+  } finally {
+    restoringBackupSequence.value = null;
+  }
+};
 
 import { validateConfig } from "@/utils/configValidator";
 
@@ -201,6 +249,12 @@ const menuItems = computed(() => {
     },
   ];
 
+  items.push({
+    name: "saved-versions",
+    label: "Saved versions",
+    icon: normalizeIcon("mdi-history") || "mdi mdi-history",
+  });
+
   // Insert Import/Export menu item after Devices if enabled by runtime
   if (configImportExport) {
     items.push({
@@ -225,6 +279,11 @@ const menuItems = computed(() => {
 const handleMenuClick = (item: { name: string }) => {
   if (item.name === "import-export") {
     showImportExport.value = true;
+    return;
+  }
+  if (item.name === "saved-versions") {
+    showImportExport.value = true;
+    void loadConfigBackups();
     return;
   }
   // default behaviour: switch view
@@ -335,6 +394,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             </button>
           </div>
           <div class="d-flex align-items-center">
+            <span v-if="hasChanges" class="badge bg-warning text-dark me-2">
+              Unsaved changes
+            </span>
             <div
               v-if="saveStatus"
               class="badge me-2"
@@ -350,6 +412,25 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             </div>
 
             <button
+              class="btn btn-outline-secondary btn-sm me-1"
+              :disabled="!canUndo || isSaving"
+              aria-label="Undo last edit"
+              title="Undo last edit"
+              @click="triggerUndo"
+            >
+              <i class="mdi mdi-undo"></i>
+            </button>
+            <button
+              class="btn btn-outline-secondary btn-sm me-2"
+              :disabled="!canRedo || isSaving"
+              aria-label="Redo last edit"
+              title="Redo last edit"
+              @click="triggerRedo"
+            >
+              <i class="mdi mdi-redo"></i>
+            </button>
+
+            <button
               class="btn btn-success btn-sm me-2"
               :disabled="!hasChanges || isSaving"
               title="Save config to backend"
@@ -363,6 +444,18 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
               <span class="d-none d-lg-inline ms-1">
                 {{ isSaving ? "Saving..." : "Save config" }}
               </span>
+            </button>
+
+            <button
+              v-if="hasChanges"
+              class="btn btn-outline-danger btn-sm me-2"
+              :disabled="isSaving"
+              aria-label="Discard unsaved edits"
+              title="Discard unsaved edits"
+              @click="triggerDiscard"
+            >
+              <i class="mdi mdi-restore"></i>
+              <span class="d-none d-lg-inline ms-1">Discard</span>
             </button>
 
             <button
@@ -473,6 +566,49 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
               Import configuration
             </button>
           </div>
+
+          <hr />
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <strong>Saved versions</strong>
+            <button
+              class="btn btn-sm btn-outline-secondary"
+              :disabled="loadingBackups"
+              @click="loadConfigBackups"
+            >
+              {{ loadingBackups ? "Loading…" : "Load versions" }}
+            </button>
+          </div>
+          <div v-if="backupError" class="alert alert-danger py-2">
+            {{ backupError }}
+          </div>
+          <p v-else-if="configBackups.length === 0" class="text-muted small">
+            Load saved versions to restore an earlier dashboard configuration.
+          </p>
+          <ul v-else class="list-group mb-3">
+            <li
+              v-for="backup in configBackups"
+              :key="backup.sequence"
+              class="list-group-item d-flex align-items-center justify-content-between gap-2"
+            >
+              <span>
+                Version {{ backup.sequence }}
+                <small class="d-block text-muted">
+                  {{ new Date(backup.createdAt).toLocaleString() }}
+                </small>
+              </span>
+              <button
+                class="btn btn-sm btn-outline-primary"
+                :disabled="restoringBackupSequence !== null"
+                @click="restoreConfigBackup(backup)"
+              >
+                {{
+                  restoringBackupSequence === backup.sequence
+                    ? "Restoring…"
+                    : "Restore"
+                }}
+              </button>
+            </li>
+          </ul>
 
           <input
             ref="fileInputRef"

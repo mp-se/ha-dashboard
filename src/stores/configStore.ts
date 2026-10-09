@@ -550,6 +550,46 @@ export const useConfigStore = defineStore("config", () => {
     }
   };
 
+  const listConfigBackups = async (): Promise<
+    Array<{ sequence: number; createdAt: string }>
+  > => {
+    const response = await fetch(getApiUrl("config/backups"), {
+      credentials: "include",
+    });
+    if (!response.ok) {
+      if (response.status === 401) {
+        serverAuthEnabled.value = true;
+        serverAuthenticated.value = false;
+        needsServerLogin.value = true;
+      }
+      throw new Error("Could not load saved dashboard versions");
+    }
+    const result = (await response.json()) as {
+      data?: { backups?: Array<{ sequence: number; createdAt: string }> };
+    };
+    return result.data?.backups ?? [];
+  };
+
+  const restoreConfigBackup = async (sequence: number): Promise<boolean> => {
+    const response = await fetch(getApiUrl("config/restore"), {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sequence }),
+    });
+    if (!response.ok) {
+      if (response.status === 401) {
+        serverAuthEnabled.value = true;
+        serverAuthenticated.value = false;
+        needsServerLogin.value = true;
+      }
+      return false;
+    }
+
+    const validation = await loadDashboardConfig();
+    return validation.valid;
+  };
+
   return {
     dashboardConfig,
     configValidationError,
@@ -569,5 +609,7 @@ export const useConfigStore = defineStore("config", () => {
     deleteView,
     saveDashboardConfig,
     saveConfigToBackend,
+    listConfigBackups,
+    restoreConfigBackup,
   };
 });

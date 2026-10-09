@@ -594,8 +594,110 @@ const onMobilePaletteAdd = (entityIdOrComponent) => {
 
 // Draft management
 const originalConfig = ref(null);
-const { setHasChanges, setIsSaving, setSaveStatus, setSaveHandler } =
-  useVisualEditorToolbar();
+const {
+  hasChanges,
+  setHasChanges,
+  setIsSaving,
+  setSaveStatus,
+  setSaveHandler,
+  setHistoryState,
+  setHistoryHandlers,
+} = useVisualEditorToolbar();
+
+const HISTORY_LIMIT = 50;
+const undoStack = [];
+const redoStack = [];
+let lastHistorySnapshot = null;
+
+const getConfigSnapshot = () =>
+  store.dashboardConfig ? JSON.stringify(store.dashboardConfig) : null;
+
+const updateHistoryAvailability = () => {
+  setHistoryState(undoStack.length > 0, redoStack.length > 0);
+};
+
+const captureHistoryStep = () => {
+  const currentSnapshot = getConfigSnapshot();
+  if (!currentSnapshot || !lastHistorySnapshot) {
+    lastHistorySnapshot = currentSnapshot;
+    return;
+  }
+  if (currentSnapshot !== lastHistorySnapshot) {
+    undoStack.push(lastHistorySnapshot);
+    if (undoStack.length > HISTORY_LIMIT) undoStack.shift();
+    redoStack.length = 0;
+    lastHistorySnapshot = currentSnapshot;
+    updateHistoryAvailability();
+  }
+};
+
+const syncUnsavedState = () => {
+  const currentSnapshot = getConfigSnapshot();
+  const savedSnapshot = originalConfig.value
+    ? JSON.stringify(originalConfig.value)
+    : null;
+  const changed = Boolean(currentSnapshot && savedSnapshot !== currentSnapshot);
+  setHasChanges(changed);
+  if (!changed) {
+    try {
+      localStorage.removeItem("dashboardConfigDraft");
+    } catch (error) {
+      logger.warn("Could not clear local dashboard draft:", error);
+    }
+    setSaveStatus("");
+  } else {
+    setSaveStatus("Unsaved changes");
+    saveDraftToLocalStorage();
+  }
+};
+
+const flushPendingEdit = () => {
+  if (saveTimeout.value) {
+    clearTimeout(saveTimeout.value);
+    saveTimeout.value = null;
+  }
+  captureHistoryStep();
+};
+
+const applyHistorySnapshot = (snapshot) => {
+  if (!snapshot) return;
+  store.dashboardConfig = JSON.parse(snapshot);
+  lastHistorySnapshot = snapshot;
+  updateHistoryAvailability();
+  syncUnsavedState();
+};
+
+const undoEdit = () => {
+  flushPendingEdit();
+  const snapshot = undoStack.pop();
+  if (!snapshot) return;
+  const currentSnapshot = getConfigSnapshot();
+  if (currentSnapshot) redoStack.push(currentSnapshot);
+  applyHistorySnapshot(snapshot);
+};
+
+const redoEdit = () => {
+  flushPendingEdit();
+  const snapshot = redoStack.pop();
+  if (!snapshot) return;
+  const currentSnapshot = getConfigSnapshot();
+  if (currentSnapshot) undoStack.push(currentSnapshot);
+  applyHistorySnapshot(snapshot);
+};
+
+const discardUnsavedEdits = () => {
+  if (!originalConfig.value || !hasChanges.value) return;
+  if (!window.confirm("Discard all unsaved dashboard edits?")) return;
+  if (saveTimeout.value) clearTimeout(saveTimeout.value);
+  saveTimeout.value = null;
+  const snapshot = JSON.stringify(originalConfig.value);
+  store.dashboardConfig = JSON.parse(snapshot);
+  lastHistorySnapshot = snapshot;
+  undoStack.length = 0;
+  redoStack.length = 0;
+  updateHistoryAvailability();
+  syncUnsavedState();
+};
 
 const availableViews = computed(() => {
   const views = store.dashboardConfig?.views ?? [];
@@ -677,9 +779,12 @@ const debouncedSave = () => {
   }
 
   setHasChanges(true);
+  setSaveStatus("Unsaved changes");
 
   saveTimeout.value = setTimeout(() => {
-    saveDraftToLocalStorage();
+    saveTimeout.value = null;
+    captureHistoryStep();
+    syncUnsavedState();
   }, 500);
 };
 
@@ -705,6 +810,7 @@ const saveConfigToBackend = async () => {
   try {
     if (!store.dashboardConfig) return;
 
+    flushPendingEdit();
     setIsSaving(true);
     setSaveStatus("Saving...");
 
@@ -716,6 +822,7 @@ const saveConfigToBackend = async () => {
       setSaveStatus("Saved!");
       setHasChanges(false);
       originalConfig.value = JSON.parse(JSON.stringify(store.dashboardConfig));
+      lastHistorySnapshot = JSON.stringify(store.dashboardConfig);
       logger.log("Config saved to backend successfully");
 
       setTimeout(() => {
@@ -997,10 +1104,7 @@ const handleUpdateEntityProperties = (properties) => {
  */
 const handleViewCreated = (newView) => {
   logger.log("View created:", newView);
-  setSaveStatus("Saved");
-  setTimeout(() => {
-    setSaveStatus("");
-  }, 2000);
+  debouncedSave();
   // Auto-select the new view
   selectedViewName.value = newView.name;
 };
@@ -1015,10 +1119,7 @@ const handleViewDeleted = (deletedView) => {
   if (views.length > 0) {
     selectedViewName.value = views[0].name;
   }
-  setSaveStatus("Saved");
-  setTimeout(() => {
-    setSaveStatus("");
-  }, 2000);
+  debouncedSave();
 };
 
 /**
@@ -1026,10 +1127,7 @@ const handleViewDeleted = (deletedView) => {
  */
 const handleViewUpdated = (updatedView) => {
   logger.log("View updated:", updatedView);
-  setSaveStatus("Saved");
-  setTimeout(() => {
-    setSaveStatus("");
-  }, 2000);
+  debouncedSave();
 };
 
 // Resizable panel state
@@ -1162,7 +1260,29 @@ const handleMouseUp = () => {
 // Initialize panel widths on mount
 onMounted(() => {
   initializePanelWidths();
+  originalConfig.value = JSON.parse(
+    JSON.stringify(store.dashboardConfig ?? {}),
+  );
+  lastHistorySnapshot = JSON.stringify(store.dashboardConfig ?? {});
+  updateHistoryAvailability();
   setSaveHandler(saveConfigToBackend);
+  setHistoryHandlers({
+    undo: undoEdit,
+    redo: redoEdit,
+    discard: discardUnsavedEdits,
+    resetSavedBaseline: () => {
+      originalConfig.value = JSON.parse(
+        JSON.stringify(store.dashboardConfig ?? {}),
+      );
+      lastHistorySnapshot = JSON.stringify(store.dashboardConfig ?? {});
+      undoStack.length = 0;
+      redoStack.length = 0;
+      updateHistoryAvailability();
+      syncUnsavedState();
+    },
+  });
+  window.addEventListener("beforeunload", handleBeforeUnload);
+  window.addEventListener("keydown", handleEditorKeydown);
 });
 
 onBeforeUnmount(() => {
@@ -1171,8 +1291,36 @@ onBeforeUnmount(() => {
   }
 
   setSaveHandler(null);
+  setHistoryHandlers(null);
+  window.removeEventListener("beforeunload", handleBeforeUnload);
+  window.removeEventListener("keydown", handleEditorKeydown);
   resetVisualEditorToolbar();
 });
+
+const handleBeforeUnload = (event) => {
+  if (!hasChanges.value) return;
+  event.preventDefault();
+  event.returnValue = "";
+};
+
+const handleEditorKeydown = (event) => {
+  const target = event.target;
+  const isTextEntry =
+    target instanceof HTMLElement &&
+    (target.isContentEditable ||
+      ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
+  if (isTextEntry || !(event.metaKey || event.ctrlKey)) return;
+
+  const key = event.key.toLowerCase();
+  if (key === "z") {
+    event.preventDefault();
+    if (event.shiftKey) redoEdit();
+    else undoEdit();
+  } else if (key === "y") {
+    event.preventDefault();
+    redoEdit();
+  }
+};
 </script>
 
 <style scoped>

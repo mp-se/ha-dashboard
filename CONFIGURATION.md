@@ -1,10 +1,11 @@
 # Configuration Guide
 
-This guide explains how to configure the Home Assistant Dashboard using JSON, including all available card types, entity specification methods, and examples.
+This guide covers the dashboard’s visual editor and its JSON configuration format. Home Assistant remains responsible for integrations, entities, automations, and services; this app provides the dashboard UI and a curated set of built-in cards whose lifecycle is tied to app releases, rather than separately installed Lovelace card packages.
 
 ## Visual Card Reference
 
 All available card types are documented in the [Card Components](#card-components) section with visual examples and configuration.
+The visual editor also provides undo/redo, an unsaved-changes indicator, discard-to-saved, and restore from server-side saved versions.
 
 ## Table of Contents
 
@@ -22,7 +23,7 @@ All available card types are documented in the [Card Components](#card-component
 
 ## Configuration File Structure
 
-The main configuration file is `public/data/dashboard-config.json`. It defines the entire dashboard structure without touching code.
+The main configuration file is `public/data/dashboard-config.json` (mounted as server data in Docker). It stores the dashboard structure and can be edited directly for advanced use, but most dashboard design and maintenance can be done in the visual editor. The server protects this file behind editor sign-in; it is not intended to be fetched as a public static asset.
 
 ```json
 {
@@ -390,7 +391,7 @@ The `app` object configures dashboard-wide settings:
 
 - **title** (string): Application title displayed in browser and navbar
 - **developerMode** (boolean): Enable developer features (data export button)
-- **localMode** (boolean): Load data from `public/local-data.json` instead of Home Assistant
+- **localMode** (boolean): Load the local fixture from `public/data/local-data.json` instead of connecting to Home Assistant
 
 ### Base URL Configuration (Build-Time)
 
@@ -434,9 +435,9 @@ The `haConfig` object contains Home Assistant connection details:
 
 ### Credential Management
 
-You have two options for managing credentials:
+There are two separate credentials: the dashboard editor password (`EDITOR_PASSWORD`) grants access to the protected dashboard configuration, while the Home Assistant long-lived token authorizes the app to connect to HA. Do not use one in place of the other.
 
-### Option 1: Store in Configuration (Recommended for shared dashboards)
+The HA URL and token may be provided in the protected server configuration:
 
 ```json
 {
@@ -447,9 +448,9 @@ You have two options for managing credentials:
 }
 ```
 
-When credentials are provided in the config file, they are used automatically on each page load.
+After dashboard sign-in, these values are made available to the browser app for its HA connection. Avoid committing a real access token to a repository.
 
-### Option 2: Prompt User (Recommended for personal devices)
+### Enter credentials on a device
 
 Leave both `haUrl` and `accessToken` empty:
 
@@ -462,9 +463,9 @@ Leave both `haUrl` and `accessToken` empty:
 }
 ```
 
-On first load, the dashboard will prompt the user to enter their Home Assistant URL and access token. The credentials are then **automatically saved to the browser's localStorage** and persist across sessions.
+When no HA credentials are configured, the app prompts for the Home Assistant URL and access token. Values entered on a device are remembered separately from the dashboard configuration, so the URL dialog does not need to appear on every visit. Clearing that browser's site storage removes the saved values.
 
-Users can update their credentials at any time by clicking the settings/profile menu and re-entering their information. If they clear browser storage or use incognito mode, they'll be prompted to enter credentials again.
+Device-saved values take precedence for that browser. A dashboard configuration snapshot may also be available offline, but it is read-only until the device can sign in to the server again. Live HA state and controls still require connectivity to Home Assistant.
 
 ### Hybrid Option: URL Only
 
@@ -479,7 +480,7 @@ You can also specify just the URL and leave the token empty:
 }
 ```
 
-Users will be prompted for only the access token, which is then saved to localStorage.
+The app uses the configured URL and asks for the missing token; entered credentials are remembered on that browser.
 
 ## View Configuration
 
@@ -1740,7 +1741,7 @@ The dashboard includes an optional Node.js/Express backend server for configurat
 
 - **Express.js Server**: Runs on port 3000 (internal to container)
 - **Nginx Reverse Proxy**: Listens on port 8080 (external, exposes /api/\* endpoints)
-- **File-based Storage**: JSON files in `/data/` directory with timestamped backups
+- **File-based Storage**: JSON files in `/data/` directory with numbered backups
 
 **For Development**: The server is optional. You can run the dashboard without a backend and manage configs manually.
 
@@ -1748,7 +1749,7 @@ The dashboard includes an optional Node.js/Express backend server for configurat
 
 - Save configurations from the visual editor
 - Password-protected editing (prevents accidental changes)
-- Automatic timestamped backups with configurable retention
+- Automatic numbered backups with configurable retention
 - Configuration versioning and recovery
 
 ### Docker Deployment
@@ -1835,6 +1836,14 @@ Create, clear, or inspect the seven-day server session. Login attempts are rate-
 
 Load the dashboard configuration. Requires an authenticated session and returns `Cache-Control: no-store`. The `app.password` field is removed from the response.
 
+#### GET /api/config/backups
+
+List numbered saved versions. Requires an authenticated session and returns only each version's sequence and file modification time, never its configuration contents.
+
+#### POST /api/config/restore
+
+Restore a numbered version with `{ "sequence": 4 }`. Requires an authenticated session and same-origin request. The current configuration is backed up before restore; the active editor password and Home Assistant URL/token are preserved rather than rolled back with the dashboard layout.
+
 **Request:**
 
 ```bash
@@ -1859,7 +1868,7 @@ Save dashboard configuration. **Requires authentication.**
 
 Before saving, the server:
 
-1. Creates timestamped backup of current config
+1. Creates a numbered backup of the current config
 2. Enforces backup retention limit (default: 30 backups)
 3. Removes old backups beyond limit
 4. Saves new configuration
@@ -1885,7 +1894,7 @@ Content-Type: application/json
   "success": true,
   "data": {
     "saved": true,
-    "backupPath": "dashboard-config.json.backup.2026-03-19T20-00-00.000Z.json"
+    "backupPath": "dashboard-config.json.backup.4.json"
   }
 }
 ```
@@ -1933,18 +1942,18 @@ GET /api/data/local
 
 ### Backup Management
 
-The server automatically creates timestamped backups before saving new configurations.
+The server automatically creates a numbered backup before saving a new configuration.
 
 **Backup File Naming:**
 
 ```
-dashboard-config.json.backup.{ISO_TIMESTAMP}.json
+dashboard-config.json.backup.{SEQUENCE}.json
 ```
 
 Example:
 
 ```
-dashboard-config.json.backup.2026-03-19T20-00-00.000Z.json
+dashboard-config.json.backup.4.json
 ```
 
 **Backup Location:**
@@ -1982,12 +1991,14 @@ BACKUP_LIMIT=10
 ls -la public/data/backups/
 
 # Restore a specific backup
-cp public/data/backups/dashboard-config.json.backup.2026-03-19T20-00-00.000Z.json \
+cp public/data/backups/dashboard-config.json.backup.4.json \
    public/data/dashboard-config.json
 
 # Restart the service
 docker-compose restart
 ```
+
+The editor also offers **Saved versions** in its navigation. It lists server backups and restores a selected version after confirmation. The current configuration is backed up first, so the restore itself is reversible.
 
 ### Save Queue
 
@@ -2064,7 +2075,7 @@ VITE_API_URL=https://dashboard.example.com docker-compose up -d
 
 ### Password Configuration
 
-Password for editor protection comes from `dashboard-config.json`:
+Set the editor password with `EDITOR_PASSWORD` in `.env` (preferred). For compatibility, the server falls back to the legacy `app.password` value in the protected configuration file when `EDITOR_PASSWORD` is blank.
 
 ```json
 {
@@ -2077,17 +2088,15 @@ Password for editor protection comes from `dashboard-config.json`:
 
 **To change the password:**
 
-1. Edit `public/data/dashboard-config.json`
-2. Update the `"password"` field
-3. Restart the container: `docker-compose restart`
-4. New password required for all POST /api/config requests
+1. Update `EDITOR_PASSWORD` in `.env`
+2. Restart the container: `docker-compose up -d`
+3. Sign in with the new editor password
 
 **Password Requirements:**
 
-- Any string is valid (no minimum length enforced)
-- Empty string `""` disables editor protection
-- Password stored in plaintext (use HTTPS in production)
-- Recommended: 12+ character minimum, mixed alphanumeric + special chars
+- Use a long, unique password; there is no configured minimum-length policy
+- An empty `EDITOR_PASSWORD` falls back to legacy `app.password`; if neither is set, protected access remains locked
+- Keep `.env` out of source control and use HTTPS, including on a LAN
 
 **Security Notes:**
 
@@ -2098,7 +2107,7 @@ Password for editor protection comes from `dashboard-config.json`:
 
 After configuring your dashboard:
 
-1. **Restart the container** to load the new configuration
+1. **Sign in to the editor** with `EDITOR_PASSWORD`
 2. **Test each view** to verify entities are displaying correctly
 3. **Install the PWA** on your devices for native app experience
 4. **Customize colors & layout** by editing component files if needed

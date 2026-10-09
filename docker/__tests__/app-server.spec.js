@@ -36,6 +36,10 @@ function setupTestEnv() {
       password: "test-password",
       developerMode: false,
     },
+    haConfig: {
+      haUrl: "https://ha.local",
+      accessToken: "active-ha-token",
+    },
     views: [
       {
         name: "overview",
@@ -248,6 +252,70 @@ describe("Backend Server (app-server.js)", () => {
       const configPath = path.join(testDataDir, "dashboard-config.json");
       const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
       expect(config.app.title).toBe("Update 2");
+    });
+  });
+
+  describe("Configuration Backup Restore API", () => {
+    it("requires an authenticated session to list saved versions", async () => {
+      const response = await request(app).get("/api/config/backups");
+      expect(response.status).toBe(401);
+    });
+
+    it("lists backups without exposing their configuration contents", async () => {
+      const response = await request(app)
+        .get("/api/config/backups")
+        .set("Cookie", sessionCookie);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.backups.length).toBeGreaterThan(0);
+      expect(response.body.data.backups[0]).toHaveProperty("sequence");
+      expect(response.body.data.backups[0]).toHaveProperty("createdAt");
+      expect(JSON.stringify(response.body)).not.toContain("test-password");
+    });
+
+    it("restores a numbered backup while preserving active credentials", async () => {
+      const backupConfig = {
+        app: { title: "Restored Dashboard", password: "old-password" },
+        haConfig: { haUrl: "https://old-ha.local", accessToken: "old-token" },
+        views: [{ name: "restored", label: "Restored", entities: [] }],
+      };
+      fs.writeFileSync(
+        path.join(testBackupDir, "dashboard-config.json.backup.900.json"),
+        JSON.stringify(backupConfig),
+      );
+      const currentConfigPath = path.join(testDataDir, "dashboard-config.json");
+      const currentConfig = JSON.parse(
+        fs.readFileSync(currentConfigPath, "utf-8"),
+      );
+      currentConfig.haConfig = {
+        haUrl: "https://ha.local",
+        accessToken: "active-ha-token",
+      };
+      fs.writeFileSync(currentConfigPath, JSON.stringify(currentConfig));
+
+      const response = await request(app)
+        .post("/api/config/restore")
+        .set("Cookie", sessionCookie)
+        .send({ sequence: 900 });
+
+      expect(response.status).toBe(200);
+      const restoredConfig = JSON.parse(
+        fs.readFileSync(currentConfigPath, "utf-8"),
+      );
+      expect(restoredConfig.app.title).toBe("Restored Dashboard");
+      expect(restoredConfig.app.password).toBe("test-password");
+      expect(restoredConfig.haConfig.haUrl).toBe("https://ha.local");
+      expect(restoredConfig.haConfig.accessToken).toBe("active-ha-token");
+      expect(restoredConfig.views[0].name).toBe("restored");
+    });
+
+    it("rejects malformed backup identifiers", async () => {
+      const response = await request(app)
+        .post("/api/config/restore")
+        .set("Cookie", sessionCookie)
+        .send({ sequence: "../dashboard-config.json" });
+
+      expect(response.status).toBe(400);
     });
   });
 });

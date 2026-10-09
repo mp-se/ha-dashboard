@@ -1,6 +1,6 @@
 # Installation & Deployment Guide
 
-This guide covers deployment options, SSL certificate generation, and configuration for the Home Assistant Dashboard.
+This guide covers deploying the visual dashboard designer on a trusted home LAN. It provides an alternative dashboard UI, not a replacement for Home Assistant: HA continues to provide integrations, entities, automations, and service execution.
 
 ## Table of Contents
 
@@ -41,21 +41,13 @@ For the dashboard to communicate with Home Assistant from a browser, CORS (Cross
        # Add additional origins as needed
    ```
 
-2. If using Docker or in a restricted network environment, you might allow all origins (use with caution):
-
-   ```yaml
-   http:
-     cors_allowed_origins:
-       - "*"
-   ```
-
-3. Restart Home Assistant for changes to take effect:
+2. Restart Home Assistant for changes to take effect:
    - Go to **Settings** → **System** → **Restart**
    - Or use the `homeassistant.restart` service
 
-4. Verify CORS is working by checking the browser console for any CORS-related errors when accessing the dashboard
+3. Verify CORS is working by checking the browser console for any CORS-related errors when accessing the dashboard
 
-**Note**: Replace `your-dashboard-domain:8443` and `your-dashboard-ip:8443` with the actual domain/IP and port where your dashboard is accessible.
+**Note**: Replace `your-dashboard-domain:8443` and `your-dashboard-ip:8443` with the actual domain/IP and port where your dashboard is accessible. Avoid wildcard origins; allow only the dashboard origins you use.
 
 ## SSL Certificate Setup
 
@@ -147,13 +139,13 @@ cp server.crt ca.crt
 
 1. **Generate or prepare SSL certificates** (see [SSL Certificate Setup](#ssl-certificate-setup))
 
-2. **Set the dashboard sign-in password** in `.env`:
+2. **Set the dashboard editor sign-in password** in `.env`:
 
    ```bash
    cp .env.example .env
    ```
 
-   Set `EDITOR_PASSWORD` to a long, unique password. If it is blank, the server uses the legacy `app.password` value from the mounted configuration. With neither set, private configuration and write APIs stay locked.
+   Set `EDITOR_PASSWORD` to a long, unique password. This password protects access to the dashboard configuration and editor; it is separate from the Home Assistant access token. If it is blank, the server uses the legacy `app.password` value from the mounted configuration. With neither set, private configuration and write APIs stay locked.
 
 3. **Configure the dashboard** by editing `public/data/dashboard-config.json`:
 
@@ -183,7 +175,7 @@ cp server.crt ca.crt
    }
    ```
 
-   Docker mounts this file as server data. Nginx blocks direct HTTP access; the app reads it after sign-in. Do not put `EDITOR_PASSWORD` in a Vite `VITE_*` variable.
+   Docker mounts this file as server data. Nginx blocks direct HTTP access; the app reads it after sign-in. This initial file can define the HA connection and starter views; use the visual editor for ongoing dashboard design. Do not put `EDITOR_PASSWORD` in a Vite `VITE_*` variable.
 
 4. **Start the container**:
 
@@ -236,9 +228,11 @@ ports:
 
 ### Environment Variables
 
-`EDITOR_PASSWORD` configures the sign-in required to load and edit the server configuration. The Home Assistant URL and token can remain in the mounted config; after sign-in the app caches them in the browser's secure-storage helper for offline use. Vite variables are embedded in the built frontend, so do not use `VITE_HA_TOKEN` for secrets.
+`EDITOR_PASSWORD` configures sign-in required to load and edit the server configuration. It is not the Home Assistant token. The Home Assistant URL and token can remain in the mounted config or be entered on a device; device-entered credentials are remembered separately by the browser app. Vite variables are embedded in the built frontend, so do not use `VITE_HA_TOKEN` for secrets.
 
-The browser keeps a last-known dashboard configuration so it can open away from the LAN. The Home Assistant URL/token are stored separately from that snapshot. A saved dashboard is read-only until the device signs in to the server again.
+The browser keeps a last-known dashboard configuration so it can open away from the LAN. The HA URL/token are stored separately from that snapshot. Away from the server, the cached dashboard opens read-only; live entity updates and controls also require the device to reach Home Assistant.
+
+In the editor, undo/redo handles recent design changes, **Discard** returns to the last saved configuration, and **Saved versions** restores an earlier server backup.
 
 ### Viewing Logs
 
@@ -256,7 +250,9 @@ docker-compose logs --tail=50 hassio-dashboard
 docker-compose down
 ```
 
-## Development Setup### Local Development Server
+## Development Setup
+
+### Local Development Server
 
 ```bash
 # Install dependencies
@@ -295,7 +291,7 @@ For development without a live Home Assistant connection:
 2. Save your Home Assistant data:
    - Connect to your live Home Assistant instance
    - Click the **Save** button (💾) in the navbar
-   - This exports current entity states to `public/local-data.json`
+   - This exports current entity states to `public/data/local-data.json`
 
 3. Restart the dev server:
 
@@ -303,7 +299,7 @@ For development without a live Home Assistant connection:
    npm run dev
    ```
 
-The app now loads from `public/local-data.json` instead of connecting to Home Assistant. Service calls (toggling lights, etc.) are disabled in local mode.
+The app now loads from `public/data/local-data.json` instead of connecting to Home Assistant. Service calls (toggling lights, etc.) are disabled in local mode. This is a development/demo fixture mode, separate from the read-only cached dashboard used when the server is temporarily unreachable.
 
 ## Certificate Installation on Client Devices
 
@@ -521,9 +517,8 @@ sudo yum install openssl
 
 After successful deployment:
 
-1. **Configure your views** in `public/data/dashboard-config.json` — see [Configuration Guide](./CONFIGURATION.md)
-2. **Customize card styles** by editing individual component files in `src/components/`
-3. **Add more views** following the pattern in `public/data/dashboard-config.json`
-4. **Install the PWA** on your devices for native app experience
+1. **Design your views** in the visual editor; see [Configuration Guide](./CONFIGURATION.md) for advanced JSON options
+2. **Choose from the built-in card catalog**; card implementations are shipped and updated with this app
+3. **Install the PWA** on your devices for a native app experience
 
 For detailed configuration options and card types, see [Configuration Guide](./CONFIGURATION.md).

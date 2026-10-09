@@ -4,6 +4,7 @@ import VisualEditorView from "../VisualEditorView.vue";
 import { createPinia, setActivePinia } from "pinia";
 import { useHaStore } from "../../stores/haStore";
 import { useConfigStore } from "../../stores/configStore";
+import { useVisualEditorToolbar } from "../../composables/useVisualEditorToolbar";
 
 describe("VisualEditorView.vue", () => {
   let wrapper: any;
@@ -97,6 +98,50 @@ describe("VisualEditorView.vue", () => {
     const initialCount = wrapper.vm.currentViewEntities.length;
     wrapper.vm.handleAddEntity("switch.new_switch");
     expect(wrapper.vm.currentViewEntities.length).toBe(initialCount + 1);
+  });
+
+  it("undoes and redoes a dashboard edit", async () => {
+    vi.useFakeTimers();
+    try {
+      const toolbar = useVisualEditorToolbar();
+      const initialCount = wrapper.vm.currentViewEntities.length;
+      wrapper.vm.handleAddEntity("switch.undo_test");
+      await vi.advanceTimersByTimeAsync(500);
+
+      expect(toolbar.canUndo.value).toBe(true);
+      toolbar.triggerUndo();
+      expect(wrapper.vm.currentViewEntities).toHaveLength(initialCount);
+      expect(toolbar.canRedo.value).toBe(true);
+
+      toolbar.triggerRedo();
+      expect(wrapper.vm.currentViewEntities).toHaveLength(initialCount + 1);
+      expect(wrapper.vm.currentViewEntities.at(-1).entity).toBe(
+        "switch.undo_test",
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("discards unsaved edits back to the last saved configuration", async () => {
+    vi.useFakeTimers();
+    const confirm = vi.fn().mockReturnValue(true);
+    vi.stubGlobal("confirm", confirm);
+    try {
+      const toolbar = useVisualEditorToolbar();
+      const initialCount = wrapper.vm.currentViewEntities.length;
+      wrapper.vm.handleAddEntity("switch.discard_test");
+      await vi.advanceTimersByTimeAsync(500);
+
+      expect(toolbar.hasChanges.value).toBe(true);
+      toolbar.triggerDiscard();
+      expect(wrapper.vm.currentViewEntities).toHaveLength(initialCount);
+      expect(toolbar.hasChanges.value).toBe(false);
+      expect(localStorage.getItem("dashboardConfigDraft")).toBeNull();
+    } finally {
+      vi.unstubAllGlobals();
+      vi.useRealTimers();
+    }
   });
 
   it("can reorder entities", () => {
