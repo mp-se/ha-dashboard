@@ -123,6 +123,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             @create-view="handleOnboardingCreateView"
             @browse-entities="handleOnboardingBrowseEntities"
             @browse-components="handleOnboardingBrowseComponents"
+            @use-template="handleOnboardingUseTemplate"
             @dismiss="onboardingDismissed = true"
           />
           <EditorCanvas
@@ -197,6 +198,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         @create-view="handleOnboardingCreateView"
         @browse-entities="handleOnboardingBrowseEntities"
         @browse-components="handleOnboardingBrowseComponents"
+        @use-template="handleOnboardingUseTemplate"
         @dismiss="onboardingDismissed = true"
       />
       <EditorCanvas
@@ -325,6 +327,7 @@ import LeftPanelTabs from "../components/visual-editor/LeftPanelTabs.vue";
 import EditorActionBar from "../components/visual-editor/EditorActionBar.vue";
 import GettingStartedPanel from "../components/visual-editor/GettingStartedPanel.vue";
 import EditorDiagnostics from "../components/visual-editor/EditorDiagnostics.vue";
+import { createStarterViews } from "../utils/starterDashboardTemplates";
 import { createLogger } from "../utils/logger";
 import { supportsMultipleEntities } from "../utils/cardPropertyMetadata";
 import "../styles/editor-styles.css";
@@ -835,6 +838,32 @@ const handleOnboardingBrowseComponents = async () => {
     return;
   }
   desktopLeftPanelRef.value?.selectTab("components");
+};
+
+const handleOnboardingUseTemplate = (templateId) => {
+  const views = createStarterViews(templateId);
+  if (!views || !store.dashboardConfig) return;
+  if (
+    availableViews.value.some(
+      (view) => Array.isArray(view.entities) && view.entities.length > 0,
+    )
+  ) {
+    return;
+  }
+
+  if (
+    availableViews.value.length > 0 &&
+    !window.confirm(
+      "Replace the current empty views with this starter layout? Dashboard cards and Home Assistant settings will be preserved.",
+    )
+  ) {
+    return;
+  }
+
+  store.dashboardConfig = { ...store.dashboardConfig, views };
+  selectedViewName.value = views[0].name;
+  selectedEntityId.value = null;
+  debouncedSave();
 };
 
 // Watch availableViews and set the first view when it becomes available

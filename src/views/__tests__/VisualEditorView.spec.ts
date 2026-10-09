@@ -111,6 +111,78 @@ describe("VisualEditorView.vue", () => {
     expect(haStore.needsCredentials).toBe(true);
   });
 
+  it("applies a starter layout while preserving dashboard settings", async () => {
+    haStore.dashboardConfig.app = { title: "My home", localMode: true };
+    haStore.dashboardConfig.haConfig = { haUrl: "http://ha.local" };
+    haStore.dashboardConfig.views.forEach((view: { entities: unknown[] }) => {
+      view.entities = [];
+    });
+    const originalConfirm = window.confirm;
+    const confirmSpy = vi.fn().mockReturnValue(true);
+    Object.defineProperty(window, "confirm", {
+      configurable: true,
+      value: confirmSpy,
+    });
+    try {
+      await wrapper.vm.$nextTick();
+      wrapper.vm.handleOnboardingUseTemplate("rooms");
+
+      expect(confirmSpy).toHaveBeenCalledOnce();
+      expect(haStore.dashboardConfig.app).toEqual({
+        title: "My home",
+        localMode: true,
+      });
+      expect(haStore.dashboardConfig.haConfig).toEqual({
+        haUrl: "http://ha.local",
+      });
+      expect(
+        haStore.dashboardConfig.views.map((view: any) => view.name),
+      ).toEqual(["overview", "living-room", "bedroom"]);
+      expect(
+        haStore.dashboardConfig.views.every((view: any) =>
+          view.entities.every((entity: any) => !entity.entity),
+        ),
+      ).toBe(true);
+      expect(wrapper.vm.selectedViewName).toBe("overview");
+    } finally {
+      if (originalConfirm) {
+        Object.defineProperty(window, "confirm", {
+          configurable: true,
+          value: originalConfirm,
+        });
+      } else {
+        delete (window as any).confirm;
+      }
+    }
+  });
+
+  it("keeps the current empty views when starter layout replacement is canceled", () => {
+    haStore.dashboardConfig.views.forEach((view: { entities: unknown[] }) => {
+      view.entities = [];
+    });
+    const confirmSpy = vi.fn().mockReturnValue(false);
+    const originalConfirm = window.confirm;
+    Object.defineProperty(window, "confirm", {
+      configurable: true,
+      value: confirmSpy,
+    });
+    const originalViews = haStore.dashboardConfig.views;
+
+    try {
+      wrapper.vm.handleOnboardingUseTemplate("rooms");
+      expect(haStore.dashboardConfig.views).toBe(originalViews);
+    } finally {
+      if (originalConfirm) {
+        Object.defineProperty(window, "confirm", {
+          configurable: true,
+          value: originalConfirm,
+        });
+      } else {
+        delete (window as any).confirm;
+      }
+    }
+  });
+
   it("does not show first-run guidance once a view has a card", async () => {
     haStore.dashboardConfig.views[0].entities = [];
     haStore.dashboardConfig.views[1].entities = [

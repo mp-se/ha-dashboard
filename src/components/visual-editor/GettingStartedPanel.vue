@@ -133,11 +133,35 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
           </div>
         </li>
       </ol>
+
+      <div class="starter-template-section mt-3 pt-3 border-top">
+        <h3 class="h6 mb-1">Or start from a layout</h3>
+        <p class="small text-muted mb-2">
+          These layouts use built-in cards and don't assume any particular HA
+          entities.
+        </p>
+        <div class="d-flex flex-wrap gap-2">
+          <button
+            v-for="template in starterTemplates"
+            :key="template.id"
+            class="btn btn-sm btn-outline-primary text-start"
+            type="button"
+            :aria-label="`Start with ${template.name}: ${template.description}`"
+            @click="$emit('use-template', template.id)"
+          >
+            {{ template.name }}
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 </template>
 
 <script setup>
+import { STARTER_DASHBOARD_TEMPLATES } from "../../utils/starterDashboardTemplates";
+
+const starterTemplates = STARTER_DASHBOARD_TEMPLATES;
+
 defineProps({
   isConnected: { type: Boolean, default: false },
   hasCredentials: { type: Boolean, default: false },
@@ -149,6 +173,7 @@ defineEmits([
   "create-view",
   "browse-entities",
   "browse-components",
+  "use-template",
   "dismiss",
 ]);
 </script>

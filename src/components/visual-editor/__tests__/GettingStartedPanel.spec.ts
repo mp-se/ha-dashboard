@@ -52,4 +52,16 @@ describe("GettingStartedPanel.vue", () => {
       .trigger("click");
     expect(wrapper.emitted("dismiss")).toHaveLength(1);
   });
+
+  it("offers built-in starter layouts without assuming entity IDs", async () => {
+    const wrapper = mount(GettingStartedPanel);
+    const roomsTemplate = wrapper
+      .findAll("button")
+      .find((button) => button.text() === "Rooms");
+
+    expect(wrapper.text()).toContain("Home essentials");
+    expect(wrapper.text()).toContain("Home systems");
+    await roomsTemplate.trigger("click");
+    expect(wrapper.emitted("use-template")).toEqual([["rooms"]]);
+  });
 });
