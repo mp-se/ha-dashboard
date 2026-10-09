@@ -121,7 +121,9 @@ describe("VisualEditorView.vue", () => {
       },
     });
 
-    const previewButtons = wrapper.findAll(".canvas-preview-toolbar button");
+    const previewButtons = wrapper.findAll(
+      ".canvas-preview-toolbar [data-preview-mode]",
+    );
     expect(previewButtons.map((button) => button.text())).toEqual([
       "Desktop",
       "Tablet",
@@ -139,6 +141,27 @@ describe("VisualEditorView.vue", () => {
     expect(wrapper.find(".canvas-preview-frame").classes()).toContain(
       "preview-mobile",
     );
+  });
+
+  it("opens dashboard diagnostics from the editor toolbar", async () => {
+    const wrapper = mount(VisualEditorView, {
+      global: {
+        components: {
+          ViewManager: mockViewManager,
+          EntityPalette: mockEntityPalette,
+          StaticComponentPalette: mockStaticComponentPalette,
+          EditorCanvas: mockEditorCanvas,
+          EntityInspector: mockEntityInspector,
+        },
+      },
+    });
+
+    expect(wrapper.find("#editor-diagnostics-panel").exists()).toBe(false);
+    await wrapper
+      .find("button[aria-controls='editor-diagnostics-panel']")
+      .trigger("click");
+    expect(wrapper.find("#editor-diagnostics-panel").exists()).toBe(true);
+    expect(wrapper.text()).toContain("Dashboard checks");
   });
 
   it("renders StaticComponentPalette component", () => {

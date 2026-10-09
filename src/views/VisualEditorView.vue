@@ -78,6 +78,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
           <button
             v-for="device in previewDevices"
             :key="device.id"
+            :data-preview-mode="device.id"
             type="button"
             class="btn btn-sm"
             :class="
@@ -90,7 +91,27 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
           >
             {{ device.label }}
           </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary ms-2"
+            :aria-expanded="showDiagnostics"
+            aria-controls="editor-diagnostics-panel"
+            @click="showDiagnostics = !showDiagnostics"
+          >
+            <i
+              class="mdi mdi-clipboard-check-outline me-1"
+              aria-hidden="true"
+            ></i>
+            {{ showDiagnostics ? "Hide checks" : "Check dashboard" }}
+          </button>
         </div>
+        <EditorDiagnostics
+          v-if="showDiagnostics"
+          id="editor-diagnostics-panel"
+          :config="store.dashboardConfig"
+          :entity-map="store.entityMap"
+          :is-connected="store.isConnected"
+        />
         <div class="canvas-preview-frame" :class="`preview-${previewMode}`">
           <GettingStartedPanel
             v-if="showGettingStarted"
@@ -303,6 +324,7 @@ import EntityInspector from "../components/visual-editor/EntityInspector.vue";
 import LeftPanelTabs from "../components/visual-editor/LeftPanelTabs.vue";
 import EditorActionBar from "../components/visual-editor/EditorActionBar.vue";
 import GettingStartedPanel from "../components/visual-editor/GettingStartedPanel.vue";
+import EditorDiagnostics from "../components/visual-editor/EditorDiagnostics.vue";
 import { createLogger } from "../utils/logger";
 import { supportsMultipleEntities } from "../utils/cardPropertyMetadata";
 import "../styles/editor-styles.css";
@@ -329,6 +351,7 @@ const selectedEntityId = ref(null);
 const saveTimeout = ref(null);
 const onboardingDismissed = ref(false);
 const previewMode = ref("desktop");
+const showDiagnostics = ref(false);
 const previewDevices = [
   { id: "desktop", label: "Desktop" },
   { id: "tablet", label: "Tablet" },

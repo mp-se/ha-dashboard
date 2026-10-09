@@ -33,6 +33,7 @@ Demo is available here: https://mp-se.github.io/ha-dashboard/
 - **Guided first run**: A short setup guide routes new users to HA connection, view creation, and the entity or built-in card palettes
 - **Safer editing**: Undo/redo, a visible unsaved-changes state, discard-to-saved, and authenticated restore of saved dashboard versions
 - **Device previews**: Check dashboard card layouts at desktop, tablet, and phone widths while editing
+- **Dashboard checks**: Review configuration errors and, when connected, entity references that Home Assistant cannot find
 - **Real-time Updates**: WebSocket connection with automatic reconnection and exponential backoff
 - **Area Organization**: View devices and entities grouped by Home Assistant areas with virtual area entities
 - **Curated built-in cards**: Card implementations ship with the app, so there are no separately installed Lovelace card packages to keep upgrading
