@@ -226,6 +226,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         </button>
         <button
           type="button"
+          class="btn btn-outline-primary btn-sm"
+          title="Duplicate this card"
+          aria-label="Duplicate this card"
+          @click="$emit('duplicate-entity')"
+        >
+          <i class="mdi mdi-content-copy me-1" aria-hidden="true"></i>Duplicate
+        </button>
+        <button
+          type="button"
           class="btn btn-danger btn-sm"
           title="Remove this entity from the view"
           @click="$emit('remove-entity')"
@@ -271,6 +280,7 @@ const emit = defineEmits([
   "update-attributes",
   "update-properties",
   "remove-entity",
+  "duplicate-entity",
   "deselect",
   "entity-index-selected",
 ]);

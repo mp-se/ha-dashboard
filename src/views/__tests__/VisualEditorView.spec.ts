@@ -94,6 +94,36 @@ describe("VisualEditorView.vue", () => {
     expect(wrapper.vm.currentViewEntities).toHaveLength(2);
   });
 
+  it("duplicates the selected card as an independent card after it", async () => {
+    vi.useFakeTimers();
+    try {
+      const source = {
+        type: "HaLight",
+        entity: "light.living_room",
+        attributes: ["brightness"],
+        options: { color: "blue" },
+      };
+      haStore.dashboardConfig.views[0].entities = [
+        source,
+        { type: "HaSensor", entity: "sensor.temperature" },
+      ];
+      wrapper.vm.selectedEntityId = 0;
+
+      wrapper.vm.handleDuplicateSelectedEntity();
+
+      const entities = haStore.dashboardConfig.views[0].entities;
+      expect(entities).toHaveLength(3);
+      expect(entities[1]).toEqual(source);
+      expect(entities[1]).not.toBe(source);
+      expect(entities[1].options).not.toBe(source.options);
+      expect(entities[2].entity).toBe("sensor.temperature");
+      expect(wrapper.vm.selectedEntityId).toBe(1);
+      await vi.advanceTimersByTimeAsync(500);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("shows first-run guidance when views have no cards", async () => {
     haStore.dashboardConfig.views.forEach((view: { entities: unknown[] }) => {
       view.entities = [];

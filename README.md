@@ -32,7 +32,7 @@ Demo is available here: https://mp-se.github.io/ha-dashboard/
 - **Visual-first dashboard design**: Create, organize, and edit views, entities, and components in the built-in editor; JSON is available for advanced configuration and backup
 - **Guided first run**: A short setup guide routes new users to HA connection, view creation, and the entity or built-in card palettes
 - **Starter layouts**: Begin with a one-page, rooms, or home-systems structure; layouts use built-in cards and contain no assumed entity IDs
-- **Safer editing**: Undo/redo, a visible unsaved-changes state, discard-to-saved, and authenticated restore of saved dashboard versions
+- **Safer editing**: Undo/redo, duplicate cards, a visible unsaved-changes state, discard-to-saved, and authenticated restore of saved dashboard versions
 - **Device previews**: Check dashboard card layouts at desktop, tablet, and phone widths while editing
 - **Dashboard checks**: Review configuration errors and, when connected, entity references that Home Assistant cannot find
 - **Real-time Updates**: WebSocket connection with automatic reconnection and exponential backoff

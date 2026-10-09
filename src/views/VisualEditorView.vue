@@ -167,6 +167,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
           @update-attributes="handleUpdateEntityAttributes"
           @update-properties="handleUpdateEntityProperties"
           @remove-entity="handleRemoveEntity(selectedEntityId)"
+          @duplicate-entity="handleDuplicateSelectedEntity"
           @deselect="
             selectedEntityId = null;
             inspectorEntityListIndex = null;
@@ -250,7 +251,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         @delete="handleToolbarDelete"
         @add="handleToolbarAdd"
         @close="handleToolbarClose"
-      />
+      >
+        <button
+          v-if="toolbarContext === 'card-selected'"
+          type="button"
+          class="btn-fab"
+          title="Duplicate card"
+          aria-label="Duplicate card"
+          @touchend.prevent="handleDuplicateSelectedEntity"
+          @click="handleDuplicateSelectedEntity"
+        >
+          <i class="mdi mdi-content-copy" aria-hidden="true" />
+        </button>
+      </EditorActionBar>
     </div>
 
     <!-- Mobile Panel bottom sheet (palette / views) -->
@@ -296,6 +309,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             @update-attributes="handleUpdateEntityAttributes"
             @update-properties="handleUpdateEntityProperties"
             @remove-entity="handleRemoveEntity(selectedEntityId)"
+            @duplicate-entity="handleDuplicateSelectedEntity"
             @deselect="onMobileInspectorDeselect"
             @entity-index-selected="inspectorEntityListIndex = $event"
           />
@@ -1067,6 +1081,29 @@ const handleAddEntity = (entityIdOrComponent) => {
   // Trigger reactivity by reassigning the array
   currentView.value.entities = [...currentView.value.entities];
   debouncedSave();
+};
+
+const handleDuplicateSelectedEntity = () => {
+  const index = selectedEntityId.value;
+  const entities = currentView.value?.entities;
+  if (
+    !Number.isInteger(index) ||
+    !Array.isArray(entities) ||
+    index < 0 ||
+    index >= entities.length
+  ) {
+    return;
+  }
+
+  try {
+    const duplicate = JSON.parse(JSON.stringify(entities[index]));
+    entities.splice(index + 1, 0, duplicate);
+    currentView.value.entities = [...entities];
+    selectedEntityId.value = index + 1;
+    debouncedSave();
+  } catch (error) {
+    logger.warn("Could not duplicate dashboard card:", error);
+  }
 };
 
 const handleAddEntityAtIndex = (payload) => {
