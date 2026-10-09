@@ -94,6 +94,35 @@ describe("VisualEditorView.vue", () => {
     expect(wrapper.vm.currentViewEntities).toHaveLength(2);
   });
 
+  it("shows first-run guidance when views have no cards", async () => {
+    haStore.dashboardConfig.views.forEach((view: { entities: unknown[] }) => {
+      view.entities = [];
+    });
+    await wrapper.vm.$nextTick();
+
+    const guide = wrapper.findComponent({ name: "GettingStartedPanel" });
+    expect(guide.exists()).toBe(true);
+    expect(guide.text()).toContain("Let’s build your first dashboard");
+
+    await guide
+      .findAll("button")
+      .find((button: { text: () => string }) => button.text() === "Connect")
+      .trigger("click");
+    expect(haStore.needsCredentials).toBe(true);
+  });
+
+  it("does not show first-run guidance once a view has a card", async () => {
+    haStore.dashboardConfig.views[0].entities = [];
+    haStore.dashboardConfig.views[1].entities = [
+      { entity: "light.bedroom", type: "HaLight" },
+    ];
+    await wrapper.vm.$nextTick();
+
+    expect(
+      wrapper.findComponent({ name: "GettingStartedPanel" }).exists(),
+    ).toBe(false);
+  });
+
   it("can handle adding entity to view", () => {
     const initialCount = wrapper.vm.currentViewEntities.length;
     wrapper.vm.handleAddEntity("switch.new_switch");

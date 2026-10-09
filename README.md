@@ -30,6 +30,7 @@ Demo is available here: https://mp-se.github.io/ha-dashboard/
 ## ✨ Features
 
 - **Visual-first dashboard design**: Create, organize, and edit views, entities, and components in the built-in editor; JSON is available for advanced configuration and backup
+- **Guided first run**: A short setup guide routes new users to HA connection, view creation, and the entity or built-in card palettes
 - **Safer editing**: Undo/redo, a visible unsaved-changes state, discard-to-saved, and authenticated restore of saved dashboard versions
 - **Real-time Updates**: WebSocket connection with automatic reconnection and exponential backoff
 - **Area Organization**: View devices and entities grouped by Home Assistant areas with virtual area entities

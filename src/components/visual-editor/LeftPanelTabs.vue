@@ -100,9 +100,7 @@ import EntityPalette from "./EntityPalette.vue";
 import StaticComponentPalette from "./StaticComponentPalette.vue";
 
 const viewManagerRef = ref(null);
-defineExpose({ viewManagerRef });
-
-defineEmits([
+const emit = defineEmits([
   "view-created",
   "view-deleted",
   "view-updated",
@@ -113,6 +111,14 @@ defineEmits([
   "entity-index-selected",
   "tab-changed",
 ]);
+
+const selectTab = (tab) => {
+  if (!tabs.some((item) => item.id === tab)) return;
+  activeTab.value = tab;
+  emit("tab-changed", tab);
+};
+
+defineExpose({ viewManagerRef, selectTab });
 
 const props = defineProps({
   views: {

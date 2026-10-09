@@ -83,6 +83,14 @@ describe("LeftPanelTabs.vue", () => {
     expect(activeButton.classes()).toContain("active");
   });
 
+  it("allows the onboarding flow to select a tab programmatically", async () => {
+    wrapper.vm.selectTab("components");
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.vm.activeTab).toBe("components");
+    expect(wrapper.emitted("tab-changed").at(-1)).toEqual(["components"]);
+  });
+
   it("marks active tab as active only once", async () => {
     const buttons = wrapper.findAll(".tab-button");
     await buttons[1].trigger("click");

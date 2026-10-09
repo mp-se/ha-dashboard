@@ -70,6 +70,18 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
           overflow: 'auto',
         }"
       >
+        <GettingStartedPanel
+          v-if="showGettingStarted"
+          :is-connected="store.isConnected"
+          :has-credentials="Boolean(store.haUrl && store.accessToken)"
+          :has-views="availableViews.length > 0"
+          class="m-3"
+          @connect="handleOnboardingConnect"
+          @create-view="handleOnboardingCreateView"
+          @browse-entities="handleOnboardingBrowseEntities"
+          @browse-components="handleOnboardingBrowseComponents"
+          @dismiss="onboardingDismissed = true"
+        />
         <EditorCanvas
           :entities="currentViewEntities"
           :selected-entity-id="selectedEntityId"
@@ -130,6 +142,18 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       class="mobile-editor-canvas"
       :class="{ 'canvas-dimmed': showMobilePanel || showMobileInspector }"
     >
+      <GettingStartedPanel
+        v-if="showGettingStarted"
+        :is-connected="store.isConnected"
+        :has-credentials="Boolean(store.haUrl && store.accessToken)"
+        :has-views="availableViews.length > 0"
+        class="m-3"
+        @connect="handleOnboardingConnect"
+        @create-view="handleOnboardingCreateView"
+        @browse-entities="handleOnboardingBrowseEntities"
+        @browse-components="handleOnboardingBrowseComponents"
+        @dismiss="onboardingDismissed = true"
+      />
       <EditorCanvas
         :entities="currentViewEntities"
         :selected-entity-id="selectedEntityId"
@@ -235,7 +259,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue";
+import {
+  ref,
+  computed,
+  watch,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+} from "vue";
 import { useHaStore } from "../stores/haStore";
 import { useConfigStore } from "../stores/configStore";
 import { useIsMobile } from "../composables/useIsMobile";
@@ -247,6 +278,7 @@ import EditorCanvas from "../components/visual-editor/EditorCanvas.vue";
 import EntityInspector from "../components/visual-editor/EntityInspector.vue";
 import LeftPanelTabs from "../components/visual-editor/LeftPanelTabs.vue";
 import EditorActionBar from "../components/visual-editor/EditorActionBar.vue";
+import GettingStartedPanel from "../components/visual-editor/GettingStartedPanel.vue";
 import { createLogger } from "../utils/logger";
 import { supportsMultipleEntities } from "../utils/cardPropertyMetadata";
 import "../styles/editor-styles.css";
@@ -271,6 +303,7 @@ const { isDialogOpen } = useVisualEditorToolbar();
 const selectedViewName = ref("");
 const selectedEntityId = ref(null);
 const saveTimeout = ref(null);
+const onboardingDismissed = ref(false);
 
 // Left panel refs (desktop + mobile) — used to call ViewManager methods
 const desktopLeftPanelRef = ref(null);
@@ -703,6 +736,53 @@ const availableViews = computed(() => {
   const views = store.dashboardConfig?.views ?? [];
   return views;
 });
+
+const showGettingStarted = computed(() => {
+  if (onboardingDismissed.value || !store.dashboardConfig) return false;
+  return !availableViews.value.some(
+    (view) => Array.isArray(view.entities) && view.entities.length > 0,
+  );
+});
+
+const handleOnboardingConnect = () => {
+  if (!store.haUrl || !store.accessToken) {
+    store.needsCredentials = true;
+    return;
+  }
+  void store.retryConnection();
+};
+
+const handleOnboardingCreateView = async () => {
+  if (isMobile.value) {
+    showMobilePanel.value = true;
+    await nextTick();
+    mobileLeftPanelRef.value?.selectTab("views");
+    mobileLeftPanelRef.value?.viewManagerRef?.triggerAdd();
+    return;
+  }
+  desktopLeftPanelRef.value?.selectTab("views");
+  activeViewManager.value?.triggerAdd();
+};
+
+const handleOnboardingBrowseEntities = async () => {
+  if (isMobile.value) {
+    showMobilePanel.value = true;
+    await nextTick();
+    mobileLeftPanelRef.value?.selectTab("entities");
+    return;
+  }
+  desktopLeftPanelRef.value?.selectTab("entities");
+};
+
+const handleOnboardingBrowseComponents = async () => {
+  if (isMobile.value) {
+    showMobilePanel.value = true;
+    await nextTick();
+    mobileLeftPanelRef.value?.selectTab("components");
+    return;
+  }
+  desktopLeftPanelRef.value?.selectTab("components");
+};
 
 // Watch availableViews and set the first view when it becomes available
 watch(

@@ -187,6 +187,8 @@ cp server.crt ca.crt
    - Navigate to `https://localhost:8443` (if running locally)
    - Or use your configured domain with the port mapped in `docker-compose.yml`
 
+   If the dashboard has no cards yet, the editor shows a getting-started guide with shortcuts to connect to Home Assistant, create a view, and browse entities or built-in cards.
+
 ### Docker Compose Configuration
 
 The provided `docker-compose.yml` includes:

@@ -6,6 +6,7 @@ This guide covers the dashboard’s visual editor and its JSON configuration for
 
 All available card types are documented in the [Card Components](#card-components) section with visual examples and configuration.
 The visual editor also provides undo/redo, an unsaved-changes indicator, discard-to-saved, and restore from server-side saved versions.
+When all configured views are empty, a getting-started guide links into the existing connection, view, entity, and component flows.
 
 ## Table of Contents
 
