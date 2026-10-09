@@ -70,29 +70,53 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
           overflow: 'auto',
         }"
       >
-        <GettingStartedPanel
-          v-if="showGettingStarted"
-          :is-connected="store.isConnected"
-          :has-credentials="Boolean(store.haUrl && store.accessToken)"
-          :has-views="availableViews.length > 0"
-          class="m-3"
-          @connect="handleOnboardingConnect"
-          @create-view="handleOnboardingCreateView"
-          @browse-entities="handleOnboardingBrowseEntities"
-          @browse-components="handleOnboardingBrowseComponents"
-          @dismiss="onboardingDismissed = true"
-        />
-        <EditorCanvas
-          :entities="currentViewEntities"
-          :selected-entity-id="selectedEntityId"
-          :on-move-up="handleMoveUp"
-          :on-move-down="handleMoveDown"
-          @select-entity="onSelectEntity"
-          @reorder-entities="handleReorderEntities"
-          @remove-entity="handleRemoveEntity"
-          @add-entity="handleAddEntity"
-          @add-entity-at-index="handleAddEntityAtIndex"
-        />
+        <div
+          class="canvas-preview-toolbar"
+          role="group"
+          aria-label="Dashboard preview size"
+        >
+          <button
+            v-for="device in previewDevices"
+            :key="device.id"
+            type="button"
+            class="btn btn-sm"
+            :class="
+              previewMode === device.id
+                ? 'btn-primary'
+                : 'btn-outline-secondary'
+            "
+            :aria-pressed="previewMode === device.id"
+            @click="previewMode = device.id"
+          >
+            {{ device.label }}
+          </button>
+        </div>
+        <div class="canvas-preview-frame" :class="`preview-${previewMode}`">
+          <GettingStartedPanel
+            v-if="showGettingStarted"
+            :is-connected="store.isConnected"
+            :has-credentials="Boolean(store.haUrl && store.accessToken)"
+            :has-views="availableViews.length > 0"
+            class="m-3"
+            @connect="handleOnboardingConnect"
+            @create-view="handleOnboardingCreateView"
+            @browse-entities="handleOnboardingBrowseEntities"
+            @browse-components="handleOnboardingBrowseComponents"
+            @dismiss="onboardingDismissed = true"
+          />
+          <EditorCanvas
+            :entities="currentViewEntities"
+            :layout-mode="previewMode"
+            :selected-entity-id="selectedEntityId"
+            :on-move-up="handleMoveUp"
+            :on-move-down="handleMoveDown"
+            @select-entity="onSelectEntity"
+            @reorder-entities="handleReorderEntities"
+            @remove-entity="handleRemoveEntity"
+            @add-entity="handleAddEntity"
+            @add-entity-at-index="handleAddEntityAtIndex"
+          />
+        </div>
       </div>
 
       <!-- Resize Handle (Center-Right) -->
@@ -304,6 +328,12 @@ const selectedViewName = ref("");
 const selectedEntityId = ref(null);
 const saveTimeout = ref(null);
 const onboardingDismissed = ref(false);
+const previewMode = ref("desktop");
+const previewDevices = [
+  { id: "desktop", label: "Desktop" },
+  { id: "tablet", label: "Tablet" },
+  { id: "mobile", label: "Phone" },
+];
 
 // Left panel refs (desktop + mobile) — used to call ViewManager methods
 const desktopLeftPanelRef = ref(null);
@@ -1402,6 +1432,33 @@ const handleEditorKeydown = (event) => {
   }
 };
 </script>
+
+<style scoped>
+.canvas-preview-toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bs-body-bg, #fff);
+}
+
+.canvas-preview-frame {
+  margin: 0 auto;
+  min-height: calc(100vh - 160px);
+  transition: max-width 180ms ease;
+}
+
+.canvas-preview-frame.preview-tablet {
+  max-width: 768px;
+}
+
+.canvas-preview-frame.preview-mobile {
+  max-width: 390px;
+}
+</style>
 
 <style scoped>
 .editor-container {

@@ -31,7 +31,7 @@ const mockStaticComponentPalette = {
 const mockEditorCanvas = {
   name: "EditorCanvas",
   template: '<div class="editor-canvas"><slot /></div>',
-  props: ["entities", "selectedEntityId"],
+  props: ["entities", "selectedEntityId", "layoutMode"],
   emits: [
     "select-entity",
     "reorder-entities",
@@ -106,6 +106,39 @@ describe("VisualEditorView.vue", () => {
     });
     const editorCanvas = wrapper.findComponent(mockEditorCanvas);
     expect(editorCanvas.exists()).toBe(true);
+  });
+
+  it("offers device preview sizes and passes the selected layout to the canvas", async () => {
+    const wrapper = mount(VisualEditorView, {
+      global: {
+        components: {
+          ViewManager: mockViewManager,
+          EntityPalette: mockEntityPalette,
+          StaticComponentPalette: mockStaticComponentPalette,
+          EditorCanvas: mockEditorCanvas,
+          EntityInspector: mockEntityInspector,
+        },
+      },
+    });
+
+    const previewButtons = wrapper.findAll(".canvas-preview-toolbar button");
+    expect(previewButtons.map((button) => button.text())).toEqual([
+      "Desktop",
+      "Tablet",
+      "Phone",
+    ]);
+    expect(wrapper.findComponent(mockEditorCanvas).props("layoutMode")).toBe(
+      "desktop",
+    );
+
+    await previewButtons[2].trigger("click");
+    expect(previewButtons[2].attributes("aria-pressed")).toBe("true");
+    expect(wrapper.findComponent(mockEditorCanvas).props("layoutMode")).toBe(
+      "mobile",
+    );
+    expect(wrapper.find(".canvas-preview-frame").classes()).toContain(
+      "preview-mobile",
+    );
   });
 
   it("renders StaticComponentPalette component", () => {

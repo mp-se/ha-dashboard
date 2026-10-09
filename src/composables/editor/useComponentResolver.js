@@ -1,4 +1,7 @@
-import { getComponentLayoutClasses } from "@/utils/componentLayouts";
+import {
+  getComponentLayoutClasses,
+  getComponentLayoutConfig,
+} from "@/utils/componentLayouts";
 import { getDefaultComponentType } from "@/composables/useDefaultComponentType";
 
 /**
@@ -164,8 +167,14 @@ export function useComponentResolver(componentMap) {
    * Get Bootstrap grid classes for a component
    * Uses componentLayouts.js for consistent sizing across editor and views
    */
-  const getComponentClasses = (entity) => {
+  const getComponentClasses = (entity, layoutMode = null) => {
     if (!entity) return "col-lg-4 col-md-6";
+    if (["desktop", "tablet", "mobile"].includes(layoutMode)) {
+      return getComponentLayoutConfig(entity.type)[layoutMode].replace(
+        /col-(?:sm|md|lg|xl|xxl)-/g,
+        "col-",
+      );
+    }
     return getComponentLayoutClasses(entity.type);
   };
 
