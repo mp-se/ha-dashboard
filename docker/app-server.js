@@ -1,36 +1,119 @@
 import express from "express";
 import path from "path";
 import cors from "cors";
-import bodyParser from "body-parser";
 import fs from "fs";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import multer from "multer";
 import sharp from "sharp";
-import { randomBytes, timingSafeEqual } from "crypto";
+import { createHash, randomBytes, scryptSync, timingSafeEqual } from "crypto";
 
-dotenv.config();
+// quiet: dotenv otherwise logs "injected env (0) from .env" on every start, which is
+// noise in Docker (there is no .env inside the container).
+dotenv.config({ quiet: true });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configuration remains on the mounted data volume and is never served as a static file.
 function loadConfig() {
-  const dataDir = process.env.DATA_DIR || "/usr/share/nginx/html/data";
+  const dataDir = process.env.DATA_DIR || "/app/data";
   const configPath = path.join(dataDir, "dashboard-config.json");
 
+  // Credentials come from the environment only, never from dashboard-config.json:
+  //   VIEWER_PASSWORD  required: the sign-in password (read-only when an editor
+  //                    password exists)
+  //   EDITOR_PASSWORD  optional: second password for editing; without it everyone
+  //                    who signs in may edit
+  //   HA_URL, HA_ACCESS_TOKEN  required unless app.localMode is true
+  const editorPassword = process.env.EDITOR_PASSWORD || "";
+  const viewerPassword = process.env.VIEWER_PASSWORD || "";
+  const haUrl = (process.env.HA_URL || "").trim();
+  const haAccessToken = (process.env.HA_ACCESS_TOKEN || "").trim();
+
   // FAIL if config file missing - required at startup
-  let editorPassword = "";
+  let localMode = false;
   try {
     if (!fs.existsSync(configPath)) {
       throw new Error(`Config file not found: ${configPath}`);
     }
     const configData = JSON.parse(fs.readFileSync(configPath, "utf-8"));
-    editorPassword =
-      process.env.EDITOR_PASSWORD || configData.app?.password || "";
+    localMode = configData.app?.localMode === true;
+    const leftovers = [
+      ["app.password", configData.app?.password],
+      ["app.viewerPassword", configData.app?.viewerPassword],
+      [
+        "haConfig",
+        configData.haConfig?.accessToken || configData.haConfig?.haUrl,
+      ],
+    ]
+      .filter(([, value]) => value)
+      .map(([key]) => key);
+    if (leftovers.length) {
+      console.warn(
+        `[WARN] ${configPath} still contains ${leftovers.join(", ")}. ` +
+          "These are no longer read or served: set VIEWER_PASSWORD, EDITOR_PASSWORD, " +
+          "HA_URL and HA_ACCESS_TOKEN in the environment instead, and remove them " +
+          "(the next save from the editor removes them from the file).",
+      );
+    }
   } catch (error) {
     console.error("[ERROR] Failed to load config:", error.message);
     process.exit(1); // Exit if config file missing or invalid
+  }
+
+  // Fail closed in every mode: the config response contains the Home Assistant
+  // token, so the server must never run without a sign-in password.
+  if (!viewerPassword) {
+    console.error(
+      "[ERROR] No sign-in password configured. Set the VIEWER_PASSWORD environment variable. " +
+        "EDITOR_PASSWORD is the optional extra password for editing and is not a sign-in replacement.",
+    );
+    process.exit(1);
+  }
+  const loginPassword = viewerPassword;
+  // The Home Assistant connection is served to signed-in users from the
+  // environment. Local-data mode never talks to HA, so it needs neither.
+  if (!localMode) {
+    const missing = [
+      ["HA_URL", haUrl],
+      ["HA_ACCESS_TOKEN", haAccessToken],
+    ]
+      .filter(([, value]) => !value)
+      .map(([key]) => key);
+    if (missing.length) {
+      console.error(
+        `[ERROR] Missing required environment variable(s): ${missing.join(", ")} ` +
+          "(not needed when app.localMode is true).",
+      );
+      process.exit(1);
+    }
+  }
+  if (haUrl) {
+    let validUrl = false;
+    try {
+      validUrl = /^https?:$/.test(new URL(haUrl).protocol);
+    } catch {
+      // handled below
+    }
+    if (!validUrl) {
+      console.error("[ERROR] HA_URL must be an http:// or https:// URL.");
+      process.exit(1);
+    }
+  }
+  for (const [label, value] of [
+    ["Viewer", viewerPassword],
+    ["Editor", editorPassword],
+  ]) {
+    if (value && !value.startsWith("scrypt$") && value.length < 8) {
+      console.warn(`[WARN] ${label} password is shorter than 8 characters.`);
+    }
+  }
+  if (viewerPassword && viewerPassword === editorPassword) {
+    console.error(
+      "[ERROR] The viewer password must differ from the editor password.",
+    );
+    process.exit(1);
   }
 
   // Create backup directory if it doesn't exist at startup
@@ -65,7 +148,10 @@ function loadConfig() {
     backupLimit: process.env.BACKUP_LIMIT
       ? parseInt(process.env.BACKUP_LIMIT)
       : 30,
-    editorPassword: editorPassword, // Cached from dashboard-config.json
+    haUrl, // Home Assistant connection, from the environment only
+    haAccessToken,
+    loginPassword, // required sign-in
+    editorPassword, // optional; when set it is the only password that can edit
   };
 }
 
@@ -79,9 +165,67 @@ const log = {
 
 const config = loadConfig();
 const SESSION_COOKIE = "ha_dashboard_session";
-const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
-const sessions = new Map();
 const loginFailures = new Map();
+
+// A sign-in lasts SESSION_DAYS days (default 30, max 365) and so does its cookie.
+const DEFAULT_SESSION_DAYS = 30;
+const requestedDays = Number.parseInt(process.env.SESSION_DAYS ?? "", 10);
+if (process.env.SESSION_DAYS && !(requestedDays >= 1)) {
+  console.warn(
+    `[WARN] Ignoring invalid SESSION_DAYS="${process.env.SESSION_DAYS}"; using ${DEFAULT_SESSION_DAYS}.`,
+  );
+}
+const SESSION_DAYS = Math.min(
+  requestedDays >= 1 ? requestedDays : DEFAULT_SESSION_DAYS,
+  365,
+);
+const SESSION_MAX_AGE_MS = SESSION_DAYS * 24 * 60 * 60 * 1000;
+
+// Sessions are mirrored to a file so a restart or container update does not sign
+// everyone out. Only a hash of each session id is stored (the file cannot be used
+// to sign in), together with a fingerprint of the configured passwords so that
+// changing a password invalidates the sessions it issued.
+const SESSIONS_FILE = path.join(config.dataDir, "sessions.json");
+const hashToken = (token) =>
+  createHash("sha256").update(String(token)).digest("hex");
+const PASSWORD_FINGERPRINT = createHash("sha256")
+  .update(`${config.loginPassword}\0${config.editorPassword}`)
+  .digest("hex");
+const sessionIsValid = (session, now) =>
+  Boolean(session) &&
+  session.expiresAt > now &&
+  session.fingerprint === PASSWORD_FINGERPRINT;
+
+function loadSessions() {
+  const loaded = new Map();
+  try {
+    const now = Date.now();
+    const stored = JSON.parse(fs.readFileSync(SESSIONS_FILE, "utf-8"));
+    for (const [id, session] of Object.entries(stored)) {
+      if (sessionIsValid(session, now)) loaded.set(id, session);
+    }
+  } catch {
+    // No file yet (or unreadable): start without sessions.
+  }
+  return loaded;
+}
+
+function saveSessions() {
+  try {
+    const temporaryPath = `${SESSIONS_FILE}.${randomBytes(4).toString("hex")}.tmp`;
+    fs.writeFileSync(
+      temporaryPath,
+      JSON.stringify(Object.fromEntries(sessions)),
+      { mode: 0o600 },
+    );
+    fs.renameSync(temporaryPath, SESSIONS_FILE);
+  } catch (error) {
+    // Sessions keep working in memory; they just won't survive a restart.
+    console.warn("[WARN] Could not persist sessions:", error.message);
+  }
+}
+
+const sessions = loadSessions(); // sha256(token) -> { createdAt, expiresAt, role, fingerprint }
 
 // Backup sequence tracking (must be declared BEFORE initializeBackupSequence is called)
 let nextBackupSequence = 1;
@@ -106,13 +250,22 @@ app.use(
     credentials: true,
   }),
 );
-app.use(bodyParser.json({ limit: "2mb" }));
+app.use(express.json({ limit: "2mb" }));
 
 // Add request logging middleware for debugging
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
   next();
 });
+
+const MAX_INPUT_PIXELS = 50_000_000; // ~7000x7000, guards against decompression bombs
+const MAX_OUTPUT_DIMENSION = 4096;
+const RASTER_FORMATS = new Set(["jpeg", "png", "gif", "webp"]);
+const clampQuality = (value) => {
+  const n = parseInt(value, 10);
+  return Number.isFinite(n) ? Math.min(100, Math.max(1, n)) : undefined;
+};
+const IMAGE_FILENAME = /^[a-z0-9][a-z0-9._-]*\.(jpe?g|png|gif|webp|svg)$/i;
 
 // Configure multer for image uploads
 const upload = multer({
@@ -130,8 +283,14 @@ const upload = multer({
       };
       const ext = mimeExtensions[file.mimetype];
       const name = path.basename(file.originalname, ext);
-      const sanitized = name.replace(/[^a-z0-9-_]/gi, "_").toLowerCase();
-      cb(null, `${sanitized}${ext}`);
+      const sanitized =
+        name.replace(/[^a-z0-9-_]/gi, "_").toLowerCase() || "image";
+      // Never overwrite an existing image silently.
+      let candidate = `${sanitized}${ext}`;
+      while (fs.existsSync(path.join(config.imagesDir, candidate))) {
+        candidate = `${sanitized}-${randomBytes(3).toString("hex")}${ext}`;
+      }
+      cb(null, candidate);
     },
   }),
   limits: {
@@ -147,7 +306,7 @@ const upload = multer({
     } else {
       cb(
         new Error(
-          `Invalid file type: ${file.mimetype}. Allowed: jpeg, png, gif, webp, svg`,
+          `Invalid file type: ${file.mimetype}. Allowed: jpeg, png, gif, webp`,
         ),
       );
     }
@@ -236,6 +395,20 @@ function safeEqual(left, right) {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
+// Passwords may be stored as plain text or as "scrypt$<salt hex>$<hash hex>"
+// (generate one with `node docker/hash-password.js`).
+function passwordMatches(candidate, stored) {
+  if (!stored.startsWith("scrypt$")) return safeEqual(candidate, stored);
+  const [, salt, hash] = stored.split("$");
+  if (!salt || !hash) return false;
+  const derived = scryptSync(
+    candidate,
+    Buffer.from(salt, "hex"),
+    hash.length / 2,
+  );
+  return safeEqual(derived.toString("hex"), hash);
+}
+
 function getCookie(req, name) {
   const cookies = req.headers.cookie || "";
   for (const item of cookies.split(";")) {
@@ -271,13 +444,13 @@ function setSessionCookie(req, res, token) {
     secure,
     sameSite: "strict",
     path: "/",
-    maxAge: SESSION_TTL_MS,
+    maxAge: SESSION_MAX_AGE_MS,
   });
 }
 
 const authenticate = (req, res, next) => {
   res.set("Cache-Control", "no-store");
-  if (!config.editorPassword) {
+  if (!config.loginPassword) {
     return res.status(503).json({
       success: false,
       error: "Server authentication is not configured",
@@ -285,22 +458,55 @@ const authenticate = (req, res, next) => {
   }
 
   const token = getCookie(req, SESSION_COOKIE);
-  const expiresAt = sessions.get(token);
-  if (!token || !expiresAt || expiresAt <= Date.now()) {
-    if (token) sessions.delete(token);
+  const id = token ? hashToken(token) : "";
+  const session = sessions.get(id);
+  if (!sessionIsValid(session, Date.now())) {
+    if (session) {
+      sessions.delete(id);
+      saveSessions();
+    }
     return res
       .status(401)
       .json({ success: false, error: "Authentication required" });
   }
 
-  sessions.set(token, Date.now() + SESSION_TTL_MS);
+  req.role = session.role;
   next();
 };
 
+// Mutating routes need the editor password; a viewer session is read-only.
+const requireEditor = (req, res, next) => {
+  if (req.role !== "editor") {
+    return res
+      .status(403)
+      .json({ success: false, error: "Editor access required" });
+  }
+  next();
+};
+
+// Credentials live only in the environment (VIEWER_PASSWORD, EDITOR_PASSWORD,
+// HA_URL, HA_ACCESS_TOKEN). They are never read from, served from or written to
+// dashboard-config.json: a leftover in an old file, or anything a client or an
+// old backup sends back, is dropped.
+function stripCredentials(target) {
+  if (target.app && typeof target.app === "object") {
+    delete target.app.password;
+    delete target.app.viewerPassword;
+  }
+  delete target.haConfig;
+  return target;
+}
+
 function privateConfigResponse() {
   const configPath = path.join(config.dataDir, "dashboard-config.json");
-  const dashboardConfig = JSON.parse(fs.readFileSync(configPath, "utf-8"));
-  if (dashboardConfig.app) delete dashboardConfig.app.password;
+  const dashboardConfig = stripCredentials(
+    JSON.parse(fs.readFileSync(configPath, "utf-8")),
+  );
+  const haConfig = {
+    ...(config.haUrl && { haUrl: config.haUrl }),
+    ...(config.haAccessToken && { accessToken: config.haAccessToken }),
+  };
+  if (Object.keys(haConfig).length) dashboardConfig.haConfig = haConfig;
   return dashboardConfig;
 }
 
@@ -318,7 +524,7 @@ app.get("/api/health", (req, res) => {
 });
 
 app.post("/api/session/login", verifyRequestOrigin, (req, res) => {
-  if (!config.editorPassword) {
+  if (!config.loginPassword) {
     return res.status(503).json({
       success: false,
       error: "Server authentication is not configured",
@@ -337,7 +543,21 @@ app.post("/api/session/login", verifyRequestOrigin, (req, res) => {
 
   const password =
     typeof req.body?.password === "string" ? req.body.password : "";
-  if (!safeEqual(password, config.editorPassword)) {
+  // Check both without short-circuiting on the first so timing doesn't reveal which matched.
+  // Both checks always run so timing doesn't reveal which password matched.
+  const isEditorPassword =
+    config.editorPassword && passwordMatches(password, config.editorPassword);
+  const isLoginPassword = passwordMatches(password, config.loginPassword);
+  // The editor password always edits. The sign-in password only reads when a
+  // separate editor password exists; otherwise there is nothing to protect editing.
+  const role = isEditorPassword
+    ? "editor"
+    : isLoginPassword
+      ? config.editorPassword
+        ? "viewer"
+        : "editor"
+      : null;
+  if (!role) {
     const current = loginFailures.get(client);
     loginFailures.set(client, {
       count: current && current.resetAt > now ? current.count + 1 : 1,
@@ -350,18 +570,24 @@ app.post("/api/session/login", verifyRequestOrigin, (req, res) => {
   }
 
   loginFailures.delete(client);
-  for (const [session, expiresAt] of sessions) {
-    if (expiresAt <= now) sessions.delete(session);
+  for (const [id, session] of sessions) {
+    if (!sessionIsValid(session, now)) sessions.delete(id);
   }
   const token = randomBytes(32).toString("base64url");
-  sessions.set(token, now + SESSION_TTL_MS);
+  sessions.set(hashToken(token), {
+    createdAt: now,
+    expiresAt: now + SESSION_MAX_AGE_MS,
+    role,
+    fingerprint: PASSWORD_FINGERPRINT,
+  });
+  saveSessions();
   setSessionCookie(req, res, token);
-  res.set("Cache-Control", "no-store").json({ success: true });
+  res.set("Cache-Control", "no-store").json({ success: true, role });
 });
 
 app.post("/api/session/logout", verifyRequestOrigin, (req, res) => {
   const token = getCookie(req, SESSION_COOKIE);
-  if (token) sessions.delete(token);
+  if (token && sessions.delete(hashToken(token))) saveSessions();
   res.clearCookie(SESSION_COOKIE, {
     httpOnly: true,
     secure: req.secure || process.env.NODE_ENV === "production",
@@ -374,14 +600,16 @@ app.post("/api/session/logout", verifyRequestOrigin, (req, res) => {
 app.get("/api/session", authenticate, (req, res) => {
   res
     .set("Cache-Control", "no-store")
-    .json({ success: true, authenticated: true });
+    .json({ success: true, authenticated: true, role: req.role });
 });
 
 app.get("/api/config", authenticate, (req, res) => {
   try {
-    res
-      .set("Cache-Control", "no-store")
-      .json({ success: true, data: privateConfigResponse() });
+    res.set("Cache-Control", "no-store").json({
+      success: true,
+      role: req.role,
+      data: privateConfigResponse(),
+    });
   } catch (error) {
     log.error("Error loading dashboard config:", error);
     res
@@ -390,7 +618,7 @@ app.get("/api/config", authenticate, (req, res) => {
   }
 });
 
-app.get("/api/config/backups", authenticate, (req, res) => {
+app.get("/api/config/backups", authenticate, requireEditor, (req, res) => {
   try {
     const backups = fs
       .readdirSync(config.backupDir)
@@ -425,6 +653,7 @@ app.post(
   "/api/config/restore",
   verifyRequestOrigin,
   authenticate,
+  requireEditor,
   async (req, res) => {
     const sequence = req.body?.sequence;
     if (!Number.isSafeInteger(sequence) || sequence < 1) {
@@ -446,7 +675,6 @@ app.post(
         }
 
         const filePath = path.join(config.dataDir, "dashboard-config.json");
-        const currentConfig = JSON.parse(fs.readFileSync(filePath, "utf-8"));
         const restoredConfig = JSON.parse(fs.readFileSync(backupPath, "utf-8"));
         if (
           !restoredConfig ||
@@ -467,24 +695,9 @@ app.post(
           throw error;
         }
 
-        // Keep active credentials; a dashboard rollback must not revoke access.
-        if (currentConfig.app?.password) {
-          restoredConfig.app = {
-            ...(restoredConfig.app || {}),
-            password: currentConfig.app.password,
-          };
-        } else if (restoredConfig.app) {
-          delete restoredConfig.app.password;
-        }
-        restoredConfig.haConfig = { ...(restoredConfig.haConfig || {}) };
-        for (const credentialKey of ["haUrl", "accessToken"]) {
-          if (currentConfig.haConfig?.[credentialKey]) {
-            restoredConfig.haConfig[credentialKey] =
-              currentConfig.haConfig[credentialKey];
-          } else {
-            delete restoredConfig.haConfig[credentialKey];
-          }
-        }
+        // Credentials come from the environment only: an old backup must not
+        // bring any back into the file.
+        stripCredentials(restoredConfig);
 
         const recoveryBackupPath = path.join(
           config.backupDir,
@@ -541,92 +754,92 @@ app.get("/api/data/local", authenticate, (req, res) => {
 
 // Save config (with timestamped backup including milliseconds)
 // Save requests are queued - only one save at a time to prevent race conditions
-app.post("/api/config", verifyRequestOrigin, authenticate, async (req, res) => {
-  try {
-    // Validate that the body is a plain object (not a string, array, etc.)
-    if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
-      return res.status(400).json({
+app.post(
+  "/api/config",
+  verifyRequestOrigin,
+  authenticate,
+  requireEditor,
+  async (req, res) => {
+    try {
+      // Validate that the body is a plain object (not a string, array, etc.)
+      if (
+        !req.body ||
+        typeof req.body !== "object" ||
+        Array.isArray(req.body)
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: "Config must be a JSON object",
+        });
+      }
+
+      // Enqueue save operation to serialize concurrent requests
+      const result = await enqueueSave(async () => {
+        const filePath = path.join(config.dataDir, "dashboard-config.json");
+        // Credentials come from the environment only: whatever the client sends
+        // back (it receives the HA connection in GET /api/config) is dropped.
+        const nextConfig = stripCredentials(structuredClone(req.body));
+
+        // Create backup if file exists (in /backups/ subdirectory, Nginx protected)
+        let backupPath = null;
+        if (fs.existsSync(filePath)) {
+          // Use sequence number instead of timestamp
+          const sequence = nextBackupSequence++;
+          backupPath = path.join(
+            config.backupDir,
+            `dashboard-config.json.backup.${sequence}.json`,
+          );
+
+          // Move existing file to backup before writing new one
+          fs.copyFileSync(filePath, backupPath);
+          log.info(
+            `Archived existing config to backup: ${path.basename(backupPath)}`,
+          );
+        }
+
+        // Write new config to main file
+        const temporaryPath = `${filePath}.${randomBytes(8).toString("hex")}.tmp`;
+        fs.writeFileSync(temporaryPath, JSON.stringify(nextConfig, null, 2), {
+          mode: 0o600,
+        });
+        fs.renameSync(temporaryPath, filePath);
+        log.info(`Config saved successfully to ${filePath}`);
+
+        // Cleanup old backups (enforces BACKUP_LIMIT=30)
+        try {
+          cleanupOldBackups(filePath);
+        } catch (err) {
+          log.warn("Error cleaning up backups (continuing):", err);
+        }
+
+        return { backupPath };
+      });
+
+      res.json({
+        success: true,
+        data: {
+          saved: true,
+          backupPath: result.backupPath
+            ? path.basename(result.backupPath)
+            : null,
+        },
+      });
+    } catch (error) {
+      log.error("Error saving config:", error);
+      res.status(500).json({
         success: false,
-        error: "Config must be a JSON object",
+        error: "Internal server error",
       });
     }
-
-    // Enqueue save operation to serialize concurrent requests
-    const result = await enqueueSave(async () => {
-      const filePath = path.join(config.dataDir, "dashboard-config.json");
-      const nextConfig = structuredClone(req.body);
-      const existingConfig = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-      if (existingConfig.app?.password) {
-        nextConfig.app = {
-          ...(nextConfig.app || {}),
-          password: existingConfig.app.password,
-        };
-      } else if (nextConfig.app) {
-        delete nextConfig.app.password;
-      }
-      if (existingConfig.haConfig?.accessToken) {
-        nextConfig.haConfig = {
-          ...(nextConfig.haConfig || {}),
-          accessToken: existingConfig.haConfig.accessToken,
-        };
-      }
-
-      // Create backup if file exists (in /backups/ subdirectory, Nginx protected)
-      let backupPath = null;
-      if (fs.existsSync(filePath)) {
-        // Use sequence number instead of timestamp
-        const sequence = nextBackupSequence++;
-        backupPath = path.join(
-          config.backupDir,
-          `dashboard-config.json.backup.${sequence}.json`,
-        );
-
-        // Move existing file to backup before writing new one
-        fs.copyFileSync(filePath, backupPath);
-        log.info(
-          `Archived existing config to backup: ${path.basename(backupPath)}`,
-        );
-      }
-
-      // Write new config to main file
-      const temporaryPath = `${filePath}.${randomBytes(8).toString("hex")}.tmp`;
-      fs.writeFileSync(temporaryPath, JSON.stringify(nextConfig, null, 2), {
-        mode: 0o600,
-      });
-      fs.renameSync(temporaryPath, filePath);
-      log.info(`Config saved successfully to ${filePath}`);
-
-      // Cleanup old backups (enforces BACKUP_LIMIT=30)
-      try {
-        cleanupOldBackups(filePath);
-      } catch (err) {
-        log.warn("Error cleaning up backups (continuing):", err);
-      }
-
-      return { backupPath };
-    });
-
-    res.json({
-      success: true,
-      data: {
-        saved: true,
-        backupPath: result.backupPath ? path.basename(result.backupPath) : null,
-      },
-    });
-  } catch (error) {
-    log.error("Error saving config:", error);
-    res.status(500).json({
-      success: false,
-      error: "Internal server error",
-    });
-  }
-});
+  },
+);
 
 // Image upload endpoint
 app.post(
   "/api/images/upload",
   verifyRequestOrigin,
   authenticate,
+  requireEditor,
   upload.array("images", 20),
   async (req, res) => {
     try {
@@ -634,6 +847,28 @@ app.post(
         return res.status(400).json({
           success: false,
           error: "No files provided",
+        });
+      }
+
+      // The declared MIME type is client-controlled: verify the real content
+      // and discard anything that is not a decodable raster image.
+      const verified = [];
+      for (const file of req.files) {
+        try {
+          const meta = await sharp(file.path, {
+            limitInputPixels: MAX_INPUT_PIXELS,
+          }).metadata();
+          if (!RASTER_FORMATS.has(meta.format)) throw new Error("bad format");
+          verified.push(file);
+        } catch {
+          fs.rmSync(file.path, { force: true });
+        }
+      }
+      if (verified.length !== req.files.length) {
+        verified.forEach((file) => fs.rmSync(file.path, { force: true }));
+        return res.status(400).json({
+          success: false,
+          error: "Upload rejected: file is not a valid image",
         });
       }
 
@@ -655,21 +890,17 @@ app.post(
       log.error("Error uploading images:", error);
       res.status(500).json({
         success: false,
-        error: error.message || "Failed to upload images",
+        error: "Failed to upload images",
       });
     }
   },
 );
 
-// Get list of available images
-app.get("/api/images", (req, res) => {
-  log.info("=== GET /api/images endpoint called ===");
-  log.info(`Images directory: ${config.imagesDir}`);
-  log.info(`Images directory exists: ${fs.existsSync(config.imagesDir)}`);
-
+// Get list of available images (editor only; the images themselves stay public
+// so dashboards render without logging in)
+app.get("/api/images", authenticate, requireEditor, (req, res) => {
   try {
     if (!fs.existsSync(config.imagesDir)) {
-      log.info("Images directory does not exist, returning empty list");
       return res.json({
         success: true,
         data: {
@@ -679,21 +910,16 @@ app.get("/api/images", (req, res) => {
     }
 
     const files = fs.readdirSync(config.imagesDir);
-    log.info(`Found ${files.length} files in images directory`);
-    log.info(`Files: ${files.join(", ")}`);
 
     const images = files
-      .filter((file) => {
-        // Filter only image files
-        const mimes = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
-        return mimes.some((ext) => file.toLowerCase().endsWith(ext));
-      })
+      // .svg is allowed here for admin-provided files (uploads reject it)
+      .filter((file) => IMAGE_FILENAME.test(file))
       .map((file) => {
         const filePath = path.join(config.imagesDir, file);
         const stats = fs.statSync(filePath);
         return {
           id: file,
-          url: `/data/images/${file}`,
+          url: `/api/images/${encodeURIComponent(file)}`,
           name: path.parse(file).name,
           size: stats.size,
           mtime: stats.mtime.toISOString(),
@@ -701,8 +927,7 @@ app.get("/api/images", (req, res) => {
       })
       .sort((a, b) => new Date(b.mtime) - new Date(a.mtime));
 
-    log.info(`Returning ${images.length} images`);
-    res.json({
+    res.set("Cache-Control", "no-store").json({
       success: true,
       data: {
         images: images,
@@ -722,8 +947,8 @@ app.get("/api/images", (req, res) => {
 app.get("/api/images/:id", async (req, res) => {
   try {
     const filename = req.params.id;
-    // Prevent directory traversal
-    if (filename.includes("..") || filename.includes("/")) {
+    // Strict allow-list: also prevents directory traversal
+    if (!IMAGE_FILENAME.test(filename)) {
       return res.status(400).json({
         success: false,
         error: "Invalid filename",
@@ -740,14 +965,26 @@ app.get("/api/images/:id", async (req, res) => {
       });
     }
 
-    const { width, height, quality, format } = req.query;
-    let transform = sharp(filePath);
+    // Query values must be plain strings (not arrays/objects from ?a[]=1)
+    const { width, height, quality, format } = Object.fromEntries(
+      ["width", "height", "quality", "format"].map((key) => [
+        key,
+        typeof req.query[key] === "string" ? req.query[key] : undefined,
+      ]),
+    );
+    const dimension = (value) => {
+      const n = parseInt(value, 10);
+      return Number.isFinite(n) && n > 0
+        ? Math.min(n, MAX_OUTPUT_DIMENSION)
+        : undefined;
+    };
+    let transform = sharp(filePath, { limitInputPixels: MAX_INPUT_PIXELS });
 
     // Apply resizing if requested
-    if (width || height) {
+    if (dimension(width) || dimension(height)) {
       const resizeOptions = {};
-      if (width) resizeOptions.width = parseInt(width, 10);
-      if (height) resizeOptions.height = parseInt(height, 10);
+      if (width) resizeOptions.width = dimension(width);
+      if (height) resizeOptions.height = dimension(height);
       // Use contain to maintain aspect ratio
       transform = transform.resize(resizeOptions.width, resizeOptions.height, {
         fit: "contain",
@@ -760,9 +997,7 @@ app.get("/api/images/:id", async (req, res) => {
       const outputFormat = format.toLowerCase();
       if (["jpg", "jpeg", "png", "webp", "gif"].includes(outputFormat)) {
         const opts = {};
-        if (quality) {
-          opts.quality = Math.min(100, Math.max(1, parseInt(quality, 10)));
-        }
+        if (clampQuality(quality)) opts.quality = clampQuality(quality);
         transform = transform.toFormat(
           outputFormat === "jpg" ? "jpeg" : outputFormat,
           opts,
@@ -771,20 +1006,18 @@ app.get("/api/images/:id", async (req, res) => {
     } else if (quality) {
       // Apply quality to original format
       const ext = path.extname(filename).toLowerCase();
-      if ([".jpg", ".jpeg"].includes(ext)) {
-        transform = transform.jpeg({
-          quality: Math.min(100, Math.max(1, parseInt(quality, 10))),
-        });
-      } else if (ext === ".webp") {
-        transform = transform.webp({
-          quality: Math.min(100, Math.max(1, parseInt(quality, 10))),
-        });
+      if ([".jpg", ".jpeg"].includes(ext) && clampQuality(quality)) {
+        transform = transform.jpeg({ quality: clampQuality(quality) });
+      } else if (ext === ".webp" && clampQuality(quality)) {
+        transform = transform.webp({ quality: clampQuality(quality) });
       }
     }
 
-    // Set cache headers for public images
+    // Set cache headers for public images; never let a browser execute content
     res.set("Cache-Control", "public, max-age=31536000");
     res.set("ETag", `"${filename}"`);
+    res.set("X-Content-Type-Options", "nosniff");
+    res.set("Content-Security-Policy", "default-src 'none'; sandbox");
 
     // Set content type based on actual format
     if (format) {
@@ -799,12 +1032,24 @@ app.get("/api/images/:id", async (req, res) => {
         res.set("Content-Type", "image/gif");
       }
     } else {
+      const ext = path.extname(filename).slice(1).toLowerCase();
       res.set(
         "Content-Type",
-        `image/${path.extname(filename).slice(1).toLowerCase()}`,
+        { jpg: "image/jpeg", svg: "image/svg+xml" }[ext] || `image/${ext}`,
       );
     }
 
+    transform.on("error", (err) => {
+      log.error("Error processing image:", err);
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          error: "Failed to process image",
+        });
+      } else {
+        res.destroy();
+      }
+    });
     transform.pipe(res).on("error", (err) => {
       log.error("Error processing image:", err);
       if (!res.headersSent) {
@@ -826,45 +1071,50 @@ app.get("/api/images/:id", async (req, res) => {
 });
 
 // Delete image
-app.delete("/api/images/:id", verifyRequestOrigin, authenticate, (req, res) => {
-  try {
-    const filename = req.params.id;
-    // Prevent directory traversal
-    if (filename.includes("..") || filename.includes("/")) {
-      return res.status(400).json({
+app.delete(
+  "/api/images/:id",
+  verifyRequestOrigin,
+  authenticate,
+  requireEditor,
+  (req, res) => {
+    try {
+      const filename = req.params.id;
+      if (!IMAGE_FILENAME.test(filename)) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid filename",
+        });
+      }
+
+      const filePath = path.join(config.imagesDir, filename);
+
+      // Check if file exists
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({
+          success: false,
+          error: "Image not found",
+        });
+      }
+
+      // Delete the file
+      fs.unlinkSync(filePath);
+      log.info(`Deleted image: ${filename}`);
+
+      res.json({
+        success: true,
+        data: {
+          message: "Image deleted",
+        },
+      });
+    } catch (error) {
+      log.error("Error deleting image:", error);
+      res.status(500).json({
         success: false,
-        error: "Invalid filename",
+        error: "Failed to delete image",
       });
     }
-
-    const filePath = path.join(config.imagesDir, filename);
-
-    // Check if file exists
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({
-        success: false,
-        error: "Image not found",
-      });
-    }
-
-    // Delete the file
-    fs.unlinkSync(filePath);
-    log.info(`Deleted image: ${filename}`);
-
-    res.json({
-      success: true,
-      data: {
-        message: "Image deleted",
-      },
-    });
-  } catch (error) {
-    log.error("Error deleting image:", error);
-    res.status(500).json({
-      success: false,
-      error: "Failed to delete image",
-    });
-  }
-});
+  },
+);
 
 // Error handler for multer validation errors
 app.use((err, req, res, next) => {
@@ -880,6 +1130,18 @@ app.use((err, req, res, next) => {
       success: false,
       error: err.message,
     });
+  }
+
+  // Client errors raised by body parsing (too large, malformed JSON, ...)
+  if (err?.status === 413) {
+    return res
+      .status(413)
+      .json({ success: false, error: "Request body too large" });
+  }
+  if (err?.status === 400 && err.type?.startsWith("entity.")) {
+    return res
+      .status(400)
+      .json({ success: false, error: "Invalid request body" });
   }
 
   next(err);
@@ -902,8 +1164,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     console.log(`🔒 Backup directory: ${config.backupDir}`);
     console.log(`🖼️  Images directory: ${config.imagesDir}`);
     console.log(
-      `🔐 Authentication: ${config.editorPassword ? "Enabled" : "Disabled (development mode)"}`,
+      `🔐 Authentication: ${config.loginPassword ? `Enabled (editing ${config.editorPassword ? "needs the editor password" : "allowed for everyone signed in"})` : "NOT CONFIGURED (protected API routes return 503)"}`,
     );
+    console.log(`🕒 Sign-ins last ${SESSION_DAYS} days (SESSION_DAYS)`);
     console.log(
       `\n[INFO] Logs are output to stdout/stderr. Docker's log driver handles log rotation.\n`,
     );

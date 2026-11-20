@@ -4,10 +4,6 @@
     "developerMode": false,
     "localMode": false
   },
-  "haConfig": {
-    "haUrl": "https://ha.home.local:8123",
-    "accessToken": ""
-  },
   "views": [
     {
       "name": "overview",
