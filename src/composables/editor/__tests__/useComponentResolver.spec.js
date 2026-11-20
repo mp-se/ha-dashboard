@@ -168,5 +168,27 @@ describe("useComponentResolver", () => {
       expect(typeof classes).toBe("string");
       expect(classes.length).toBeGreaterThan(0);
     });
+
+    it.each([
+      ["desktop", "col-4"],
+      ["tablet", "col-6"],
+      ["mobile", "col-12"],
+    ])("returns fixed %s preview columns", (mode, expected) => {
+      expect(resolver.getComponentClasses({ type: "HaLight" }, mode)).toBe(
+        expected,
+      );
+    });
+
+    it("preserves compact card proportions in device previews", () => {
+      expect(resolver.getComponentClasses({ type: "HaChip" }, "desktop")).toBe(
+        "col-2",
+      );
+      expect(resolver.getComponentClasses({ type: "HaChip" }, "tablet")).toBe(
+        "col-4",
+      );
+      expect(resolver.getComponentClasses({ type: "HaChip" }, "mobile")).toBe(
+        "col-6",
+      );
+    });
   });
 });

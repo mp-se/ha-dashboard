@@ -22,6 +22,22 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [
+      {
+        // `virtual:demo-data` is the bundled sample config + local data of the
+        // public demo. Only a demo build (VITE_DEMO=true) resolves it to the real
+        // data; every other build gets an empty stub, so the sample data never
+        // ships in a normal build.
+        name: "demo-data",
+        resolveId(id: string) {
+          return id === "virtual:demo-data" ? "\0virtual:demo-data" : null;
+        },
+        load(id: string) {
+          if (id !== "\0virtual:demo-data") return null;
+          return env.VITE_DEMO === "true"
+            ? `export * from ${JSON.stringify(fileURLToPath(new URL("./src/demo/demoData.ts", import.meta.url)))};`
+            : "export const demoConfig = null; export const demoLocalData = null;";
+        },
+      },
       vue(),
       VitePWA({
         registerType: "autoUpdate",
@@ -60,13 +76,6 @@ export default defineConfig(({ mode }) => {
           if (fs.existsSync(sharedStylesPath)) {
             fs.unlinkSync(sharedStylesPath);
             console.log("✓ Removed unnecessary dist/styles/shared-styles.css");
-          }
-
-          // Remove the data directory from dist
-          const dataPath = path.join(__dirname, "dist", "data");
-          if (fs.existsSync(dataPath)) {
-            fs.rmSync(dataPath, { recursive: true, force: true });
-            console.log("✓ Removed unnecessary dist/data/");
           }
         },
       },

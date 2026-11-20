@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 <template>
   <Transition name="fade">
     <div
-      v-if="visible && lastError"
+      v-if="lastError"
       class="error-banner alert m-0 p-3 border-0"
       :class="`alert-${alertType}`"
       role="alert"
@@ -35,11 +35,31 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
           <div class="small" style="line-height: 1.5">
             {{ lastError }}
           </div>
+          <div v-if="isRetryable" class="mt-2">
+            <button
+              class="btn btn-sm btn-outline-danger"
+              :disabled="isRetrying"
+              @click="handleRetry"
+            >
+              <span v-if="!isRetrying">
+                <i class="mdi mdi-refresh"></i> Retry Connection
+              </span>
+              <span v-else>
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                Retrying...
+              </span>
+            </button>
+          </div>
         </div>
         <button
           class="btn-close"
           type="button"
           aria-label="Close"
+          :disabled="isRetrying"
           @click="dismiss"
         />
       </div>
@@ -50,9 +70,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 <script setup>
 import { ref, computed, watch, onBeforeUnmount } from "vue";
 import { useAuthStore } from "@/stores/authStore";
+import { useHaStore } from "@/stores/haStore";
 
 const authStore = useAuthStore();
-const visible = ref(true);
+const haStore = useHaStore();
+const isRetrying = ref(false);
 let dismissTimer = null;
 
 // Reference to current error
@@ -82,6 +104,11 @@ const errorType = computed(() => {
     return "auth";
   }
   return "generic";
+});
+
+// Check if this is an error type that can be retried
+const isRetryable = computed(() => {
+  return ["server-not-found", "certificate", "cors"].includes(errorType.value);
 });
 
 const alertType = computed(() => {
@@ -127,31 +154,38 @@ const errorTitle = computed(() => {
   }
 });
 
-// Show banner when error changes
+const handleRetry = async () => {
+  isRetrying.value = true;
+  try {
+    await haStore.retryConnection();
+  } catch (error) {
+    console.error("Retry failed:", error);
+  } finally {
+    isRetrying.value = false;
+  }
+};
+
+// Auto-dismiss non-critical errors after 8 seconds.
+// Critical errors (server-not-found, certificate, cors) stay until manually dismissed.
 watch(
   () => authStore.lastError,
   (newError) => {
-    if (newError) {
-      visible.value = true;
-      // Clear existing timer
-      if (dismissTimer) clearTimeout(dismissTimer);
-      // Auto-dismiss after 8 seconds for non-critical errors only
-      // Keep critical errors visible: server failures, cert errors, CORS/network errors
-      if (
-        errorType.value !== "server-not-found" &&
-        errorType.value !== "certificate" &&
-        errorType.value !== "cors"
-      ) {
-        dismissTimer = setTimeout(() => {
-          dismiss();
-        }, 8000);
-      }
+    if (dismissTimer) clearTimeout(dismissTimer);
+    if (
+      newError &&
+      errorType.value !== "server-not-found" &&
+      errorType.value !== "certificate" &&
+      errorType.value !== "cors"
+    ) {
+      dismissTimer = setTimeout(() => {
+        authStore.clearError();
+      }, 8000);
     }
   },
+  { immediate: true },
 );
 
 const dismiss = () => {
-  visible.value = false;
   authStore.clearError();
   if (dismissTimer) clearTimeout(dismissTimer);
 };

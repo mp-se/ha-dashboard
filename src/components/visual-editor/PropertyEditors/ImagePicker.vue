@@ -152,11 +152,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         :value="modelValue"
         type="text"
         class="form-control form-control-sm"
-        placeholder="https://example.com/image.jpg or /data/images/photo.jpg"
+        placeholder="https://example.com/image.jpg or /api/images/photo.jpg"
         @input="(e) => $emit('update:modelValue', e.target.value)"
       />
       <div class="form-text small text-muted mt-1">
-        Paste a full URL (https://...) or /data/images/ path
+        Paste a full URL (https://...) or an /api/images/ path
       </div>
     </div>
   </div>
@@ -319,7 +319,7 @@ const filteredImages = computed(() => {
 });
 
 const selectImage = (url) => {
-  // Server returns /data/images/ URLs - use them directly
+  // Server returns /api/images/ URLs - use them directly
   emit("update:modelValue", url);
 };
 
@@ -330,7 +330,7 @@ const isImageSelected = (image) => {
 };
 
 const getImageUrl = (image) => {
-  // Server returns /data/images/ URLs - use them directly
+  // Server returns /api/images/ URLs - use them directly
   return image.url || "";
 };
 

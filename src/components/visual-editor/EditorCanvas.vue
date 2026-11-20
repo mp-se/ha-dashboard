@@ -91,7 +91,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         <div
           v-else
           :class="[
-            getComponentClasses(entity),
+            getComponentClasses(entity, layoutMode),
             { 'drop-indicator-active': dragOverIndex === index && isDropping },
           ]"
           draggable="true"
@@ -210,6 +210,11 @@ const props = defineProps({
   mobileInspectMode: {
     type: Boolean,
     default: false,
+  },
+  layoutMode: {
+    type: String,
+    default: null,
+    validator: (value) => [null, "desktop", "tablet", "mobile"].includes(value),
   },
   onMoveUp: {
     type: Function,

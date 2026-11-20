@@ -91,7 +91,10 @@ const mockStorage = new Proxy(Object.create(Storage.prototype), {
   },
 });
 
-global.localStorage = mockStorage as unknown as Storage;
+Object.defineProperty(global, "localStorage", {
+  configurable: true,
+  value: mockStorage as unknown as Storage,
+});
 
 beforeEach(() => {
   // Clear localStorage before each test

@@ -174,14 +174,13 @@ describe("AppNavbar.vue", () => {
   });
 
   describe("Connection alerts", () => {
-    it("shows danger alert when disconnected with lastError", async () => {
+    it("does not show danger alert in navbar when disconnected with lastError (handled by ErrorBanner)", async () => {
       store.isConnected = false;
       store.isLocalMode = false;
       store.lastError = "Connection refused";
       const wrapper = mountNavbar();
       await wrapper.vm.$nextTick();
-      expect(wrapper.find(".alert-danger").exists()).toBe(true);
-      expect(wrapper.text()).toContain("Connection refused");
+      expect(wrapper.find(".alert-danger").exists()).toBe(false);
     });
 
     it("shows warning alert when disconnected, initialized, no error", async () => {

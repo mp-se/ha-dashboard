@@ -51,6 +51,15 @@
             </div>
           </div>
           <span v-if="isFirstEntity(index)" class="badge bg-info">Room</span>
+          <button
+            v-else-if="!isMobile"
+            type="button"
+            class="btn btn-outline-danger btn-sm ms-2"
+            title="Remove entity"
+            @click.stop="removeEntity(index)"
+          >
+            <i class="mdi mdi-trash-can"></i>
+          </button>
         </div>
       </div>
 
@@ -77,6 +86,7 @@
 <script setup>
 import { ref, computed, watch } from "vue";
 import { useHaStore } from "@/stores/haStore";
+import { useIsMobile } from "@/composables/useIsMobile";
 
 const props = defineProps({
   modelValue: {
@@ -113,6 +123,7 @@ const emit = defineEmits([
 ]);
 
 const store = useHaStore();
+const { isMobile } = useIsMobile();
 const isDragOver = ref(false);
 const draggedIndex = ref(null);
 const dragOverIndex = ref(null);

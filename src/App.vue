@@ -39,6 +39,82 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   <!-- Error Banner - displays connection/CORS/security errors below navbar -->
   <ErrorBanner />
   <div
+    v-if="configStore.needsServerLogin && configStore.hasCachedDashboardConfig"
+    class="alert alert-warning mx-3 d-flex align-items-center justify-content-between"
+    role="status"
+  >
+    <span
+      >Showing the saved dashboard. Sign in when you are on your LAN to refresh
+      or edit it.</span
+    >
+    <button
+      class="btn btn-sm btn-outline-dark ms-3"
+      @click="showServerLogin = true"
+    >
+      Sign in
+    </button>
+  </div>
+
+  <div
+    v-if="showServerLogin"
+    class="modal fade show d-block"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="serverLoginTitle"
+    style="background-color: rgba(0, 0, 0, 0.5)"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <form class="modal-content" @submit.prevent="handleServerLogin">
+        <div class="modal-header">
+          <h5 id="serverLoginTitle" class="modal-title">Dashboard Sign In</h5>
+        </div>
+        <div class="modal-body">
+          <label for="server-login-password" class="form-label"
+            >Dashboard password</label
+          >
+          <input
+            id="server-login-password"
+            v-model="serverPassword"
+            class="form-control"
+            type="password"
+            autocomplete="current-password"
+            required
+            autofocus
+          />
+          <p
+            v-if="configStore.serverLoginError"
+            class="alert alert-danger mt-3 mb-0"
+          >
+            {{ configStore.serverLoginError }}
+          </p>
+          <p v-else class="form-text mb-0 mt-2">
+            This sign-in unlocks the saved dashboard on this device. Editing may
+            need a separate editor password.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button
+            v-if="configStore.hasCachedDashboardConfig"
+            type="button"
+            class="btn btn-secondary"
+            @click="showServerLogin = false"
+          >
+            Continue offline
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            :disabled="serverLoginBusy || !serverPassword"
+          >
+            {{ serverLoginBusy ? "Signing in…" : "Sign in" }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div
     v-if="store.isLoading"
     class="modal fade show d-block"
     tabindex="-1"
@@ -110,6 +186,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
 import { useHaStore } from "./stores/haStore";
+import { useConfigStore } from "./stores/configStore";
 import { createLogger } from "./utils/logger";
 import { SWIPE_MIN_DISTANCE } from "./utils/constants";
 import AppNavbar from "./components/page-components/AppNavbar.vue";
@@ -133,10 +210,14 @@ const viewComponents = {
 
 const logger = createLogger("App");
 const store = useHaStore();
+const configStore = useConfigStore();
 const currentView = ref("overview");
 const previousView = ref("overview");
 const dark_mode = ref(false);
 const credentialDialog = ref(null);
+const showServerLogin = ref(false);
+const serverPassword = ref("");
+const serverLoginBusy = ref(false);
 const appVersion = packageJson.version;
 const EDITOR_MODE_VIEWS = ["editor", "device", "raw"] as const;
 const isEditorModeView = computed(() => {
@@ -273,6 +354,10 @@ const updateCurrentView = (view) => {
 onMounted(async () => {
   await store.init();
 
+  if (configStore.needsServerLogin && !configStore.hasCachedDashboardConfig) {
+    showServerLogin.value = true;
+  }
+
   // Show credentials dialog if config is valid but credentials are missing
   if (!store.configValidationError?.length && store.needsCredentials) {
     credentialDialog.value?.showModal({
@@ -292,6 +377,29 @@ onMounted(async () => {
   root.setAttribute("data-bs-theme", dark_mode.value ? "dark" : "light");
   root.style.colorScheme = dark_mode.value ? "dark" : "light";
 });
+
+watch(
+  () => configStore.needsServerLogin,
+  (required) => {
+    if (required && !configStore.hasCachedDashboardConfig) {
+      showServerLogin.value = true;
+    }
+  },
+);
+
+const handleServerLogin = async () => {
+  if (serverLoginBusy.value) return;
+  serverLoginBusy.value = true;
+  const password = serverPassword.value;
+  serverPassword.value = "";
+  const signedIn = await configStore.loginToServer(password);
+  serverLoginBusy.value = false;
+  if (!signedIn) return;
+
+  serverPassword.value = "";
+  showServerLogin.value = false;
+  await store.init();
+};
 
 // Sync dark mode state to DOM and localStorage
 watch(dark_mode, (newValue) => {

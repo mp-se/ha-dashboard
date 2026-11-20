@@ -109,12 +109,7 @@ const resolvedUrl = computed(() => {
     return props.url;
   }
 
-  // Handle /data/ paths (served directly by nginx) - use as-is
-  if (props.url.startsWith("/data/")) {
-    return props.url;
-  }
-
-  // Handle API endpoints (e.g., /api/images/)
+  // Images uploaded to the server are served by the API (/api/images/<name>)
   if (props.url.startsWith("/api/")) {
     const apiServer = getApiServerUrl();
     // Only prepend apiServer if it's not empty and doesn't duplicate the protocol
@@ -125,16 +120,8 @@ const resolvedUrl = computed(() => {
     return props.url;
   }
 
-  // For relative paths, prepend the data/ directory base path
-  const baseUrl = import.meta.env.BASE_URL || "/";
-  const dataBasePath = baseUrl + "data/";
-
-  // If URL is already absolute (starts with /), treat it as relative to data/
-  if (props.url.startsWith("/")) {
-    return dataBasePath + props.url.substring(1);
-  }
-
-  // For relative paths, prepend data/ directory
-  return dataBasePath + props.url;
+  // Anything else (for example the old /data/images/... static paths) is not
+  // served any more: show the card's empty/error state instead of a broken request.
+  return "";
 });
 </script>

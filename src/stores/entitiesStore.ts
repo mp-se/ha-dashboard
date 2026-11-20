@@ -24,7 +24,7 @@ import { createLogger } from "@/utils/logger";
 import { useAuthStore } from "./authStore";
 import { useForecastStore } from "./forecastStore";
 import { subscribeEntities } from "home-assistant-js-websocket";
-import { fetchJsonWithTimeout } from "@/utils/fetchWithTimeout";
+import { fetchWithTimeout } from "@/utils/fetchWithTimeout";
 import { TIMEOUT_CONFIG, TIMEOUT_WEBSOCKET } from "@/utils/constants";
 import { sendWsMessage, unwrapWsResult } from "@/utils/wsRequest";
 
@@ -147,13 +147,34 @@ export const useEntitiesStore = defineStore("entities", () => {
 
   const loadLocalData = async (): Promise<void> => {
     try {
-      const baseUrl = (import.meta as any).env.BASE_URL || "/";
-      const dataUrl = baseUrl + "data/local-data.json";
-      const data = (await fetchJsonWithTimeout(
-        dataUrl,
-        {},
-        TIMEOUT_CONFIG,
-      )) as LocalData;
+      let data: LocalData;
+      if (import.meta.env.VITE_DEMO === "true") {
+        // The public demo build embeds its sample data; it has no server.
+        data = structuredClone(
+          (await import("virtual:demo-data")).demoLocalData,
+        ) as LocalData;
+      } else {
+        // Local data is only ever served by the API: no file fallback.
+        const apiBaseUrl =
+          (import.meta as any).env.VITE_API_URL ||
+          (import.meta as any).env.BASE_URL ||
+          "/";
+        const apiBase = apiBaseUrl.endsWith("/")
+          ? apiBaseUrl
+          : `${apiBaseUrl}/`;
+        const apiResponse = await fetchWithTimeout(
+          `${apiBase}api/data/local`,
+          { credentials: "include", cache: "no-store" },
+          TIMEOUT_CONFIG,
+        );
+        if (!apiResponse.ok) {
+          throw new Error(
+            `Failed to load local data: HTTP ${apiResponse.status}`,
+          );
+        }
+        const payload = (await apiResponse.json()) as { data?: LocalData };
+        data = payload.data ?? (payload as LocalData);
+      }
       entities.value = data.sensors || [];
       devices.value = data.devices || [];
       areas.value = data.areas || [];
@@ -392,9 +413,7 @@ export const useEntitiesStore = defineStore("entities", () => {
 
         logger.log("fetchHistory raw result", { entityId, wsResult });
         const body = unwrapWsResult(wsResult) as
-          | EntityState[][]
-          | EntityState[]
-          | null;
+          EntityState[][] | EntityState[] | null;
         if (!body) {
           throw new Error("Invalid history response from WebSocket");
         }
@@ -511,9 +530,7 @@ export const useEntitiesStore = defineStore("entities", () => {
         });
 
         const body = unwrapWsResult(wsResult) as
-          | EntityState[][]
-          | EntityState[]
-          | null;
+          EntityState[][] | EntityState[] | null;
         if (!body || !Array.isArray(body)) return [];
         // Handle both Array of Arrays and flat Array
         const entries = Array.isArray(body[0])

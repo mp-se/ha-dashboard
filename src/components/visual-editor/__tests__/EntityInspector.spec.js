@@ -229,16 +229,27 @@ describe("EntityInspector.vue", () => {
   });
 
   describe("Button Actions", () => {
-    it("does not render inline deselect or remove buttons (moved to floating toolbar)", () => {
+    it("renders inline deselect and remove buttons", () => {
       wrapper = createWrapper();
       expect(
         wrapper.find('button[title="Deselect this entity"]').exists(),
-      ).toBe(false);
+      ).toBe(true);
       expect(
         wrapper
           .find('button[title="Remove this entity from the view"]')
           .exists(),
-      ).toBe(false);
+      ).toBe(true);
+    });
+
+    it("emits duplicate-entity from the duplicate action", async () => {
+      wrapper = createWrapper();
+      const duplicateButton = wrapper.find(
+        'button[aria-label="Duplicate this card"]',
+      );
+
+      expect(duplicateButton.exists()).toBe(true);
+      await duplicateButton.trigger("click");
+      expect(wrapper.emitted("duplicate-entity")).toHaveLength(1);
     });
   });
 

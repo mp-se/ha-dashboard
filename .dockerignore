@@ -1,7 +1,12 @@
-dist/data/*
-!dist/data/.gitkeep
 .env
-.env.local
+.env.*
+!.env.example
+data/*
+!data/*.example.json
+!data/images/
+data/images/*
+!data/images/.gitkeep
+!data/images/home.svg
 node_modules/
 .git/
 coverage/
@@ -9,4 +14,7 @@ dist/
 tests/
 .github/
 .vscode/
+.claude/
+# TLS certificates and keys are mounted at runtime and must never end up in an image layer
+docker/ssl/
 .DS_Store

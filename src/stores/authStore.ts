@@ -150,7 +150,7 @@ export const useAuthStore = defineStore("auth", () => {
     // Priority 3: Environment variables (Vite legacy)
     const envUrl = (import.meta as any).env.VITE_HA_URL;
     const envToken = (import.meta as any).env.VITE_HA_TOKEN;
-    if (envUrl && envToken) {
+    if (import.meta.env.DEV && envUrl && envToken) {
       haUrl.value = envUrl.trim();
       accessToken.value = envToken.trim();
       credentialsFromConfig.value = true;
@@ -320,6 +320,8 @@ export const useAuthStore = defineStore("auth", () => {
     if (!developerMode.value) {
       // Enabling - validate password
       const configStore = useConfigStore();
+      // Read-only sessions must sign in with the editor password first.
+      if (configStore.isViewer) return false;
       const appConfig = (configStore.dashboardConfig as Record<string, unknown>)
         ?.app as Record<string, unknown> | undefined;
 

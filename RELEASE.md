@@ -1,5 +1,33 @@
 # Release Notes
 
+## November 2026 - v0.9.0
+
+### ⚠️ Breaking changes: read the [migration guide](./MIGRATION.md) before upgrading
+
+- **Credentials come from the environment only.** Passwords and the Home Assistant connection are no longer read from or written to `dashboard-config.json`. The server will not start without `VIEWER_PASSWORD`, `HA_URL` and `HA_ACCESS_TOKEN` (the HA pair is not needed in local-data mode). `EDITOR_PASSWORD` is optional: when set, the sign-in password is read-only and only the editor password can edit.
+- **Everything is served by the API.** The configuration, local data and images are only available under `/api/...`. Nothing under `/data/` is served, static hosting without the backend is no longer supported, and image URLs change from `/data/images/…` to `/api/images/…`.
+- **The data folder moved** from `public/data` to `data` (`/app/data` in the container), outside `public/` and outside nginx's web root, so it can never be served as plain files.
+- **Docker:** the container runs as the unprivileged `node` user (uid 1000) and listens on ports 8080 and 8443. The host ports in `docker-compose.yml` are unchanged.
+- **Sign-ins** last `SESSION_DAYS` days (default 30) and survive restarts. Everyone signs in once after upgrading.
+
+### Security and fixes
+
+- Hardened image handling (uploads are verified and never overwrite, SVG uploads are rejected, resize requests are capped) and nginx (no inline scripts allowed, security headers on every response, only the API is reachable).
+- Updated dependencies; CI now fails on high-severity production vulnerabilities, and Dependabot is enabled.
+- Fixed sign-in failing on non-default ports such as 8443, `/api/images/*.png` URLs returning 404, and oversized requests returning 500 instead of 413.
+- The public demo is now built with `VITE_DEMO=true`, which embeds its sample data.
+
+- Fixed visual editor buttons missing in browser (desktop) view after mobile floating toolbar was introduced:
+  - Restored inline "Deselect" and "Remove" buttons in `EntityInspector` for desktop; hidden on mobile where the floating toolbar handles them.
+  - Restored per-entity trash button in `EntityListEditor` for multi-entity cards on desktop; hidden on mobile.
+
+- Improved error handling when Home Assistant server is not reachable:
+  - Fixed configuration dialog appearing incorrectly when config is loaded but server is unavailable.
+  - Only show credential dialog when credentials are actually missing; show error banner with retry option when server connection fails.
+  - Added "Retry Connection" button to error banner for server-not-found, certificate validation, and CORS errors.
+  - Updated `haStore.ts` to only set `needsCredentials` flag when credentials are actually missing, not on every connection error.
+  - **Fixed ErrorBanner not displaying errors set before component mount**: Added immediate watcher to catch errors that occur during initialization.
+
 ## April 2026 - v0.8.0
 
 - Bug fixes & editor improvements:

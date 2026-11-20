@@ -49,6 +49,11 @@ export const useHaStore = defineStore("ha", () => {
       logger.log("Step 1: Loading dashboard configuration...");
       await config.loadDashboardConfig();
 
+      if (config.needsServerLogin && !config.dashboardConfig) {
+        auth.isLoading = false;
+        return;
+      }
+
       // Sync developerMode/localMode from config to auth
       const configObj = config.dashboardConfig as Record<
         string,
@@ -115,8 +120,9 @@ export const useHaStore = defineStore("ha", () => {
       auth.isLoading = false;
       auth.isInitialized = false;
 
-      // If connection failed and we aren't in local mode, let the user check their credentials
-      if (!auth.isLocalMode) {
+      // Only show credentials dialog if credentials are actually missing
+      // If credentials exist but connection failed, show error banner with retry option
+      if (!auth.isLocalMode && (!auth.haUrl || !auth.accessToken)) {
         auth.needsCredentials = true;
       }
 

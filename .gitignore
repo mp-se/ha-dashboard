@@ -4,16 +4,25 @@ coverage/
 playwright-report/
 docker/ssl/
 dist/
-public/data/backups/
-public/data/images/*.jpg
-public/data/images/*.png
-public/data/dashboard-config.json
-public/data/local-data.json
-dist/data/dashboard-config.json
+graphify-out/
 copy*.sh
-*dashboard-config.json
-*local-data.json
+# Local helper that pushes the image to the LAN registry (contains the registry address)
+/scripts/build-push-local.sh
+*dashboard-config*.json
+*local-data*.json
+!*.example.json
+# The data folder is private; only the examples and the sample image are tracked.
+/data/*
+!/data/*.example.json
+!/data/images/
+/data/images/*
+!/data/images/.gitkeep
+!/data/images/home.svg
+sessions.json
 *.txt
 .DS_Store
 deploy.sh
 TODO.md
+.env
+.env.*
+!.env.example

@@ -4,6 +4,7 @@ import VisualEditorView from "../VisualEditorView.vue";
 import { createPinia, setActivePinia } from "pinia";
 import { useHaStore } from "../../stores/haStore";
 import { useConfigStore } from "../../stores/configStore";
+import { useVisualEditorToolbar } from "../../composables/useVisualEditorToolbar";
 
 describe("VisualEditorView.vue", () => {
   let wrapper: any;
@@ -93,10 +94,185 @@ describe("VisualEditorView.vue", () => {
     expect(wrapper.vm.currentViewEntities).toHaveLength(2);
   });
 
+  it("duplicates the selected card as an independent card after it", async () => {
+    vi.useFakeTimers();
+    try {
+      const source = {
+        type: "HaLight",
+        entity: "light.living_room",
+        attributes: ["brightness"],
+        options: { color: "blue" },
+      };
+      haStore.dashboardConfig.views[0].entities = [
+        source,
+        { type: "HaSensor", entity: "sensor.temperature" },
+      ];
+      wrapper.vm.selectedEntityId = 0;
+
+      wrapper.vm.handleDuplicateSelectedEntity();
+
+      const entities = haStore.dashboardConfig.views[0].entities;
+      expect(entities).toHaveLength(3);
+      expect(entities[1]).toEqual(source);
+      expect(entities[1]).not.toBe(source);
+      expect(entities[1].options).not.toBe(source.options);
+      expect(entities[2].entity).toBe("sensor.temperature");
+      expect(wrapper.vm.selectedEntityId).toBe(1);
+      await vi.advanceTimersByTimeAsync(500);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("shows first-run guidance when views have no cards", async () => {
+    haStore.dashboardConfig.views.forEach((view: { entities: unknown[] }) => {
+      view.entities = [];
+    });
+    await wrapper.vm.$nextTick();
+
+    const guide = wrapper.findComponent({ name: "GettingStartedPanel" });
+    expect(guide.exists()).toBe(true);
+    expect(guide.text()).toContain("Let’s build your first dashboard");
+
+    await guide
+      .findAll("button")
+      .find((button: { text: () => string }) => button.text() === "Connect")
+      .trigger("click");
+    expect(haStore.needsCredentials).toBe(true);
+  });
+
+  it("applies a starter layout while preserving dashboard settings", async () => {
+    haStore.dashboardConfig.app = { title: "My home", localMode: true };
+    haStore.dashboardConfig.haConfig = { haUrl: "http://ha.local" };
+    haStore.dashboardConfig.views.forEach((view: { entities: unknown[] }) => {
+      view.entities = [];
+    });
+    const originalConfirm = window.confirm;
+    const confirmSpy = vi.fn().mockReturnValue(true);
+    Object.defineProperty(window, "confirm", {
+      configurable: true,
+      value: confirmSpy,
+    });
+    try {
+      await wrapper.vm.$nextTick();
+      wrapper.vm.handleOnboardingUseTemplate("rooms");
+
+      expect(confirmSpy).toHaveBeenCalledOnce();
+      expect(haStore.dashboardConfig.app).toEqual({
+        title: "My home",
+        localMode: true,
+      });
+      expect(haStore.dashboardConfig.haConfig).toEqual({
+        haUrl: "http://ha.local",
+      });
+      expect(
+        haStore.dashboardConfig.views.map((view: any) => view.name),
+      ).toEqual(["overview", "living-room", "bedroom"]);
+      expect(
+        haStore.dashboardConfig.views.every((view: any) =>
+          view.entities.every((entity: any) => !entity.entity),
+        ),
+      ).toBe(true);
+      expect(wrapper.vm.selectedViewName).toBe("overview");
+    } finally {
+      if (originalConfirm) {
+        Object.defineProperty(window, "confirm", {
+          configurable: true,
+          value: originalConfirm,
+        });
+      } else {
+        delete (window as any).confirm;
+      }
+    }
+  });
+
+  it("keeps the current empty views when starter layout replacement is canceled", () => {
+    haStore.dashboardConfig.views.forEach((view: { entities: unknown[] }) => {
+      view.entities = [];
+    });
+    const confirmSpy = vi.fn().mockReturnValue(false);
+    const originalConfirm = window.confirm;
+    Object.defineProperty(window, "confirm", {
+      configurable: true,
+      value: confirmSpy,
+    });
+    const originalViews = haStore.dashboardConfig.views;
+
+    try {
+      wrapper.vm.handleOnboardingUseTemplate("rooms");
+      expect(haStore.dashboardConfig.views).toBe(originalViews);
+    } finally {
+      if (originalConfirm) {
+        Object.defineProperty(window, "confirm", {
+          configurable: true,
+          value: originalConfirm,
+        });
+      } else {
+        delete (window as any).confirm;
+      }
+    }
+  });
+
+  it("does not show first-run guidance once a view has a card", async () => {
+    haStore.dashboardConfig.views[0].entities = [];
+    haStore.dashboardConfig.views[1].entities = [
+      { entity: "light.bedroom", type: "HaLight" },
+    ];
+    await wrapper.vm.$nextTick();
+
+    expect(
+      wrapper.findComponent({ name: "GettingStartedPanel" }).exists(),
+    ).toBe(false);
+  });
+
   it("can handle adding entity to view", () => {
     const initialCount = wrapper.vm.currentViewEntities.length;
     wrapper.vm.handleAddEntity("switch.new_switch");
     expect(wrapper.vm.currentViewEntities.length).toBe(initialCount + 1);
+  });
+
+  it("undoes and redoes a dashboard edit", async () => {
+    vi.useFakeTimers();
+    try {
+      const toolbar = useVisualEditorToolbar();
+      const initialCount = wrapper.vm.currentViewEntities.length;
+      wrapper.vm.handleAddEntity("switch.undo_test");
+      await vi.advanceTimersByTimeAsync(500);
+
+      expect(toolbar.canUndo.value).toBe(true);
+      toolbar.triggerUndo();
+      expect(wrapper.vm.currentViewEntities).toHaveLength(initialCount);
+      expect(toolbar.canRedo.value).toBe(true);
+
+      toolbar.triggerRedo();
+      expect(wrapper.vm.currentViewEntities).toHaveLength(initialCount + 1);
+      expect(wrapper.vm.currentViewEntities.at(-1).entity).toBe(
+        "switch.undo_test",
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("discards unsaved edits back to the last saved configuration", async () => {
+    vi.useFakeTimers();
+    const confirm = vi.fn().mockReturnValue(true);
+    vi.stubGlobal("confirm", confirm);
+    try {
+      const toolbar = useVisualEditorToolbar();
+      const initialCount = wrapper.vm.currentViewEntities.length;
+      wrapper.vm.handleAddEntity("switch.discard_test");
+      await vi.advanceTimersByTimeAsync(500);
+
+      expect(toolbar.hasChanges.value).toBe(true);
+      toolbar.triggerDiscard();
+      expect(wrapper.vm.currentViewEntities).toHaveLength(initialCount);
+      expect(toolbar.hasChanges.value).toBe(false);
+      expect(localStorage.getItem("dashboardConfigDraft")).toBeNull();
+    } finally {
+      vi.unstubAllGlobals();
+      vi.useRealTimers();
+    }
   });
 
   it("can reorder entities", () => {

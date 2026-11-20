@@ -212,12 +212,44 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         </div>
       </div>
     </div>
+
+    <!-- Actions (desktop only; mobile uses the floating toolbar) -->
+    <div v-if="!isMobile" class="inspector-section">
+      <div class="btn-group w-100" role="group">
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          title="Deselect this entity"
+          @click="$emit('deselect')"
+        >
+          <i class="mdi mdi-close me-1"></i>Deselect
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-primary btn-sm"
+          title="Duplicate this card"
+          aria-label="Duplicate this card"
+          @click="$emit('duplicate-entity')"
+        >
+          <i class="mdi mdi-content-copy me-1" aria-hidden="true"></i>Duplicate
+        </button>
+        <button
+          type="button"
+          class="btn btn-danger btn-sm"
+          title="Remove this entity from the view"
+          @click="$emit('remove-entity')"
+        >
+          <i class="mdi mdi-trash-can me-1"></i>Remove
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch } from "vue";
 import { useHaStore } from "../../stores/haStore";
+import { useIsMobile } from "../../composables/useIsMobile";
 import { getDefaultComponentType } from "../../composables/useDefaultComponentType";
 import {
   getCardProperties,
@@ -248,11 +280,13 @@ const emit = defineEmits([
   "update-attributes",
   "update-properties",
   "remove-entity",
+  "duplicate-entity",
   "deselect",
   "entity-index-selected",
 ]);
 
 const store = useHaStore();
+const { isMobile } = useIsMobile();
 const localAttributes = ref([]);
 const localProperties = ref({});
 const attributeErrors = ref({});

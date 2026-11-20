@@ -121,6 +121,8 @@ const error = ref("");
 const modalAction = ref<"dev-mode" | "open-editor">("dev-mode"); // Track what action triggered the modal
 
 const hasDeveloperPassword = computed(() => {
+  // A read-only (viewer) session must prove it knows the editor password.
+  if (configStore.isViewer) return true;
   const appConfig = (configStore.dashboardConfig as Record<string, unknown>)
     ?.app as Record<string, unknown> | undefined;
   return !!(appConfig?.password && String(appConfig.password).trim() !== "");
@@ -201,8 +203,15 @@ const handleClick = () => {
 /**
  * Confirm password and enable developer mode or open editor
  */
-const confirmAccess = () => {
-  const success = authStore.toggleDeveloperMode(password.value);
+const confirmAccess = async () => {
+  let success: boolean;
+  if (configStore.isViewer) {
+    // Re-authenticate against the server; only the editor password upgrades the session.
+    await configStore.loginToServer(password.value);
+    success = !configStore.isViewer && authStore.toggleDeveloperMode("");
+  } else {
+    success = authStore.toggleDeveloperMode(password.value);
+  }
 
   if (!success) {
     error.value = "Invalid password";

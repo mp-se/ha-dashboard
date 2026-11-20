@@ -24,19 +24,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Vite app
+      - name: Build Vite app (demo build)
         run: npm run build
         env:
           VITE_BASE_URL: /ha-dashboard/
+          # The demo has no server: it embeds the sample config and local data at
+          # build time (see src/demo/demoData.ts) instead of reading data files.
+          VITE_DEMO: "true"
 
-      - name: Prepare demo configuration
+      - name: Verify the demo contains no data files or credentials
         run: |
-          # Copy example config and enable local mode
-          mkdir dist/data 
-          cp public/data/dashboard-config.example.json dist/data/dashboard-config.json
-          cp public/data/local-data.example.json dist/data/local-data.json
-          # Enable local mode for demo (sets localMode to true)
-          sed -i 's/"localMode": false/"localMode": true/g' dist/data/dashboard-config.json
+          if [ -e dist/data ]; then
+            echo "Refusing to publish: dist/data must not exist" >&2
+            exit 1
+          fi
+          # No token-shaped (JWT) strings anywhere in the published files.
+          if grep -rEl 'eyJ[A-Za-z0-9_-]{30,}\.[A-Za-z0-9_-]{30,}\.' dist; then
+            echo "Refusing to publish: credential-like string found" >&2
+            exit 1
+          fi
 
       - name: Deploy to gh-pages branch
         uses: peaceiris/actions-gh-pages@v3

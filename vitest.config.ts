@@ -28,6 +28,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // In tests the demo data is the real sample data (see src/demo/demoData.ts).
+      "virtual:demo-data": path.resolve(__dirname, "./src/demo/demoData.ts"),
     },
   },
 });

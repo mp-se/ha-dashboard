@@ -70,17 +70,75 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
           overflow: 'auto',
         }"
       >
-        <EditorCanvas
-          :entities="currentViewEntities"
-          :selected-entity-id="selectedEntityId"
-          :on-move-up="handleMoveUp"
-          :on-move-down="handleMoveDown"
-          @select-entity="onSelectEntity"
-          @reorder-entities="handleReorderEntities"
-          @remove-entity="handleRemoveEntity"
-          @add-entity="handleAddEntity"
-          @add-entity-at-index="handleAddEntityAtIndex"
+        <div
+          class="canvas-preview-toolbar"
+          role="group"
+          aria-label="Dashboard preview size"
+        >
+          <button
+            v-for="device in previewDevices"
+            :key="device.id"
+            :data-preview-mode="device.id"
+            type="button"
+            class="btn btn-sm"
+            :class="
+              previewMode === device.id
+                ? 'btn-primary'
+                : 'btn-outline-secondary'
+            "
+            :aria-pressed="previewMode === device.id"
+            @click="previewMode = device.id"
+          >
+            {{ device.label }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary ms-2"
+            :aria-expanded="showDiagnostics"
+            aria-controls="editor-diagnostics-panel"
+            @click="showDiagnostics = !showDiagnostics"
+          >
+            <i
+              class="mdi mdi-clipboard-check-outline me-1"
+              aria-hidden="true"
+            ></i>
+            {{ showDiagnostics ? "Hide checks" : "Check dashboard" }}
+          </button>
+        </div>
+        <EditorDiagnostics
+          v-if="showDiagnostics"
+          id="editor-diagnostics-panel"
+          :config="store.dashboardConfig"
+          :entity-map="store.entityMap"
+          :is-connected="store.isConnected"
         />
+        <div class="canvas-preview-frame" :class="`preview-${previewMode}`">
+          <GettingStartedPanel
+            v-if="showGettingStarted"
+            :is-connected="store.isConnected"
+            :has-credentials="Boolean(store.haUrl && store.accessToken)"
+            :has-views="availableViews.length > 0"
+            class="m-3"
+            @connect="handleOnboardingConnect"
+            @create-view="handleOnboardingCreateView"
+            @browse-entities="handleOnboardingBrowseEntities"
+            @browse-components="handleOnboardingBrowseComponents"
+            @use-template="handleOnboardingUseTemplate"
+            @dismiss="onboardingDismissed = true"
+          />
+          <EditorCanvas
+            :entities="currentViewEntities"
+            :layout-mode="previewMode"
+            :selected-entity-id="selectedEntityId"
+            :on-move-up="handleMoveUp"
+            :on-move-down="handleMoveDown"
+            @select-entity="onSelectEntity"
+            @reorder-entities="handleReorderEntities"
+            @remove-entity="handleRemoveEntity"
+            @add-entity="handleAddEntity"
+            @add-entity-at-index="handleAddEntityAtIndex"
+          />
+        </div>
       </div>
 
       <!-- Resize Handle (Center-Right) -->
@@ -109,6 +167,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
           @update-attributes="handleUpdateEntityAttributes"
           @update-properties="handleUpdateEntityProperties"
           @remove-entity="handleRemoveEntity(selectedEntityId)"
+          @duplicate-entity="handleDuplicateSelectedEntity"
           @deselect="
             selectedEntityId = null;
             inspectorEntityListIndex = null;
@@ -130,6 +189,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       class="mobile-editor-canvas"
       :class="{ 'canvas-dimmed': showMobilePanel || showMobileInspector }"
     >
+      <GettingStartedPanel
+        v-if="showGettingStarted"
+        :is-connected="store.isConnected"
+        :has-credentials="Boolean(store.haUrl && store.accessToken)"
+        :has-views="availableViews.length > 0"
+        class="m-3"
+        @connect="handleOnboardingConnect"
+        @create-view="handleOnboardingCreateView"
+        @browse-entities="handleOnboardingBrowseEntities"
+        @browse-components="handleOnboardingBrowseComponents"
+        @use-template="handleOnboardingUseTemplate"
+        @dismiss="onboardingDismissed = true"
+      />
       <EditorCanvas
         :entities="currentViewEntities"
         :selected-entity-id="selectedEntityId"
@@ -179,7 +251,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         @delete="handleToolbarDelete"
         @add="handleToolbarAdd"
         @close="handleToolbarClose"
-      />
+      >
+        <button
+          v-if="toolbarContext === 'card-selected'"
+          type="button"
+          class="btn-fab"
+          title="Duplicate card"
+          aria-label="Duplicate card"
+          @touchend.prevent="handleDuplicateSelectedEntity"
+          @click="handleDuplicateSelectedEntity"
+        >
+          <i class="mdi mdi-content-copy" aria-hidden="true" />
+        </button>
+      </EditorActionBar>
     </div>
 
     <!-- Mobile Panel bottom sheet (palette / views) -->
@@ -225,6 +309,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             @update-attributes="handleUpdateEntityAttributes"
             @update-properties="handleUpdateEntityProperties"
             @remove-entity="handleRemoveEntity(selectedEntityId)"
+            @duplicate-entity="handleDuplicateSelectedEntity"
             @deselect="onMobileInspectorDeselect"
             @entity-index-selected="inspectorEntityListIndex = $event"
           />
@@ -235,7 +320,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue";
+import {
+  ref,
+  computed,
+  watch,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+} from "vue";
 import { useHaStore } from "../stores/haStore";
 import { useConfigStore } from "../stores/configStore";
 import { useIsMobile } from "../composables/useIsMobile";
@@ -247,6 +339,9 @@ import EditorCanvas from "../components/visual-editor/EditorCanvas.vue";
 import EntityInspector from "../components/visual-editor/EntityInspector.vue";
 import LeftPanelTabs from "../components/visual-editor/LeftPanelTabs.vue";
 import EditorActionBar from "../components/visual-editor/EditorActionBar.vue";
+import GettingStartedPanel from "../components/visual-editor/GettingStartedPanel.vue";
+import EditorDiagnostics from "../components/visual-editor/EditorDiagnostics.vue";
+import { createStarterViews } from "../utils/starterDashboardTemplates";
 import { createLogger } from "../utils/logger";
 import { supportsMultipleEntities } from "../utils/cardPropertyMetadata";
 import "../styles/editor-styles.css";
@@ -271,6 +366,14 @@ const { isDialogOpen } = useVisualEditorToolbar();
 const selectedViewName = ref("");
 const selectedEntityId = ref(null);
 const saveTimeout = ref(null);
+const onboardingDismissed = ref(false);
+const previewMode = ref("desktop");
+const showDiagnostics = ref(false);
+const previewDevices = [
+  { id: "desktop", label: "Desktop" },
+  { id: "tablet", label: "Tablet" },
+  { id: "mobile", label: "Phone" },
+];
 
 // Left panel refs (desktop + mobile) — used to call ViewManager methods
 const desktopLeftPanelRef = ref(null);
@@ -594,13 +697,188 @@ const onMobilePaletteAdd = (entityIdOrComponent) => {
 
 // Draft management
 const originalConfig = ref(null);
-const { setHasChanges, setIsSaving, setSaveStatus, setSaveHandler } =
-  useVisualEditorToolbar();
+const {
+  hasChanges,
+  setHasChanges,
+  setIsSaving,
+  setSaveStatus,
+  setSaveHandler,
+  setHistoryState,
+  setHistoryHandlers,
+} = useVisualEditorToolbar();
+
+const HISTORY_LIMIT = 50;
+const undoStack = [];
+const redoStack = [];
+let lastHistorySnapshot = null;
+
+const getConfigSnapshot = () =>
+  store.dashboardConfig ? JSON.stringify(store.dashboardConfig) : null;
+
+const updateHistoryAvailability = () => {
+  setHistoryState(undoStack.length > 0, redoStack.length > 0);
+};
+
+const captureHistoryStep = () => {
+  const currentSnapshot = getConfigSnapshot();
+  if (!currentSnapshot || !lastHistorySnapshot) {
+    lastHistorySnapshot = currentSnapshot;
+    return;
+  }
+  if (currentSnapshot !== lastHistorySnapshot) {
+    undoStack.push(lastHistorySnapshot);
+    if (undoStack.length > HISTORY_LIMIT) undoStack.shift();
+    redoStack.length = 0;
+    lastHistorySnapshot = currentSnapshot;
+    updateHistoryAvailability();
+  }
+};
+
+const syncUnsavedState = () => {
+  const currentSnapshot = getConfigSnapshot();
+  const savedSnapshot = originalConfig.value
+    ? JSON.stringify(originalConfig.value)
+    : null;
+  const changed = Boolean(currentSnapshot && savedSnapshot !== currentSnapshot);
+  setHasChanges(changed);
+  if (!changed) {
+    try {
+      localStorage.removeItem("dashboardConfigDraft");
+    } catch (error) {
+      logger.warn("Could not clear local dashboard draft:", error);
+    }
+    setSaveStatus("");
+  } else {
+    setSaveStatus("Unsaved changes");
+    saveDraftToLocalStorage();
+  }
+};
+
+const flushPendingEdit = () => {
+  if (saveTimeout.value) {
+    clearTimeout(saveTimeout.value);
+    saveTimeout.value = null;
+  }
+  captureHistoryStep();
+};
+
+const applyHistorySnapshot = (snapshot) => {
+  if (!snapshot) return;
+  store.dashboardConfig = JSON.parse(snapshot);
+  lastHistorySnapshot = snapshot;
+  updateHistoryAvailability();
+  syncUnsavedState();
+};
+
+const undoEdit = () => {
+  flushPendingEdit();
+  const snapshot = undoStack.pop();
+  if (!snapshot) return;
+  const currentSnapshot = getConfigSnapshot();
+  if (currentSnapshot) redoStack.push(currentSnapshot);
+  applyHistorySnapshot(snapshot);
+};
+
+const redoEdit = () => {
+  flushPendingEdit();
+  const snapshot = redoStack.pop();
+  if (!snapshot) return;
+  const currentSnapshot = getConfigSnapshot();
+  if (currentSnapshot) undoStack.push(currentSnapshot);
+  applyHistorySnapshot(snapshot);
+};
+
+const discardUnsavedEdits = () => {
+  if (!originalConfig.value || !hasChanges.value) return;
+  if (!window.confirm("Discard all unsaved dashboard edits?")) return;
+  if (saveTimeout.value) clearTimeout(saveTimeout.value);
+  saveTimeout.value = null;
+  const snapshot = JSON.stringify(originalConfig.value);
+  store.dashboardConfig = JSON.parse(snapshot);
+  lastHistorySnapshot = snapshot;
+  undoStack.length = 0;
+  redoStack.length = 0;
+  updateHistoryAvailability();
+  syncUnsavedState();
+};
 
 const availableViews = computed(() => {
   const views = store.dashboardConfig?.views ?? [];
   return views;
 });
+
+const showGettingStarted = computed(() => {
+  if (onboardingDismissed.value || !store.dashboardConfig) return false;
+  return !availableViews.value.some(
+    (view) => Array.isArray(view.entities) && view.entities.length > 0,
+  );
+});
+
+const handleOnboardingConnect = () => {
+  if (!store.haUrl || !store.accessToken) {
+    store.needsCredentials = true;
+    return;
+  }
+  void store.retryConnection();
+};
+
+const handleOnboardingCreateView = async () => {
+  if (isMobile.value) {
+    showMobilePanel.value = true;
+    await nextTick();
+    mobileLeftPanelRef.value?.selectTab("views");
+    mobileLeftPanelRef.value?.viewManagerRef?.triggerAdd();
+    return;
+  }
+  desktopLeftPanelRef.value?.selectTab("views");
+  activeViewManager.value?.triggerAdd();
+};
+
+const handleOnboardingBrowseEntities = async () => {
+  if (isMobile.value) {
+    showMobilePanel.value = true;
+    await nextTick();
+    mobileLeftPanelRef.value?.selectTab("entities");
+    return;
+  }
+  desktopLeftPanelRef.value?.selectTab("entities");
+};
+
+const handleOnboardingBrowseComponents = async () => {
+  if (isMobile.value) {
+    showMobilePanel.value = true;
+    await nextTick();
+    mobileLeftPanelRef.value?.selectTab("components");
+    return;
+  }
+  desktopLeftPanelRef.value?.selectTab("components");
+};
+
+const handleOnboardingUseTemplate = (templateId) => {
+  const views = createStarterViews(templateId);
+  if (!views || !store.dashboardConfig) return;
+  if (
+    availableViews.value.some(
+      (view) => Array.isArray(view.entities) && view.entities.length > 0,
+    )
+  ) {
+    return;
+  }
+
+  if (
+    availableViews.value.length > 0 &&
+    !window.confirm(
+      "Replace the current empty views with this starter layout? Dashboard cards and Home Assistant settings will be preserved.",
+    )
+  ) {
+    return;
+  }
+
+  store.dashboardConfig = { ...store.dashboardConfig, views };
+  selectedViewName.value = views[0].name;
+  selectedEntityId.value = null;
+  debouncedSave();
+};
 
 // Watch availableViews and set the first view when it becomes available
 watch(
@@ -677,9 +955,12 @@ const debouncedSave = () => {
   }
 
   setHasChanges(true);
+  setSaveStatus("Unsaved changes");
 
   saveTimeout.value = setTimeout(() => {
-    saveDraftToLocalStorage();
+    saveTimeout.value = null;
+    captureHistoryStep();
+    syncUnsavedState();
   }, 500);
 };
 
@@ -705,6 +986,7 @@ const saveConfigToBackend = async () => {
   try {
     if (!store.dashboardConfig) return;
 
+    flushPendingEdit();
     setIsSaving(true);
     setSaveStatus("Saving...");
 
@@ -716,6 +998,7 @@ const saveConfigToBackend = async () => {
       setSaveStatus("Saved!");
       setHasChanges(false);
       originalConfig.value = JSON.parse(JSON.stringify(store.dashboardConfig));
+      lastHistorySnapshot = JSON.stringify(store.dashboardConfig);
       logger.log("Config saved to backend successfully");
 
       setTimeout(() => {
@@ -798,6 +1081,29 @@ const handleAddEntity = (entityIdOrComponent) => {
   // Trigger reactivity by reassigning the array
   currentView.value.entities = [...currentView.value.entities];
   debouncedSave();
+};
+
+const handleDuplicateSelectedEntity = () => {
+  const index = selectedEntityId.value;
+  const entities = currentView.value?.entities;
+  if (
+    !Number.isInteger(index) ||
+    !Array.isArray(entities) ||
+    index < 0 ||
+    index >= entities.length
+  ) {
+    return;
+  }
+
+  try {
+    const duplicate = JSON.parse(JSON.stringify(entities[index]));
+    entities.splice(index + 1, 0, duplicate);
+    currentView.value.entities = [...entities];
+    selectedEntityId.value = index + 1;
+    debouncedSave();
+  } catch (error) {
+    logger.warn("Could not duplicate dashboard card:", error);
+  }
 };
 
 const handleAddEntityAtIndex = (payload) => {
@@ -997,10 +1303,7 @@ const handleUpdateEntityProperties = (properties) => {
  */
 const handleViewCreated = (newView) => {
   logger.log("View created:", newView);
-  setSaveStatus("Saved");
-  setTimeout(() => {
-    setSaveStatus("");
-  }, 2000);
+  debouncedSave();
   // Auto-select the new view
   selectedViewName.value = newView.name;
 };
@@ -1015,10 +1318,7 @@ const handleViewDeleted = (deletedView) => {
   if (views.length > 0) {
     selectedViewName.value = views[0].name;
   }
-  setSaveStatus("Saved");
-  setTimeout(() => {
-    setSaveStatus("");
-  }, 2000);
+  debouncedSave();
 };
 
 /**
@@ -1026,10 +1326,7 @@ const handleViewDeleted = (deletedView) => {
  */
 const handleViewUpdated = (updatedView) => {
   logger.log("View updated:", updatedView);
-  setSaveStatus("Saved");
-  setTimeout(() => {
-    setSaveStatus("");
-  }, 2000);
+  debouncedSave();
 };
 
 // Resizable panel state
@@ -1162,7 +1459,29 @@ const handleMouseUp = () => {
 // Initialize panel widths on mount
 onMounted(() => {
   initializePanelWidths();
+  originalConfig.value = JSON.parse(
+    JSON.stringify(store.dashboardConfig ?? {}),
+  );
+  lastHistorySnapshot = JSON.stringify(store.dashboardConfig ?? {});
+  updateHistoryAvailability();
   setSaveHandler(saveConfigToBackend);
+  setHistoryHandlers({
+    undo: undoEdit,
+    redo: redoEdit,
+    discard: discardUnsavedEdits,
+    resetSavedBaseline: () => {
+      originalConfig.value = JSON.parse(
+        JSON.stringify(store.dashboardConfig ?? {}),
+      );
+      lastHistorySnapshot = JSON.stringify(store.dashboardConfig ?? {});
+      undoStack.length = 0;
+      redoStack.length = 0;
+      updateHistoryAvailability();
+      syncUnsavedState();
+    },
+  });
+  window.addEventListener("beforeunload", handleBeforeUnload);
+  window.addEventListener("keydown", handleEditorKeydown);
 });
 
 onBeforeUnmount(() => {
@@ -1171,9 +1490,64 @@ onBeforeUnmount(() => {
   }
 
   setSaveHandler(null);
+  setHistoryHandlers(null);
+  window.removeEventListener("beforeunload", handleBeforeUnload);
+  window.removeEventListener("keydown", handleEditorKeydown);
   resetVisualEditorToolbar();
 });
+
+const handleBeforeUnload = (event) => {
+  if (!hasChanges.value) return;
+  event.preventDefault();
+  event.returnValue = "";
+};
+
+const handleEditorKeydown = (event) => {
+  const target = event.target;
+  const isTextEntry =
+    target instanceof HTMLElement &&
+    (target.isContentEditable ||
+      ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
+  if (isTextEntry || !(event.metaKey || event.ctrlKey)) return;
+
+  const key = event.key.toLowerCase();
+  if (key === "z") {
+    event.preventDefault();
+    if (event.shiftKey) redoEdit();
+    else undoEdit();
+  } else if (key === "y") {
+    event.preventDefault();
+    redoEdit();
+  }
+};
 </script>
+
+<style scoped>
+.canvas-preview-toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bs-body-bg, #fff);
+}
+
+.canvas-preview-frame {
+  margin: 0 auto;
+  min-height: calc(100vh - 160px);
+  transition: max-width 180ms ease;
+}
+
+.canvas-preview-frame.preview-tablet {
+  max-width: 768px;
+}
+
+.canvas-preview-frame.preview-mobile {
+  max-width: 390px;
+}
+</style>
 
 <style scoped>
 .editor-container {

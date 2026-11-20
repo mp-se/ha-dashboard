@@ -173,10 +173,12 @@ describe("useHaStore (Bridge)", () => {
       );
     });
 
-    it("should set needsCredentials on websocket failure when not in local mode", async () => {
+    it("should NOT set needsCredentials when websocket fails but credentials are present", async () => {
       const bridge = useHaStore();
 
       mockAuth.isLocalMode = false;
+      mockAuth.haUrl = "https://ha.local:8123";
+      mockAuth.accessToken = "token";
       mockAuth.loadCredentials.mockResolvedValue(true);
       mockAuth.connectWebSocket.mockRejectedValue(
         new Error("Connection refused"),
@@ -184,8 +186,10 @@ describe("useHaStore (Bridge)", () => {
 
       await bridge.init();
 
-      expect(mockAuth.needsCredentials).toBe(true);
+      // Credentials were loaded, so don't force credentials dialog
+      expect(mockAuth.needsCredentials).toBe(false);
       expect(mockAuth.isLoading).toBe(false);
+      // But error should be set
       expect(mockAuth.setError).toHaveBeenCalledWith("Connection refused");
     });
 

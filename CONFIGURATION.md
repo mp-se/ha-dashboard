@@ -1,10 +1,12 @@
 # Configuration Guide
 
-This guide explains how to configure the Home Assistant Dashboard using JSON, including all available card types, entity specification methods, and examples.
+This guide covers the dashboard’s visual editor and its JSON configuration format. Home Assistant remains responsible for integrations, entities, automations, and services; this app provides the dashboard UI and a curated set of built-in cards whose lifecycle is tied to app releases, rather than separately installed Lovelace card packages.
 
 ## Visual Card Reference
 
 All available card types are documented in the [Card Components](#card-components) section with visual examples and configuration.
+The visual editor also provides undo/redo, an unsaved-changes indicator, discard-to-saved, and restore from server-side saved versions.
+When all configured views are empty, a getting-started guide links into the existing connection, view, entity, and component flows.
 
 ## Table of Contents
 
@@ -22,7 +24,7 @@ All available card types are documented in the [Card Components](#card-component
 
 ## Configuration File Structure
 
-The main configuration file is `public/data/dashboard-config.json`. It defines the entire dashboard structure without touching code.
+The main configuration file is `data/dashboard-config.json` (mounted as server data in Docker). It stores the dashboard structure and can be edited directly for advanced use, but most dashboard design and maintenance can be done in the visual editor. The server protects this file behind editor sign-in; it is not intended to be fetched as a public static asset.
 
 ```json
 {
@@ -31,10 +33,6 @@ The main configuration file is `public/data/dashboard-config.json`. It defines t
     "baseUrl": "",
     "developerMode": false,
     "localMode": false
-  },
-  "haConfig": {
-    "haUrl": "https://your-ha-url:8123",
-    "accessToken": "your-long-lived-token"
   },
   "views": [
     {
@@ -390,7 +388,7 @@ The `app` object configures dashboard-wide settings:
 
 - **title** (string): Application title displayed in browser and navbar
 - **developerMode** (boolean): Enable developer features (data export button)
-- **localMode** (boolean): Load data from `public/local-data.json` instead of Home Assistant
+- **localMode** (boolean): Load the local fixture (`local-data.json` in the data directory, served by `/api/data/local`) instead of connecting to Home Assistant
 
 ### Base URL Configuration (Build-Time)
 
@@ -416,70 +414,24 @@ This is a **build-time** setting that affects:
 
 ## HA Configuration
 
-The `haConfig` object contains Home Assistant connection details:
+The Home Assistant connection is **not** part of `dashboard-config.json`. When the dashboard runs with the Node.js backend (the Docker setup), it comes from required environment variables:
 
-```json
-{
-  "haConfig": {
-    "haUrl": "https://ha.home.local:8123",
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-  }
-}
-```
+- **`HA_URL`**: full `http(s)://` URL of your Home Assistant instance, for example `https://ha.home.local:8123`
+- **`HA_ACCESS_TOKEN`**: long-lived access token (HA profile > Security)
 
-### Properties
-
-- **haUrl** (string, optional): Full URL to your Home Assistant instance
-- **accessToken** (string, optional): Long-lived access token
+The server refuses to start without them, unless `app.localMode` is `true` (local-data mode never talks to Home Assistant). After sign-in, `GET /api/config` returns them to the browser app as `haConfig`, which the app uses to connect to Home Assistant directly. They are never read from or written to `dashboard-config.json` or its backups: a save or a restore drops any `haConfig` from the file, and a `haConfig` left in an old file is ignored (the server logs a warning at startup). How the variables are supplied (`.env`, `--env-file`, your platform's secret mechanism) is up to you.
 
 ### Credential Management
 
-You have two options for managing credentials:
+There are two separate kinds of credentials: the dashboard passwords (`VIEWER_PASSWORD` to sign in, optional `EDITOR_PASSWORD` to edit) grant access to the protected dashboard configuration, while the Home Assistant long-lived token authorizes the app to connect to HA. Do not use one in place of the other. All of them live in the environment only.
 
-### Option 1: Store in Configuration (Recommended for shared dashboards)
+Anyone who can sign in receives the HA URL and token, including a read-only viewer, because the browser connects to Home Assistant directly. Treat the sign-in password accordingly.
 
-```json
-{
-  "haConfig": {
-    "haUrl": "https://ha.home.local:8123",
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-  }
-}
-```
+### Without the backend (static hosting, `npm run dev` without a server)
 
-When credentials are provided in the config file, they are used automatically on each page load.
+Without the backend there is no server-side login and no environment to read from. The app then prompts for the Home Assistant URL and access token on the device. Values entered on a device are remembered separately from the dashboard configuration, so the dialog does not need to appear on every visit. Clearing that browser's site storage removes the saved values. Device-saved values take precedence for that browser. Live HA state and controls still require connectivity to Home Assistant.
 
-### Option 2: Prompt User (Recommended for personal devices)
-
-Leave both `haUrl` and `accessToken` empty:
-
-```json
-{
-  "haConfig": {
-    "haUrl": "",
-    "accessToken": ""
-  }
-}
-```
-
-On first load, the dashboard will prompt the user to enter their Home Assistant URL and access token. The credentials are then **automatically saved to the browser's localStorage** and persist across sessions.
-
-Users can update their credentials at any time by clicking the settings/profile menu and re-entering their information. If they clear browser storage or use incognito mode, they'll be prompted to enter credentials again.
-
-### Hybrid Option: URL Only
-
-You can also specify just the URL and leave the token empty:
-
-```json
-{
-  "haConfig": {
-    "haUrl": "https://ha.home.local:8123",
-    "accessToken": ""
-  }
-}
-```
-
-Users will be prompted for only the access token, which is then saved to localStorage.
+A dashboard configuration snapshot may also be available offline, but it is read-only until the device can sign in to the server again.
 
 ## View Configuration
 
@@ -1163,7 +1115,7 @@ Displays an image from the local data directory or external URL. Images are resi
 
 **Properties**:
 
-- `url` (string, required): Path to image file relative to `/data/` directory, or full URL
+- `url` (string, required): `/api/images/<name>` for an uploaded image, or a full `https://` URL. Old `/data/images/...` paths are no longer served: re-select the image in the editor, or edit the URL
 - `title` (string, optional, default: "Image"): Image title/alt text
 
 **Examples**:
@@ -1508,10 +1460,6 @@ Restart automation:
     "developerMode": false,
     "localMode": false
   },
-  "haConfig": {
-    "haUrl": "https://ha.home.local:8123",
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-  },
   "views": [
     {
       "name": "overview",
@@ -1548,10 +1496,6 @@ Restart automation:
     "baseUrl": "",
     "developerMode": false,
     "localMode": false
-  },
-  "haConfig": {
-    "haUrl": "https://ha.home.local:8123",
-    "accessToken": "..."
   },
   "views": [
     {
@@ -1740,7 +1684,7 @@ The dashboard includes an optional Node.js/Express backend server for configurat
 
 - **Express.js Server**: Runs on port 3000 (internal to container)
 - **Nginx Reverse Proxy**: Listens on port 8080 (external, exposes /api/\* endpoints)
-- **File-based Storage**: JSON files in `/data/` directory with timestamped backups
+- **File-based Storage**: JSON files in `/data/` directory with numbered backups
 
 **For Development**: The server is optional. You can run the dashboard without a backend and manage configs manually.
 
@@ -1748,7 +1692,7 @@ The dashboard includes an optional Node.js/Express backend server for configurat
 
 - Save configurations from the visual editor
 - Password-protected editing (prevents accidental changes)
-- Automatic timestamped backups with configurable retention
+- Automatic numbered backups with configurable retention
 - Configuration versioning and recovery
 
 ### Docker Deployment
@@ -1776,7 +1720,7 @@ In `docker-compose.yml`:
 
 ```yaml
 volumes:
-  - ./public/data:/usr/share/nginx/html/data:rw
+  - ./data:/app/data:rw
 ```
 
 The `:rw` (read-write) flag allows the server to:
@@ -1788,38 +1732,35 @@ The `:rw` (read-write) flag allows the server to:
 **Warning**: Make sure `/data/` directory exists and is writable:
 
 ```bash
-mkdir -p public/data
-chmod 755 public/data
+mkdir -p data
+chmod 755 data
 ```
 
 ## Backend Server API
 
-The server provides REST API endpoints for configuration management. All requests must include Bearer token authentication (derived from the dashboard password).
+The server provides REST API endpoints for configuration management. Dashboard config reads and all writes require a server session. The session is issued after entering `VIEWER_PASSWORD` (or `EDITOR_PASSWORD`, if set) and is stored in an HttpOnly cookie. The session has a role: a sign-in with `VIEWER_PASSWORD` is read-only when an editor password exists (writes, backup list/restore and image list/upload/delete return `403`); otherwise, and for `EDITOR_PASSWORD`, it is `editor`. The login response and `GET /api/config` include the `role`.
 
 ### Authentication
 
-All protected endpoints require Bearer token authentication:
+Sign in and save the session cookie:
 
 ```
-Authorization: Bearer {password}
+POST /api/session/login
+Content-Type: application/json
+
+{"password":"your-dashboard-password"}
 ```
 
-The password comes from `dashboard-config.json`:
-
-```json
-{
-  "app": {
-    "password": "my-secure-password",
-    "title": "My Dashboard"
-  }
-}
-```
+For Docker deployments, set `VIEWER_PASSWORD`, `HA_URL` and `HA_ACCESS_TOKEN` (and optionally `EDITOR_PASSWORD`) in `.env`. Credentials are never read from `dashboard-config.json`. Nginx denies direct access to that file and its backups. The API response never contains passwords, and its `haConfig` is built from the environment; the app removes the HA token from its dashboard snapshot and stores it separately in the browser.
 
 **Example Request:**
 
 ```bash
-curl -X POST http://localhost:8080/api/config \
-  -H "Authorization: Bearer my-secure-password" \
+curl -k -c cookies.txt -b cookies.txt https://localhost:8443/api/session/login \
+  -H "Content-Type: application/json" \
+  -d '{"password":"your-dashboard-password"}'
+curl -k -b cookies.txt https://localhost:8443/api/config
+curl -k -b cookies.txt -X POST https://localhost:8443/api/config \
   -H "Content-Type: application/json" \
   -d '{"app": {"title": "Updated"}, "views": []}'
 ```
@@ -1829,6 +1770,22 @@ curl -X POST http://localhost:8080/api/config \
 #### GET /api/health
 
 Health check endpoint. Requires no authentication.
+
+#### POST /api/session/login, POST /api/session/logout, GET /api/session
+
+Create, clear, or inspect the server session. A sign-in lasts `SESSION_DAYS` days (default 30, maximum 365) from the moment of sign-in; the cookie has the same lifetime, and it is not extended by use. Sessions are kept in `sessions.json` in the data directory (as hashes of the session ids) so they survive a server restart; changing `VIEWER_PASSWORD` or `EDITOR_PASSWORD` signs everyone out. Login attempts are rate-limited. The browser session cookie is HttpOnly and SameSite=Strict; it is marked Secure when served over HTTPS.
+
+#### GET /api/config
+
+Load the dashboard configuration. Requires an authenticated session and returns `Cache-Control: no-store`. The response is the contents of `dashboard-config.json` with any `app.password`, `app.viewerPassword` or `haConfig` removed, plus a `haConfig` built from the `HA_URL` and `HA_ACCESS_TOKEN` environment variables and the session's `role`.
+
+#### GET /api/config/backups
+
+List numbered saved versions. Requires an authenticated session and returns only each version's sequence and file modification time, never its configuration contents.
+
+#### POST /api/config/restore
+
+Restore a numbered version with `{ "sequence": 4 }`. Requires an authenticated session and same-origin request. The current configuration is backed up before restore; the active editor password and Home Assistant URL/token are preserved rather than rolled back with the dashboard layout.
 
 **Request:**
 
@@ -1854,7 +1811,7 @@ Save dashboard configuration. **Requires authentication.**
 
 Before saving, the server:
 
-1. Creates timestamped backup of current config
+1. Creates a numbered backup of the current config
 2. Enforces backup retention limit (default: 30 backups)
 3. Removes old backups beyond limit
 4. Saves new configuration
@@ -1863,13 +1820,12 @@ Before saving, the server:
 
 ```bash
 POST /api/config
-Authorization: Bearer {password}
+Cookie: ha_dashboard_session=<session-cookie>
 Content-Type: application/json
 
 {
-  "app": { "title": "My Dashboard", "password": "..." },
-  "views": [...],
-  "haConfig": {...}
+  "app": { "title": "My Dashboard" },
+  "views": [...]
 }
 ```
 
@@ -1880,22 +1836,22 @@ Content-Type: application/json
   "success": true,
   "data": {
     "saved": true,
-    "backupPath": "dashboard-config.json.backup.2026-03-19T20-00-00.000Z.json"
+    "backupPath": "dashboard-config.json.backup.4.json"
   }
 }
 ```
 
 **Errors:**
 
-- **401**: Missing or invalid authentication header
+- **401**: Missing or expired server session
 - **400**: Invalid JSON in request body
 - **500**: File system error (permissions, disk space)
 
 #### GET /api/data/local
 
-Load local data for offline mode. Requires **no authentication**.
+Load local data for offline mode. Requires an authenticated session. (The public demo build embeds its own sample data and does not call the API.)
 
-This endpoint loads data from `public/data/local-data.json` if it exists. Used when the dashboard is in `localMode`.
+This endpoint loads data from `local-data.json` in the data directory if it exists. Used when the dashboard is in `localMode`.
 
 **Request:**
 
@@ -1928,18 +1884,18 @@ GET /api/data/local
 
 ### Backup Management
 
-The server automatically creates timestamped backups before saving new configurations.
+The server automatically creates a numbered backup before saving a new configuration.
 
 **Backup File Naming:**
 
 ```
-dashboard-config.json.backup.{ISO_TIMESTAMP}.json
+dashboard-config.json.backup.{SEQUENCE}.json
 ```
 
 Example:
 
 ```
-dashboard-config.json.backup.2026-03-19T20-00-00.000Z.json
+dashboard-config.json.backup.4.json
 ```
 
 **Backup Location:**
@@ -1948,10 +1904,10 @@ dashboard-config.json.backup.2026-03-19T20-00-00.000Z.json
 /data/backups/
 ```
 
-Nginx is configured to deny HTTP access to backups (always 403):
+Nginx does not serve anything below `/data/` (always 404), so backups can only be listed and restored through the authenticated API:
 
 ```
-location /data/backups/ { deny all; }
+location ^~ /data/ { return 404; }
 ```
 
 **Backup Cleanup:**
@@ -1974,15 +1930,17 @@ BACKUP_LIMIT=10
 
 ```bash
 # List available backups
-ls -la public/data/backups/
+ls -la data/backups/
 
 # Restore a specific backup
-cp public/data/backups/dashboard-config.json.backup.2026-03-19T20-00-00.000Z.json \
-   public/data/dashboard-config.json
+cp data/backups/dashboard-config.json.backup.4.json \
+   data/dashboard-config.json
 
 # Restart the service
 docker-compose restart
 ```
+
+The editor also offers **Saved versions** in its navigation. It lists server backups and restores a selected version after confirmation. The current configuration is backed up first, so the restore itself is reversible.
 
 ### Save Queue
 
@@ -2003,20 +1961,20 @@ Server configuration is controlled via environment variables. Create a `.env` fi
 ```bash
 # .env
 SERVER_PORT=3000
-DATA_DIR=/usr/share/nginx/html/data
+DATA_DIR=/app/data
 BACKUP_LIMIT=30
 VITE_API_URL=http://localhost:8080
 ```
 
 ### Available Variables
 
-| Variable        | Default                      | Description                                                                       |
-| --------------- | ---------------------------- | --------------------------------------------------------------------------------- |
-| `SERVER_PORT`   | `3000`                       | Internal Express server port                                                      |
-| `DATA_DIR`      | `/usr/share/nginx/html/data` | Path to config/data files                                                         |
-| `BACKUP_LIMIT`  | `30`                         | Max backups to keep before cleanup                                                |
-| `VITE_API_URL`  | _(optional)_                 | Frontend API URL for config save requests. If not set, uses relative `/api/` path |
-| `VITE_BASE_URL` | `/`                          | Base URL for asset serving (set at build time)                                    |
+| Variable        | Default      | Description                                                                       |
+| --------------- | ------------ | --------------------------------------------------------------------------------- |
+| `SERVER_PORT`   | `3000`       | Internal Express server port                                                      |
+| `DATA_DIR`      | `/app/data`  | Path to config/data files                                                         |
+| `BACKUP_LIMIT`  | `30`         | Max backups to keep before cleanup                                                |
+| `VITE_API_URL`  | _(optional)_ | Frontend API URL for config save requests. If not set, uses relative `/api/` path |
+| `VITE_BASE_URL` | `/`          | Base URL for asset serving (set at build time)                                    |
 
 ### Docker Environment
 
@@ -2028,7 +1986,7 @@ services:
     environment:
       NODE_ENV: production
       SERVER_PORT: 3000
-      DATA_DIR: /usr/share/nginx/html/data
+      DATA_DIR: /app/data
       BACKUP_LIMIT: 30
 ```
 
@@ -2037,7 +1995,7 @@ Or in `.env` file (processed by Docker Compose):
 ```bash
 NODE_ENV=production
 SERVER_PORT=3000
-DATA_DIR=/usr/share/nginx/html/data
+DATA_DIR=/app/data
 BACKUP_LIMIT=30
 ```
 
@@ -2059,41 +2017,35 @@ VITE_API_URL=https://dashboard.example.com docker-compose up -d
 
 ### Password Configuration
 
-Password for editor protection comes from `dashboard-config.json`:
+There are two passwords, both set in the environment only (never in `dashboard-config.json`):
 
-```json
-{
-  "app": {
-    "password": "demo-password",
-    "developerMode": false
-  }
-}
-```
+- **Sign-in password (required):** `VIEWER_PASSWORD`.
+- **Editor password (optional):** `EDITOR_PASSWORD`. When set, only this password can edit; signing in with the sign-in password is read-only. When not set, anyone who signs in can edit.
 
-**To change the password:**
+**To change a password:**
 
-1. Edit `public/data/dashboard-config.json`
-2. Update the `"password"` field
-3. Restart the container: `docker-compose restart`
-4. New password required for all POST /api/config requests
+1. Update `VIEWER_PASSWORD` and/or `EDITOR_PASSWORD` in `.env`
+2. Restart the container: `docker-compose up -d`
+3. Sign in with the new password
 
 **Password Requirements:**
 
-- Any string is valid (no minimum length enforced)
-- Empty string `""` disables editor protection
-- Password stored in plaintext (use HTTPS in production)
-- Recommended: 12+ character minimum, mixed alphanumeric + special chars
+- Use long, unique passwords; there is no configured minimum-length policy (the server only warns below 8 characters)
+- The two passwords must differ. Both may be plain text or a hash from `node docker/hash-password.js '<password>'`
+- If no sign-in password is set, the server refuses to start (in every mode). An editor password alone is not enough
+- Upgrading from the single-password setup: move the old `EDITOR_PASSWORD` value to `VIEWER_PASSWORD`. Passwords in `dashboard-config.json` (`app.password`, `app.viewerPassword`) are no longer read
+- Keep `.env` out of source control and use HTTPS, including on a LAN
 
 **Security Notes:**
 
 - Always use HTTPS in production (Nginx SSL termination)
-- Keep password out of git repos (use `.gitignore` for `public/data/`)
+- Keep password out of git repos (use `.gitignore` for `data/`)
 - Treat password like any other authentication credential
 - Consider using a secrets manager for production deployments
 
 After configuring your dashboard:
 
-1. **Restart the container** to load the new configuration
+1. **Sign in** with `VIEWER_PASSWORD`, then open the editor (with `EDITOR_PASSWORD` if one is set)
 2. **Test each view** to verify entities are displaying correctly
 3. **Install the PWA** on your devices for native app experience
 4. **Customize colors & layout** by editing component files if needed

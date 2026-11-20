@@ -156,16 +156,45 @@ describe("useEntitiesStore", () => {
       expect(store.areas).toEqual(localData.areas);
     });
 
-    it("should handle local data load failure", async () => {
+    it("should load local data only from the API", async () => {
       global.fetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
+        ok: true,
+        json: async () => ({ data: { sensors: [], devices: [], areas: [] } }),
       });
 
+      await useEntitiesStore().loadLocalData();
+
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(global.fetch.mock.calls[0][0]).toContain("api/data/local");
+    });
+
+    it("should fail (and not fall back to a data file) when the API has no local data", async () => {
+      global.fetch.mockResolvedValue({ ok: false, status: 404 });
+
       const store = useEntitiesStore();
-      await expect(store.loadLocalData()).rejects.toThrow(
-        /HTTP error! status: 404/,
-      );
+      await expect(store.loadLocalData()).rejects.toThrow(/HTTP 404/);
+
+      // Only the API was asked; no static data file such as data/local-data.json.
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(String(global.fetch.mock.calls[0][0])).toContain("api/data/local");
+      expect(
+        global.fetch.mock.calls.some(([url]) =>
+          String(url).includes("local-data.json"),
+        ),
+      ).toBe(false);
+    });
+
+    it("should use the bundled sample data in a demo build without any request", async () => {
+      vi.stubEnv("VITE_DEMO", "true");
+      try {
+        const store = useEntitiesStore();
+        await store.loadLocalData();
+
+        expect(global.fetch).not.toHaveBeenCalled();
+        expect(store.entities.length).toBeGreaterThan(0);
+      } finally {
+        vi.unstubAllEnvs();
+      }
     });
   });
 
