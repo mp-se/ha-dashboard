@@ -1,6 +1,6 @@
 # Release Notes
 
-## Unreleased
+## November 2026 - v0.9.0
 
 ### ⚠️ Breaking changes: read the [migration guide](./MIGRATION.md) before upgrading
 

@@ -109,7 +109,7 @@ Access at `https://localhost:8443` (or your configured LAN hostname), then sign 
 ## 📖 Documentation
 
 - **[Installation & Deployment](./INSTALL.md)** — Docker setup, certificate generation, Portainer configuration
-- **[Migration Guide](./MIGRATION.md)** — Upgrading from v0.8.0: environment variables, API-only serving, Docker changes
+- **[Migration Guide](./MIGRATION.md)** — Upgrading to v0.9.0: environment variables, API-only serving, Docker changes
 - **[Configuration Guide](./CONFIGURATION.md)** — JSON schema, all card types, entity specification methods, areas & devices, examples
 
 ## 🔒 Security Notes

@@ -1,6 +1,6 @@
-# Migration Guide: upgrading from v0.8.0
+# Migration Guide: upgrading to v0.9.0
 
-This guide is for people who already run the dashboard (Docker) and are upgrading from v0.8.0 or earlier. It takes about 15 minutes. For a fresh install, follow [INSTALL.md](./INSTALL.md) instead.
+This guide is for people who already run the dashboard (Docker) and are upgrading to v0.9.0 from v0.8.0 or earlier. It takes about 15 minutes. For a fresh install, follow [INSTALL.md](./INSTALL.md) instead.
 
 ## What changed
 
