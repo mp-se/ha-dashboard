@@ -112,10 +112,10 @@ describe("HaImage.vue", () => {
       );
     });
 
-    it("should convert relative paths to data directory paths", () => {
+    it("should serve uploaded images from the API path", () => {
       const wrapper = mount(HaImage, {
         props: {
-          url: "image.jpg",
+          url: "/api/images/photo.jpg",
         },
         global: {
           stubs: {
@@ -126,13 +126,20 @@ describe("HaImage.vue", () => {
       });
 
       const img = wrapper.find("img");
-      expect(img.attributes("src")).toContain("data/image.jpg");
+      expect(img.attributes("src")).toContain("/api/images/photo.jpg");
     });
 
-    it("should handle absolute paths by prepending data/", () => {
+    it.each([
+      "image.jpg",
+      "/subfolder/image.jpg",
+      "subfolder/nested/image.jpg",
+      // Static data paths are not served any more: no request, empty state instead.
+      "/data/images/photo.jpg",
+      "data/images/photo.jpg",
+    ])("should not resolve the file-style path %s", (url) => {
       const wrapper = mount(HaImage, {
         props: {
-          url: "/subfolder/image.jpg",
+          url,
         },
         global: {
           stubs: {
@@ -142,27 +149,8 @@ describe("HaImage.vue", () => {
         },
       });
 
-      const img = wrapper.find("img");
-      expect(img.attributes("src")).toContain("data/subfolder/image.jpg");
-    });
-
-    it("should handle nested relative paths", () => {
-      const wrapper = mount(HaImage, {
-        props: {
-          url: "subfolder/nested/image.jpg",
-        },
-        global: {
-          stubs: {
-            i: true,
-            svg: true,
-          },
-        },
-      });
-
-      const img = wrapper.find("img");
-      expect(img.attributes("src")).toContain(
-        "data/subfolder/nested/image.jpg",
-      );
+      expect(wrapper.find("img").exists()).toBe(false);
+      expect(wrapper.text()).toContain("No image selected");
     });
 
     it("should not modify data URLs", () => {
@@ -541,7 +529,7 @@ describe("HaImage.vue", () => {
       const urls = [
         "https://example.com/img1.jpg",
         "https://example2.com/photo.png",
-        "relative/path/image.jpg",
+        "/api/images/image.jpg",
       ];
 
       urls.forEach((url) => {

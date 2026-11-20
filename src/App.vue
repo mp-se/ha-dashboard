@@ -89,8 +89,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             {{ configStore.serverLoginError }}
           </p>
           <p v-else class="form-text mb-0 mt-2">
-            This sign-in unlocks the saved dashboard configuration and editing
-            tools on this device.
+            This sign-in unlocks the saved dashboard on this device. Editing may
+            need a separate editor password.
           </p>
         </div>
         <div class="modal-footer">

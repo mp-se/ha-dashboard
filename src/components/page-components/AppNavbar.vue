@@ -51,13 +51,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             <span
               v-if="store.isLocalMode"
               class="badge bg-warning text-dark me-2 d-none d-lg-inline"
-              title="Local Mode: using public/local-data.json"
+              title="Local Mode: using local-data.json"
               >Local Mode</span
             >
             <i
               v-if="store.isLocalMode"
               class="mdi mdi-record me-2 text-warning d-lg-none"
-              title="Local Mode: using public/local-data.json"
+              title="Local Mode: using local-data.json"
             ></i>
             <span
               v-else-if="store.isConnected"

@@ -529,4 +529,62 @@ describe("EditorToggleButton.vue", () => {
       expect(wrapper.text()).toContain("Enter Developer Password");
     });
   });
+
+  // ─── Viewer (read-only) sessions ─────────────────────────────────────
+
+  describe("viewer session", () => {
+    const setup = ({ roleAfterLogin }) => {
+      const configStore = {
+        ...createMockConfigStore(""),
+        isViewer: true,
+        loginToServer: vi.fn(async () => {
+          configStore.isViewer = roleAfterLogin === "viewer";
+          return true;
+        }),
+      };
+      const authStore = createMockAuthStore();
+      useConfigStore.mockReturnValue(configStore);
+      useAuthStore.mockReturnValue(authStore);
+      const wrapper = mount(EditorToggleButton, {
+        props: { isEditorOpen: false },
+        global: { plugins: [pinia] },
+      });
+      return { wrapper, configStore, authStore };
+    };
+
+    const submit = async (wrapper, value) => {
+      await wrapper.find("button").trigger("click");
+      await wrapper.find("input[type='password']").setValue(value);
+      await wrapper.find(".modal-footer .btn-primary").trigger("click");
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    };
+
+    it("always asks for a password, even when none is in the config", async () => {
+      const { wrapper, authStore } = setup({ roleAfterLogin: "editor" });
+      await wrapper.find("button").trigger("click");
+
+      expect(wrapper.find(".modal").exists()).toBe(true);
+      expect(authStore.toggleDeveloperMode).not.toHaveBeenCalled();
+    });
+
+    it("enables the editor once the server grants the editor role", async () => {
+      const { wrapper, configStore, authStore } = setup({
+        roleAfterLogin: "editor",
+      });
+      await submit(wrapper, "editor-pw");
+
+      expect(configStore.loginToServer).toHaveBeenCalledWith("editor-pw");
+      expect(authStore.toggleDeveloperMode).toHaveBeenCalledWith("");
+      expect(wrapper.emitted("open-editor")).toBeTruthy();
+    });
+
+    it("stays locked when the viewer password is entered again", async () => {
+      const { wrapper, authStore } = setup({ roleAfterLogin: "viewer" });
+      await submit(wrapper, "viewer-pw");
+
+      expect(authStore.toggleDeveloperMode).not.toHaveBeenCalled();
+      expect(wrapper.emitted("open-editor")).toBeFalsy();
+      expect(wrapper.text()).toContain("Invalid password");
+    });
+  });
 });

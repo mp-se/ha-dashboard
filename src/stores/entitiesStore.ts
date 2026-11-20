@@ -24,10 +24,7 @@ import { createLogger } from "@/utils/logger";
 import { useAuthStore } from "./authStore";
 import { useForecastStore } from "./forecastStore";
 import { subscribeEntities } from "home-assistant-js-websocket";
-import {
-  fetchJsonWithTimeout,
-  fetchWithTimeout,
-} from "@/utils/fetchWithTimeout";
+import { fetchWithTimeout } from "@/utils/fetchWithTimeout";
 import { TIMEOUT_CONFIG, TIMEOUT_WEBSOCKET } from "@/utils/constants";
 import { sendWsMessage, unwrapWsResult } from "@/utils/wsRequest";
 
@@ -150,25 +147,26 @@ export const useEntitiesStore = defineStore("entities", () => {
 
   const loadLocalData = async (): Promise<void> => {
     try {
-      const apiBaseUrl =
-        (import.meta as any).env.VITE_API_URL ||
-        (import.meta as any).env.BASE_URL ||
-        "/";
-      const apiBase = apiBaseUrl.endsWith("/") ? apiBaseUrl : `${apiBaseUrl}/`;
-      const apiResponse = await fetchWithTimeout(
-        `${apiBase}api/data/local`,
-        { credentials: "include", cache: "no-store" },
-        TIMEOUT_CONFIG,
-      );
       let data: LocalData;
-      if (apiResponse.status === 404) {
-        const baseUrl = (import.meta as any).env.BASE_URL || "/";
-        data = (await fetchJsonWithTimeout(
-          `${baseUrl}data/local-data.json`,
-          {},
-          TIMEOUT_CONFIG,
-        )) as LocalData;
+      if (import.meta.env.VITE_DEMO === "true") {
+        // The public demo build embeds its sample data; it has no server.
+        data = structuredClone(
+          (await import("virtual:demo-data")).demoLocalData,
+        ) as LocalData;
       } else {
+        // Local data is only ever served by the API: no file fallback.
+        const apiBaseUrl =
+          (import.meta as any).env.VITE_API_URL ||
+          (import.meta as any).env.BASE_URL ||
+          "/";
+        const apiBase = apiBaseUrl.endsWith("/")
+          ? apiBaseUrl
+          : `${apiBaseUrl}/`;
+        const apiResponse = await fetchWithTimeout(
+          `${apiBase}api/data/local`,
+          { credentials: "include", cache: "no-store" },
+          TIMEOUT_CONFIG,
+        );
         if (!apiResponse.ok) {
           throw new Error(
             `Failed to load local data: HTTP ${apiResponse.status}`,

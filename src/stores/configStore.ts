@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 import { defineStore } from "pinia";
-import { ref, Ref } from "vue";
+import { computed, ref, Ref } from "vue";
 import { validateConfig } from "../utils/configValidator";
 import { createLogger } from "@/utils/logger";
 import { useAuthStore } from "./authStore";
@@ -47,6 +47,9 @@ export const useConfigStore = defineStore("config", () => {
   const configErrorCount: Ref<number> = ref(0);
   const serverAuthEnabled: Ref<boolean> = ref(false);
   const serverAuthenticated: Ref<boolean> = ref(false);
+  // "viewer" sessions are read-only; null when the server has no login (static/demo)
+  const serverRole: Ref<"editor" | "viewer" | null> = ref(null);
+  const isViewer = computed(() => serverRole.value === "viewer");
   const needsServerLogin: Ref<boolean> = ref(false);
   const hasCachedDashboardConfig: Ref<boolean> = ref(false);
   const isUsingCachedConfig: Ref<boolean> = ref(false);
@@ -60,8 +63,17 @@ export const useConfigStore = defineStore("config", () => {
     return `${base}api/${path}`;
   };
 
-  const getStaticConfigUrl = (): string =>
-    `${import.meta.env.BASE_URL || "/"}data/dashboard-config.json`;
+  // The public demo build embeds sample data instead of talking to a server.
+  const isDemo = (): boolean => import.meta.env.VITE_DEMO === "true";
+
+  const loadDemoConfig = async (): Promise<ValidationResult> => {
+    const { demoConfig } = await import("virtual:demo-data");
+    serverAuthEnabled.value = false;
+    serverAuthenticated.value = false;
+    serverRole.value = null;
+    needsServerLogin.value = false;
+    return applyConfig(structuredClone(demoConfig), { authenticated: true });
+  };
 
   const cacheSafeConfig = (config: unknown): void => {
     if (!config || typeof config !== "object" || Array.isArray(config)) return;
@@ -131,6 +143,8 @@ export const useConfigStore = defineStore("config", () => {
         authStore.isLocalMode = Boolean(appConfig.localMode);
       }
     }
+    // Viewers never get the editor/developer tools (the server enforces this too).
+    if (isViewer.value) authStore.developerMode = false;
     return validationResult;
   };
 
@@ -163,27 +177,15 @@ export const useConfigStore = defineStore("config", () => {
         needsServerLogin.value = true;
         return;
       }
-      if (response.status !== 404 && response.ok) {
+      if (response.ok) {
         serverAuthEnabled.value = true;
         serverAuthenticated.value = true;
         needsServerLogin.value = false;
         const payload = await response.json();
+        if (payload.role) serverRole.value = payload.role;
         await applyConfig(payload.data ?? payload, { authenticated: true });
-        return;
       }
-      const staticResponse = await fetchWithTimeout(
-        getStaticConfigUrl(),
-        { cache: "no-store" },
-        TIMEOUT_CONFIG,
-      );
-      if (staticResponse.ok) {
-        const staticConfig = parseJSON(await staticResponse.text());
-        serverAuthEnabled.value = false;
-        serverAuthenticated.value = false;
-        needsServerLogin.value = false;
-        await applyConfig(staticConfig, { authenticated: true });
-        cacheSafeConfig(staticConfig);
-      }
+      // Any other status: keep showing the cached dashboard.
     } catch (error) {
       logger.log(
         "Dashboard refresh deferred while server is unavailable",
@@ -218,6 +220,8 @@ export const useConfigStore = defineStore("config", () => {
         return { valid: true, errors: [], errorCount: 0 };
       }
     }
+
+    if (isDemo()) return loadDemoConfig();
 
     serverLoginError.value = null;
     isUsingCachedConfig.value = false;
@@ -256,32 +260,19 @@ export const useConfigStore = defineStore("config", () => {
         );
       }
 
-      if (response.status !== 404 && response.ok) {
+      if (response.ok) {
         serverAuthEnabled.value = true;
         serverAuthenticated.value = true;
         needsServerLogin.value = false;
         const payload = await response.json();
+        if (payload.role) serverRole.value = payload.role;
         return await applyConfig(payload.data ?? payload, {
           authenticated: true,
         });
       }
 
-      // Static hosting (for example the public demo) has no backend API.
-      const staticResponse = await fetchWithTimeout(
-        getStaticConfigUrl(),
-        { cache: "no-store" },
-        TIMEOUT_CONFIG,
-      );
-      if (!staticResponse.ok) throw new Error(`HTTP ${staticResponse.status}`);
-      const staticConfig = parseJSON(await staticResponse.text());
-      serverAuthEnabled.value = false;
-      serverAuthenticated.value = false;
-      needsServerLogin.value = false;
-      const validation = await applyConfig(staticConfig, {
-        authenticated: true,
-      });
-      cacheSafeConfig(staticConfig);
-      return validation;
+      // The configuration is only ever served by the API: no file fallback.
+      throw new Error(`HTTP ${response.status}`);
     } catch (error) {
       logger.warn(
         "Dashboard server unavailable; trying cached configuration",
@@ -323,6 +314,8 @@ export const useConfigStore = defineStore("config", () => {
       serverAuthEnabled.value = true;
       serverAuthenticated.value = true;
       needsServerLogin.value = false;
+      const login = await response.json().catch(() => ({}));
+      serverRole.value = login?.role === "viewer" ? "viewer" : "editor";
       const result = await loadDashboardConfig(true);
       if (!result.valid) {
         serverLoginError.value =
@@ -344,6 +337,7 @@ export const useConfigStore = defineStore("config", () => {
       });
     } finally {
       serverAuthenticated.value = false;
+      serverRole.value = null;
       needsServerLogin.value = true;
     }
   };
@@ -596,6 +590,8 @@ export const useConfigStore = defineStore("config", () => {
     configErrorCount,
     serverAuthEnabled,
     serverAuthenticated,
+    serverRole,
+    isViewer,
     needsServerLogin,
     hasCachedDashboardConfig,
     isUsingCachedConfig,

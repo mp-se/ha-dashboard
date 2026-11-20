@@ -481,4 +481,144 @@ describe("useConfigStore", () => {
       });
     });
   });
+
+  describe("Viewer (read-only) role", () => {
+    const loginResponse = (role) => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ success: true, role }),
+    });
+    const configResponse = (role) => ({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        role,
+        data: { views: [], app: { developerMode: true } },
+      }),
+    });
+
+    it("keeps developer mode off for a viewer even if the config enables it", async () => {
+      global.fetch
+        .mockResolvedValueOnce(loginResponse("viewer"))
+        .mockResolvedValueOnce(configResponse("viewer"));
+      const store = useConfigStore();
+      const auth = useAuthStore();
+
+      await store.loginToServer("viewer-pw");
+
+      expect(store.serverRole).toBe("viewer");
+      expect(store.isViewer).toBe(true);
+      expect(auth.developerMode).toBe(false);
+    });
+
+    it("lets an editor use the developer mode from the config", async () => {
+      global.fetch
+        .mockResolvedValueOnce(loginResponse("editor"))
+        .mockResolvedValueOnce(configResponse("editor"));
+      const store = useConfigStore();
+      const auth = useAuthStore();
+
+      await store.loginToServer("editor-pw");
+
+      expect(store.isViewer).toBe(false);
+      expect(auth.developerMode).toBe(true);
+    });
+
+    it("picks the role up from /api/config when a session already exists", async () => {
+      global.fetch.mockResolvedValueOnce(configResponse("viewer"));
+      const store = useConfigStore();
+
+      await store.loadDashboardConfig(true);
+
+      expect(store.isViewer).toBe(true);
+    });
+
+    it("refuses to enable developer mode for a viewer", async () => {
+      global.fetch.mockResolvedValueOnce(configResponse("viewer"));
+      const store = useConfigStore();
+      const auth = useAuthStore();
+      await store.loadDashboardConfig(true);
+
+      expect(auth.toggleDeveloperMode("")).toBe(false);
+      expect(auth.developerMode).toBe(false);
+    });
+
+    it("clears the role on logout", async () => {
+      global.fetch
+        .mockResolvedValueOnce(configResponse("viewer"))
+        .mockResolvedValueOnce({ ok: true, status: 200 });
+      const store = useConfigStore();
+      await store.loadDashboardConfig(true);
+
+      await store.logoutFromServer();
+
+      expect(store.serverRole).toBeNull();
+    });
+  });
+
+  describe("API only (no file fallback)", () => {
+    const requested = () => global.fetch.mock.calls.map(([url]) => String(url));
+
+    it.each([404, 500, 502, 503 - 1])(
+      "does not fetch dashboard-config.json as a file when the API answers %i",
+      async (status) => {
+        global.fetch.mockResolvedValue({ ok: false, status });
+        const store = useConfigStore();
+
+        const result = await store.loadDashboardConfig(true);
+
+        expect(result.valid).toBe(false);
+        expect(result.errors[0].message).toContain(`HTTP ${status}`);
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(requested()[0]).toContain("api/config");
+        expect(requested().some((url) => url.includes("/data/"))).toBe(false);
+      },
+    );
+
+    it("does not fetch the file when the network is down either", async () => {
+      global.fetch.mockRejectedValue(new TypeError("Failed to fetch"));
+      const store = useConfigStore();
+
+      const result = await store.loadDashboardConfig(true);
+
+      expect(result.valid).toBe(false);
+      expect(requested().every((url) => url.includes("api/"))).toBe(true);
+    });
+
+    it("keeps the cached dashboard (and asks no file) when a background refresh fails", async () => {
+      localStorage.setItem(
+        "dashboard-config",
+        JSON.stringify({ app: { title: "Cached" }, views: [] }),
+      );
+      global.fetch.mockResolvedValue({ ok: false, status: 502 });
+      const store = useConfigStore();
+
+      const result = await store.loadDashboardConfig();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(result.valid).toBe(true);
+      expect(store.isUsingCachedConfig).toBe(true);
+      expect(requested().every((url) => url.includes("api/config"))).toBe(true);
+      localStorage.removeItem("dashboard-config");
+    });
+
+    it("uses the bundled sample config in a demo build without any request", async () => {
+      vi.stubEnv("VITE_DEMO", "true");
+      try {
+        const store = useConfigStore();
+        const auth = useAuthStore();
+
+        const result = await store.loadDashboardConfig();
+
+        expect(result.valid).toBe(true);
+        expect(global.fetch).not.toHaveBeenCalled();
+        expect(store.dashboardConfig.views.length).toBeGreaterThan(0);
+        expect(auth.isLocalMode).toBe(true);
+        expect(store.serverAuthEnabled).toBe(false);
+        expect(store.needsServerLogin).toBe(false);
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    });
+  });
 });

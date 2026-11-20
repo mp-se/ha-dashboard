@@ -320,6 +320,8 @@ export const useAuthStore = defineStore("auth", () => {
     if (!developerMode.value) {
       // Enabling - validate password
       const configStore = useConfigStore();
+      // Read-only sessions must sign in with the editor password first.
+      if (configStore.isViewer) return false;
       const appConfig = (configStore.dashboardConfig as Record<string, unknown>)
         ?.app as Record<string, unknown> | undefined;
 
