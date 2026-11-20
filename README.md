@@ -65,11 +65,11 @@ The dashboard includes 26 built-in card types, maintained as part of this app:
 
 - Docker and Docker Compose (or a Node.js version supported by the current Vite toolchain for development)
 - Home Assistant instance with a long-lived access token
-- Dashboard editor password set with `EDITOR_PASSWORD` (see [Installation](./INSTALL.md))
+- Sign-in password set with `VIEWER_PASSWORD` (required), and optionally a separate `EDITOR_PASSWORD` for editing (see [Installation](./INSTALL.md))
 
 ### 2. Configure the Dashboard
 
-For a first launch, configure the Home Assistant connection and an initial view in `public/data/dashboard-config.json`. After signing in, use the visual editor to build and refine the dashboard. The HA token is a Home Assistant credential; the editor password is separate and protects access to the dashboard configuration.
+For a first launch, set `VIEWER_PASSWORD`, `HA_URL` and `HA_ACCESS_TOKEN` in `.env` and an initial view in `data/dashboard-config.json`. After signing in, use the visual editor to build and refine the dashboard. The HA token is a Home Assistant credential; the editor password is separate and protects access to the dashboard configuration.
 
 Example bootstrap configuration:
 
@@ -109,6 +109,7 @@ Access at `https://localhost:8443` (or your configured LAN hostname), then sign 
 ## 📖 Documentation
 
 - **[Installation & Deployment](./INSTALL.md)** — Docker setup, certificate generation, Portainer configuration
+- **[Migration Guide](./MIGRATION.md)** — Upgrading from v0.8.0: environment variables, API-only serving, Docker changes
 - **[Configuration Guide](./CONFIGURATION.md)** — JSON schema, all card types, entity specification methods, areas & devices, examples
 
 ## 🔒 Security Notes
@@ -132,7 +133,7 @@ App runs at `http://localhost:5173` with hot reload enabled.
 
 ```
 .
-├── public/data/dashboard-config.json    # Main configuration file
+├── data/dashboard-config.json    # Main configuration file
 ├── src/
 │   ├── components/                      # Card components
 │   ├── stores/                          # Home Assistant and dashboard state

@@ -139,15 +139,20 @@ cp server.crt ca.crt
 
 1. **Generate or prepare SSL certificates** (see [SSL Certificate Setup](#ssl-certificate-setup))
 
-2. **Set the dashboard editor sign-in password** in `.env`:
+2. **Create your private `.env`** (it is git-ignored; never commit it) and fill in the required variables:
 
    ```bash
    cp .env.example .env
    ```
 
-   Set `EDITOR_PASSWORD` to a long, unique password. This password protects access to the dashboard configuration and editor; it is separate from the Home Assistant access token. If it is blank, the server uses the legacy `app.password` value from the mounted configuration. With neither set, private configuration and write APIs stay locked.
+   Three variables are **required**; the server refuses to start without them:
+   - `VIEWER_PASSWORD`: the sign-in password (a long, unique password)
+   - `HA_URL`: the URL of your Home Assistant, for example `https://ha.home.local:8123`
+   - `HA_ACCESS_TOKEN`: a long-lived access token (HA profile > Security)
 
-3. **Configure the dashboard** by editing `public/data/dashboard-config.json`:
+   Optionally set a different `EDITOR_PASSWORD` so that only people who know it can edit. See _Environment Variables_ below for details.
+
+3. **Configure the dashboard** by editing `data/dashboard-config.json`:
 
    ```json
    {
@@ -155,10 +160,6 @@ cp server.crt ca.crt
        "title": "My Home Dashboard",
        "developerMode": false,
        "localMode": false
-     },
-     "haConfig": {
-       "haUrl": "https://your-ha-instance:8123",
-       "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
      },
      "views": [
        {
@@ -175,7 +176,9 @@ cp server.crt ca.crt
    }
    ```
 
-   Docker mounts this file as server data. Nginx blocks direct HTTP access; the app reads it after sign-in. This initial file can define the HA connection and starter views; use the visual editor for ongoing dashboard design. Do not put `EDITOR_PASSWORD` in a Vite `VITE_*` variable.
+   This file holds the dashboard layout only. **No credentials belong in it**: passwords and the Home Assistant connection come from the environment (step 2), are never read from this file, and are never written to it. If an old file still contains `app.password`, `app.viewerPassword` or `haConfig`, the server ignores them and logs a warning; remove them.
+
+   Docker mounts this file as server data. Nginx blocks direct HTTP access; the app reads it after sign-in. This initial file defines starter views; use the visual editor for ongoing dashboard design. Do not put `VIEWER_PASSWORD` or `EDITOR_PASSWORD` in a Vite `VITE_*` variable.
 
 4. **Start the container**:
 
@@ -202,35 +205,56 @@ services:
       context: .
       dockerfile: ./docker/Dockerfile
     ports:
-      - "8080:80" # HTTP (redirects to HTTPS)
-      - "8443:443" # HTTPS
+      - "8080:8080" # HTTP (redirects to HTTPS)
+      - "8443:8443" # HTTPS
     volumes:
-      - ./public/data:/usr/share/nginx/html/data:ro
+      - ./data:/app/data:rw
       - ./docker/ssl:/etc/nginx/ssl:ro
     restart: unless-stopped
 ```
 
 **Volume Mounts**:
 
-- `./public/data` → Contains `dashboard-config.json` and other data files
+- `./data` → Contains `dashboard-config.json` and other data files
 - `./docker/ssl` → Contains SSL certificates (`server.crt`, `server.key`)
+
+The container runs as the unprivileged `node` user (uid 1000), so `./data` must be writable by uid 1000 and `server.key` readable by it (e.g. `chown 1000 docker/ssl/server.key`). Only `/data/images/` is served publicly; every other file in the data directory is private.
 
 **Port Mapping**:
 
-- `8080` → HTTP (automatically redirects to HTTPS)
-- `8443` → HTTPS (encrypted connection)
-
-You can change these ports in `docker-compose.yml`. For example, to use standard ports:
+The container listens on unprivileged ports 8080 (HTTP, redirects to HTTPS) and 8443 (HTTPS). To use standard host ports, change only the host side:
 
 ```yaml
 ports:
-  - "80:80" # HTTP
-  - "443:443" # HTTPS
+  - "80:8080" # HTTP
+  - "443:8443" # HTTPS
 ```
+
+The server never runs without a sign-in password, in any mode (the config response contains the Home Assistant token). To store a hash instead of plain text, run `node docker/hash-password.js '<password>'` and use the output as `VIEWER_PASSWORD` or `EDITOR_PASSWORD`.
+
+> **Upgrading from v0.8.0 or earlier?** Follow the [migration guide](./MIGRATION.md) first: credentials moved to environment variables and the container ports changed.
 
 ### Environment Variables
 
-`EDITOR_PASSWORD` configures sign-in required to load and edit the server configuration. It is not the Home Assistant token. The Home Assistant URL and token can remain in the mounted config or be entered on a device; device-entered credentials are remembered separately by the browser app. Vite variables are embedded in the built frontend, so do not use `VITE_HA_TOKEN` for secrets.
+All credentials come from the environment. They are never read from, served from, or written to `dashboard-config.json`.
+
+| Variable          | Required                    | Purpose                                                                                |
+| ----------------- | --------------------------- | -------------------------------------------------------------------------------------- |
+| `VIEWER_PASSWORD` | **yes**                     | Sign-in password. `EDITOR_PASSWORD` alone is not enough.                               |
+| `HA_URL`          | **yes**, unless `localMode` | `http(s)://` URL of your Home Assistant.                                               |
+| `HA_ACCESS_TOKEN` | **yes**, unless `localMode` | Long-lived Home Assistant access token. Not the same thing as the dashboard passwords. |
+| `EDITOR_PASSWORD` | no                          | Password for editing (see below). Must differ from `VIEWER_PASSWORD`.                  |
+| `SESSION_DAYS`    | no (default `30`)           | How many days a sign-in lasts, 1-365.                                                  |
+
+`HA_URL` and `HA_ACCESS_TOKEN` are not needed when `app.localMode` is `true` in `dashboard-config.json` (local-data mode never talks to Home Assistant).
+
+When `EDITOR_PASSWORD` is set, signing in with `VIEWER_PASSWORD` is read-only: the person can open the dashboard and control devices, but cannot use the editor, save or restore the configuration, or upload and delete images (the server enforces this). To edit, they enter the editor password from the editor button. When `EDITOR_PASSWORD` is not set, anyone who signs in can edit. The two passwords may be plain text or hashes from `node docker/hash-password.js '<password>'`.
+
+**Sign-in lifetime:** `SESSION_DAYS` (default `30`, maximum `365`) sets how many days a sign-in, and its cookie, lasts. After that the user signs in again. Sessions survive server restarts and container updates; changing a password signs everyone out. The password itself is never stored on the device.
+
+How the values reach the environment is up to you: a `.env` file next to `docker-compose.yml` (keep it out of git and `chmod 600` it), `docker compose --env-file`, `docker run -e`, or whatever secret mechanism your platform provides. This project only reads the variables.
+
+A signed-in user, including a read-only viewer, receives the Home Assistant URL and token (the browser connects to Home Assistant directly), so only share the sign-in password with people you would trust with device control. Vite variables are embedded in the built frontend, so do not use `VITE_HA_TOKEN` for secrets.
 
 The browser keeps a last-known dashboard configuration so it can open away from the LAN. The HA URL/token are stored separately from that snapshot. Away from the server, the cached dashboard opens read-only; live entity updates and controls also require the device to reach Home Assistant.
 
@@ -279,7 +303,7 @@ npm run build
 
 For development without a live Home Assistant connection:
 
-1. Edit `public/data/dashboard-config.json`:
+1. Edit `data/dashboard-config.json`:
 
    ```json
    {
@@ -293,7 +317,7 @@ For development without a live Home Assistant connection:
 2. Save your Home Assistant data:
    - Connect to your live Home Assistant instance
    - Click the **Save** button (💾) in the navbar
-   - This exports current entity states to `public/data/local-data.json`
+   - This exports current entity states to `data/local-data.json`
 
 3. Restart the dev server:
 
@@ -301,7 +325,7 @@ For development without a live Home Assistant connection:
    npm run dev
    ```
 
-The app now loads from `public/data/local-data.json` instead of connecting to Home Assistant. Service calls (toggling lights, etc.) are disabled in local mode. This is a development/demo fixture mode, separate from the read-only cached dashboard used when the server is temporarily unreachable.
+The app now loads the data from `local-data.json` in the data directory (served by the API at `/api/data/local`) instead of connecting to Home Assistant. Service calls (toggling lights, etc.) are disabled in local mode. This is a development/demo fixture mode, separate from the read-only cached dashboard used when the server is temporarily unreachable.
 
 ## Certificate Installation on Client Devices
 
