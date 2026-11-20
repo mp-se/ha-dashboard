@@ -1,5 +1,9 @@
+# Base image pinned by digest (node:24-alpine). Refresh with:
+#   docker pull node:24-alpine && docker image inspect node:24-alpine --format '{{index .RepoDigests 0}}'
+ARG NODE_IMAGE=node:24-alpine@sha256:116b800c3754b440ee0aa3ed2f20f5bf3d99a554bfd9adeea09ea8017f6e85f5
+
 # Stage 1: Build frontend
-FROM node:20-alpine AS builder
+FROM ${NODE_IMAGE} AS builder
 
 WORKDIR /build
 COPY package*.json ./
@@ -12,37 +16,38 @@ ENV VITE_API_URL=
 
 RUN npm run build
 
-# Stage 2: Runtime with Nginx + Node.js
-FROM node:20-alpine
+# Stage 2: Runtime with Nginx + Node.js, running as the unprivileged "node" user
+FROM ${NODE_IMAGE}
 
-# Install nginx
+ENV NODE_ENV=production
+
 RUN apk add --no-cache nginx
 
-# Create app directory
 WORKDIR /app
 
-# Copy built frontend from builder
 COPY --from=builder /build/dist /usr/share/nginx/html
 
-# Copy Node.js backend files
 COPY docker/app-server.js ./
 COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
 
-RUN npm ci --omit=dev
-
-# Copy nginx configuration
 COPY docker/nginx.conf /etc/nginx/nginx.conf
+COPY docker/security-headers.conf /etc/nginx/security-headers.conf
 
-# Create data directories with proper permissions
-RUN mkdir -p /usr/share/nginx/html/data/backups && \
-    chmod -R 755 /usr/share/nginx/html/data
+# The data directory (configuration, local data, images, backups, sessions) lives
+# outside nginx's web root and is only reachable through the API. Nothing from your
+# local ./data is baked into the image: it is mounted at runtime.
+RUN mkdir -p /app/data/backups /app/data/images && chown -R node:node /app
 
-# Copy startup script
-COPY docker/start.sh ./
+COPY --chown=node:node docker/start.sh ./
 RUN chmod +x start.sh
 
-# Expose ports
-EXPOSE 80 443
+USER node
 
-# Start both Nginx and Node.js server
+# Unprivileged ports: map them to 80/443 on the host if needed (-p 80:8080 -p 443:8443)
+EXPOSE 8080 8443
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD wget -q -O /dev/null http://127.0.0.1:3000/api/health || exit 1
+
 CMD ["sh", "start.sh"]

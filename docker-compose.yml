@@ -4,12 +4,34 @@ services:
       context: .
       dockerfile: ./docker/Dockerfile
     ports:
-      - "8080:80"
-      - "8443:443"
+      - "8080:8080"
+      - "8443:8443"
     environment:
-      # Overrides app.password from the mounted config; set a strong value in .env.
+      # All credentials come from the environment (e.g. your .env); they are never
+      # read from or written to dashboard-config.json.
+      # REQUIRED: the sign-in password. Plain text or a hash from
+      # `node docker/hash-password.js '<password>'`.
+      VIEWER_PASSWORD: ${VIEWER_PASSWORD:?Set VIEWER_PASSWORD in .env}
+      # REQUIRED unless app.localMode is true (the server stops with a clear message
+      # if they are missing): the Home Assistant connection.
+      HA_URL: ${HA_URL:-}
+      HA_ACCESS_TOKEN: ${HA_ACCESS_TOKEN:-}
+      # Optional: if set, only this password can edit; signing in with VIEWER_PASSWORD
+      # is then read-only. Must differ from VIEWER_PASSWORD. If empty, anyone who
+      # signs in can edit.
       EDITOR_PASSWORD: ${EDITOR_PASSWORD:-}
+      # How many days a sign-in lasts (1-365).
+      SESSION_DAYS: ${SESSION_DAYS:-30}
+    # The container runs as the "node" user (uid 1000): ./data must be writable
+    # by it and ./docker/ssl/server.key readable by it.
     volumes:
-      - ./public/data:/usr/share/nginx/html/data:rw
+      - ./data:/app/data:rw
       - ./docker/ssl:/etc/nginx/ssl:ro
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     restart: unless-stopped
