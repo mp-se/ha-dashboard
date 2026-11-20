@@ -6,6 +6,8 @@ docker/ssl/
 dist/
 graphify-out/
 copy*.sh
+# Local helper that pushes the image to the LAN registry (contains the registry address)
+/scripts/build-push-local.sh
 *dashboard-config*.json
 *local-data*.json
 !*.example.json
